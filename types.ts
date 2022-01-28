@@ -15,5 +15,15 @@ declare module 'bcp47' {
     } | null
   }
 
-  export default bcp47
+  export = bcp47
+}
+
+declare module 'cvss2js' {
+  const cvss2js: {
+    getBaseScore: (input: string) => number
+    getTemporalScore: (input: string) => number
+    getEnvironmentalScore: (input: string) => number
+  }
+
+  export = cvss2js
 }
