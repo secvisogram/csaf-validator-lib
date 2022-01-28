@@ -1044,6 +1044,7 @@ module.exports = [
 
   // Fails "6.1.20 Non-draft Document Version"
   {
+    title: 'Mandatory test 6.1.20 detects non-draft document version (final)',
     valid: false,
     content: {
       ...minimalDoc,
@@ -1063,10 +1064,12 @@ module.exports = [
         },
       },
     },
+    expectedNumberOfErrors: 3,
   },
 
   // Fails "6.1.20 Non-draft Document Version"
   {
+    title: 'Mandatory test 6.1.20 detects non-draft document version (interim)',
     valid: false,
     content: {
       ...minimalDoc,
@@ -1086,6 +1089,7 @@ module.exports = [
         },
       },
     },
+    expectedNumberOfErrors: 3,
   },
 
   // Fails "6.1.21 Missing Item in Revision History"
