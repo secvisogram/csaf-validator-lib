@@ -4,13 +4,14 @@ const mandatoryTests = require('../lib/mandatoryTests.js')
 const validate = require('../lib/validate.js')
 const optionalTestTests = require('./Core/optionalTests.js')
 const documentTests = require('./Core/documentTests.js')
+const { csaf_2_0_strict } = require('../lib/schemaTests.js')
 
 describe('Core', () => {
   describe('mandatoryTests', () => {
     documentTests.forEach((documentTest, i) => {
       it(documentTest.title ?? `Mandatory Test #${i + 1}`, async () => {
         const result = validate(
-          Object.values(mandatoryTests),
+          [csaf_2_0_strict, ...Object.values(mandatoryTests)],
           documentTest.content
         )
         expect(result.isValid).to.equal(documentTest.valid)
