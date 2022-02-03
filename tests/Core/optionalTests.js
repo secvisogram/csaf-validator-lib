@@ -189,4 +189,22 @@ module.exports = [
     },
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.7 detects missing date in involvements',
+    content: {
+      ...minimalDoc,
+      vulnerabilities: [
+        {
+          involvements: [
+            {
+              party: 'vendor',
+              status: 'in_progress',
+            },
+          ],
+        },
+      ],
+    },
+    expectedNumberOfWarnings: 1,
+  },
 ]

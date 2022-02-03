@@ -35,7 +35,7 @@ describe('Core', () => {
 
   describe('optionalTests', () => {
     optionalTestTests.forEach((documentTest, i) => {
-      it(documentTest.title ?? `Optional Test #${i + 1}`, async () => {
+      it(documentTest.title ?? `Optional Test #${i + 1}`, () => {
         const result = validate(
           Object.values(optionalTests),
           documentTest.content
