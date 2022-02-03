@@ -37,7 +37,11 @@ describe('Core', () => {
     optionalTestTests.forEach((documentTest, i) => {
       it(documentTest.title ?? `Optional Test #${i + 1}`, () => {
         const result = validate(
-          Object.values(optionalTests),
+          [
+            csaf_2_0_strict,
+            ...Object.values(mandatoryTests),
+            ...Object.values(optionalTests),
+          ],
           documentTest.content
         )
         expect(result.isValid).to.be.true

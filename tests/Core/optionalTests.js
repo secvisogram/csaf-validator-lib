@@ -207,4 +207,149 @@ module.exports = [
     },
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title:
+      'Optional test 6.2.8 detects use of md5 as the only hash algorithm in product_tree/full_product_names',
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            name: 'Product A',
+            product_id: 'CSAFPID-9080700',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'md5',
+                      value: '6ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title:
+      'Optional test 6.2.8 detects use of md5 as the only hash algorithm in product_tree/branches',
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            name: 'my branch',
+            category: 'architecture',
+            product: {
+              name: 'Product A',
+              product_id: 'CSAFPID-9080700',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'md5',
+                        value: '6ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title:
+      'Optional test 6.2.8 detects use of md5 as the only hash algorithm in product_tree/branches[]/branches',
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            name: 'my branch',
+            category: 'architecture',
+            branches: [
+              {
+                name: 'my branch 2',
+                category: 'architecture',
+                product: {
+                  name: 'Product A',
+                  product_id: 'CSAFPID-9080701',
+                  product_identification_helper: {
+                    hashes: [
+                      {
+                        file_hashes: [
+                          {
+                            algorithm: 'md5',
+                            value: '6ae24620ea9656230f49234efd078935',
+                          },
+                        ],
+                        filename: 'product_a.so',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title:
+      'Optional test 6.2.8 detects use of md5 as the only hash algorithm in product_tree/relationships[]',
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            name: 'Product A',
+            product_id: 'CSAFPID-9080701',
+          },
+        ],
+        relationships: [
+          {
+            category: 'default_component_of',
+            product_reference: 'CSAFPID-9080701',
+            relates_to_product_reference: 'CSAFPID-9080701',
+            full_product_name: {
+              name: 'Product A',
+              product_id: 'CSAFPID-9080700',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'md5',
+                        value: '6ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
+    expectedNumberOfWarnings: 1,
+  },
 ]
