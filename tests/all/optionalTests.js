@@ -497,4 +497,18 @@ module.exports = [
     },
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.10 detects missing tlp label',
+    content: {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        distribution: {
+          text: 'Distribute freely.',
+        },
+      },
+    },
+    expectedNumberOfWarnings: 1,
+  },
 ]

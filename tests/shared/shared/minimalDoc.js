@@ -3,6 +3,11 @@ module.exports = {
     category: 'Test Report',
     csaf_version: '2.0',
     title: 'Minimal valid',
+    distribution: {
+      tlp: {
+        label: 'AMBER',
+      },
+    },
     publisher: {
       category: 'other',
       name: 'Secvisogram Automated Tester',
