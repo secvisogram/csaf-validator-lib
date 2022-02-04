@@ -13,9 +13,16 @@ module.exports = {
       name: 'Secvisogram Automated Tester',
       namespace: 'https://github.com/secvisogram/secvisogram',
     },
+    references: [
+      {
+        category: 'self',
+        summary: 'A non-canonical URL.',
+        url: 'https://example.com/security/data/csaf/2021/my_thing__10.json',
+      },
+    ],
     tracking: {
       current_release_date: '2021-01-14T00:00:00.000Z',
-      id: '1',
+      id: 'My-Thing-.10',
       initial_release_date: '2021-01-14T00:00:00.000Z',
       revision_history: [
         {

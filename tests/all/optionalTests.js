@@ -511,4 +511,27 @@ module.exports = [
     },
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.11 detects missing canonical url',
+    content: {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        references: [
+          {
+            category: 'self',
+            summary: 'A non-canonical URL.',
+            url: 'https://example.com/security/data/csaf/2021/OASIS_CSAF_TC-CSAF_2.0-2021-6-2-11-01_1.json',
+          },
+        ],
+        tracking: {
+          ...minimalDoc.document.tracking,
+          id: 'OASIS_CSAF_TC-CSAF_2.0-2021-6-2-11-01',
+          version: '1',
+        },
+      },
+    },
+    expectedNumberOfWarnings: 1,
+  },
 ]
