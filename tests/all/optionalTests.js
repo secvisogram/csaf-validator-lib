@@ -534,4 +534,16 @@ module.exports = [
     },
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.12 detects missing document language',
+    content: {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        lang: undefined,
+      },
+    },
+    expectedNumberOfWarnings: 1,
+  },
 ]

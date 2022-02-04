@@ -3,6 +3,7 @@ module.exports = {
     category: 'Test Report',
     csaf_version: '2.0',
     title: 'Minimal valid',
+    lang: 'en',
     distribution: {
       tlp: {
         label: 'AMBER',

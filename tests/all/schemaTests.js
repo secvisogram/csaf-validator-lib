@@ -59,7 +59,9 @@ module.exports = [
     strippedVersion: {
       ...MINIMAL_DOC,
       document: {
-        ...MINIMAL_DOC.document,
+        ...Object.fromEntries(
+          Object.entries(MINIMAL_DOC.document).filter(([key]) => key !== 'lang')
+        ),
       },
     },
   },
