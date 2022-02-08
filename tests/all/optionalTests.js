@@ -1,9 +1,10 @@
+const sortObjectKeys = require('../../lib/shared/sortObjectKeys.js')
 const minimalDoc = require('../shared/minimalGenericCSAFDoc.js')
 
 module.exports = [
   {
     title: 'Optional test 6.2.2 detects unmatched last_affected entry',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         full_product_names: [
@@ -31,13 +32,13 @@ module.exports = [
           ],
         },
       ],
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title: 'Optional test 6.2.2 accepts product_ids in remediation',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         full_product_names: [
@@ -72,13 +73,13 @@ module.exports = [
           ],
         },
       ],
-    },
+    }),
     expectedNumberOfWarnings: 0,
   },
 
   {
     title: 'Optional test 6.2.3 detects unmatched first_affected entry',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         full_product_names: [
@@ -102,13 +103,13 @@ module.exports = [
           ],
         },
       ],
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title: 'Optional test 6.2.4 detects build metadata in revision history',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       document: {
         ...minimalDoc.document,
@@ -126,14 +127,14 @@ module.exports = [
           ],
         },
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.5 detects older initial release date than revision history',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       document: {
         ...minimalDoc.document,
@@ -156,14 +157,14 @@ module.exports = [
           ],
         },
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.6 detects older current release date than revision history',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       document: {
         ...minimalDoc.document,
@@ -186,13 +187,13 @@ module.exports = [
           ],
         },
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title: 'Optional test 6.2.7 detects missing date in involvements',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       vulnerabilities: [
         {
@@ -204,14 +205,14 @@ module.exports = [
           ],
         },
       ],
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.8 detects use of md5 as the only hash algorithm in product_tree/full_product_names',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         full_product_names: [
@@ -234,14 +235,14 @@ module.exports = [
           },
         ],
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.8 detects use of md5 as the only hash algorithm in product_tree/branches',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         branches: [
@@ -268,14 +269,14 @@ module.exports = [
           },
         ],
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.8 detects use of md5 as the only hash algorithm in product_tree/branches[]/branches',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         branches: [
@@ -308,14 +309,14 @@ module.exports = [
           },
         ],
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.8 detects use of md5 as the only hash algorithm in product_tree/relationships[]',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         full_product_names: [
@@ -349,14 +350,14 @@ module.exports = [
           },
         ],
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.9 detects use of sha1 as the only hash algorithm in product_tree/full_product_names',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         full_product_names: [
@@ -379,14 +380,14 @@ module.exports = [
           },
         ],
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.9 detects use of sha1 as the only hash algorithm in product_tree/branches',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         branches: [
@@ -413,14 +414,14 @@ module.exports = [
           },
         ],
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.9 detects use of sha1 as the only hash algorithm in product_tree/branches[]/branches',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         branches: [
@@ -453,14 +454,14 @@ module.exports = [
           },
         ],
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title:
       'Optional test 6.2.9 detects use of sha1 as the only hash algorithm in product_tree/relationships[]',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       product_tree: {
         full_product_names: [
@@ -494,13 +495,13 @@ module.exports = [
           },
         ],
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title: 'Optional test 6.2.10 detects missing tlp label',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       document: {
         ...minimalDoc.document,
@@ -508,13 +509,13 @@ module.exports = [
           text: 'Distribute freely.',
         },
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title: 'Optional test 6.2.11 detects missing canonical url',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       document: {
         ...minimalDoc.document,
@@ -531,19 +532,42 @@ module.exports = [
           version: '1',
         },
       },
-    },
+    }),
     expectedNumberOfWarnings: 1,
   },
 
   {
     title: 'Optional test 6.2.12 detects missing document language',
-    content: {
+    content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
       document: {
         ...minimalDoc.document,
         lang: undefined,
       },
-    },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.13 detects invalid sorting',
+    content: (() => {
+      const doc = {
+        ...minimalDoc,
+        document: {
+          ...minimalDoc.document,
+          csaf_version: '2.0',
+          category: 'generic_csaf',
+        },
+      }
+
+      // Is needed to wipe the position of entries
+      delete (/** @type {any} */ (doc.document).csaf_version)
+      delete (/** @type {any} */ (doc.document).category)
+      doc.document.csaf_version = '2.0'
+      doc.document.category = 'generic_csaf'
+
+      return doc
+    })(),
     expectedNumberOfWarnings: 1,
   },
 ]
