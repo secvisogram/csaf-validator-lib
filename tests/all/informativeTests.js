@@ -18,6 +18,10 @@ module.exports = [
       vulnerabilities: [
         {
           cve: 'CVE-1234-4321',
+          cwe: {
+            id: 'CWE-1004',
+            name: "Sensitive Cookie Without 'HttpOnly' Flag",
+          },
           scores: [
             {
               products: ['CSAFPID-9080700'],
@@ -49,6 +53,10 @@ module.exports = [
       vulnerabilities: [
         {
           cve: 'CVE-1234-4321',
+          cwe: {
+            id: 'CWE-1004',
+            name: "Sensitive Cookie Without 'HttpOnly' Flag",
+          },
           scores: [
             {
               products: ['CSAFPID-9080700'],
@@ -72,6 +80,24 @@ module.exports = [
       ...minimalDoc,
       vulnerabilities: [
         {
+          title: 'BlueKeep',
+          cwe: {
+            id: 'CWE-1004',
+            name: "Sensitive Cookie Without 'HttpOnly' Flag",
+          },
+        },
+      ],
+    }),
+    expectedNumberOfInfos: 1,
+  },
+
+  {
+    title: 'Informative test 6.3.3 detects missing cwe',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      vulnerabilities: [
+        {
+          cve: 'CVE-2019-0708',
           title: 'BlueKeep',
         },
       ],
