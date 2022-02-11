@@ -17,6 +17,7 @@ module.exports = [
       },
       vulnerabilities: [
         {
+          cve: 'CVE-1234-4321',
           scores: [
             {
               products: ['CSAFPID-9080700'],
@@ -47,6 +48,7 @@ module.exports = [
       },
       vulnerabilities: [
         {
+          cve: 'CVE-1234-4321',
           scores: [
             {
               products: ['CSAFPID-9080700'],
@@ -58,6 +60,19 @@ module.exports = [
               },
             },
           ],
+        },
+      ],
+    }),
+    expectedNumberOfInfos: 1,
+  },
+
+  {
+    title: 'Informative test 6.3.3 detects missing cve',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      vulnerabilities: [
+        {
+          title: 'BlueKeep',
         },
       ],
     }),
