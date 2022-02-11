@@ -1,8 +1,10 @@
 const { expect } = require('chai')
+const informativeTests = require('../lib/informativeTests.js')
 const optionalTests = require('../lib/optionalTests.js')
 const mandatoryTests = require('../lib/mandatoryTests.js')
 const validate = require('../lib/validate.js')
 const optionalTestTests = require('./all/optionalTests.js')
+const informativeTestTests = require('./all/informativeTests.js')
 const documentTests = require('./all/documentTests.js')
 const { csaf_2_0_strict, csaf_2_0 } = require('../lib/schemaTests.js')
 const schemaTests = require('./all/schemaTests.js')
@@ -50,6 +52,29 @@ describe('Core', () => {
           result.warnings.length,
           'Document has the correct number of warnings'
         ).to.equal(documentTest.expectedNumberOfWarnings)
+      })
+    })
+  })
+
+  describe('informativeTests', () => {
+    informativeTestTests.forEach((informativeTest, i) => {
+      it(informativeTest.title ?? `Optional Test #${i + 1}`, () => {
+        const result = validate(
+          [
+            csaf_2_0_strict,
+            ...Object.values(mandatoryTests),
+            ...Object.values(optionalTests),
+            ...Object.values(informativeTests),
+          ],
+          informativeTest.content
+        )
+        expect(result.isValid).to.be.true
+        expect(result.errors).to.have.lengthOf(0)
+        expect(result.warnings).to.have.lengthOf(0)
+        expect(
+          result.infos.length,
+          'Document has the correct number of infos'
+        ).to.equal(informativeTest.expectedNumberOfInfos)
       })
     })
   })
