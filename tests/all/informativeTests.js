@@ -32,4 +32,35 @@ module.exports = [
     }),
     expectedNumberOfInfos: 1,
   },
+
+  {
+    title: 'Informative test 6.3.2 detects use of cvss v3.0',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          scores: [
+            {
+              products: ['CSAFPID-9080700'],
+              cvss_v3: {
+                version: '3.0',
+                vectorString: 'CVSS:3.0/AV:L/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H',
+                baseScore: 6.5,
+                baseSeverity: 'MEDIUM',
+              },
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfInfos: 1,
+  },
 ]
