@@ -104,4 +104,33 @@ module.exports = [
     }),
     expectedNumberOfInfos: 1,
   },
+
+  {
+    title: 'Informative test 6.3.5 detects use of short hash',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            name: 'Product A',
+            product_id: 'CSAFPID-9080700',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'md4',
+                      value: '3202b50e2e5b2fcd75e284c3d9d5f8d6',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    }),
+    expectedNumberOfInfos: 1,
+  },
 ]
