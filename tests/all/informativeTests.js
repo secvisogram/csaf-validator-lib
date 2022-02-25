@@ -2,6 +2,20 @@ const { MockAgent } = require('undici')
 const sortObjectKeys = require('../../lib/shared/sortObjectKeys.js')
 const minimalDoc = require('../shared/minimalGenericCSAFDoc.js')
 
+function mockAgent() {
+  const mockAgent = new MockAgent()
+
+  mockAgent
+    .get('https://example.com')
+    .intercept({
+      method: 'HEAD',
+      path: '/security/data/csaf/2021/my_thing__10.json',
+    })
+    .reply(200, 'Found')
+
+  return mockAgent
+}
+
 module.exports = [
   {
     title:
@@ -36,6 +50,7 @@ module.exports = [
         },
       ],
     }),
+    mockAgent,
     expectedNumberOfInfos: 1,
   },
 
@@ -72,6 +87,7 @@ module.exports = [
         },
       ],
     }),
+    mockAgent,
     expectedNumberOfInfos: 1,
   },
 
@@ -89,6 +105,7 @@ module.exports = [
         },
       ],
     }),
+    mockAgent,
     expectedNumberOfInfos: 1,
   },
 
@@ -103,6 +120,7 @@ module.exports = [
         },
       ],
     }),
+    mockAgent,
     expectedNumberOfInfos: 1,
   },
 
@@ -132,6 +150,7 @@ module.exports = [
         ],
       },
     }),
+    mockAgent,
     expectedNumberOfInfos: 1,
   },
 
@@ -153,11 +172,46 @@ module.exports = [
       },
     }),
     mockAgent() {
+      const m = mockAgent()
+
+      m.get('https://example.invalid')
+        .intercept({ method: 'HEAD', path: '/' })
+        .reply(404, 'Not Found')
+
+      return m
+    },
+    expectedNumberOfInfos: 1,
+  },
+
+  {
+    title:
+      'Informative test 6.3.7 detects use of self referencing urls failing to resolve',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        references: [
+          {
+            category: 'self',
+            summary: 'A non-canonical URL.',
+            url: 'https://example.com/security/data/csaf/2021/my_thing__10.json',
+          },
+        ],
+        tracking: {
+          ...minimalDoc.document.tracking,
+          id: 'My-Thing-.10',
+        },
+      },
+    }),
+    mockAgent() {
       const mockAgent = new MockAgent()
 
       mockAgent
-        .get('https://example.invalid')
-        .intercept({ method: 'HEAD', path: '/' })
+        .get('https://example.com')
+        .intercept({
+          method: 'HEAD',
+          path: '/security/data/csaf/2021/my_thing__10.json',
+        })
         .reply(404, 'Not Found')
 
       return mockAgent
