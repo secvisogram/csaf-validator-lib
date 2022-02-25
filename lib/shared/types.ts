@@ -1,6 +1,8 @@
-export type DocumentTest = (doc: any) => {
+interface TestResult {
   isValid?: boolean
   warnings?: Array<{ message: string; instancePath: string }>
   errors?: Array<{ message?: string; instancePath: string }>
   infos?: Array<{ message: string; instancePath: string }>
 }
+
+export type DocumentTest = (doc: any) => TestResult | Promise<TestResult>

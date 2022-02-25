@@ -10,12 +10,13 @@ const { csaf_2_0_strict, csaf_2_0 } = require('../lib/schemaTests.js')
 const schemaTests = require('./all/schemaTests.js')
 const strip = require('../lib/strip.js')
 const { default: Ajv } = require('ajv')
+const { setGlobalDispatcher, getGlobalDispatcher } = require('undici')
 
 describe('Core', () => {
   describe('mandatoryTests', () => {
     documentTests.forEach((documentTest, i) => {
       it(documentTest.title ?? `Mandatory Test #${i + 1}`, async () => {
-        const result = validate(
+        const result = await validate(
           [csaf_2_0, csaf_2_0_strict, ...Object.values(mandatoryTests)],
           documentTest.content
         )
@@ -37,8 +38,8 @@ describe('Core', () => {
 
   describe('optionalTests', () => {
     optionalTestTests.forEach((documentTest, i) => {
-      it(documentTest.title ?? `Optional Test #${i + 1}`, () => {
-        const result = validate(
+      it(documentTest.title ?? `Optional Test #${i + 1}`, async () => {
+        const result = await validate(
           [
             csaf_2_0_strict,
             ...Object.values(mandatoryTests),
@@ -57,9 +58,18 @@ describe('Core', () => {
   })
 
   describe('informativeTests', () => {
+    const globalDispatcher = getGlobalDispatcher()
+
+    after(function () {
+      setGlobalDispatcher(globalDispatcher)
+    })
+
     informativeTestTests.forEach((informativeTest, i) => {
-      it(informativeTest.title ?? `Optional Test #${i + 1}`, () => {
-        const result = validate(
+      it(informativeTest.title ?? `Optional Test #${i + 1}`, async () => {
+        if ('mockAgent' in informativeTest) {
+          setGlobalDispatcher(informativeTest.mockAgent())
+        }
+        const result = await validate(
           [
             csaf_2_0_strict,
             ...Object.values(mandatoryTests),
@@ -84,8 +94,8 @@ describe('Core', () => {
       for (let i = 0; i < schemaTests.length; ++i) {
         const schemaTest = schemaTests[i]
 
-        it(`Test #${i + 1}`, function () {
-          const result = validate(
+        it(`Test #${i + 1}`, async function () {
+          const result = await validate(
             [
               csaf_2_0,
               ...Object.values(mandatoryTests),
@@ -104,14 +114,14 @@ describe('Core', () => {
     })
 
     describe('strip', function () {
-      it('When stripping a json document properties with errors are removed', () => {
+      it('When stripping a json document properties with errors are removed', async () => {
         const schemaValidator = new Ajv({ allErrors: true }).compile({
           type: 'object',
           properties: { title: { type: 'string' } },
           required: ['title'],
         })
 
-        const result = strip(
+        const result = await strip(
           [
             (doc) => {
               const isValid = schemaValidator(doc)
@@ -133,13 +143,13 @@ describe('Core', () => {
         ])
       })
 
-      it('When stripping a json document empty properties are removed', () => {
+      it('When stripping a json document empty properties are removed', async () => {
         const schemaValidator = new Ajv({ allErrors: true }).compile({
           type: 'object',
           properties: { title: { type: 'string' } },
         })
 
-        const result = strip(
+        const result = await strip(
           [
             (doc) => {
               const isValid = schemaValidator(doc)
@@ -165,8 +175,8 @@ describe('Core', () => {
         const schemaTest = schemaTests[i]
         if (schemaTest.strippedVersion === undefined) continue
 
-        it(`Test #${i + 1}`, function () {
-          const result = strip(
+        it(`Test #${i + 1}`, async function () {
+          const result = await strip(
             [csaf_2_0_strict, ...Object.values(mandatoryTests)],
             schemaTest.content
           )

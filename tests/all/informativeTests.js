@@ -1,3 +1,4 @@
+const { MockAgent } = require('undici')
 const sortObjectKeys = require('../../lib/shared/sortObjectKeys.js')
 const minimalDoc = require('../shared/minimalGenericCSAFDoc.js')
 
@@ -131,6 +132,36 @@ module.exports = [
         ],
       },
     }),
+    expectedNumberOfInfos: 1,
+  },
+
+  {
+    title:
+      'Informative test 6.3.6 detects use of non-self referencing urls failing to resolve',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        references: [
+          ...minimalDoc.document.references,
+          {
+            summary:
+              'A URL that does not resolve with HTTP status code in the interval between (including) 200 and (excluding) 400.',
+            url: 'https://example.invalid',
+          },
+        ],
+      },
+    }),
+    mockAgent() {
+      const mockAgent = new MockAgent()
+
+      mockAgent
+        .get('https://example.invalid')
+        .intercept({ method: 'HEAD', path: '/' })
+        .reply(404, 'Not Found')
+
+      return mockAgent
+    },
     expectedNumberOfInfos: 1,
   },
 ]
