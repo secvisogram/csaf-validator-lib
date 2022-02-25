@@ -21,16 +21,17 @@ describe('Core', () => {
           documentTest.content
         )
         expect(result.isValid).to.equal(documentTest.valid)
+        const errors = result.tests.flatMap((t) => t.errors)
         if (typeof documentTest.expectedNumberOfErrors === 'number') {
           expect(
-            result.errors.length,
+            errors.length,
             'Document has the correct number of errors'
           ).to.equal(documentTest.expectedNumberOfErrors)
         }
         if (documentTest.valid) {
-          expect(result.errors).to.have.lengthOf(0)
+          expect(errors).to.have.lengthOf(0)
         } else {
-          expect(result.errors).have.length.greaterThan(0)
+          expect(errors).have.length.greaterThan(0)
         }
       })
     })
@@ -48,9 +49,11 @@ describe('Core', () => {
           documentTest.content
         )
         expect(result.isValid).to.be.true
-        expect(result.errors).to.have.lengthOf(0)
+        const errors = result.tests.flatMap((t) => t.errors)
+        const warnings = result.tests.flatMap((t) => t.warnings)
+        expect(errors).to.have.lengthOf(0)
         expect(
-          result.warnings.length,
+          warnings.length,
           'Document has the correct number of warnings'
         ).to.equal(documentTest.expectedNumberOfWarnings)
       })
@@ -79,10 +82,13 @@ describe('Core', () => {
           informativeTest.content
         )
         expect(result.isValid).to.be.true
-        expect(result.errors).to.have.lengthOf(0)
-        expect(result.warnings).to.have.lengthOf(0)
+        const errors = result.tests.flatMap((t) => t.errors)
+        const warnings = result.tests.flatMap((t) => t.warnings)
+        const infos = result.tests.flatMap((t) => t.infos)
+        expect(errors).to.have.lengthOf(0)
+        expect(warnings).to.have.lengthOf(0)
         expect(
-          result.infos.length,
+          infos.length,
           'Document has the correct number of infos'
         ).to.equal(informativeTest.expectedNumberOfInfos)
       })
@@ -104,10 +110,11 @@ describe('Core', () => {
             schemaTest.content
           )
           expect(result.isValid).to.equal(schemaTest.valid)
+          const errors = result.tests.flatMap((t) => t.errors)
           if (schemaTest.valid) {
-            expect(result.errors).to.have.lengthOf(0)
+            expect(errors).to.have.lengthOf(0)
           } else {
-            expect(result.errors).have.length.greaterThan(0)
+            expect(errors).have.length.greaterThan(0)
           }
         })
       }
