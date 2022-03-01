@@ -148,6 +148,17 @@ module.exports = [
             },
           },
         ],
+        relationships: [
+          {
+            full_product_name: {
+              name: 'Foo',
+              product_id: 'CSAFPID-0001',
+            },
+            product_reference: 'CSAFPID-9080700',
+            category: 'default_component_of',
+            relates_to_product_reference: 'CSAFPID-9080700',
+          },
+        ],
       },
     }),
     mockAgent,

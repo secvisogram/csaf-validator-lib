@@ -3,6 +3,168 @@ const minimalDoc = require('../shared/minimalGenericCSAFDoc.js')
 
 module.exports = [
   {
+    title: 'Optional test 6.2.1 detects unused definition of product id',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+        ],
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.1 passes this one',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        product_groups: [
+          {
+            group_id: 'CSAFGID-0001',
+            product_ids: ['CSAFPID-9080700', 'CSAFPID-0002'],
+          },
+        ],
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+          {
+            product_id: 'CSAFPID-0002',
+            name: 'Product B',
+          },
+        ],
+      },
+    }),
+    expectedNumberOfWarnings: 0,
+  },
+
+  {
+    title:
+      'Optional test 6.2.1 passes this one because of matching vulnerability',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-9080700'],
+          },
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 0,
+  },
+
+  {
+    title: 'Optional test 6.2.1 passes this one because of matching score',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            last_affected: ['CSAFPID-9080700'],
+          },
+          scores: [
+            {
+              products: ['CSAFPID-9080700'],
+              cvss_v3: {
+                version: '3.0',
+                baseScore: 9.8,
+                baseSeverity: 'CRITICAL',
+                vectorString: 'CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H',
+              },
+            },
+          ],
+          remediations: [
+            {
+              product_ids: ['CSAFPID-9080700'],
+              category: 'none_available',
+              details: 'Some details',
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 0,
+  },
+
+  {
+    title:
+      'Optional test 6.2.1 passes this one because of matching remediation',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          remediations: [
+            {
+              product_ids: ['CSAFPID-9080700'],
+              category: 'none_available',
+              details: 'Some details',
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 0,
+  },
+
+  {
+    title: 'Optional test 6.2.1 passes this one because of matching threat',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          threats: [
+            {
+              category: 'impact',
+              details: 'Some detail',
+              product_ids: ['CSAFPID-9080700'],
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 0,
+  },
+
+  {
     title: 'Optional test 6.2.2 detects unmatched last_affected entry',
     content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
@@ -234,6 +396,17 @@ module.exports = [
             },
           },
         ],
+        relationships: [
+          {
+            full_product_name: {
+              name: 'Foo',
+              product_id: 'CSAFPID-0002',
+            },
+            product_reference: 'CSAFPID-9080700',
+            category: 'default_component_of',
+            relates_to_product_reference: 'CSAFPID-9080700',
+          },
+        ],
       },
     }),
     expectedNumberOfWarnings: 1,
@@ -377,6 +550,17 @@ module.exports = [
                 },
               ],
             },
+          },
+        ],
+        relationships: [
+          {
+            full_product_name: {
+              name: 'Foo',
+              product_id: 'CSAFPID-0003',
+            },
+            product_reference: 'CSAFPID-9080700',
+            category: 'default_component_of',
+            relates_to_product_reference: 'CSAFPID-9080700',
           },
         ],
       },
