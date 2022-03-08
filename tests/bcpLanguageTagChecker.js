@@ -1,5 +1,7 @@
-const { expect } = require('chai')
-const bcpLanguageTagChecker = require('../lib/shared/bcpLanguageTagChecker.js')
+import chai from 'chai'
+import bcpLanguageTagChecker from '../lib/shared/bcpLanguageTagChecker.js'
+
+const { expect } = chai
 
 describe('bcpLanguageTagChecker', function () {
   const correctLanguageTags = [

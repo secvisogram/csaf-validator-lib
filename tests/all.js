@@ -1,16 +1,19 @@
-const { expect } = require('chai')
-const informativeTests = require('../lib/informativeTests.js')
-const optionalTests = require('../lib/optionalTests.js')
-const mandatoryTests = require('../lib/mandatoryTests.js')
-const validate = require('../lib/validate.js')
-const optionalTestTests = require('./all/optionalTests.js')
-const informativeTestTests = require('./all/informativeTests.js')
-const documentTests = require('./all/documentTests.js')
-const { csaf_2_0_strict, csaf_2_0 } = require('../lib/schemaTests.js')
-const schemaTests = require('./all/schemaTests.js')
-const strip = require('../lib/strip.js')
-const { default: Ajv } = require('ajv')
-const { setGlobalDispatcher, getGlobalDispatcher } = require('undici')
+import chai from 'chai'
+import * as informativeTests from '../lib/informativeTests.js'
+import * as optionalTests from '../lib/optionalTests.js'
+import * as mandatoryTests from '../lib/mandatoryTests.js'
+import validate from '../lib/validate.js'
+import optionalTestTests from './all/optionalTests.js'
+import informativeTestTests from './all/informativeTests.js'
+import documentTests from './all/documentTests.js'
+import * as schemaTests from '../lib/schemaTests.js'
+import schemaTestTests from './all/schemaTests.js'
+import strip from '../lib/strip.js'
+import Ajv from 'ajv'
+import { setGlobalDispatcher, getGlobalDispatcher } from 'undici'
+
+const { csaf_2_0_strict, csaf_2_0 } = schemaTests
+const { expect } = chai
 
 describe('Core', () => {
   describe('mandatoryTests', () => {
@@ -97,8 +100,8 @@ describe('Core', () => {
 
   describe('schema', () => {
     describe('validate', function () {
-      for (let i = 0; i < schemaTests.length; ++i) {
-        const schemaTest = schemaTests[i]
+      for (let i = 0; i < schemaTestTests.length; ++i) {
+        const schemaTest = schemaTestTests[i]
 
         it(`Test #${i + 1}`, async function () {
           const result = await validate(
@@ -178,8 +181,8 @@ describe('Core', () => {
         ])
       })
 
-      for (let i = 0; i < schemaTests.length; ++i) {
-        const schemaTest = schemaTests[i]
+      for (let i = 0; i < schemaTestTests.length; ++i) {
+        const schemaTest = schemaTestTests[i]
         if (schemaTest.strippedVersion === undefined) continue
 
         it(`Test #${i + 1}`, async function () {

@@ -1,7 +1,7 @@
-const sortObjectKeys = require('../../lib/shared/sortObjectKeys.js')
-const minimalDoc = require('./shared/minimalDoc.js')
+import sortObjectKeys from '../../lib/shared/sortObjectKeys.js'
+import minimalDoc from './shared/minimalDoc.js'
 
-module.exports = /** @type {typeof minimalDoc} */ (
+export default /** @type {typeof minimalDoc} */ (
   sortObjectKeys(new Intl.Collator(), {
     ...minimalDoc,
     document: {

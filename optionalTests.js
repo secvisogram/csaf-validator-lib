@@ -1,1 +1,1 @@
-module.exports = require('./lib/optionalTests.js')
+export * from './lib/optionalTests.js'

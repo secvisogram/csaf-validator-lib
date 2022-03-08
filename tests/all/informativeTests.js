@@ -1,6 +1,6 @@
-const { MockAgent } = require('undici')
-const sortObjectKeys = require('../../lib/shared/sortObjectKeys.js')
-const minimalDoc = require('../shared/minimalGenericCSAFDoc.js')
+import { MockAgent } from 'undici'
+import sortObjectKeys from '../../lib/shared/sortObjectKeys.js'
+import minimalDoc from '../shared/minimalGenericCSAFDoc.js'
 
 function mockAgent() {
   const mockAgent = new MockAgent()
@@ -16,7 +16,7 @@ function mockAgent() {
   return mockAgent
 }
 
-module.exports = [
+export default [
   {
     title:
       'Informative test 6.3.1 detects use of cvss v2 as the only scoring system',

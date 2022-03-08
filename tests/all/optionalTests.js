@@ -1,7 +1,7 @@
-const sortObjectKeys = require('../../lib/shared/sortObjectKeys.js')
-const minimalDoc = require('../shared/minimalGenericCSAFDoc.js')
+import sortObjectKeys from '../../lib/shared/sortObjectKeys.js'
+import minimalDoc from '../shared/minimalGenericCSAFDoc.js'
 
-module.exports = [
+export default [
   {
     title: 'Optional test 6.2.1 detects unused definition of product id',
     content: sortObjectKeys(new Intl.Collator(), {

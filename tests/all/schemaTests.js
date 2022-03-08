@@ -1,10 +1,10 @@
-const minimalGenericCSAFDoc = require('../shared/minimalGenericCSAFDoc')
-const valid1 = require('../shared/valid-1.json')
-const valid2 = require('../shared/valid-2.json')
+import minimalGenericCSAFDoc from '../shared/minimalGenericCSAFDoc.js'
+import valid1 from '../shared/valid-1.js'
+import valid2 from '../shared/valid-2.js'
 
 const MINIMAL_DOC = minimalGenericCSAFDoc
 
-module.exports = [
+export default [
   { valid: true, content: valid1, strippedVersion: valid1 },
   { valid: true, content: valid2, strippedVersion: valid2 },
   { valid: false, content: {}, strippedVersion: {} },

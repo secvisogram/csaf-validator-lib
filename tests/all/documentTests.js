@@ -1,10 +1,10 @@
-const minimalDoc = require('../shared/minimalGenericCSAFDoc')
-const minimalInformationalAdvisoryDoc = require('../shared/minimalInformationalAdvisoryDoc')
-const minimalSecurityAdvisoryDoc = require('../shared/minimalSecurityAdvisoryDoc')
-const minimalSecurityIncidentResponseDoc = require('../shared/minimalSecurityIncidentResponseDoc')
-const minimalVexDoc = require('../shared/minimalVexDoc')
+import minimalDoc from '../shared/minimalGenericCSAFDoc.js'
+import minimalInformationalAdvisoryDoc from '../shared/minimalInformationalAdvisoryDoc.js'
+import minimalSecurityAdvisoryDoc from '../shared/minimalSecurityAdvisoryDoc.js'
+import minimalSecurityIncidentResponseDoc from '../shared/minimalSecurityIncidentResponseDoc.js'
+import minimalVexDoc from '../shared/minimalVexDoc.js'
 
-module.exports = [
+export default [
   // Fails "6.1.3 Circular Definition of Product ID"
   {
     valid: false,

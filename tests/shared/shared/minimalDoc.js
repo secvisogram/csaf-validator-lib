@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   document: {
     category: 'Test Report',
     csaf_version: '2.0',

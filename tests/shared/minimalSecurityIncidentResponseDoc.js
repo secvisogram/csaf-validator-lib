@@ -1,6 +1,6 @@
-const minimalDoc = require('./shared/minimalDoc')
+import minimalDoc from './shared/minimalDoc.js'
 
-module.exports = {
+export default {
   ...minimalDoc,
   document: {
     ...minimalDoc.document,
