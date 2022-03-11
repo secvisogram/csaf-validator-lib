@@ -20,7 +20,23 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li>
+      <a href="#usage">Usage</a>
+      <ul>
+        <li>
+          <a href="#api">API</a>
+          <ul>
+            <li><a href="#interfaces">Interfaces</a></li>
+            <li><a href="#module-schematestsjs">Module schemaTests.js</a></li>
+            <li><a href="#module-mandatorytestsjs">Module mandatoryTests.js</a></li>
+            <li><a href="#module-optionaltestsjs">Module optionalTests.js</a></li>
+            <li><a href="#module-informativetestsjs">Module informativeTests.js</a></li>
+            <li><a href="#module-validatejs">Module validate.js</a></li>
+            <li><a href="#module-stripjs">Module strip.js</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
     <li><a href="#testing">Testing</a></li>
   </ol>
 </details>
@@ -67,6 +83,145 @@ Include this as a subtree in your repository.
   ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+### API
+
+#### Interfaces
+
+```typescript
+interface Result {
+  isValid: boolean
+  warnings: Array<{ message: string; instancePath: string }>
+  errors: Array<{ message?: string; instancePath: string }>
+  infos: Array<{ message: string; instancePath: string }>
+}
+```
+
+```typescript
+interface TestResult {
+  isValid?: boolean
+  warnings?: Array<{ message: string; instancePath: string }>
+  errors?: Array<{ message?: string; instancePath: string }>
+  infos?: Array<{ message: string; instancePath: string }>
+}
+```
+
+```typescript
+/**
+ * Every document test has its identifier set as the functions name. You can access
+ * it using `<myTest>.name`
+ */
+type DocumentTest = (doc: any) => TestResult | Promise<TestResult>
+```
+
+#### Module `schemaTests.js`
+
+```typescript
+export const csaf_2_0_strict: DocumentTest
+export const csaf_2_0: DocumentTest
+```
+
+#### Module `mandatoryTests.js`
+
+```typescript
+export const mandatoryTest_6_1_1: DocumentTest
+export const mandatoryTest_6_1_2: DocumentTest
+export const mandatoryTest_6_1_3: DocumentTest
+export const mandatoryTest_6_1_4: DocumentTest
+export const mandatoryTest_6_1_5: DocumentTest
+export const mandatoryTest_6_1_6: DocumentTest
+export const mandatoryTest_6_1_7: DocumentTest
+export const mandatoryTest_6_1_9: DocumentTest
+export const mandatoryTest_6_1_10: DocumentTest
+export const mandatoryTest_6_1_11: DocumentTest
+export const mandatoryTest_6_1_12: DocumentTest
+export const mandatoryTest_6_1_13: DocumentTest
+export const mandatoryTest_6_1_14: DocumentTest
+export const mandatoryTest_6_1_15: DocumentTest
+export const mandatoryTest_6_1_16: DocumentTest
+export const mandatoryTest_6_1_17: DocumentTest
+export const mandatoryTest_6_1_18: DocumentTest
+export const mandatoryTest_6_1_19: DocumentTest
+export const mandatoryTest_6_1_20: DocumentTest
+export const mandatoryTest_6_1_21: DocumentTest
+export const mandatoryTest_6_1_22: DocumentTest
+export const mandatoryTest_6_1_23: DocumentTest
+export const mandatoryTest_6_1_24: DocumentTest
+export const mandatoryTest_6_1_25: DocumentTest
+export const mandatoryTest_6_1_26: DocumentTest
+export const mandatoryTest_6_1_27_1: DocumentTest
+export const mandatoryTest_6_1_27_2: DocumentTest
+export const mandatoryTest_6_1_27_3: DocumentTest
+export const mandatoryTest_6_1_27_4: DocumentTest
+export const mandatoryTest_6_1_27_5: DocumentTest
+export const mandatoryTest_6_1_27_6: DocumentTest
+export const mandatoryTest_6_1_27_7: DocumentTest
+export const mandatoryTest_6_1_27_8: DocumentTest
+export const mandatoryTest_6_1_27_9: DocumentTest
+export const mandatoryTest_6_1_27_10: DocumentTest
+```
+
+#### Module `optionalTests.js`
+
+```typescript
+export const optionalTest_6_2_1: DocumentTest
+export const optionalTest_6_2_2: DocumentTest
+export const optionalTest_6_2_3: DocumentTest
+export const optionalTest_6_2_4: DocumentTest
+export const optionalTest_6_2_5: DocumentTest
+export const optionalTest_6_2_6: DocumentTest
+export const optionalTest_6_2_7: DocumentTest
+export const optionalTest_6_2_8: DocumentTest
+export const optionalTest_6_2_9: DocumentTest
+export const optionalTest_6_2_10: DocumentTest
+export const optionalTest_6_2_11: DocumentTest
+export const optionalTest_6_2_12: DocumentTest
+export const optionalTest_6_2_13: DocumentTest
+```
+
+#### Module `informativeTests.js`
+
+```typescript
+export const informativeTest_6_3_1: DocumentTest
+export const informativeTest_6_3_2: DocumentTest
+export const informativeTest_6_3_3: DocumentTest
+export const informativeTest_6_3_4: DocumentTest
+export const informativeTest_6_3_5: DocumentTest
+export const informativeTest_6_3_6: DocumentTest
+export const informativeTest_6_3_7: DocumentTest
+```
+
+#### Module `validate.js`
+
+```typescript
+type ValidateFn = (
+  tests: DocumentTest[],
+  document: any
+) => Promise<{
+  tests: Array<{ name: string } & Result>
+  isValid: boolean
+}>
+
+export default ValidateFn
+```
+
+#### Module `strip.js`
+
+```typescript
+type StripFn = (
+  tests: DocumentTest[],
+  document: any
+) => Promise<{
+  document: any
+  strippedPaths: {
+    instancePath: string
+    message: string
+    error: boolean
+  }[]
+}>
+
+export default StripFn
+```
 
 <!-- TESTING -->
 
