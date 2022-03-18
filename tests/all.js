@@ -18,14 +18,19 @@ const { expect } = chai
 describe('Core', () => {
   describe('mandatoryTests', () => {
     documentTests.forEach((documentTest, i) => {
-      it(documentTest.title ?? `Mandatory Test #${i + 1}`, async () => {
+      const testTitle =
+        'title' in documentTest && typeof documentTest.title === 'string'
+          ? documentTest.title
+          : `Mandatory Test #${i + 1}`
+
+      it(testTitle, async () => {
         const result = await validate(
           [csaf_2_0, csaf_2_0_strict, ...Object.values(mandatoryTests)],
           documentTest.content
         )
         expect(result.isValid).to.equal(documentTest.valid)
         const errors = result.tests.flatMap((t) => t.errors)
-        if (typeof documentTest.expectedNumberOfErrors === 'number') {
+        if ('expectedNumberOfErrors' in documentTest) {
           expect(
             errors.length,
             'Document has the correct number of errors'

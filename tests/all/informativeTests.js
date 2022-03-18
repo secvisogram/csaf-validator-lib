@@ -1,6 +1,6 @@
 import { MockAgent } from 'undici'
 import sortObjectKeys from '../../lib/shared/sortObjectKeys.js'
-import minimalDoc from '../shared/minimalGenericCSAFDoc.js'
+import minimalDoc from '../shared/minimalCSAFBaseDoc.js'
 
 function mockAgent() {
   const mockAgent = new MockAgent()

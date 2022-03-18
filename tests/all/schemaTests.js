@@ -1,8 +1,8 @@
-import minimalGenericCSAFDoc from '../shared/minimalGenericCSAFDoc.js'
+import minimalCSAFBaseDoc from '../shared/minimalCSAFBaseDoc.js'
 import valid1 from '../shared/valid-1.js'
 import valid2 from '../shared/valid-2.js'
 
-const MINIMAL_DOC = minimalGenericCSAFDoc
+const MINIMAL_DOC = minimalCSAFBaseDoc
 
 export default [
   { valid: true, content: valid1, strippedVersion: valid1 },
