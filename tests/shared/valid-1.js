@@ -2495,10 +2495,12 @@ export default {
     {
       title:
         'Cisco IOS and IOS XE Software Smart Install Remote Code Execution Vulnerability',
-      id: {
-        system_name: 'Cisco Bug ID',
-        text: 'CSCvg76186',
-      },
+      ids: [
+        {
+          system_name: 'Cisco Bug ID',
+          text: 'CSCvg76186',
+        },
+      ],
       notes: [
         {
           title: 'Summary',

@@ -1,5 +1,5 @@
 import sortObjectKeys from '../../lib/shared/sortObjectKeys.js'
-import minimalDoc from '../shared/minimalGenericCSAFDoc.js'
+import minimalDoc from '../shared/minimalCSAFBaseDoc.js'
 
 export default [
   {
