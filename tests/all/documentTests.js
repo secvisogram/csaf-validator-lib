@@ -1791,4 +1791,18 @@ export default /** @type {const} */ ([
       ],
     },
   },
+
+  {
+    title: 'Mandatory Test 6.1.28 detects same source_lang and lang',
+    valid: false,
+    expectedNumberOfErrors: 2,
+    content: {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        lang: 'en-US',
+        source_lang: 'en-US',
+      },
+    },
+  },
 ])
