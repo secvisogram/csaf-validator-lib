@@ -1854,4 +1854,22 @@ export default /** @type {const} */ ([
       },
     },
   },
+
+  {
+    title: 'Mandatory Test 6.1.32 detects flag without product reference',
+    valid: false,
+    expectedNumberOfErrors: 1,
+    content: {
+      ...minimalDoc,
+      vulnerabilities: [
+        {
+          flags: [
+            {
+              label: 'component_not_present',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ])
