@@ -1805,4 +1805,25 @@ export default /** @type {const} */ ([
       },
     },
   },
+
+  {
+    title:
+      'Mandatory Test 6.1.29 detects remediation without group_ids and product_ids',
+    valid: false,
+    expectedNumberOfErrors: 1,
+    content: {
+      ...minimalDoc,
+      vulnerabilities: [
+        {
+          remediations: [
+            {
+              category: 'no_fix_planned',
+              details:
+                'These products are end-of-life. Therefore, no fix will be provided.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ])
