@@ -1856,6 +1856,55 @@ export default /** @type {const} */ ([
   },
 
   {
+    title: 'Mandatory Test 6.1.31 detects version range in product version',
+    valid: false,
+    expectedNumberOfErrors: 1,
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            category: 'product_version',
+            name: 'prior to 4.2',
+            product: {
+              product_id: 'CSAFPID-0001',
+              name: 'Some sample product',
+            },
+          },
+        ],
+      },
+    },
+  },
+
+  {
+    title:
+      'Mandatory Test 6.1.31 detects version range in product version (deep in tree)',
+    valid: false,
+    expectedNumberOfErrors: 2,
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            category: 'product_version',
+            name: 'later than 3.0',
+            branches: [
+              {
+                category: 'product_version',
+                name: 'prior to 4.2',
+                product: {
+                  product_id: 'CSAFPID-0002',
+                  name: 'Some other sample product',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  },
+
+  {
     title: 'Mandatory Test 6.1.32 detects flag without product reference',
     valid: false,
     expectedNumberOfErrors: 1,
