@@ -1921,4 +1921,155 @@ export default /** @type {const} */ ([
       ],
     },
   },
+
+  {
+    title:
+      'Mandatory Test 6.1.33 detects multiple flags with vex justification codes per product',
+    valid: false,
+    expectedNumberOfErrors: 1,
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+          {
+            product_id: 'CSAFPID-9080701',
+            name: 'Product B',
+          },
+        ],
+        product_groups: [
+          {
+            group_id: 'CSAFGID-0001',
+            product_ids: ['CSAFPID-9080700', 'CSAFPID-9080701'],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          flags: [
+            {
+              label: 'component_not_present',
+              group_ids: ['CSAFGID-0001'],
+            },
+            {
+              label: 'vulnerable_code_cannot_be_controlled_by_adversary',
+              product_ids: ['CSAFPID-9080700'],
+            },
+          ],
+          product_status: {
+            known_not_affected: ['CSAFPID-9080700', 'CSAFPID-9080701'],
+          },
+        },
+      ],
+    },
+  },
+
+  {
+    title:
+      'Mandatory Test 6.1.33 detects multiple flags with vex justification codes per product (multiple groups)',
+    valid: false,
+    expectedNumberOfErrors: 2,
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+          {
+            product_id: 'CSAFPID-9080701',
+            name: 'Product B',
+          },
+        ],
+        product_groups: [
+          {
+            group_id: 'CSAFGID-0001',
+            product_ids: ['CSAFPID-9080700', 'CSAFPID-9080701'],
+          },
+          {
+            group_id: 'CSAFGID-0002',
+            product_ids: ['CSAFPID-9080700', 'CSAFPID-9080701'],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          flags: [
+            {
+              label: 'component_not_present',
+              group_ids: ['CSAFGID-0001'],
+            },
+            {
+              label: 'component_not_present',
+              group_ids: ['CSAFGID-0002'],
+            },
+            {
+              label: 'vulnerable_code_cannot_be_controlled_by_adversary',
+              product_ids: ['CSAFPID-9080700', 'CSAFPID-9080701'],
+            },
+          ],
+          product_status: {
+            known_not_affected: ['CSAFPID-9080700', 'CSAFPID-9080701'],
+          },
+        },
+      ],
+    },
+  },
+
+  {
+    title:
+      'Mandatory Test 6.1.33 does not evaluate multiple flags across vulnerabilities',
+    valid: true,
+    content: {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+          },
+          {
+            product_id: 'CSAFPID-9080701',
+            name: 'Product B',
+          },
+        ],
+        product_groups: [
+          {
+            group_id: 'CSAFGID-0001',
+            product_ids: ['CSAFPID-9080700', 'CSAFPID-9080701'],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          cve: 'CVE-2017-0145',
+          flags: [
+            {
+              label: 'component_not_present',
+              group_ids: ['CSAFGID-0001'],
+            },
+          ],
+          product_status: {
+            known_not_affected: ['CSAFPID-9080700', 'CSAFPID-9080701'],
+          },
+        },
+        {
+          cve: 'CVE-2020-44228',
+          flags: [
+            {
+              label: 'vulnerable_code_cannot_be_controlled_by_adversary',
+              product_ids: ['CSAFPID-9080700'],
+            },
+          ],
+          product_status: {
+            known_not_affected: ['CSAFPID-9080700'],
+          },
+        },
+      ],
+    },
+  },
 ])
