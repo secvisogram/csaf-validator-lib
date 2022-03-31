@@ -1791,4 +1791,14 @@ export default /** @type {const} */ ([
       ],
     },
   },
+
+  ...[minimalSecurityAdvisoryDoc, minimalVexDoc].map((doc) => ({
+    title: `Fails "6.1.27.11 Vulnerabilities" (category "${doc.document.category}")`,
+    valid: false,
+    expectedNumberOfErrors: 1,
+    content: {
+      ...doc,
+      vulnerabilities: undefined,
+    },
+  })),
 ])
