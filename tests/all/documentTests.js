@@ -1792,6 +1792,16 @@ export default /** @type {const} */ ([
     },
   },
 
+  ...[minimalSecurityAdvisoryDoc, minimalVexDoc].map((doc) => ({
+    title: `Fails "6.1.27.11 Vulnerabilities" (category "${doc.document.category}")`,
+    valid: false,
+    expectedNumberOfErrors: 1,
+    content: {
+      ...doc,
+      vulnerabilities: undefined,
+    },
+  })),
+
   {
     title: 'Mandatory Test 6.1.28 detects same source_lang and lang',
     valid: false,
