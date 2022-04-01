@@ -688,8 +688,8 @@ export default /** @type {const} */ ([
     },
   },
 
-  // Passes "6.1.16 Released Revision History"
   {
+    title: 'Mandatory Test 6.1.16 ignores build metadata',
     valid: true,
     content: {
       ...minimalDoc,
@@ -699,12 +699,12 @@ export default /** @type {const} */ ([
           ...minimalDoc.document.tracking,
           revision_history: [
             {
-              number: '2.0.0+123',
+              number: '1.0.0+123',
               date: '2021-01-14T00:00:00.000Z',
               summary: 'Summary',
             },
           ],
-          version: '2.0.0+234',
+          version: '1.0.0+234',
         },
       },
     },
@@ -1105,6 +1105,36 @@ export default /** @type {const} */ ([
             {
               date: '2021-04-22T10:00:00.000Z',
               number: '1',
+              summary: 'Initial version.',
+            },
+            {
+              date: '2021-07-21T10:00:00.000Z',
+              number: '3',
+              summary: 'Some other changes.',
+            },
+          ],
+          status: 'final',
+          version: '3',
+        },
+      },
+    },
+  },
+
+  {
+    title:
+      'Mandatory Test 6.1.21 detects invalid first revision history number',
+    valid: false,
+    expectedNumberOfErrors: 1,
+    content: {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        tracking: {
+          ...minimalDoc.document.tracking,
+          revision_history: [
+            {
+              date: '2021-04-22T10:00:00.000Z',
+              number: '2',
               summary: 'Initial version.',
             },
             {
