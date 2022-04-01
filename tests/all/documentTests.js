@@ -1660,7 +1660,7 @@ export default /** @type {const} */ ([
   ...[minimalSecurityAdvisoryDoc, minimalVexDoc].map((doc) => ({
     title: `Fails "6.1.27.4 Product Tree" (category "${doc.document.category}")`,
     valid: false,
-    expectedNumberOfErrors: 1,
+    expectedNumberOfErrors: 2,
     content: {
       ...doc,
       product_tree: undefined,
