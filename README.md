@@ -64,6 +64,8 @@ Include this as a subtree in your repository.
   git subtree add --prefix csaf-validator-lib https://github.com/secvisogram/csaf-validator-lib.git main --squash
   ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ### Installation
 
 - Install dependencies
@@ -85,6 +87,8 @@ Include this as a subtree in your repository.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### API
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 #### Interfaces
 
@@ -114,12 +118,16 @@ interface TestResult {
 type DocumentTest = (doc: any) => TestResult | Promise<TestResult>
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 #### Module `schemaTests.js`
 
 ```typescript
 export const csaf_2_0_strict: DocumentTest
 export const csaf_2_0: DocumentTest
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 #### Module `mandatoryTests.js`
 
@@ -159,7 +167,16 @@ export const mandatoryTest_6_1_27_7: DocumentTest
 export const mandatoryTest_6_1_27_8: DocumentTest
 export const mandatoryTest_6_1_27_9: DocumentTest
 export const mandatoryTest_6_1_27_10: DocumentTest
+export const mandatoryTest_6_1_27_11: DocumentTest
+export const mandatoryTest_6_1_28: DocumentTest
+export const mandatoryTest_6_1_29: DocumentTest
+export const mandatoryTest_6_1_30: DocumentTest
+export const mandatoryTest_6_1_31: DocumentTest
+export const mandatoryTest_6_1_32: DocumentTest
+export const mandatoryTest_6_1_33: DocumentTest
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 #### Module `optionalTests.js`
 
@@ -179,6 +196,8 @@ export const optionalTest_6_2_12: DocumentTest
 export const optionalTest_6_2_13: DocumentTest
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 #### Module `informativeTests.js`
 
 ```typescript
@@ -190,6 +209,8 @@ export const informativeTest_6_3_5: DocumentTest
 export const informativeTest_6_3_6: DocumentTest
 export const informativeTest_6_3_7: DocumentTest
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 #### Module `validate.js`
 
@@ -204,6 +225,8 @@ type ValidateFn = (
 
 export default ValidateFn
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 #### Module `strip.js`
 
@@ -222,6 +245,8 @@ type StripFn = (
 
 export default StripFn
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- TESTING -->
 
