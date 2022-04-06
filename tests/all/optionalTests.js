@@ -862,4 +862,28 @@ export default [
     }),
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.15 detects use of default language (lang)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        lang: 'i-default',
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.15 detects use of default language (source_lang)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        source_lang: 'i-default',
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
 ]
