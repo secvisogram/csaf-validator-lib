@@ -838,4 +838,28 @@ export default [
     })(),
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.14 detects use of private language (lang)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        lang: 'qtx',
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.14 detects use of private language (source_lang)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        source_lang: 'qtx',
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
 ]
