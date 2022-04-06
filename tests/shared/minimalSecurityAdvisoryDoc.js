@@ -25,7 +25,6 @@ export default {
       product_status: {
         fixed: ['CSAFPID-0001'],
       },
-      cve: 'CVE-0000-1111',
     },
   ],
 }
