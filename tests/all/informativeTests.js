@@ -33,6 +33,20 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -69,6 +83,20 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -159,6 +187,20 @@ export default [
             full_product_name: {
               name: 'Foo',
               product_id: 'CSAFPID-0001',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'sha256',
+                        value:
+                          '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
             },
             product_reference: 'CSAFPID-9080700',
             category: 'default_component_of',
