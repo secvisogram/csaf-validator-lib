@@ -1179,4 +1179,22 @@ export default [
     }),
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.17 detects cve in field ids',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      vulnerabilities: [
+        {
+          ids: [
+            {
+              system_name: 'CVE Project',
+              text: 'CVE-2021-44228',
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
 ]
