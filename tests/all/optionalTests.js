@@ -1197,4 +1197,56 @@ export default [
     }),
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.18 detects product version range without vers',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            name: 'my branch',
+            category: 'architecture',
+            branches: [
+              {
+                name: '>4.2',
+                category: 'product_version_range',
+                product: {
+                  name: 'Product A',
+                  product_id: 'CSAFPID-9080701',
+                  product_identification_helper: {
+                    hashes: [
+                      {
+                        file_hashes: [
+                          {
+                            algorithm: 'sha256',
+                            value: '6ae24620ea9656230f49234efd078935',
+                          },
+                        ],
+                        filename: 'product_a.so',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          notes: [
+            {
+              category: 'description',
+              text: 'This is a sample note',
+            },
+          ],
+          product_status: {
+            fixed: ['CSAFPID-9080701'],
+          },
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
 ]
