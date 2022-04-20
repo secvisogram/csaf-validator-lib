@@ -160,6 +160,18 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          cve: 'CVE-2019-0708',
+          cwe: {
+            id: 'CWE-1004',
+            name: "Sensitive Cookie Without 'HttpOnly' Flag",
+          },
+          product_status: {
+            recommended: ['CSAFPID-0001'],
+          },
+        },
+      ],
     }),
     mockAgent,
     expectedNumberOfInfos: 1,
@@ -277,7 +289,7 @@ export default [
             },
             product_reference: 'CSAFPID-0001',
             category: 'optional_component_of',
-            relates_to_product_reference: 'CSAFPID-0001',
+            relates_to_product_reference: 'CSAFPID-9080700',
           },
         ],
       },
@@ -293,6 +305,9 @@ export default [
           },
         },
         {
+          product_status: {
+            fixed: ['CSAFPID-0002'],
+          },
           cve: 'CVE-1111-22222',
           cwe: {
             id: 'CWE-1004',

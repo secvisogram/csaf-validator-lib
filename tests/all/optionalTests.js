@@ -3,22 +3,6 @@ import minimalDoc from '../shared/minimalCSAFBaseDoc.js'
 
 export default [
   {
-    title: 'Optional test 6.2.1 detects unused definition of product id',
-    content: sortObjectKeys(new Intl.Collator(), {
-      ...minimalDoc,
-      product_tree: {
-        full_product_names: [
-          {
-            product_id: 'CSAFPID-9080700',
-            name: 'Product A',
-          },
-        ],
-      },
-    }),
-    expectedNumberOfWarnings: 1,
-  },
-
-  {
     title: 'Optional test 6.2.1 passes this one',
     content: sortObjectKeys(new Intl.Collator(), {
       ...minimalDoc,
@@ -44,12 +28,10 @@ export default [
     expectedNumberOfWarnings: 0,
   },
 
-  {
-    title:
-      'Optional test 6.2.1 passes this one because of matching vulnerability',
-    content: sortObjectKeys(new Intl.Collator(), {
-      ...minimalDoc,
-      product_tree: {
+  ...[
+    {
+      title: 'full_product_names',
+      productTree: {
         full_product_names: [
           {
             product_id: 'CSAFPID-9080700',
@@ -57,112 +39,158 @@ export default [
           },
         ],
       },
-      vulnerabilities: [
-        {
-          product_status: {
-            recommended: ['CSAFPID-9080700'],
-          },
-        },
-      ],
-    }),
-    expectedNumberOfWarnings: 0,
-  },
-
-  {
-    title: 'Optional test 6.2.1 passes this one because of matching score',
-    content: sortObjectKeys(new Intl.Collator(), {
-      ...minimalDoc,
-      product_tree: {
+    },
+    {
+      title: 'relationships',
+      productTree: {
         full_product_names: [
           {
-            product_id: 'CSAFPID-9080700',
+            product_id: 'CSAFPID-0003',
             name: 'Product A',
           },
         ],
-      },
-      vulnerabilities: [
-        {
-          product_status: {
-            last_affected: ['CSAFPID-9080700'],
+        relationships: [
+          {
+            full_product_name: {
+              name: 'Foo',
+              product_id: 'CSAFPID-9080700',
+            },
+            product_reference: 'CSAFPID-0003',
+            category: 'default_component_of',
+            relates_to_product_reference: 'CSAFPID-0003',
           },
-          scores: [
-            {
-              products: ['CSAFPID-9080700'],
-              cvss_v3: {
-                version: '3.0',
-                baseScore: 9.8,
-                baseSeverity: 'CRITICAL',
-                vectorString: 'CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H',
+        ],
+      },
+    },
+    {
+      title: 'branches',
+      productTree: {
+        branches: [
+          {
+            name: 'my branch',
+            category: 'architecture',
+            product: {
+              name: 'Product A',
+              product_id: 'CSAFPID-9080700',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'sha256',
+                        value:
+                          '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
               },
             },
-          ],
-          remediations: [
-            {
-              product_ids: ['CSAFPID-9080700'],
-              category: 'none_available',
-              details: 'Some details',
-            },
-          ],
-        },
-      ],
-    }),
-    expectedNumberOfWarnings: 0,
-  },
-
-  {
-    title:
-      'Optional test 6.2.1 passes this one because of matching remediation',
-    content: sortObjectKeys(new Intl.Collator(), {
-      ...minimalDoc,
-      product_tree: {
-        full_product_names: [
-          {
-            product_id: 'CSAFPID-9080700',
-            name: 'Product A',
           },
         ],
       },
-      vulnerabilities: [
-        {
-          remediations: [
-            {
-              product_ids: ['CSAFPID-9080700'],
-              category: 'none_available',
-              details: 'Some details',
-            },
-          ],
-        },
-      ],
-    }),
-    expectedNumberOfWarnings: 0,
-  },
+    },
+  ].flatMap(({ productTree, title }) => [
+    {
+      title: `Optional test 6.2.1 detects unused definition of product id (${title})`,
+      content: sortObjectKeys(new Intl.Collator(), {
+        ...minimalDoc,
+        product_tree: productTree,
+      }),
+      expectedNumberOfWarnings: 1,
+    },
 
-  {
-    title: 'Optional test 6.2.1 passes this one because of matching threat',
-    content: sortObjectKeys(new Intl.Collator(), {
-      ...minimalDoc,
-      product_tree: {
-        full_product_names: [
+    {
+      title: `Optional test 6.2.1 passes this one because of matching vulnerability (${title})`,
+      content: sortObjectKeys(new Intl.Collator(), {
+        ...minimalDoc,
+        product_tree: productTree,
+        vulnerabilities: [
           {
-            product_id: 'CSAFPID-9080700',
-            name: 'Product A',
+            product_status: {
+              recommended: ['CSAFPID-9080700'],
+            },
           },
         ],
-      },
-      vulnerabilities: [
-        {
-          threats: [
-            {
-              category: 'impact',
-              details: 'Some detail',
-              product_ids: ['CSAFPID-9080700'],
+      }),
+      expectedNumberOfWarnings: 0,
+    },
+
+    {
+      title: `Optional test 6.2.1 passes this one because of matching score (${title})`,
+      content: sortObjectKeys(new Intl.Collator(), {
+        ...minimalDoc,
+        product_tree: productTree,
+        vulnerabilities: [
+          {
+            product_status: {
+              last_affected: ['CSAFPID-9080700'],
             },
-          ],
-        },
-      ],
-    }),
-    expectedNumberOfWarnings: 0,
-  },
+            scores: [
+              {
+                products: ['CSAFPID-9080700'],
+                cvss_v3: {
+                  version: '3.0',
+                  baseScore: 9.8,
+                  baseSeverity: 'CRITICAL',
+                  vectorString: 'CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H',
+                },
+              },
+            ],
+            remediations: [
+              {
+                product_ids: ['CSAFPID-9080700'],
+                category: 'none_available',
+                details: 'Some details',
+              },
+            ],
+          },
+        ],
+      }),
+      expectedNumberOfWarnings: 0,
+    },
+
+    {
+      title: `Optional test 6.2.1 passes this one because of matching remediation (${title})`,
+      content: sortObjectKeys(new Intl.Collator(), {
+        ...minimalDoc,
+        product_tree: productTree,
+        vulnerabilities: [
+          {
+            remediations: [
+              {
+                product_ids: ['CSAFPID-9080700'],
+                category: 'none_available',
+                details: 'Some details',
+              },
+            ],
+          },
+        ],
+      }),
+      expectedNumberOfWarnings: 0,
+    },
+
+    {
+      title: `Optional test 6.2.1 passes this one because of matching threat (${title})`,
+      content: sortObjectKeys(new Intl.Collator(), {
+        ...minimalDoc,
+        product_tree: productTree,
+        vulnerabilities: [
+          {
+            threats: [
+              {
+                category: 'impact',
+                details: 'Some detail',
+                product_ids: ['CSAFPID-9080700'],
+              },
+            ],
+          },
+        ],
+      }),
+      expectedNumberOfWarnings: 0,
+    },
+  ]),
 
   {
     title: 'Optional test 6.2.2 detects unmatched last_affected entry',
@@ -408,6 +436,13 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-0002'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
@@ -442,6 +477,13 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-9080700'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
@@ -482,6 +524,13 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-9080701'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
@@ -523,6 +572,13 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-9080700'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
@@ -564,6 +620,13 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-0003'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
@@ -598,6 +661,13 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-9080700'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
@@ -638,6 +708,13 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-9080701'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
@@ -679,6 +756,13 @@ export default [
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            recommended: ['CSAFPID-9080700'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
