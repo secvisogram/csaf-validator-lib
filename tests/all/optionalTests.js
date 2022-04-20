@@ -1249,4 +1249,99 @@ export default [
     }),
     expectedNumberOfWarnings: 1,
   },
+
+  {
+    title: 'Optional test 6.2.19 detects cvss for fixed products',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value: '6ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-9080700'],
+          },
+          scores: [
+            {
+              cvss_v3: {
+                baseScore: 6.5,
+                baseSeverity: 'MEDIUM',
+                vectorString: 'CVSS:3.1/AV:L/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H',
+                version: '3.1',
+              },
+              products: ['CSAFPID-9080700'],
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.19 detects cvss for fixed products',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value: '6ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-9080700'],
+          },
+          scores: [
+            {
+              cvss_v3: {
+                baseScore: 5.7,
+                baseSeverity: 'MEDIUM',
+                vectorString:
+                  'CVSS:3.1/AV:N/AC:H/PR:H/UI:R/S:U/C:H/I:H/A:N/CR:L/IR:L/AR:L/MAV:P/MAC:H/MPR:H/MUI:N/MS:U/MC:N/MI:N/MA:H',
+                version: '3.1',
+              },
+              products: ['CSAFPID-9080700'],
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
 ]
