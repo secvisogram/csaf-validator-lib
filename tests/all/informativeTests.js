@@ -371,7 +371,7 @@ export default [
 
       m.get('https://example.valid')
         .intercept({ method: 'HEAD', path: '/' })
-        .reply(302, 'Not Found')
+        .reply(302, 'Found')
 
       return m
     },
