@@ -9,7 +9,7 @@ function mockAgent() {
     .get('https://example.com')
     .intercept({
       method: 'HEAD',
-      path: '/security/data/csaf/2021/my_thing__10.json',
+      path: '/security/data/csaf/2021/my-thing-_10.json',
     })
     .reply(200, 'Found')
 
@@ -389,7 +389,7 @@ export default [
           {
             category: 'self',
             summary: 'A non-canonical URL.',
-            url: 'https://example.com/security/data/csaf/2021/my_thing__10.json',
+            url: 'https://example.com/security/data/csaf/2021/my-thing-_10.json',
           },
         ],
         tracking: {
@@ -408,7 +408,7 @@ export default [
             {
               summary: 'A self reference',
               category: 'self',
-              url: 'https://example.com/security/data/csaf/2021/my_thing__10.json',
+              url: 'https://example.com/security/data/csaf/2021/my-thing-_10.json',
             },
           ],
         },
@@ -422,7 +422,7 @@ export default [
           .get('https://example.com')
           .intercept({
             method: 'HEAD',
-            path: '/security/data/csaf/2021/my_thing__10.json',
+            path: '/security/data/csaf/2021/my-thing-_10.json',
           })
           .reply(404, 'Not Found')
       }
@@ -442,7 +442,7 @@ export default [
           {
             category: 'self',
             summary: 'A non-canonical URL.',
-            url: 'https://example.com/security/data/csaf/2021/my_thing__10.json',
+            url: 'https://example.com/security/data/csaf/2021/my-thing-_10.json',
           },
         ],
         tracking: {
@@ -458,7 +458,7 @@ export default [
         .get('https://example.com')
         .intercept({
           method: 'HEAD',
-          path: '/security/data/csaf/2021/my_thing__10.json',
+          path: '/security/data/csaf/2021/my-thing-_10.json',
         })
         .reply(302, 'Found')
 
@@ -477,7 +477,7 @@ export default [
           {
             category: 'self',
             summary: 'A non-canonical URL.',
-            url: 'https://example.com/security/data/csaf/2021/my_thing__10.json',
+            url: 'https://example.com/security/data/csaf/2021/my-thing-_10.json',
           },
         ],
         tracking: {
@@ -493,7 +493,7 @@ export default [
         .get('https://example.com')
         .intercept({
           method: 'HEAD',
-          path: '/security/data/csaf/2021/my_thing__10.json',
+          path: '/security/data/csaf/2021/my-thing-_10.json',
         })
         .reply(302, 'Found')
 
