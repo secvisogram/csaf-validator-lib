@@ -4,6 +4,7 @@ import minimalDoc from '../shared/minimalCSAFBaseDoc.js'
 
 function mockAgent() {
   const mockAgent = new MockAgent()
+  mockAgent.disableNetConnect()
 
   mockAgent
     .get('https://example.com')
@@ -11,6 +12,11 @@ function mockAgent() {
       method: 'HEAD',
       path: '/security/data/csaf/2021/my-thing-_10.json',
     })
+    .reply(200, 'Found')
+
+  mockAgent
+    .get('https://github.com')
+    .intercept({ method: 'HEAD', path: '/secvisogram/secvisogram' })
     .reply(200, 'Found')
 
   return mockAgent
@@ -379,6 +385,26 @@ export default [
   },
 
   {
+    title: 'Informative test 6.3.6 catches network errors',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        references: [
+          ...minimalDoc.document.references,
+          {
+            summary:
+              'A URL that does not resolve with HTTP status code in the interval between (including) 200 and (excluding) 400.',
+            url: 'https://example.invalid',
+          },
+        ],
+      },
+    }),
+    mockAgent,
+    expectedNumberOfInfos: 1,
+  },
+
+  {
     title:
       'Informative test 6.3.7 detects use of self referencing urls failing to resolve',
     content: sortObjectKeys(new Intl.Collator(), {
@@ -389,12 +415,12 @@ export default [
           {
             category: 'self',
             summary: 'A non-canonical URL.',
-            url: 'https://example.com/security/data/csaf/2021/my-thing-_10.json',
+            url: 'https://example.com/security/data/csaf/2021/my-thing-_11.json',
           },
         ],
         tracking: {
           ...minimalDoc.document.tracking,
-          id: 'My-Thing-.10',
+          id: 'My-Thing-.11',
         },
       },
       vulnerabilities: [
@@ -408,26 +434,25 @@ export default [
             {
               summary: 'A self reference',
               category: 'self',
-              url: 'https://example.com/security/data/csaf/2021/my-thing-_10.json',
+              url: 'https://example.com/security/data/csaf/2021/my-thing-_11.json',
             },
           ],
         },
       ],
     }),
     mockAgent() {
-      const mockAgent = new MockAgent()
+      const m = mockAgent()
 
       for (let i = 0; i < 2; ++i) {
-        mockAgent
-          .get('https://example.com')
+        m.get('https://example.com')
           .intercept({
             method: 'HEAD',
-            path: '/security/data/csaf/2021/my-thing-_10.json',
+            path: '/security/data/csaf/2021/my-thing-_11.json',
           })
           .reply(404, 'Not Found')
       }
 
-      return mockAgent
+      return m
     },
     expectedNumberOfInfos: 2,
   },
@@ -452,19 +477,41 @@ export default [
       },
     }),
     mockAgent() {
-      const mockAgent = new MockAgent()
+      const m = mockAgent()
 
-      mockAgent
-        .get('https://example.com')
+      m.get('https://example.com')
         .intercept({
           method: 'HEAD',
           path: '/security/data/csaf/2021/my-thing-_10.json',
         })
         .reply(302, 'Found')
 
-      return mockAgent
+      return m
     },
     expectedNumberOfInfos: 0,
+  },
+
+  {
+    title: 'Informative test 6.3.7 catches network errors',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        references: [
+          {
+            category: 'self',
+            summary: 'A non-canonical URL.',
+            url: 'https://example.invalid/security/data/csaf/2021/my-thing-_10.json',
+          },
+        ],
+        tracking: {
+          ...minimalDoc.document.tracking,
+          id: 'My-Thing-.10',
+        },
+      },
+    }),
+    mockAgent,
+    expectedNumberOfInfos: 1,
   },
 
   {
@@ -487,17 +534,16 @@ export default [
       },
     }),
     mockAgent() {
-      const mockAgent = new MockAgent()
+      const m = mockAgent()
 
-      mockAgent
-        .get('https://example.com')
+      m.get('https://example.com')
         .intercept({
           method: 'HEAD',
           path: '/security/data/csaf/2021/my-thing-_10.json',
         })
         .reply(302, 'Found')
 
-      return mockAgent
+      return m
     },
     expectedNumberOfInfos: 0,
   },
