@@ -1,5 +1,6 @@
 import sortObjectKeys from '../../lib/shared/sortObjectKeys.js'
 import minimalDoc from '../shared/minimalCSAFBaseDoc.js'
+import minimalInformationalAdvisoryDoc from '../shared/minimalInformationalAdvisoryDoc.js'
 
 export default [
   {
@@ -99,6 +100,15 @@ export default [
         product_tree: productTree,
       }),
       expectedNumberOfWarnings: 1,
+    },
+
+    {
+      title: `Optional test 6.2.1 is skipped for informational advisory docs`,
+      content: sortObjectKeys(new Intl.Collator(), {
+        ...minimalInformationalAdvisoryDoc,
+        product_tree: productTree,
+      }),
+      expectedNumberOfWarnings: 0,
     },
 
     {
