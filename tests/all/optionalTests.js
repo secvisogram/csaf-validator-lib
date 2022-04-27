@@ -134,9 +134,6 @@ export default [
         product_tree: productTree,
         vulnerabilities: [
           {
-            product_status: {
-              last_affected: ['CSAFPID-9080700'],
-            },
             scores: [
               {
                 products: ['CSAFPID-9080700'],
@@ -146,13 +143,6 @@ export default [
                   baseSeverity: 'CRITICAL',
                   vectorString: 'CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H',
                 },
-              },
-            ],
-            remediations: [
-              {
-                product_ids: ['CSAFPID-9080700'],
-                category: 'none_available',
-                details: 'Some details',
               },
             ],
           },

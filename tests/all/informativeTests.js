@@ -513,38 +513,4 @@ export default [
     mockAgent,
     expectedNumberOfInfos: 1,
   },
-
-  {
-    title: 'Informative test 6.3.7 accepts 302 redirect',
-    content: sortObjectKeys(new Intl.Collator(), {
-      ...minimalDoc,
-      document: {
-        ...minimalDoc.document,
-        references: [
-          {
-            category: 'self',
-            summary: 'A non-canonical URL.',
-            url: 'https://example.com/security/data/csaf/2021/my-thing-_10.json',
-          },
-        ],
-        tracking: {
-          ...minimalDoc.document.tracking,
-          id: 'My-Thing-.10',
-        },
-      },
-    }),
-    mockAgent() {
-      const m = mockAgent()
-
-      m.get('https://example.com')
-        .intercept({
-          method: 'HEAD',
-          path: '/security/data/csaf/2021/my-thing-_10.json',
-        })
-        .reply(302, 'Found')
-
-      return m
-    },
-    expectedNumberOfInfos: 0,
-  },
 ]
