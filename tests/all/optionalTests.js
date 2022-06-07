@@ -1102,26 +1102,19 @@ export default [
                 product: {
                   name: 'Product A',
                   product_id: 'CSAFPID-9080701',
-                  product_identification_helper: {
-                    hashes: [
-                      {
-                        file_hashes: [
-                          {
-                            algorithm: 'sha256',
-                            value:
-                              '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
-                          },
-                        ],
-                        filename: 'product_a.so',
-                      },
-                    ],
-                  },
                 },
               },
             ],
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-9080701'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
@@ -1159,23 +1152,17 @@ export default [
             full_product_name: {
               name: 'Product A',
               product_id: 'CSAFPID-9080700',
-              product_identification_helper: {
-                hashes: [
-                  {
-                    file_hashes: [
-                      {
-                        algorithm: 'sha256',
-                        value: '6ae24620ea9656230f49234efd078935',
-                      },
-                    ],
-                    filename: 'product_a.so',
-                  },
-                ],
-              },
             },
           },
         ],
       },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-9080700'],
+          },
+        },
+      ],
     }),
     expectedNumberOfWarnings: 1,
   },
