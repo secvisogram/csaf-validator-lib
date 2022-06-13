@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "tsc -b . && mocha tests",
+    "test-report": "tsc -b . && mocha tests --reporter json > test-results.json",
     "test-coverage": "nyc mocha tests"
   },
   "dependencies": {
