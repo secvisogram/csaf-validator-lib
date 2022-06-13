@@ -26,3 +26,4 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPORTER: 'text'
+          SKIP_COVERAGE_FOLDER: true
