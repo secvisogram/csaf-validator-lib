@@ -21,7 +21,8 @@ jobs:
           name: Mocha Tests
           path: test-results.json
           reporter: mocha-json
-      - uses: tintef/nyc-reporter-action
+      - name: NYC Coverage Report
+        uses: Tintef/nyc-reporter-action@0.2.5
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPORTER: 'text'
