@@ -21,10 +21,8 @@ jobs:
           name: Mocha Tests
           path: test-results.json
           reporter: mocha-json
-      - run: npm run test-coverage
-      - name: NYC Coverage Report
-        uses: Tintef/nyc-reporter-action@0.2.5
+      - run: npm run test-coverage-lcov
+      - name: c8 coverage report
+        uses: romeovs/lcov-reporter-action@v0.2.16
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPORTER: 'text'
-          SKIP_COVERAGE_FOLDER: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
