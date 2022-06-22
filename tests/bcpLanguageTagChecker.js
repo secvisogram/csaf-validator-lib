@@ -54,7 +54,7 @@ describe('bcpLanguageTagChecker', function () {
   })
 
   describe('isPrivateLanguage()', function () {
-    const privateUseLanguages = ['qtx']
+    const privateUseLanguages = ['qaa', 'qtx', 'qtz']
 
     privateUseLanguages.forEach((privateUseLanguages) => {
       it(`"${privateUseLanguages}" is a private language`, function () {
