@@ -5,6 +5,8 @@ import { writeFile } from 'node:fs/promises'
 import prettier from 'prettier'
 import readline from 'readline'
 
+// The registry file can be downloaded from https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+
 const [, , REGISTRY_FILE] = process.argv
 const OUTPUT_FILE = 'lib/shared/bcpLanguageTagChecker/subtags.js'
 
