@@ -1,7 +1,36 @@
 import { expect } from 'chai'
 import optionalTest_6_2_19 from '../lib/optionalTests/optionalTest_6_2_19.js'
+import readExampleFiles from './shared/readExampleFiles.js'
+
+const failingExamples = await readExampleFiles(
+  new URL('optionalTest_6_2_19/failing', import.meta.url)
+)
+
+const validExamples = await readExampleFiles(
+  new URL('optionalTest_6_2_19/valid', import.meta.url)
+)
 
 describe('Optional test 6.2.19', function () {
+  describe('failing examples', function () {
+    for (const [title, failingExample] of failingExamples) {
+      it(title, function () {
+        const result = optionalTest_6_2_19(failingExample)
+
+        expect(result.warnings.length).to.be.greaterThan(0)
+      })
+    }
+  })
+
+  describe('valid examples', function () {
+    for (const [title, validExample] of validExamples) {
+      it(title, function () {
+        const result = optionalTest_6_2_19(validExample)
+
+        expect(result.warnings.length).to.equal(0)
+      })
+    }
+  })
+
   it('detects an invalid vector string based environmental score in a 2.0 vector', function () {
     const result = optionalTest_6_2_19({
       vulnerabilities: [
