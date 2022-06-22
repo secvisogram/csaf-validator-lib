@@ -39,6 +39,9 @@ const subtags = await new Promise((resolve) => {
       if (line.startsWith('Scope: ')) {
         buffer.scope = line.split(': ').slice(1).join(': ')
       }
+      if (line === 'Description: Private use') {
+        buffer.scope = 'private-use'
+      }
     }
   }).on('close', async () => {
     if (buffer) subtags.push(buffer)
