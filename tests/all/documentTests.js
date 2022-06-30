@@ -1931,7 +1931,7 @@ export default /** @type {const} */ ([
             branches: [
               {
                 category: 'product_version',
-                name: 'prior to 4.2',
+                name: 'PRIOR to 4.2',
                 product: {
                   product_id: 'CSAFPID-0002',
                   name: 'Some other sample product',
