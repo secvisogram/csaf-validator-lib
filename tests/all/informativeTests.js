@@ -33,6 +33,20 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -69,6 +83,20 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -159,6 +187,20 @@ export default [
             full_product_name: {
               name: 'Foo',
               product_id: 'CSAFPID-0001',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'sha256',
+                        value:
+                          '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
             },
             product_reference: 'CSAFPID-9080700',
             category: 'default_component_of',
@@ -509,6 +551,112 @@ export default [
           id: 'My-Thing-.10',
         },
       },
+    }),
+    mockAgent,
+    expectedNumberOfInfos: 1,
+  },
+
+  {
+    title: 'Informative test 6.3.10 detects usage of product version range',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            name: 'vers:a0/foo',
+            category: 'product_version_range',
+            product: {
+              name: 'Product A',
+              product_id: 'CSAFPID-9080700',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'sha256',
+                        value:
+                          '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          cve: 'CVE-1111-11111',
+          cwe: {
+            id: 'CWE-1004',
+            name: "Sensitive Cookie Without 'HttpOnly' Flag",
+          },
+          notes: [
+            {
+              category: 'description',
+              text: 'This is a sample note',
+            },
+          ],
+          product_status: {
+            fixed: ['CSAFPID-9080700'],
+          },
+        },
+      ],
+    }),
+    mockAgent,
+    expectedNumberOfInfos: 1,
+  },
+
+  {
+    title: 'Informative test 6.3.11 detects usage of v as version indicator',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            category: 'product_version',
+            name: 'v4.2',
+            product: {
+              name: 'Product A',
+              product_id: 'CSAFPID-9080700',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'sha256',
+                        value:
+                          '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          cve: 'CVE-1111-11111',
+          cwe: {
+            id: 'CWE-1004',
+            name: "Sensitive Cookie Without 'HttpOnly' Flag",
+          },
+          notes: [
+            {
+              category: 'description',
+              text: 'This is a sample note',
+            },
+          ],
+          product_status: {
+            fixed: ['CSAFPID-9080700'],
+          },
+        },
+      ],
     }),
     mockAgent,
     expectedNumberOfInfos: 1,

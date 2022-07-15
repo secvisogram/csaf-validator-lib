@@ -18,10 +18,38 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
           {
             product_id: 'CSAFPID-0002',
             name: 'Product B',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -37,6 +65,20 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -48,6 +90,20 @@ export default [
           {
             product_id: 'CSAFPID-0003',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
         relationships: [
@@ -55,6 +111,20 @@ export default [
             full_product_name: {
               name: 'Foo',
               product_id: 'CSAFPID-9080700',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'sha256',
+                        value:
+                          '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
             },
             product_reference: 'CSAFPID-0003',
             category: 'default_component_of',
@@ -201,6 +271,20 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -235,6 +319,20 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -276,6 +374,20 @@ export default [
           {
             product_id: 'CSAFPID-9080700',
             name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
       },
@@ -429,6 +541,20 @@ export default [
             full_product_name: {
               name: 'Foo',
               product_id: 'CSAFPID-0002',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'sha256',
+                        value:
+                          '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
             },
             product_reference: 'CSAFPID-9080700',
             category: 'default_component_of',
@@ -545,6 +671,20 @@ export default [
           {
             name: 'Product A',
             product_id: 'CSAFPID-9080701',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
         relationships: [
@@ -613,6 +753,20 @@ export default [
             full_product_name: {
               name: 'Foo',
               product_id: 'CSAFPID-0003',
+              product_identification_helper: {
+                hashes: [
+                  {
+                    file_hashes: [
+                      {
+                        algorithm: 'sha256',
+                        value:
+                          '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                      },
+                    ],
+                    filename: 'product_a.so',
+                  },
+                ],
+              },
             },
             product_reference: 'CSAFPID-9080700',
             category: 'default_component_of',
@@ -729,6 +883,20 @@ export default [
           {
             name: 'Product A',
             product_id: 'CSAFPID-9080701',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value:
+                        '6ae24620ea9656230f49234efd0789356ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
           },
         ],
         relationships: [
@@ -836,6 +1004,331 @@ export default [
 
       return doc
     })(),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.14 detects use of private language (lang)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        lang: 'qtx',
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.14 detects use of private language (source_lang)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        source_lang: 'qtx',
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.15 detects use of default language (lang)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        lang: 'i-default',
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.15 detects use of default language (source_lang)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      document: {
+        ...minimalDoc.document,
+        source_lang: 'i-default',
+      },
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title:
+      'Optional test 6.2.16 detects missing product identification helper (full_product_name)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-0001',
+            name: 'Product A',
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          notes: [
+            {
+              category: 'description',
+              text: 'This is a sample note',
+            },
+          ],
+          product_status: {
+            fixed: ['CSAFPID-0001'],
+          },
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title:
+      'Optional test 6.2.16 detects missing product identification helper (branches)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            name: 'my branch',
+            category: 'architecture',
+            branches: [
+              {
+                name: 'my branch 2',
+                category: 'architecture',
+                product: {
+                  name: 'Product A',
+                  product_id: 'CSAFPID-9080701',
+                },
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-9080701'],
+          },
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title:
+      'Optional test 6.2.16 detects missing product identification helper (relationships)',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            name: 'Product A',
+            product_id: 'CSAFPID-9080701',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value: '6ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
+          },
+        ],
+        relationships: [
+          {
+            category: 'default_component_of',
+            product_reference: 'CSAFPID-9080701',
+            relates_to_product_reference: 'CSAFPID-9080701',
+            full_product_name: {
+              name: 'Product A',
+              product_id: 'CSAFPID-9080700',
+            },
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-9080700'],
+          },
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.17 detects cve in field ids',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      vulnerabilities: [
+        {
+          ids: [
+            {
+              system_name: 'CVE Project',
+              text: 'CVE-2021-44228',
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.18 detects product version range without vers',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        branches: [
+          {
+            name: 'my branch',
+            category: 'architecture',
+            branches: [
+              {
+                name: '>4.2',
+                category: 'product_version_range',
+                product: {
+                  name: 'Product A',
+                  product_id: 'CSAFPID-9080701',
+                  product_identification_helper: {
+                    hashes: [
+                      {
+                        file_hashes: [
+                          {
+                            algorithm: 'sha256',
+                            value: '6ae24620ea9656230f49234efd078935',
+                          },
+                        ],
+                        filename: 'product_a.so',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          notes: [
+            {
+              category: 'description',
+              text: 'This is a sample note',
+            },
+          ],
+          product_status: {
+            fixed: ['CSAFPID-9080701'],
+          },
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.19 detects cvss for fixed products',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value: '6ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-9080700'],
+          },
+          scores: [
+            {
+              cvss_v3: {
+                baseScore: 6.5,
+                baseSeverity: 'MEDIUM',
+                vectorString: 'CVSS:3.1/AV:L/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H',
+                version: '3.1',
+              },
+              products: ['CSAFPID-9080700'],
+            },
+          ],
+        },
+      ],
+    }),
+    expectedNumberOfWarnings: 1,
+  },
+
+  {
+    title: 'Optional test 6.2.19 detects cvss for fixed products',
+    content: sortObjectKeys(new Intl.Collator(), {
+      ...minimalDoc,
+      product_tree: {
+        full_product_names: [
+          {
+            product_id: 'CSAFPID-9080700',
+            name: 'Product A',
+            product_identification_helper: {
+              hashes: [
+                {
+                  file_hashes: [
+                    {
+                      algorithm: 'sha256',
+                      value: '6ae24620ea9656230f49234efd078935',
+                    },
+                  ],
+                  filename: 'product_a.so',
+                },
+              ],
+            },
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-9080700'],
+          },
+          scores: [
+            {
+              cvss_v3: {
+                baseScore: 5.7,
+                baseSeverity: 'MEDIUM',
+                vectorString:
+                  'CVSS:3.1/AV:N/AC:H/PR:H/UI:R/S:U/C:H/I:H/A:N/CR:L/IR:L/AR:L/MAV:P/MAC:H/MPR:H/MUI:N/MS:U/MC:N/MI:N/MA:H',
+                version: '3.1',
+              },
+              products: ['CSAFPID-9080700'],
+            },
+          ],
+        },
+      ],
+    }),
     expectedNumberOfWarnings: 1,
   },
 ]
