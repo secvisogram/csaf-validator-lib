@@ -4,6 +4,8 @@ import { writeFile, readFile } from 'node:fs/promises'
 import prettier from 'prettier'
 import xml2js from 'xml2js'
 
+// The registry file can be downloaded from https://cwe.mitre.org/data/xml/cwec_latest.xml.zip
+
 const [, , REGISTRY_FILE] = process.argv
 const OUTPUT_FILE = 'lib/shared/cwec.js'
 
