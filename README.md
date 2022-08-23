@@ -113,6 +113,7 @@ export const mandatoryTest_6_1_4: DocumentTest
 export const mandatoryTest_6_1_5: DocumentTest
 export const mandatoryTest_6_1_6: DocumentTest
 export const mandatoryTest_6_1_7: DocumentTest
+export const mandatoryTest_6_1_8: DocumentTest
 export const mandatoryTest_6_1_9: DocumentTest
 export const mandatoryTest_6_1_10: DocumentTest
 export const mandatoryTest_6_1_11: DocumentTest
@@ -168,6 +169,13 @@ export const optionalTest_6_2_10: DocumentTest
 export const optionalTest_6_2_11: DocumentTest
 export const optionalTest_6_2_12: DocumentTest
 export const optionalTest_6_2_13: DocumentTest
+export const optionalTest_6_2_14: DocumentTest
+export const optionalTest_6_2_15: DocumentTest
+export const optionalTest_6_2_16: DocumentTest
+export const optionalTest_6_2_17: DocumentTest
+export const optionalTest_6_2_18: DocumentTest
+export const optionalTest_6_2_19: DocumentTest
+export const optionalTest_6_2_20: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -182,6 +190,10 @@ export const informativeTest_6_3_4: DocumentTest
 export const informativeTest_6_3_5: DocumentTest
 export const informativeTest_6_3_6: DocumentTest
 export const informativeTest_6_3_7: DocumentTest
+export const informativeTest_6_3_8: DocumentTest
+export const informativeTest_6_3_9: DocumentTest
+export const informativeTest_6_3_10: DocumentTest
+export const informativeTest_6_3_11: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
