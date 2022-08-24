@@ -200,10 +200,13 @@ export const informativeTest_6_3_11: DocumentTest
 
 #### Module `validate.js`
 
+This function validates the given document against the given tests. The `strict` option (default `true`) throws if an unknown test function was passed.
+
 ```typescript
 type ValidateFn = (
   tests: DocumentTest[],
-  document: any
+  document: any,
+  options?: { strict?: boolean }
 ) => Promise<{
   tests: Array<{ name: string } & Result>
   isValid: boolean
@@ -216,10 +219,13 @@ export default ValidateFn
 
 #### Module `strip.js`
 
+This function strips empty nodes and nodes with errors. The `strict` option (default `true`) throws if an unknown test function was passed.
+
 ```typescript
 type StripFn = (
   tests: DocumentTest[],
-  document: any
+  document: any,
+  options?: { strict?: boolean }
 ) => Promise<{
   document: any
   strippedPaths: {
