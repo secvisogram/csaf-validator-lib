@@ -24,10 +24,11 @@ This JavaScript library is intended to include logic that can be shared across a
 
 ## Getting Started
 
-Currently, there is no npm package. You can include this library as a 
+Currently, there is no npm package. You can include this library as a
 subtree in your repository. After that you can reference the modules from within your JavaScript application.
 
 - include as git subtree
+
   ```sh
   git subtree add --prefix csaf-validator-lib https://github.com/secvisogram/csaf-validator-lib.git main --squash
   ```
@@ -42,21 +43,20 @@ subtree in your repository. After that you can reference the modules from within
 ## How to use
 
 - example usage
+
   ```js
   import validate from '../csaf-validator-lib/validate.js'
-  
-  const document = '{}'
+  import * as mandatory from '../csaf-validator-lib/mandatoryTests.js'
+  import { optionalTest_6_2_1 } from '../csaf-validator-lib/optionalTests.js'
+  import { csaf_2_0_strict } from './schemaTests.js'
+
+  const document = {}
   const tests = [
-    {
-      type: 'preset',
-      name: 'mandatory'
-    },
-    {
-      type: 'test',
-      name: 'optionalTest_6_2_1'
-    }
+    csaf_2_0_strict,
+    ...Object.values(mandatory),
+    optionalTest_6_2_1,
   ]
-  
+
   const result = await validate(tests, document)
   ```
 
