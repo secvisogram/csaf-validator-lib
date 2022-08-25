@@ -2,6 +2,7 @@
   "name": "csaf-validator-lib",
   "private": true,
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "test": "tsc -b . && mocha tests",
     "test-report": "tsc -b . && mocha tests --reporter json > test-results.json",
