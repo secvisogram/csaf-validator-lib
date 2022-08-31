@@ -228,7 +228,7 @@ export default ValidateFn
 
 #### Module `strip.js`
 
-This function strips empty nodes and nodes with errors. The `strict` option (default `true`) throws if an unknown test function was passed.
+This function strips empty nodes and nodes with errors. The `strict` option (default `true`) throws an error if an unknown test function was passed. See [Strict Mode](#strict-mode) for details.
 
 ```typescript
 type StripFn = (
