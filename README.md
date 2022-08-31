@@ -1,17 +1,18 @@
 # BSI CSAF Validator Lib
 
 - [About The Project](#about-the-project)
-- [Getting started](#getting-started)
+- [Getting Started](#getting-started)
 - [How to use](#how-to-use)
-  - [Api](#api)
+- [Strict Mode](#strict-mode)
+  - [API](#api)
     - [Interfaces](#interfaces)
-    - [Module schemaTests.js](#module-schematestsjs)
-    - [Module mandatoryTests.js](#module-mandatorytestsjs)
-    - [Module optionalTests.js](#module-optionaltestsjs)
-    - [Module informativeTests.js](#module-informativetestsjs)
-    - [Module validate.js](#module-validatejs)
-    - [Module strip.js](#module-stripjs)
-    - [Module cwe.js](#module-cwejs)
+    - [Module `schemaTests.js`](#module-schematestsjs)
+    - [Module `mandatoryTests.js`](#module-mandatorytestsjs)
+    - [Module `optionalTests.js`](#module-optionaltestsjs)
+    - [Module `informativeTests.js`](#module-informativetestsjs)
+    - [Module `validate.js`](#module-validatejs)
+    - [Module `strip.js`](#module-stripjs)
+    - [Module `cwe.js`](#module-cwejs)
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [Dependencies](#dependencies)
@@ -59,6 +60,14 @@ subtree in your repository. After that you can reference the modules from within
 
   const result = await validate(tests, document)
   ```
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+## Strict Mode
+
+In the default setting, the library checks whether the test that should be executed was defined in the library. Otherwise, it throws an error.
+To extend the library, that check can be turned off. **In such case, the calling function is responsible of checking whether the test function passed to the `csaf-validator-lib` is benign. Calling arbitrary functions (especially those resulting from user input) may result in a code execution vulnerability. Therefore, the check of the test function to determine whether it is benign MUST be done before calling it.**
+To proceed this dangerous path, set `strict = false`.
 
 [(back to top)](#bsi-csaf-validator-lib)
 
