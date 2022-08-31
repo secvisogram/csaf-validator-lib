@@ -209,7 +209,7 @@ export const informativeTest_6_3_11: DocumentTest
 
 #### Module `validate.js`
 
-This function validates the given document against the given tests. The `strict` option (default `true`) throws if an unknown test function was passed.
+This function validates the given document against the given tests. The `strict` option (default `true`) throws an error if an unknown test function was passed. See [Strict Mode](#strict-mode) for details.
 
 ```typescript
 type ValidateFn = (
