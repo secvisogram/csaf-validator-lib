@@ -14,7 +14,7 @@ describe('validate', function () {
       )
       expect.fail()
     } catch (/** @type {any} */ e) {
-      expect(e.message).to.equal('Insecure test function detected')
+      expect(e.message).to.contain('Execution of test functions not defined in the library is prohibited.')
     }
   })
 })
