@@ -79,7 +79,7 @@ To proceed this dangerous path, set `strict = false`.
 interface Result {
   isValid: boolean
   warnings: Array<{ message: string; instancePath: string }>
-  errors: Array<{ message?: string; instancePath: string }>
+  errors: Array<{ message: string; instancePath: string }>
   infos: Array<{ message: string; instancePath: string }>
 }
 ```
@@ -88,7 +88,7 @@ interface Result {
 interface TestResult {
   isValid?: boolean
   warnings?: Array<{ message: string; instancePath: string }>
-  errors?: Array<{ message?: string; instancePath: string }>
+  errors?: Array<{ message: string; instancePath: string }>
   infos?: Array<{ message: string; instancePath: string }>
 }
 ```
