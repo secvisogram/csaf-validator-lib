@@ -170,7 +170,7 @@ describe('Core', () => {
               return {
                 isValid,
                 errors:
-                  /** @type {{ message?: string | undefined; instancePath: string; }[]} */ (
+                  /** @type {{ message: string; instancePath: string; }[]} */ (
                     schemaValidator.errors ?? []
                   ),
               }
@@ -199,7 +199,7 @@ describe('Core', () => {
               return {
                 isValid,
                 errors:
-                  /** @type {{ message?: string | undefined; instancePath: string; }[]} */ (
+                  /** @type {{ message: string; instancePath: string; }[]} */ (
                     schemaValidator.errors ?? []
                   ),
               }
