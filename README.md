@@ -10,6 +10,9 @@
     - [Module `mandatoryTests.js`](#module-mandatorytestsjs)
     - [Module `optionalTests.js`](#module-optionaltestsjs)
     - [Module `informativeTests.js`](#module-informativetestsjs)
+    - [Module `basic.js`](#module-basicjs)
+    - [Module `extended.js`](#module-extendedjs)
+    - [Module `full.js`](#module-fulljs)
     - [Module `validate.js`](#module-validatejs)
     - [Module `strip.js`](#module-stripjs)
     - [Module `cwe.js`](#module-cwejs)
@@ -204,6 +207,24 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 ```
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `basic.js`
+
+This module exports the strict schema test and all mandatory tests except `6.1.8`.
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `extended.js`
+
+This module exports all tests included in `basic.js` and all optional tests.
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `full.js`
+
+This module exports all tests included in `extended.js` and all informative tests.
 
 [(back to top)](#bsi-csaf-validator-lib)
 
