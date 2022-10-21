@@ -16,6 +16,9 @@ describe('Informative test 6.3.9', function () {
         const result = informativeTest_6_3_9(failingExample)
 
         expect(result.infos.length).to.be.greaterThan(0)
+        if (title === 'oasis_csaf_tc-csaf_2_0-2021-6-3-09-03.json') {
+          expect(result.infos.length).to.equal(4)
+        }
       })
     }
   })
