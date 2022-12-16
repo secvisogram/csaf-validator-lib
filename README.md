@@ -76,7 +76,7 @@ automatically recognize them.
 - example usage
 
   ```js
-  import { validateStrict } from '../csaf-validator-lib/validate.js'
+  import validateStrict from '../csaf-validator-lib/validateStrict.js'
   import * as mandatory from '../csaf-validator-lib/mandatoryTests.js'
   import { optionalTest_6_2_1 } from '../csaf-validator-lib/optionalTests.js'
   import { csaf_2_0_strict } from './schemaTests.js'
