@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { validateStrict } from "../validate.js";
+import validateStrict from "../validateStrict.js";
 
 describe('validateStrict', function () {
   it('throws if an unknown test function is passed and strict mode is used', async function () {
