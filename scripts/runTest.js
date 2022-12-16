@@ -14,7 +14,7 @@ import * as schemaTests from '../schemaTests.js'
 import * as mandatoryTests from '../mandatoryTests.js'
 import * as optionalTests from '../optionalTests.js'
 import * as informativeTests from '../informativeTests.js'
-import validate from '../validate.js'
+import { validate } from '../validate.js'
 
 const [, , filePath, testName] = process.argv
 
