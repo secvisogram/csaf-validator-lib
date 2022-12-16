@@ -1,2 +1,1 @@
-export { validate } from './lib/validate.js'
-export { validateStrict } from './lib/validateStrict.js'
+export { default } from './lib/validate.js'
