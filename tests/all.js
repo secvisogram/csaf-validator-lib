@@ -5,7 +5,7 @@ import * as informativeTests from '../informativeTests.js'
 import * as mandatoryTests from '../mandatoryTests.js'
 import * as schemaTests from '../schemaTests.js'
 import strip from '../strip.js'
-import validate from '../validate.js'
+import { validate } from '../validate.js'
 import * as optionalTests from '../optionalTests.js'
 import documentTests from './all/documentTests.js'
 import informativeTestTests from './all/informativeTests.js'
@@ -176,8 +176,7 @@ describe('Core', () => {
               }
             },
           ],
-          { title: 4 },
-          { strict: false }
+          { title: 4 }
         )
 
         expect(result.document).to.deep.equal({})
@@ -205,8 +204,7 @@ describe('Core', () => {
               }
             },
           ],
-          { title: '' },
-          { strict: false }
+          { title: '' }
         )
 
         expect(result.document).to.deep.equal({})
