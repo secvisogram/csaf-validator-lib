@@ -14,6 +14,7 @@
     - [Module `extended.js`](#module-extendedjs)
     - [Module `full.js`](#module-fulljs)
     - [Module `validate.js`](#module-validatejs)
+    - [Module `validateStrict.js`](#module-validatestrictjs)
     - [Module `strip.js`](#module-stripjs)
     - [Module `cwe.js`](#module-cwejs)
 - [Testing](#testing)
@@ -263,20 +264,13 @@ This module exports all tests included in `extended.js` and all informative test
 
 #### Module `validate.js`
 
-This function validates the given document against the given tests. The `strict` option (default `true`) throws an error if an unknown test function was passed. See [Strict Mode](#strict-mode) for more details.
+This function validates the given document against the given tests.
 
-```typescript
-type ValidateFn = (
-  tests: DocumentTest[],
-  document: any,
-  options?: { strict?: boolean }
-) => Promise<{
-  tests: Array<{ name: string } & Result>
-  isValid: boolean
-}>
+#### Module `validateStrict.js`
 
-export default ValidateFn
-```
+This function validates the given document against the given tests. It throws 
+an error if an unknown test function was passed. See [Strict Mode](#strict-mode)
+for more details.
 
 [(back to top)](#bsi-csaf-validator-lib)
 
