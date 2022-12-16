@@ -176,8 +176,7 @@ describe('Core', () => {
               }
             },
           ],
-          { title: 4 },
-          { strict: false }
+          { title: 4 }
         )
 
         expect(result.document).to.deep.equal({})
@@ -205,8 +204,7 @@ describe('Core', () => {
               }
             },
           ],
-          { title: '' },
-          { strict: false }
+          { title: '' }
         )
 
         expect(result.document).to.deep.equal({})

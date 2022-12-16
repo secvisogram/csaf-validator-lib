@@ -1,10 +1,10 @@
 import { expect } from 'chai'
-import validate from '../validate.js'
+import validateStrict from '../validateStrict.js'
 
-describe('validate', function () {
-  it('throws if an unknown test function is passed and strict mode is requested', async function () {
+describe('validateStrict', function () {
+  it('throws if an unknown test function is passed and strict mode is used', async function () {
     try {
-      await validate(
+      await validateStrict(
         [
           function () {
             return {}
@@ -14,7 +14,9 @@ describe('validate', function () {
       )
       expect.fail()
     } catch (/** @type {any} */ e) {
-      expect(e.message).to.contain('Execution of test functions not defined in the library is prohibited.')
+      expect(e.message).to.contain(
+        'Execution of test functions not defined in the library is prohibited.'
+      )
     }
   })
 })
