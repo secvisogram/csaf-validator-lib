@@ -8,9 +8,14 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
+    - name: Display structure of files 1
+      run: ls -laR
     - uses: dawidd6/action-download-artifact@v2
       with:
         workflow: ci.yml
+        name: test-results
+    - name: Display structure of files 2
+      run: ls -laR
     - name: Test Report
       uses: phoenix-actions/test-reporting@v11
       id: test-report
