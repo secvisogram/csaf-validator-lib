@@ -8,6 +8,9 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
     - name: Display structure of files 12
       run: ls -laR
     - uses: dawidd6/action-download-artifact@v2
