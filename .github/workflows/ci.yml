@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run test-report
       - run: npm run test-coverage-lcov
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
           name: test-results
