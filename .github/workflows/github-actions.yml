@@ -10,6 +10,7 @@ jobs:
       id-token: write
       contents: read
       checks: write
+      pull-requests: write
     steps:
       - run: sudo apt-get install hunspell
       - uses: actions/checkout@v3
