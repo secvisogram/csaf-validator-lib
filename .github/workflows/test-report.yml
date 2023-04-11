@@ -17,3 +17,5 @@ jobs:
         name: Mocha Tests
         path: test-results.json
         reporter: mocha-json
+    - name: c8 coverage report
+      uses: romeovs/lcov-reporter-action@v0.2.16
