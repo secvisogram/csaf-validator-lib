@@ -8,7 +8,7 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-    - name: Display structure of files 1
+    - name: Display structure of files 12
       run: ls -laR
     - uses: dawidd6/action-download-artifact@v2
       with:
