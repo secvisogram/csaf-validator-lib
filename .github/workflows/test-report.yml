@@ -1,0 +1,19 @@
+name: 'Test Report'
+on:
+  workflow_run:
+    workflows: ['CI']
+    types:
+      - completed
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test Report
+      uses: phoenix-actions/test-reporting@v11
+      id: test-report
+      if: success() || failure()
+      with:
+        artifact: test-results
+        name: Mocha Tests
+        path: test-results.json
+        reporter: mocha-json

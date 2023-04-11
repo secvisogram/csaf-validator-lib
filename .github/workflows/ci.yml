@@ -1,0 +1,24 @@
+name: 'CI'
+
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get install hunspell
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm run test-report
+      - uses: actions/upload-artifact@v2
+        if: success() || failure()
+        with:
+          name: test-results
+          path: test-results.json
