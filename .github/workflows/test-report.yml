@@ -7,22 +7,12 @@ on:
 jobs:
   report:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      issues: write
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-    - uses: dawidd6/action-download-artifact@v2
-      with:
-        workflow: ci.yml
-        name: test-results
     - name: Test Report
       uses: phoenix-actions/test-reporting@v11
       id: test-report
       with:
+        artifact: test-results
         name: Mocha Tests
         path: test-results.json
         reporter: mocha-json
