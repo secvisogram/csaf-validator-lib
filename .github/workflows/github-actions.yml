@@ -6,6 +6,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      checks: write
     steps:
       - run: sudo apt-get install hunspell
       - uses: actions/checkout@v3
