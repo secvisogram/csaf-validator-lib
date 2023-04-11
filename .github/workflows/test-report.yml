@@ -8,9 +8,9 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: dawidd6/action-download-artifact@v2
       with:
-        name: test-results
+        workflow: ci.yml
     - name: Test Report
       uses: phoenix-actions/test-reporting@v11
       id: test-report
