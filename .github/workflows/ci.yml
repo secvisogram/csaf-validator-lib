@@ -18,6 +18,8 @@ jobs:
       - run: npm ci
       - run: npm run test-report
       - run: npm run test-coverage-lcov
+      - name: c8 coverage report
+        uses: romeovs/lcov-reporter-action@v0.2.16
       - uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
