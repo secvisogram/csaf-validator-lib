@@ -13,6 +13,8 @@ jobs:
       with:
         workflow: tests.yml
         run_id: ${{ github.event.workflow_run.id }}
+    - name: ls content for debugging
+      run: ls -la
     - name: Set pr number env
       run: |
         PR_NUMBER=$(cat pr_number)
