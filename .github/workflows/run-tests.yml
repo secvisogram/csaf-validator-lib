@@ -7,6 +7,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Save PR number
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          echo $PR_NUMBER > ./pr_number
       - run: sudo apt-get install hunspell
       - uses: actions/checkout@v3
         with:
@@ -16,16 +21,12 @@ jobs:
           node-version: 16
       - run: npm ci
       - run: npm run test-report
-      - name: Save PR number
-        env:
-          PR_NUMBER: ${{ github.event.number }}
-        run: |
-          echo $PR_NUMBER > ./pr_number
+      - run: npm run test-coverage-lcov
       - uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
           name: test-results
           path: |
             test-results.json
-            coverage/lcov.info
+            coverage
             pr_number

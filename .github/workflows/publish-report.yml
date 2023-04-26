@@ -11,7 +11,8 @@ jobs:
     - name: Download workflow artifact
       uses: dawidd6/action-download-artifact@v2.27.0
       with:
-        workflow: tests.yml
+        workflow: run-tests.yml
+        name: test-results
         run_id: ${{ github.event.workflow_run.id }}
     - name: ls content for debugging
       run: ls -la
