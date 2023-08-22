@@ -1,6 +1,5 @@
 {
-  "name": "csaf-validator-lib",
-  "private": true,
+  "name": "@secvisogram/csaf-validator-lib",
   "type": "module",
   "license": "MIT",
   "scripts": {
