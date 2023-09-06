@@ -20,6 +20,8 @@
     "access": "public"
   },
   "dependencies": {
+    "@js-joda/core": "^5.5.3",
+    "@js-joda/timezone": "^2.18.0",
     "ajv": "^8.11.2",
     "ajv-formats": "^2.1.1",
     "bcp47": "^1.1.2",
