@@ -218,7 +218,13 @@ export const strip: (
     error: boolean
   }[]
 }>
+```
 
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `csaf-validator-lib-node.js`
+
+```typescript
 export const hunspell: Promise<any>
 ```
 
