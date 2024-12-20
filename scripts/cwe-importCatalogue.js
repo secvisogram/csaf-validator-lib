@@ -10,7 +10,7 @@ const [, , REGISTRY_FILE] = process.argv
 const OUTPUT_FILE = 'lib/shared/cwec.js'
 
 /**
- * @typedef {{ ID: string; Name: string, Mapping_Notes: {Usage: string}, Content_History: {Submission: {Submission_Version: string}} }} Weakness
+ * @typedef {{ ID: string; Name: string, Mapping_Notes: {Usage: string, Rationale: string}, Content_History: {Submission: {Submission_Version: string}} }} Weakness
  * @typedef {{Weaknesses: {Weakness: Array<Weakness>}}} Weaknesses
  */
 
@@ -31,6 +31,7 @@ const json = {
         id: `CWE-${weakness.ID}`,
         name: weakness.Name,
         usage: weakness.Mapping_Notes.Usage,
+        rationale: weakness.Mapping_Notes.Rationale,
         version: weakness.Content_History.Submission.Submission_Version,
       }
     }
