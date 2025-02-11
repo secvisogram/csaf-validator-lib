@@ -1,0 +1,1 @@
+export { default as informativeTest_6_3_1 } from './informativeTests/informativeTest_6_3_1.js'
