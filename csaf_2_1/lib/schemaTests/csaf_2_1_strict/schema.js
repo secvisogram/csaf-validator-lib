@@ -1,6 +1,4 @@
 export default {
-  $id: 'https://docs.oasis-open.org/csaf/csaf/v2.0/csaf_json_schema.json?strict',
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
   $defs: {
     acknowledgments_t: {
       description: 'Contains a list of acknowledgment elements.',
@@ -11,12 +9,13 @@ export default {
         minProperties: 1,
         properties: {
           names: {
-            description: 'Contains the names of entities being recognized.',
+            description: 'Contains the names of contributors being recognized.',
             items: {
-              description: 'Contains the name of a single person.',
+              description:
+                'Contains the name of a single contributor being recognized.',
               examples: ['Albert Einstein', 'Johann Sebastian Bach'],
               minLength: 1,
-              title: 'Name of entity being recognized',
+              title: 'Name of the contributor',
               type: 'string',
             },
             minItems: 1,
@@ -84,6 +83,7 @@ export default {
               'language',
               'legacy',
               'patch_level',
+              'platform',
               'product_family',
               'product_name',
               'product_version',
@@ -131,7 +131,7 @@ export default {
       properties: {
         name: {
           description:
-            'The value should be the product\u2019s full canonical name, including version number and other attributes, as it would be used in a human-friendly document.',
+            'The value should be the product\u00e2\u20ac\u2122s full canonical name, including version number and other attributes, as it would be used in a human-friendly document.',
           examples: [
             'Cisco AnyConnect Secure Mobility Client 2.3.185',
             'Microsoft Host Integration Server 2006 Service Pack 1',
@@ -229,10 +229,11 @@ export default {
               type: 'array',
             },
             model_numbers: {
-              description: 'Contains a list of parts, or full model numbers.',
+              description:
+                'Contains a list of full or abbreviated (partial) model numbers.',
               items: {
                 description:
-                  'Contains a part, or a full model number of the component to identify.',
+                  'Contains a full or abbreviated (partial) model number of the component to identify.',
                 minLength: 1,
                 title: 'Model number',
                 type: 'string',
@@ -265,10 +266,11 @@ export default {
               type: 'array',
             },
             serial_numbers: {
-              description: 'Contains a list of parts, or full serial numbers.',
+              description:
+                'Contains a list of full or abbreviated (partial) serial numbers.',
               items: {
                 description:
-                  'Contains a part, or a full serial number of the component to identify.',
+                  'Contains a full or abbreviated (partial) serial number of the component to identify.',
                 minLength: 1,
                 title: 'Serial number',
                 type: 'string',
@@ -280,10 +282,10 @@ export default {
             },
             skus: {
               description:
-                'Contains a list of parts, or full stock keeping units.',
+                'Contains a list of full or abbreviated (partial) stock keeping units.',
               items: {
                 description:
-                  'Contains a part, or a full stock keeping unit (SKU) which is used in the ordering process to identify the component.',
+                  'Contains a full or abbreviated (partial) stock keeping unit (SKU) which is used in the ordering process to identify the component.',
                 minLength: 1,
                 title: 'Stock keeping unit',
                 type: 'string',
@@ -348,7 +350,7 @@ export default {
           'Is a place to put all manner of text blobs related to the current context.',
         properties: {
           audience: {
-            description: 'Indicate who is intended to read it.',
+            description: 'Indicates who is intended to read it.',
             examples: [
               'all',
               'executives',
@@ -360,7 +362,8 @@ export default {
             type: 'string',
           },
           category: {
-            description: 'Choice of what kind of note this is.',
+            description:
+              'Contains the information of what kind of note this is.',
             enum: [
               'description',
               'details',
@@ -375,9 +378,9 @@ export default {
           },
           text: {
             description:
-              'The contents of the note. Content varies depending on type.',
+              'Holds the content of the note. Content varies depending on type.',
             minLength: 1,
-            title: 'Note contents',
+            title: 'Note content',
             type: 'string',
           },
           title: {
@@ -486,10 +489,22 @@ export default {
       type: 'string',
     },
   },
+  $id: 'https://docs.oasis-open.org/csaf/csaf/v2.1/csaf_json_schema.json?strict',
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
   additionalProperties: false,
   description:
     'Representation of security advisory information as a JSON document.',
   properties: {
+    $schema: {
+      description:
+        'Contains the URL of the CSAF JSON schema which the document promises to be valid for.',
+      enum: [
+        'https://docs.oasis-open.org/csaf/csaf/v2.1/csaf_json_schema.json',
+      ],
+      format: 'uri',
+      title: 'JSON schema',
+      type: 'string',
+    },
     document: {
       additionalProperties: false,
       description:
@@ -504,7 +519,7 @@ export default {
         aggregate_severity: {
           additionalProperties: false,
           description:
-            "Is a vehicle that is provided by the document producer to convey the urgency and criticality with which the one or more vulnerabilities reported should be addressed. It is a document-level metric and applied to the document as a whole \u2014 not any specific vulnerability. The range of values in this field is defined according to the document producer's policies and procedures.",
+            "Is a vehicle that is provided by the document producer to convey the urgency and criticality with which the one or more vulnerabilities reported should be addressed. It is a document-level metric and applied to the document as a whole \u00e2\u20ac\u201d not any specific vulnerability. The range of values in this field is defined according to the document producer's policies and procedures.",
           properties: {
             namespace: {
               description: 'Points to the namespace so referenced.',
@@ -542,7 +557,7 @@ export default {
         csaf_version: {
           description:
             'Gives the version of the CSAF specification which the document was generated for.',
-          enum: ['2.0'],
+          enum: ['2.1'],
           title: 'CSAF version',
           type: 'string',
         },
@@ -550,8 +565,40 @@ export default {
           additionalProperties: false,
           description:
             'Describe any constraints on how this document might be shared.',
-          minProperties: 1,
           properties: {
+            sharing_group: {
+              additionalProperties: false,
+              description:
+                'Contains information about the group this document is intended to be shared with.',
+              properties: {
+                id: {
+                  description: 'Provides the unique ID for the sharing group.',
+                  format: 'uuid',
+                  pattern:
+                    '^(([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})|([0]{8}-([0]{4}-){3}[0]{12})|([f]{8}-([f]{4}-){3}[f]{12}))$',
+                  title: 'Sharing Group ID',
+                  type: 'string',
+                },
+                name: {
+                  description:
+                    'Contains a human-readable name for the sharing group.',
+                  examples: [
+                    'Customer A',
+                    'ISAC members',
+                    'NIS2 regulated important entities in Germany, sector water',
+                    'Pre-Sharing group for advisory discussion',
+                    'Users of Product A',
+                    'US Federal Civilian Authorities',
+                  ],
+                  minLength: 1,
+                  title: 'Sharing Group Name',
+                  type: 'string',
+                },
+              },
+              required: ['id'],
+              title: 'Sharing Group',
+              type: 'object',
+            },
             text: {
               description:
                 'Provides a textual description of additional constraints.',
@@ -570,8 +617,9 @@ export default {
                 'Provides details about the TLP classification of the document.',
               properties: {
                 label: {
+                  default: 'CLEAR',
                   description: 'Provides the TLP label of the document.',
-                  enum: ['AMBER', 'GREEN', 'RED', 'WHITE'],
+                  enum: ['AMBER', 'AMBER+STRICT', 'CLEAR', 'GREEN', 'RED'],
                   title: 'Label of TLP',
                   type: 'string',
                 },
@@ -593,6 +641,7 @@ export default {
               type: 'object',
             },
           },
+          required: ['tlp'],
           title: 'Rules for sharing document',
           type: 'object',
         },
@@ -618,6 +667,7 @@ export default {
               enum: [
                 'coordinator',
                 'discoverer',
+                'multiplier',
                 'other',
                 'translator',
                 'user',
@@ -839,7 +889,14 @@ export default {
           type: 'object',
         },
       },
-      required: ['category', 'csaf_version', 'publisher', 'title', 'tracking'],
+      required: [
+        'category',
+        'csaf_version',
+        'distribution',
+        'publisher',
+        'title',
+        'tracking',
+      ],
       title: 'Document level meta-data',
       type: 'object',
     },
@@ -977,34 +1034,50 @@ export default {
             title: 'CVE',
             type: 'string',
           },
-          cwe: {
-            additionalProperties: false,
-            description:
-              'Holds the MITRE standard Common Weakness Enumeration (CWE) for the weakness associated.',
-            properties: {
-              id: {
-                description: 'Holds the ID for the weakness associated.',
-                examples: ['CWE-22', 'CWE-352', 'CWE-79'],
-                pattern: '^CWE-[1-9]\\d{0,5}$',
-                title: 'Weakness ID',
-                type: 'string',
+          cwes: {
+            description: 'Contains a list of CWEs.',
+            items: {
+              additionalProperties: false,
+              description:
+                'Holds the MITRE standard Common Weakness Enumeration (CWE) for the weakness associated.',
+              properties: {
+                id: {
+                  description: 'Holds the ID for the weakness associated.',
+                  examples: ['CWE-22', 'CWE-352', 'CWE-79'],
+                  pattern: '^CWE-[1-9]\\d{0,5}$',
+                  title: 'Weakness ID',
+                  type: 'string',
+                },
+                name: {
+                  description:
+                    'Holds the full name of the weakness as given in the CWE specification.',
+                  examples: [
+                    'Cross-Site Request Forgery (CSRF)',
+                    "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+                    "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
+                  ],
+                  minLength: 1,
+                  title: 'Weakness name',
+                  type: 'string',
+                },
+                version: {
+                  description:
+                    'Holds the version string of the CWE specification this weakness was extracted from.',
+                  examples: ['1.0', '3.4.1', '4.0', '4.11', '4.12'],
+                  minLength: 1,
+                  pattern: '^[1-9]\\d*\\.([0-9]|([1-9]\\d+))(\\.\\d+)?$',
+                  title: 'CWE version',
+                  type: 'string',
+                },
               },
-              name: {
-                description:
-                  'Holds the full name of the weakness as given in the CWE specification.',
-                examples: [
-                  'Cross-Site Request Forgery (CSRF)',
-                  "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
-                  "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
-                ],
-                minLength: 1,
-                title: 'Weakness name',
-                type: 'string',
-              },
+              required: ['id', 'name', 'version'],
+              title: 'CWE',
+              type: 'object',
             },
-            required: ['id', 'name'],
-            title: 'CWE',
-            type: 'object',
+            minItems: 1,
+            title: 'List of CWEs',
+            type: 'array',
+            uniqueItems: true,
           },
           discovery_date: {
             description:
@@ -1145,6 +1218,60 @@ export default {
             type: 'array',
             uniqueItems: true,
           },
+          metrics: {
+            description:
+              'Contains metric objects for the current vulnerability.',
+            items: {
+              additionalProperties: false,
+              description:
+                'Contains all metadata about the metric including products it applies to and the source and the content itself.',
+              properties: {
+                content: {
+                  additionalProperties: false,
+                  description:
+                    'Specifies information about (at least one) metric or score for the given products regarding the current vulnerability.',
+                  minProperties: 1,
+                  properties: {
+                    cvss_v2: {
+                      $ref: 'https://www.first.org/cvss/cvss-v2.0.json',
+                    },
+                    cvss_v3: {
+                      oneOf: [
+                        {
+                          $ref: 'https://www.first.org/cvss/cvss-v3.0.json',
+                        },
+                        {
+                          $ref: 'https://www.first.org/cvss/cvss-v3.1.json',
+                        },
+                      ],
+                    },
+                    cvss_v4: {
+                      $ref: 'https://www.first.org/cvss/cvss-v4.0.json',
+                    },
+                  },
+                  title: 'Content',
+                  type: 'object',
+                },
+                products: {
+                  $ref: '#/$defs/products_t',
+                },
+                source: {
+                  description:
+                    'Contains the URL of the source that originally determined the metric.',
+                  format: 'uri',
+                  title: 'Source',
+                  type: 'string',
+                },
+              },
+              required: ['content', 'products'],
+              title: 'metric',
+              type: 'object',
+            },
+            minItems: 1,
+            title: 'List of metrics',
+            type: 'array',
+            uniqueItems: true,
+          },
           notes: {
             $ref: '#/$defs/notes_t',
             description: 'Holds notes associated with this vulnerability item.',
@@ -1232,9 +1359,11 @@ export default {
                   description:
                     'Specifies the category which this remediation belongs to.',
                   enum: [
+                    'fix_planned',
                     'mitigation',
                     'no_fix_planned',
                     'none_available',
+                    'optional_patch',
                     'vendor_fix',
                     'workaround',
                   ],
@@ -1324,40 +1453,6 @@ export default {
             title: 'List of remediations',
             type: 'array',
           },
-          scores: {
-            description:
-              'contains score objects for the current vulnerability.',
-            items: {
-              additionalProperties: false,
-              description:
-                'specifies information about (at least one) score of the vulnerability and for which products the given value applies.',
-              minProperties: 2,
-              properties: {
-                cvss_v2: {
-                  $ref: 'https://www.first.org/cvss/cvss-v2.0.json',
-                },
-                cvss_v3: {
-                  oneOf: [
-                    {
-                      $ref: 'https://www.first.org/cvss/cvss-v3.0.json',
-                    },
-                    {
-                      $ref: 'https://www.first.org/cvss/cvss-v3.1.json',
-                    },
-                  ],
-                },
-                products: {
-                  $ref: '#/$defs/products_t',
-                },
-              },
-              required: ['products'],
-              title: 'Score',
-              type: 'object',
-            },
-            minItems: 1,
-            title: 'List of scores',
-            type: 'array',
-          },
           threats: {
             description:
               'Contains information about a vulnerability that can change with time.',
@@ -1418,7 +1513,7 @@ export default {
       type: 'array',
     },
   },
-  required: ['document'],
+  required: ['$schema', 'document'],
   title: 'Common Security Advisory Framework',
   type: 'object',
 }

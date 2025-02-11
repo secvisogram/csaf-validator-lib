@@ -21,7 +21,7 @@ export default {
     'OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.',
   ],
 
-  $schema: 'http://json-schema.org/draft-07/schema#',
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
   title: 'JSON Schema for Common Vulnerability Scoring System version 4.0',
   $id: 'https://www.first.org/cvss/cvss-v4.0.json?20240216',
   type: 'object',

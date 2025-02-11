@@ -13,18 +13,18 @@ export default function mandatoryTest_6_1_7(doc) {
       /** @type {Map<string, Set<string>>} */
       const cvssVersionsByProductName = new Map()
 
-      vulnerability.scores?.forEach((score, scoreIndex) => {
-        score.products?.forEach((product, productIndex) => {
+      vulnerability.metrics?.forEach((metric, scoreIndex) => {
+        metric.products?.forEach((product, productIndex) => {
           const versionSet = cvssVersionsByProductName.get(product) ?? new Set()
           cvssVersionsByProductName.set(product, versionSet)
 
           if (
-            (score.cvss_v2?.version !== undefined &&
-              versionSet.has(score.cvss_v2.version)) ||
-            (score.cvss_v3?.version !== undefined &&
-              versionSet.has(score.cvss_v3.version))||
-              (score.cvss_v4?.version !== undefined &&
-                  versionSet.has(score.cvss_v4.version))
+            (metric.cvss_v2?.version !== undefined &&
+              versionSet.has(metric.cvss_v2.version)) ||
+            (metric.cvss_v3?.version !== undefined &&
+              versionSet.has(metric.cvss_v3.version))||
+              (metric.cvss_v4?.version !== undefined &&
+                  versionSet.has(metric.cvss_v4.version))
           ) {
             isValid = false
             errors.push({
@@ -34,14 +34,14 @@ export default function mandatoryTest_6_1_7(doc) {
               instancePath: `/vulnerabilities/${vulnerabilityIndex}/scores/${scoreIndex}/products/${productIndex}`,
             })
           }
-          if (score.cvss_v2?.version !== undefined) {
-            versionSet.add(score.cvss_v2.version)
+          if (metric.cvss_v2?.version !== undefined) {
+            versionSet.add(metric.cvss_v2.version)
           }
-          if (score.cvss_v3?.version !== undefined) {
-            versionSet.add(score.cvss_v3.version)
+          if (metric.cvss_v3?.version !== undefined) {
+            versionSet.add(metric.cvss_v3.version)
           }
-          if (score.cvss_v4?.version !== undefined) {
-            versionSet.add(score.cvss_v4.version)
+          if (metric.cvss_v4?.version !== undefined) {
+            versionSet.add(metric.cvss_v4.version)
           }
         })
       })

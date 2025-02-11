@@ -12,7 +12,7 @@ import documentTests from './all/documentTests.js'
 // import optionalTestTests from './all/optionalTests.js'
 // import schemaTestTests from './all/schemaTests.js'
 
-const { csaf_2_0_strict, csaf_2_1 } = schemaTests
+const { csaf_2_1_strict, csaf_2_1 } = schemaTests
 const { expect } = chai
 
 describe('Core', () => {
@@ -50,7 +50,7 @@ describe('Core', () => {
 
       it( testTitle, async () => {
         const result = await validate(
-          [csaf_2_1, csaf_2_0_strict, ...Object.values(mandatoryTests)],
+          [csaf_2_1, csaf_2_1_strict, ...Object.values(mandatoryTests)],
           documentTest.content
         )
         expect(result.isValid).to.equal(documentTest.valid)
