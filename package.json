@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "pretest": "tsc -b .",
-    "test": "node scripts/test.js",
+    "test": "node scripts/mocha.js && node scripts/test.js",
     "pretest-report": "tsc -b .",
     "test-report": "node scripts/test.js --reporter json > test-results.json",
     "test-coverage": "c8 node scripts/test.js",
