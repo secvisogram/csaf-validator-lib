@@ -1,0 +1,48 @@
+{
+  "document": {
+    "category": "csaf_base",
+    "csaf_version": "2.0",
+    "lang": "en",
+    "publisher": {
+      "category": "other",
+      "namespace": "https://csaf.io"
+    },
+    "title": "Informative test: Spell check (failing example 2, Check branches)",
+    "tracking": {
+      "current_release_date": "2021-07-21T10:00:00.000Z",
+      "id": "OASIS_CSAF_TC-CSAF_2.0-2021-6-3-08-01",
+      "initial_release_date": "2021-07-21T10:00:00.000Z",
+      "revision_history": [
+        {
+          "date": "2021-07-21T10:00:00.000Z",
+          "number": "1"
+        }
+      ],
+      "status": "final",
+      "version": "1"
+    }
+  },
+  "product_tree": {
+    "branches": [
+      {
+        "branches": [
+          {
+            "branches": [
+              {
+                "category": "product_name",
+                "name": "Red Hat Enterprise Linux Client (v. 7)",
+                "product": {
+                  "name": "Red Hat Enterprise Linux Client (v. 7)",
+                  "product_id": "7Client-7.6",
+                  "product_identification_helper": {
+                    "cpe": "cpe:/o:redhat:enterprise_linux:7::client"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
