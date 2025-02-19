@@ -9,7 +9,6 @@ export {
   mandatoryTest_6_1_8,
   mandatoryTest_6_1_9,
   mandatoryTest_6_1_10,
-  mandatoryTest_6_1_11,
   mandatoryTest_6_1_12,
   mandatoryTest_6_1_13,
   mandatoryTest_6_1_14,
@@ -43,4 +42,5 @@ export {
   mandatoryTest_6_1_32,
   mandatoryTest_6_1_33,
 } from '../mandatoryTests.js'
+export { mandatoryTest_6_1_11 } from './mandatoryTests/mandatoryTest_6_1_11.js'
 export { mandatoryTest_6_1_34 } from './mandatoryTests/mandatoryTest_6_1_34.js'
