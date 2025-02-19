@@ -6,15 +6,15 @@
     "notes": [
       {
         "category": "summary",
-        "text": "Secruity researchers found multiple vulnerabilities in XYZ."
+        "text": "Mocked as Valid"
       }
     ],
     "publisher": {
       "category": "other",
       "name": "OASIS CSAF TC",
-      "namespace": "https://csaf.io"
+      "namespace": "https://example.com"
     },
-    "title": "Informative test: Spell check (failing example 1)",
+    "title": "Informative test: Spell check (failing example 1)[Mocked as Valid]",
     "tracking": {
       "current_release_date": "2021-07-21T10:00:00.000Z",
       "id": "OASIS_CSAF_TC-CSAF_2.0-2021-6-3-08-01",
@@ -23,7 +23,7 @@
         {
           "date": "2021-07-21T10:00:00.000Z",
           "number": "1",
-          "summary": "Initial version."
+          "summary": "Mocked as Invalid"
         }
       ],
       "status": "final",
