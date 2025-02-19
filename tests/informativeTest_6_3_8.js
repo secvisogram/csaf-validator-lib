@@ -2,10 +2,14 @@ import { expect } from 'chai'
 import informativeTest_6_3_8 from '../lib/informativeTests/informativeTest_6_3_8.js'
 import readExampleFiles from './shared/readExampleFiles.js'
 
-const validString = "Informative test: Spell check (failing example 2, Check branches)"
+const validString = "Mocked as Valid"
 
 const failingExamples = await readExampleFiles(
   new URL('informativeTest_6_3_8/failing', import.meta.url)
+)
+
+const validExamples = await readExampleFiles(
+    new URL('informativeTest_6_3_8/valid', import.meta.url)
 )
 
 describe('Informative test 6.3.8', function () {
@@ -14,7 +18,7 @@ describe('Informative test 6.3.8', function () {
       it(title, async function () {
         const result = await informativeTest_6_3_8(failingExample, {
           async hunspell({ dictionary, input }) {
-            if (validString === input) {
+            if (input.includes(validString)) {
               return 'Hunspell vMOCK\n\n*'
             } else {
               return 'Hunspell vMOCK\n\n# wrongword 1'
@@ -23,6 +27,24 @@ describe('Informative test 6.3.8', function () {
         })
 
         expect(result.infos).to.have.length.greaterThan(0)
+      })
+    }
+  })
+
+  describe('valid examples', function () {
+    for (const [title, validExample] of validExamples) {
+      it(title, async function () {
+        const result = await informativeTest_6_3_8(validExample, {
+          async hunspell({ dictionary, input }) {
+            if (input.includes(validString)) {
+              return 'Hunspell vMOCK\n\n*'
+            } else {
+              return 'Hunspell vMOCK\n\n# wrongword 1'
+            }
+          },
+        })
+
+        expect(result.infos.length).to.equal(0)
       })
     }
   })
