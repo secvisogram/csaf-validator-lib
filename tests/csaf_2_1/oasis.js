@@ -1,10 +1,9 @@
-import { readFile } from 'fs/promises'
+import { readFile } from 'node:fs/promises'
+import { readFileSync } from 'node:fs'
+import assert from 'node:assert/strict'
 import * as informative from '../../csaf_2_1/informativeTests.js'
 import * as optional from '../../csaf_2_1/optionalTests.js'
 import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
-import { readFileSync } from 'fs'
-import test from 'node:test'
-import assert from 'node:assert/strict'
 
 /*
   This is a list that includes all test numbers that are not yet implemented.
@@ -91,18 +90,15 @@ const testCases = /** @type {TestCases} */ (
 const testMap = parseTestCases()
 
 for (const [group, t] of testMap) {
-  test.describe(group, function () {
+  describe(group, function () {
     for (const [testId, u] of t) {
-      test.describe(testId, function () {
+      describe(testId, function () {
         for (const [type, testSpecs] of u) {
-          test.describe(type, function () {
+          describe(type, function () {
             for (const testSpec of testSpecs) {
-              test(testSpec.name, async (t) => {
-                if (excluded.includes(testId)) {
-                  t.todo()
-                  return
-                }
+              if (excluded.includes(testId)) continue
 
+              it(testSpec.name, async () => {
                 const test = tests
                   .get(group)
                   ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
