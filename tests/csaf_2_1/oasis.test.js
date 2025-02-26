@@ -6,6 +6,45 @@ import { readFileSync } from 'fs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
+/*
+  This is a list that includes all test numbers that are not yet implemented.
+  Once all tests are implemented for CSAF 2.1 this should be deleted.
+ */
+const excluded = [
+  '6.1.7',
+  '6.1.8',
+  '6.1.9',
+  '6.1.10',
+  '6.1.11',
+  '6.1.14',
+  '6.1.16',
+  '6.1.34',
+  '6.1.35',
+  '6.1.36',
+  '6.1.37',
+  '6.1.38',
+  '6.1.39',
+  '6.1.40',
+  '6.1.41',
+  '6.2.6',
+  '6.2.11',
+  '6.2.19',
+  '6.2.21',
+  '6.2.22',
+  '6.2.23',
+  '6.2.24',
+  '6.2.25',
+  '6.2.26',
+  '6.2.27',
+  '6.2.28',
+  '6.2.29',
+  '6.2.30',
+  '6.3.1',
+  '6.3.2',
+  '6.3.4',
+  '6.3.12',
+]
+
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
 
 /** @typedef {Map<string, DocumentTest>} TestMap */
@@ -59,14 +98,16 @@ for (const [group, t] of testMap) {
           test.describe(type, function () {
             for (const testSpec of testSpecs) {
               test(testSpec.name, async (t) => {
+                if (excluded.includes(testId)) {
+                  t.todo()
+                  return
+                }
+
                 const test = tests
                   .get(group)
                   ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
 
-                if (!test) {
-                  t.todo()
-                  return
-                }
+                assert(test, 'test does not exist')
 
                 const doc = JSON.parse(
                   readFileSync(new URL(testSpec.name, testDataBaseUrl), 'utf-8')
