@@ -1,38 +1,44 @@
 import { expect } from 'chai'
 import informativeTest_6_3_8 from '../lib/informativeTests/informativeTest_6_3_8.js'
+import minimalDoc from './shared/shared/minimalDoc.js'
+import csaf_2_0 from "../lib/schemaTests/csaf_2_0.js";
 
 const validMarker = 'Mocked as Valid'
 
-const documentValidBasePart = `category": "csaf_base",
-        "csaf_version": "2.0",
-        "lang": "en",
-        "notes": [
-          {
-            "category": "summary",
-            "text": "${validMarker}"
-          }
-        ],
-        "publisher": {
-          "category": "other",
-          "name": "OASIS CSAF TC [${validMarker}]",
-          "namespace": "https://example.com"
-        },`
-
-const validTrackingpart = `"tracking": {
-          "current_release_date": "2021-07-21T10:00:00.000Z",
-          "id": "OASIS_CSAF_TC-CSAF_2.0-2021-6-3-08-01",
-          "initial_release_date": "2021-07-21T10:00:00.000Z",
-          "revision_history": [
-            {
-              "date": "2021-07-21T10:00:00.000Z",
-              "number": "1",
-              "summary": "${validMarker}"
-            }
-          ],
-          "status": "final",
-          "version": "1"
-        }
-      }`
+const documentValidBase = {
+  document: {
+    ...minimalDoc.document,
+    notes: [
+      {
+        category: 'summary',
+        text: validMarker,
+      },
+    ],
+    publisher: {
+      category: 'other',
+      name: 'OASIS CSAF TC ' + validMarker,
+      namespace: 'https://example.com',
+    },
+    references: [
+      {
+        category: 'self',
+        summary: 'A non-canonical URL. ' + validMarker,
+        url: 'https://example.com/security/data/csaf/2021/my-thing-_10.json',
+      },
+    ],
+    title: 'Title ' + validMarker,
+    tracking: {
+      ...minimalDoc.document.tracking,
+      revision_history: [
+        {
+          number: '1',
+          date: '2021-01-14T00:00:00.000Z',
+          summary: 'Summary ' + validMarker,
+        },
+      ],
+    },
+  },
+}
 
 /**
  * @param {object} params
@@ -48,82 +54,74 @@ async function runHunspellMock({ input }) {
 }
 
 describe('Informative test 6.3.8', function () {
-  const csafWithInvalidTitle = `{
-      "document": {
-        "${documentValidBasePart}
-        "title": "Informative test: Spell check (failing example 1)[Mocked as Invalid]",
-        ${validTrackingpart}
-    }`
+  const csafWithInvalidTitle = {
+    document: {
+      ...documentValidBase.document,
+      title: 'Mock as invalid',
+    },
+  }
 
-  const csafWithInvalidProductName = `{
-      "document": {
-        "${documentValidBasePart}
-        "title": "Informative test: Spell check (failing example 1)[${validMarker}]",
-        ${validTrackingpart},
-        "product_tree": {
-          "branches": [
+  const csafWithInvalidProductName = {
+    document: {
+      ...documentValidBase.document,
+    },
+    product_tree: {
+      branches: [
+        {
+          branches: [
             {
-              "branches": [
+              branches: [
                 {
-                  "branches": [
-                    {
-                      "category": "product_name",
-                      "name": "Mocked as Invalid",
-                      "product": {
-                        "name": "${validMarker}",
-                        "product_id": "7Client-7.6",
-                        "product_identification_helper": {
-                          "cpe": "cpe:/o:redhat:enterprise_linux:7::client"
-                        }
-                      }
-                    }
-                  ],
-                  "category": "product_family",
-                  "name": "${validMarker}"
-                }
+                  category: 'product_name',
+                  name: 'Mocked as Invalid',
+                  product: {
+                    name: validMarker,
+                    product_id: '7Client-7.6',
+                    product_identification_helper: {
+                      cpe: 'cpe:/o:redhat:enterprise_linux:7::client',
+                    },
+                  },
+                },
               ],
-              "category": "vendor",
-              "name": "${validMarker}"
-            }
-          ]
-        }
-    }`
+              category: 'product_family',
+              name: validMarker,
+            },
+          ],
+          category: 'vendor',
+          name: validMarker,
+        },
+      ],
+    },
+  }
 
   describe('failing examples', function () {
     it('test invalid title', async function () {
-      const result = await informativeTest_6_3_8(
-        JSON.parse(csafWithInvalidTitle),
-        {
-          hunspell: runHunspellMock,
-        }
-      )
-      expect(result.infos).to.have.length.greaterThan(0)
+
+      expect(csaf_2_0(csafWithInvalidTitle).isValid).to.true;
+      const result = await informativeTest_6_3_8(csafWithInvalidTitle, {
+        hunspell: runHunspellMock,
+      })
+      expect(result.infos.length).to.equal(1)
+      expect(result.infos[0].instancePath).to.equal("/document/title")
     })
 
     it('test invalid product name in  branch', async function () {
-      const result = await informativeTest_6_3_8(
-        JSON.parse(csafWithInvalidProductName),
-        {
-          hunspell: runHunspellMock,
-        }
-      )
-      expect(result.infos).to.have.length.greaterThan(0)
+      expect(csaf_2_0(csafWithInvalidProductName).isValid).to.true;
+      const result = await informativeTest_6_3_8(csafWithInvalidProductName, {
+        hunspell: runHunspellMock,
+      })
+      expect(result.infos.length).to.equal(1)
+      expect(result.infos[0].instancePath).to.equal("/product_tree/branches/0/branches/0/branches/0/name")
     })
   })
 
-  const validCsaf = `{
-      "document": {
-        "${documentValidBasePart}
-        "title": "Informative test: Spell check (failing example 1)[Mocked as Invalid]",
-        ${validTrackingpart}
-    }`
-
   describe('valid examples', function () {
     it('test valid csaf', async function () {
-      const result = await informativeTest_6_3_8(JSON.parse(validCsaf), {
+      expect(csaf_2_0(documentValidBase).isValid).to.true;
+      const result = await informativeTest_6_3_8(documentValidBase, {
         hunspell: runHunspellMock,
       })
-      expect(result.infos).to.have.length.greaterThan(0)
+      expect(result.infos.length).to.equal(0)
     })
   })
 })
