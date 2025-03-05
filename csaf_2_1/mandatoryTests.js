@@ -43,3 +43,4 @@ export {
   mandatoryTest_6_1_32,
   mandatoryTest_6_1_33,
 } from '../mandatoryTests.js'
+export { mandatoryTest_6_1_38 } from './mandatoryTests/mandatoryTests_6_1_38.js'
