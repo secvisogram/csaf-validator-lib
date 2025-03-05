@@ -15,7 +15,6 @@ const excluded = [
   '6.1.9',
   '6.1.10',
   '6.1.11',
-  '6.1.13',
   '6.1.14',
   '6.1.16',
   '6.1.35',
@@ -115,7 +114,7 @@ for (const [group, t] of testMap) {
                 const result = await test(doc)
 
                 if (group === 'mandatory') {
-                  assert.equal(result.isValid, testSpec.valid)
+                  assert.equal(result.isValid, type !== 'failures')
                   assert.equal(
                     Boolean(result.errors?.length),
                     type === 'failures',
