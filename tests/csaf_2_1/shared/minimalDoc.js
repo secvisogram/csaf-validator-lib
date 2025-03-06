@@ -1,5 +1,5 @@
 export default {
-  $schema: "https://docs.oasis-open.org/csaf/csaf/v2.1/csaf_json_schema.json",
+  $schema: 'https://docs.oasis-open.org/csaf/csaf/v2.1/csaf_json_schema.json',
   document: {
     category: 'Test Report',
     csaf_version: '2.1',
