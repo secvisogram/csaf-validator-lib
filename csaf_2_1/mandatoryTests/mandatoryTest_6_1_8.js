@@ -25,7 +25,11 @@ const inputSchema = /** @type {const} */ ({
                       additionalProperties: true,
                       properties: {},
                     },
-                  }
+                    cvss_v4: {
+                      additionalProperties: true,
+                      properties: {},
+                    },
+                  },
                 },
               },
             },
@@ -75,7 +79,8 @@ export default function mandatoryTest_6_1_8(doc) {
     vulnerabilityIndex,
     vulnerability,
   ] of doc.vulnerabilities?.entries() ?? []) {
-    for (const [metricIndex, metric] of vulnerability.metrics?.entries() ?? []) {
+    for (const [metricIndex, metric] of vulnerability.metrics?.entries() ??
+      []) {
       if (metric?.content?.cvss_v2) {
         const valid = validate_2_0(metric?.content.cvss_v2)
         if (!valid) {
