@@ -46,3 +46,4 @@ export {
 export { mandatoryTest_6_1_34 } from './mandatoryTests/mandatoryTest_6_1_34.js'
 export { mandatoryTest_6_1_39 } from './mandatoryTests/mandatoryTest_6_1_39.js'
 export { mandatoryTest_6_1_40 } from './mandatoryTests/mandatoryTest_6_1_40.js'
+export { mandatoryTest_6_1_41 } from './mandatoryTests/mandatoryTest_6_1_41.js'
