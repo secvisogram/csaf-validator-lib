@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import informativeTest_6_3_8 from '../lib/informativeTests/informativeTest_6_3_8.js'
 import minimalDoc from './shared/shared/minimalDoc.js'
-import csaf_2_0 from "../lib/schemaTests/csaf_2_0.js";
+import csaf_2_0 from '../lib/schemaTests/csaf_2_0.js'
 
 const validMarker = 'Mocked as Valid'
 
@@ -16,7 +16,7 @@ const documentValidBase = {
     ],
     publisher: {
       category: 'other',
-      name: 'OASIS CSAF TC ' + validMarker,
+      name: 'Example PUB ' + validMarker,
       namespace: 'https://example.com',
     },
     references: [
@@ -96,28 +96,29 @@ describe('Informative test 6.3.8', function () {
 
   describe('failing examples', function () {
     it('test invalid title', async function () {
-
-      expect(csaf_2_0(csafWithInvalidTitle).isValid).to.true;
+      expect(csaf_2_0(csafWithInvalidTitle).isValid).to.true
       const result = await informativeTest_6_3_8(csafWithInvalidTitle, {
         hunspell: runHunspellMock,
       })
       expect(result.infos.length).to.equal(1)
-      expect(result.infos[0].instancePath).to.equal("/document/title")
+      expect(result.infos[0].instancePath).to.equal('/document/title')
     })
 
     it('test invalid product name in  branch', async function () {
-      expect(csaf_2_0(csafWithInvalidProductName).isValid).to.true;
+      expect(csaf_2_0(csafWithInvalidProductName).isValid).to.true
       const result = await informativeTest_6_3_8(csafWithInvalidProductName, {
         hunspell: runHunspellMock,
       })
       expect(result.infos.length).to.equal(1)
-      expect(result.infos[0].instancePath).to.equal("/product_tree/branches/0/branches/0/branches/0/name")
+      expect(result.infos[0].instancePath).to.equal(
+        '/product_tree/branches/0/branches/0/branches/0/name'
+      )
     })
   })
 
   describe('valid examples', function () {
     it('test valid csaf', async function () {
-      expect(csaf_2_0(documentValidBase).isValid).to.true;
+      expect(csaf_2_0(documentValidBase).isValid).to.true
       const result = await informativeTest_6_3_8(documentValidBase, {
         hunspell: runHunspellMock,
       })
