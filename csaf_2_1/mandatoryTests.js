@@ -45,3 +45,4 @@ export {
 } from '../mandatoryTests.js'
 export { mandatoryTest_6_1_34 } from './mandatoryTests/mandatoryTest_6_1_34.js'
 export { mandatoryTest_6_1_35 } from './mandatoryTests/mandatoryTest_6_1_35.js'
+export { mandatoryTest_6_1_38 } from './mandatoryTests/mandatoryTests_6_1_38.js'
