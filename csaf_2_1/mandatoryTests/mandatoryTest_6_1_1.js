@@ -17,7 +17,7 @@ const { collectProductIds } = docUtils
 /**
  * @param {any} doc
  */
-export default function mandatoryTest_6_1_1(doc) {
+export function mandatoryTest_6_1_1(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
   const errors = []
   let isValid = true
