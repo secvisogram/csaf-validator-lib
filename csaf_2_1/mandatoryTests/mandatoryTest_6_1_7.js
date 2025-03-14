@@ -12,23 +12,33 @@ const inputSchema = /** @type {const} */ ({
           metrics: {
             elements: {
               additionalProperties: true,
+              properties: {
+                products: {
+                  elements: {},
+                },
+              },
               optionalProperties: {
-                cvss_v2: {
+                content: {
                   additionalProperties: true,
-                  properties: {
-                    version: { type: 'string' },
-                  },
-                },
-                cvss_v3: {
-                  additionalProperties: true,
-                  properties: {
-                    version: { type: 'string' },
-                  },
-                },
-                cvss_v4: {
-                  additionalProperties: true,
-                  properties: {
-                    version: { type: 'string' },
+                  optionalProperties: {
+                    cvss_v2: {
+                      additionalProperties: true,
+                      properties: {
+                        version: { type: 'string' },
+                      },
+                    },
+                    cvss_v3: {
+                      additionalProperties: true,
+                      properties: {
+                        version: { type: 'string' },
+                      },
+                    },
+                    cvss_v4: {
+                      additionalProperties: true,
+                      properties: {
+                        version: { type: 'string' },
+                      },
+                    },
                   },
                 },
               },
@@ -46,7 +56,7 @@ const validate = jtdAjv.compile(inputSchema)
  *
  * @param {unknown} doc
  */
-export default function mandatoryTest_6_1_7(doc) {
+export function mandatoryTest_6_1_7(doc) {
   const ctx = {
     errors:
       /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
@@ -70,7 +80,7 @@ export default function mandatoryTest_6_1_7(doc) {
 
     /** @type {Array<any>} */
     const metrics = vulnerability.metrics
-    metrics?.forEach((metric, scoreIndex) => {
+    metrics?.forEach((metric, metricIndex) => {
       /** @type {Array<any>} */
       const products = metric.products
       products?.forEach((product, productIndex) => {
@@ -90,7 +100,7 @@ export default function mandatoryTest_6_1_7(doc) {
             message: `product is already included in these cvss-versions: ${Array.from(
               versionSet.keys()
             ).join(', ')}`,
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${scoreIndex}/products/${productIndex}`,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/products/${productIndex}`,
           })
         }
         if (metric.content?.cvss_v2?.version !== undefined) {

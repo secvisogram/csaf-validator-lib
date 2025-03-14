@@ -1,4 +1,3 @@
-export { default as mandatoryTest_6_1_7 } from './mandatoryTests/mandatoryTest_6_1_7.js'
 export {
   mandatoryTest_6_1_2,
   mandatoryTest_6_1_3,
@@ -39,6 +38,7 @@ export {
   mandatoryTest_6_1_33,
 } from '../mandatoryTests.js'
 export { mandatoryTest_6_1_1 } from './mandatoryTests/mandatoryTest_6_1_1.js'
+export { mandatoryTest_6_1_7 } from './mandatoryTests/mandatoryTest_6_1_7.js'
 export { mandatoryTest_6_1_8 } from './mandatoryTests/mandatoryTest_6_1_8.js'
 export { mandatoryTest_6_1_11 } from './mandatoryTests/mandatoryTest_6_1_11.js'
 export { mandatoryTest_6_1_13 } from './mandatoryTests/mandatoryTest_6_1_13.js'
