@@ -64,7 +64,7 @@ const validate_4_0 = csafAjv.compile({
 /**
  * @param {any} doc
  */
-export default function mandatoryTest_6_1_8(doc) {
+export function mandatoryTest_6_1_8(doc) {
   const ctx = {
     errors:
       /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
