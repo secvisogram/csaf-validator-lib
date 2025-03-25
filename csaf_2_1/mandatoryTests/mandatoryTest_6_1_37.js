@@ -195,7 +195,7 @@ export function mandatoryTest_6_1_37(doc) {
     const prefix = `/vulnerabilities/${vulnerabilityIndex}`
 
     validateDate(vulnerabiltiy.disclosure_date, `${prefix}/disclosure_date`)
-    validateDate(vulnerabiltiy.discovery_date, `/${prefix}/discovery_date`)
+    validateDate(vulnerabiltiy.discovery_date, `${prefix}/discovery_date`)
 
     vulnerabiltiy.flags?.forEach((flag, index) => {
       validateDate(flag.date, `${prefix}/flags/${index}/date`)
