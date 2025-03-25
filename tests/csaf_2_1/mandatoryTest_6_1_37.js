@@ -44,7 +44,7 @@ describe('mandatoryTest_6_1_37', function () {
 
     testCases.forEach((testCase) => {
       it(`${testCase[0]} -> ${testCase[1]}`, () => {
-        assert.equal(isValidDate(testCase[0]), testCase[1])
+        assert.equal(isValidDate(testCase[0]).isValid, testCase[1])
       })
     })
   })
