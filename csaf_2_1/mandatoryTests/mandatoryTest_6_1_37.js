@@ -1,4 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
+import csafAjv from '../../lib/shared/csafAjv.js'
 
 const ajv = new Ajv()
 
@@ -91,21 +92,27 @@ export const dateRegex =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 
 /**
+ * A json schema date validation function.
+ *
+ * @type {import('ajv').ValidateFunction<string>}
+ */
+const dateFn = csafAjv.compile({ type: 'string', format: 'date-time' })
+
+/**
  * Validates the given date against RFC 3339 section 5.6.
  *
  * @param {string} date The date to validate
  */
-export const isValidDate = (date) => {
+export const isValidDate = (date) =>
   /*
-    Here we first check the string against the regex which catches format errors.
-    But since this is not enough we convert it using the `Date` constructor.
-    The `.getTime()` method of a JS date returns `NaN` in case of an
-    invalid date (e.g. days, hours out of range etc.)
+    Here we first match against the date regex to catch format errors that
+    ajv-formats does not catch (yet). Particularly if the 'T' separator is missing
+    between the date and the time ajv does not recognize that.
+
+    After the format check ajv is utilized to check the date semantically
+    (including leap seconds).
    */
-  return (
-    Boolean(dateRegex.exec(date)) && !Number.isNaN(new Date(date).getTime())
-  )
-}
+  Boolean(dateRegex.exec(date)) && dateFn(date)
 
 /**
  * This implements the mandatory test 6.1.37 of the CSAF 2.1 standard.
