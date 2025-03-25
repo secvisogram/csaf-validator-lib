@@ -103,16 +103,32 @@ const dateFn = csafAjv.compile({ type: 'string', format: 'date-time' })
  *
  * @param {string} date The date to validate
  */
-export const isValidDate = (date) =>
+export const isValidDate = (date) => {
   /*
     Here we first match against the date regex to catch format errors that
     ajv-formats does not catch (yet). Particularly if the 'T' separator is missing
     between the date and the time ajv does not recognize that.
+   */
+  if (!dateRegex.exec(date)) {
+    return {
+      isValid: /** @type {const} */ (false),
+      error: /** @type {const} */ ('INVALID_FORMAT'),
+    }
+  }
 
+  /*
     After the format check ajv is utilized to check the date semantically
     (including leap seconds).
    */
-  Boolean(dateRegex.exec(date)) && dateFn(date)
+  if (!dateFn(date)) {
+    return {
+      isValid: /** @type {const} */ (false),
+      error: /** @type {const} */ ('INVALID_DATE'),
+    }
+  }
+
+  return { isValid: /** @type {const} */ (true), error: null }
+}
 
 /**
  * This implements the mandatory test 6.1.37 of the CSAF 2.1 standard.
@@ -142,10 +158,14 @@ export function mandatoryTest_6_1_37(doc) {
   const validateDate = (date, path) => {
     if (date === undefined) return
 
-    if (!isValidDate(date)) {
+    const result = isValidDate(date)
+    if (!result.isValid) {
       ctx.errors.push({
         instancePath: path,
-        message: `invalid date`,
+        message:
+          result.error === 'INVALID_FORMAT'
+            ? `invalid date format`
+            : `invalid date`,
       })
       ctx.isValid = false
     }
