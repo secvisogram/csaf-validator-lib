@@ -10,7 +10,6 @@ const metricsJson1 = JSON.parse(
 console.log('start tests')
 
 const flatMetrics = []
-const convertedMetric = ''
 
 for (const [metricType, metricTypeData] of Object.entries(metricsJson1)) {
   for (const [metricGroup, metricGroupData] of Object.entries(
