@@ -17,6 +17,6 @@ export {
   optionalTest_6_2_16,
   optionalTest_6_2_17,
   optionalTest_6_2_18,
-  optionalTest_6_2_19,
   optionalTest_6_2_20,
 } from '../optionalTests.js'
+export { optionalTest_6_2_19 } from './optionalTests/optionalTest_6_2_19.js'
