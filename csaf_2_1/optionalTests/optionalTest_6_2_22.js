@@ -38,7 +38,7 @@ export function optionalTest_6_2_22(doc) {
   const documentTitle = doc.document.title
   if (documentTitle.includes(trackingId)) {
     context.warnings.push({
-      message: 'document title contains tracking id',
+      message: `document title contains the tracking id ${trackingId}`,
       instancePath: `/document/title`,
     })
   }
