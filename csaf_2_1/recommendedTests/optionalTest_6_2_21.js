@@ -53,9 +53,8 @@ export function optionalTest_6_2_21(doc) {
         ) === 0
       ) {
         warnings.push({
-          message:
-            'timestamps of items in the revision history are not pairwise disjoint',
-          instancePath: `/document/tracking/revision_history[]/date`,
+          instancePath: `/document/tracking/revision_history/${i}/date and /document/tracking/revision_history/${j}/date`,
+          message: 'timestamps are equal',
         })
       }
     }
