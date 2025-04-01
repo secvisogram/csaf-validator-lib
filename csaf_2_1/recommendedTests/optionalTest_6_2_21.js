@@ -16,7 +16,10 @@ const inputSchema = /** @type {const} */ ({
             revision_history: {
               elements: {
                 additionalProperties: true,
-                properties: { date: { type: 'timestamp' } },
+                properties: {
+                  date: { type: 'timestamp' },
+                  number: { type: 'string' },
+                },
               },
             },
           },
@@ -53,8 +56,8 @@ export function optionalTest_6_2_21(doc) {
         ) === 0
       ) {
         warnings.push({
-          instancePath: `/document/tracking/revision_history/${i}/date and /document/tracking/revision_history/${j}/date`,
-          message: 'timestamps are equal',
+          instancePath: `/document/tracking/revision_history/${j}/date`,
+          message: `timestamps of the revision history items with version number ${doc.document.tracking.revision_history[i].number} and ${doc.document.tracking.revision_history[j].number} are equal `,
         })
       }
     }
