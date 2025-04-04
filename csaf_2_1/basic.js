@@ -1,4 +1,4 @@
-export { csaf_2_0_strict } from '../schemaTests.js'
+export { csaf_2_1_strict } from './schemaTests.js'
 export {
   mandatoryTest_6_1_1,
   mandatoryTest_6_1_2,
