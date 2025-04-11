@@ -78,7 +78,7 @@ export async function optionalTest_6_2_25(doc) {
           })
           continue
         }
-        //NOTE:  usage is not available in version v11 and older
+        //NOTE: the usage property is not available in cwe version 4.11 and older
         if (
           entry.usage !== 'Allowed' &&
           entry.usage !== 'Allowed-with-Review'
