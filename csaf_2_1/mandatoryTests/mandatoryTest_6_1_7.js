@@ -1,5 +1,16 @@
 import Ajv from 'ajv/dist/jtd.js'
 
+/**
+ * @typedef {{ cvss_v2: {version: string}, cvss_v3: {version: string}, cvss_v4: {version: string}}} MetricContent
+ */
+
+/**
+ * @typedef {Object} Metric
+ * @property {MetricContent} content
+ */
+
+const VERSION_SEPARATOR = '°'
+
 const jtdAjv = new Ajv()
 
 const inputSchema = /** @type {const} */ ({
@@ -74,6 +85,66 @@ export function mandatoryTest_6_1_7(doc) {
   // 6.1.7 Multiple Scores with same Version per Product
   /** @type {Array<any>} */
   const vulnerabilities = doc.vulnerabilities
+
+  /**
+   * @param {string} version
+   * @param {string} source
+   */
+  function concatVersionSource(version, source) {
+    return version + VERSION_SEPARATOR + source
+  }
+
+  /**
+   *
+   * @param  {Metric}  metric
+   * @param {string}  version
+   * @param {string}  source
+   * @returns {string|null}
+   */
+  function getSameVersionInMetric(metric, version, source) {
+    if (
+      metric.content?.cvss_v2?.version !== undefined &&
+      version === concatVersionSource(metric.content?.cvss_v2.version, source)
+    ) {
+      return metric.content?.cvss_v2?.version
+    } else if (
+      metric.content?.cvss_v3?.version !== undefined &&
+      version === concatVersionSource(metric.content?.cvss_v3.version, source)
+    ) {
+      return metric.content?.cvss_v3?.version
+    } else if (
+      metric.content?.cvss_v4?.version !== undefined &&
+      version === concatVersionSource(metric.content?.cvss_v4.version, source)
+    ) {
+      return metric.content?.cvss_v4?.version
+    } else {
+      return null
+    }
+  }
+
+  /**
+   * @param {Metric} metric
+   * @param {Set<string>} versionSet
+   * @param {string}  source
+   */
+  function addVersionsInMetricToSet(metric, versionSet, source) {
+    if (metric.content?.cvss_v2?.version !== undefined) {
+      versionSet.add(
+        concatVersionSource(metric.content?.cvss_v2.version, source)
+      )
+    }
+    if (metric.content?.cvss_v3?.version !== undefined) {
+      versionSet.add(
+        concatVersionSource(metric.content?.cvss_v3.version, source)
+      )
+    }
+    if (metric.content?.cvss_v4?.version !== undefined) {
+      versionSet.add(
+        concatVersionSource(metric.content?.cvss_v4.version, source)
+      )
+    }
+  }
+
   vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     /** @type {Map<string, Set<string>>} */
     const cvssVersionsByProductName = new Map()
@@ -83,35 +154,24 @@ export function mandatoryTest_6_1_7(doc) {
     metrics?.forEach((metric, metricIndex) => {
       /** @type {Array<any>} */
       const products = metric.products
+      const source = metric.source ? metric.source : ''
       products?.forEach((product, productIndex) => {
         const versionSet = cvssVersionsByProductName.get(product) ?? new Set()
         cvssVersionsByProductName.set(product, versionSet)
 
-        if (
-          (metric.content?.cvss_v2?.version !== undefined &&
-            versionSet.has(metric.content?.cvss_v2.version)) ||
-          (metric.content?.cvss_v3?.version !== undefined &&
-            versionSet.has(metric.content?.cvss_v3.version)) ||
-          (metric.content?.cvss_v4?.version !== undefined &&
-            versionSet.has(metric.content?.cvss_v4.version))
-        ) {
-          isValid = false
-          errors.push({
-            message: `product is already included in these cvss-versions: ${Array.from(
-              versionSet.keys()
-            ).join(', ')}`,
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/products/${productIndex}`,
-          })
-        }
-        if (metric.content?.cvss_v2?.version !== undefined) {
-          versionSet.add(metric.content?.cvss_v2.version)
-        }
-        if (metric.content?.cvss_v3?.version !== undefined) {
-          versionSet.add(metric.content?.cvss_v3.version)
-        }
-        if (metric.content?.cvss_v4?.version !== undefined) {
-          versionSet.add(metric.content?.cvss_v4.version)
-        }
+        versionSet.forEach((version) => {
+          const sameVersion = getSameVersionInMetric(metric, version, source)
+          if (sameVersion) {
+            isValid = false
+
+            errors.push({
+              message: `Product is member of more than one CVSS-Vectors with the same version '${sameVersion}' and same source ${source}.`,
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/products/${productIndex}`,
+            })
+          }
+        })
+
+        addVersionsInMetricToSet(metric, versionSet, source)
       })
     })
   })
