@@ -1,5 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-import { MAX_UUID, NIL_UUID } from './sharingGroup.js'
+import { MAX_UUID, NIL_UUID } from '../sharingGroup.js'
 
 const ajv = new Ajv()
 
