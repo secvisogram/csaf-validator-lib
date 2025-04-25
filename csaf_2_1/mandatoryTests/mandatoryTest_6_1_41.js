@@ -4,7 +4,7 @@ import {
   NIL_UUID,
   NO_SHARING_ALLOWED,
   PUBLIC,
-} from './sharingGroup.js'
+} from '../sharingGroup.js'
 
 const ajv = new Ajv()
 
