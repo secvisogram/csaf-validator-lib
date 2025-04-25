@@ -1,8 +1,7 @@
 import Ajv from 'ajv/dist/jtd.js'
+import {NIL_UUID} from "../sharingGroup.js";
 
 const ajv = new Ajv()
-
-const Nil_UUID = '00000000-0000-0000-0000-000000000000'
 
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
@@ -43,7 +42,7 @@ export function optionalTest_6_2_29(doc) {
     return ctx
   }
   const sharingGroup = doc.document.distribution.sharing_group
-  if (sharingGroup.id === Nil_UUID) {
+  if (sharingGroup.id === NIL_UUID) {
     ctx.warnings.push({
       message: 'The Nil UUID should not be used for the sharing group id.',
       instancePath: `/document/distribution/sharing_group/id`,
