@@ -1,8 +1,7 @@
 import Ajv from 'ajv/dist/jtd.js'
+import { MAX_UUID } from '../sharingGroup.js'
 
 const ajv = new Ajv()
-
-const MAX_UUID = 'ffffffff-ffff-ffff-ffff-ffffffffffff'
 
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
@@ -45,8 +44,8 @@ export function optionalTest_6_2_28(doc) {
   const sharingGroup = doc.document.distribution.sharing_group
   if (sharingGroup.id === MAX_UUID) {
     ctx.warnings.push({
-      message: 'The MAX UUID should not be used for the sharing group id.',
-      instancePath: `/document/distribution/sharing_group/id`,
+      instancePath: '/document/distribution/sharing_group/id',
+      message: 'The Max UUID should not be used as sharing group id.',
     })
   }
 
