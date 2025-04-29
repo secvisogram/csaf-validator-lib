@@ -29,6 +29,7 @@ for (const version of cwec) {
    * @typedef {{ ID: string; Name: string, Status: string, Mapping_Notes: {Usage: string} }} Weakness
    * @typedef {{Weaknesses: {Weakness: Array<Weakness>}}} Weaknesses
    * @typedef {{Date: string}} Date
+   * @typedef {{Catalog_Date: string}} Catalog_Date
    */
 
   const parser = new xml2js.Parser({
@@ -42,7 +43,7 @@ for (const version of cwec) {
   )
 
   const json = {
-    date: fileXML.Date,
+    date: fileXML.Date || fileXML.Catalog_Date,
     weaknesses: fileXML.Weaknesses.Weakness.map(
       (/** @type {Weakness} */ weakness) => {
         return {
