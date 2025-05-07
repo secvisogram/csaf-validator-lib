@@ -171,6 +171,8 @@ function calculateCvss2(metric) {
           }
         }
       }
+    } else {
+      // Invalid CVSS string is tested in test 6.1.8
     }
   }
 
@@ -242,6 +244,8 @@ function calculateCvss3(metric) {
           }
         }
       }
+    } else {
+      // Invalid CVSS is tested in test 6.1.8
     }
   }
   return failedMetrics
