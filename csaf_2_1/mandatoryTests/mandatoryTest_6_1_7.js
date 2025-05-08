@@ -9,8 +9,6 @@ import Ajv from 'ajv/dist/jtd.js'
  * @property {MetricContent} content
  */
 
-const VERSION_SEPARATOR = '°'
-
 const jtdAjv = new Ajv()
 
 const inputSchema = /** @type {const} */ ({
@@ -90,8 +88,8 @@ export function mandatoryTest_6_1_7(doc) {
    * @param {string} version
    * @param {string} source
    */
-  function concatVersionSource(version, source) {
-    return version + VERSION_SEPARATOR + source
+  function hashVersionSource(version, source) {
+    return JSON.stringify({ version: version, source: source })
   }
 
   /**
@@ -104,17 +102,17 @@ export function mandatoryTest_6_1_7(doc) {
   function getSameVersionInMetric(metric, version, source) {
     if (
       metric.content?.cvss_v2?.version !== undefined &&
-      version === concatVersionSource(metric.content?.cvss_v2.version, source)
+      version === hashVersionSource(metric.content?.cvss_v2.version, source)
     ) {
       return metric.content?.cvss_v2?.version
     } else if (
       metric.content?.cvss_v3?.version !== undefined &&
-      version === concatVersionSource(metric.content?.cvss_v3.version, source)
+      version === hashVersionSource(metric.content?.cvss_v3.version, source)
     ) {
       return metric.content?.cvss_v3?.version
     } else if (
       metric.content?.cvss_v4?.version !== undefined &&
-      version === concatVersionSource(metric.content?.cvss_v4.version, source)
+      version === hashVersionSource(metric.content?.cvss_v4.version, source)
     ) {
       return metric.content?.cvss_v4?.version
     } else {
@@ -129,19 +127,13 @@ export function mandatoryTest_6_1_7(doc) {
    */
   function addVersionsInMetricToSet(metric, versionSet, source) {
     if (metric.content?.cvss_v2?.version !== undefined) {
-      versionSet.add(
-        concatVersionSource(metric.content?.cvss_v2.version, source)
-      )
+      versionSet.add(hashVersionSource(metric.content?.cvss_v2.version, source))
     }
     if (metric.content?.cvss_v3?.version !== undefined) {
-      versionSet.add(
-        concatVersionSource(metric.content?.cvss_v3.version, source)
-      )
+      versionSet.add(hashVersionSource(metric.content?.cvss_v3.version, source))
     }
     if (metric.content?.cvss_v4?.version !== undefined) {
-      versionSet.add(
-        concatVersionSource(metric.content?.cvss_v4.version, source)
-      )
+      versionSet.add(hashVersionSource(metric.content?.cvss_v4.version, source))
     }
   }
 
