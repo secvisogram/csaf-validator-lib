@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { mandatoryTest_6_1_7} from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_7.js'
+import { mandatoryTest_6_1_7 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_7.js'
 import minimalDoc from './shared/minimalDoc.js'
 import csaf_2_1 from '../../csaf_2_1/schemaTests/csaf_2_1.js'
 
@@ -21,7 +21,7 @@ const emptyMandatoryTest6_1_7 = {
       metrics: [
         {
           cvss_v3: {
-            "version": "2.0",
+            version: '2.0',
           },
         },
       ],
@@ -37,12 +37,8 @@ const emptyMandatoryTest6_1_7 = {
   ],
 }
 
-
-
 describe('mandatory test 6.1.7', function () {
-
   describe('valid examples', function () {
-
     it('test empty vulnerabilities', async function () {
       const result = await mandatoryTest_6_1_7(emptyMandatoryTest6_1_7)
       expect(result.errors.length).to.eq(0)
