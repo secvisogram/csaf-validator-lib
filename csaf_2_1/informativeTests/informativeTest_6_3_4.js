@@ -24,6 +24,7 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 
 /**
+ * It MUST be tested that at least one CWE is given.
  * @param {unknown} doc
  * @returns
  */
