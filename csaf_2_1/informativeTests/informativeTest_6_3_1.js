@@ -88,7 +88,7 @@ export function informativeTest_6_3_1(doc) {
    */
   function addVersionsInMetricToSet(metric, versionSet) {
     if (metric.content?.cvss_v2?.version !== undefined) {
-      versionSet.add(metric.content?.cvss_v2.version)
+      versionSet.add(metric.content.cvss_v2.version)
     }
     if (metric.content?.cvss_v3?.version !== undefined) {
       versionSet.add(metric.content.cvss_v3.version)
