@@ -1,7 +1,7 @@
 import {
   calculateCvss4_0_Score,
   Cvss4JsonWrapper,
-} from '../../lib/shared/cvss4.js'
+} from '../lib/shared/cvss4.js'
 import { expect } from 'chai'
 import assert from 'node:assert'
 
@@ -38,7 +38,7 @@ describe('CVSS4Attribute', () => {
       expect(data.threatSeverity).to.equal('Medium')
     })
 
-    it('4.0set metrics by fields', () => {
+    it('4.0 set metrics by fields', () => {
       const wrapper = new Cvss4JsonWrapper({})
         .set('attackVector', 'PHYSICAL')
         .set('attackComplexity', 'HIGH')
@@ -124,17 +124,6 @@ describe('CVSS4Attribute', () => {
     })
 
     it('Calculate score', () => {
-      const vector = new Cvss4JsonWrapper({
-        availabilityImpact: 'NONE',
-        attackVector: '',
-        attackComplexity: '',
-        privilegesRequired: '',
-        userInteraction: '',
-        scope: '',
-        confidentialityImpact: '',
-        integrityImpact: '',
-      })
-
       const score = calculateCvss4_0_Score(
         'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H/E:P'
       )
