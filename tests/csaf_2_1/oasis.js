@@ -36,7 +36,6 @@ const excluded = [
   '6.1.48',
   '6.1.49',
   '6.2.6',
-  '6.2.10', // this optional test is excluded in csaf 2.1 since the concerned attribute (the TLP label) is now required.
   '6.2.11',
   '6.2.19',
   '6.2.21',
