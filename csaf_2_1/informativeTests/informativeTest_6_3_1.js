@@ -3,12 +3,18 @@ import Ajv from 'ajv/dist/jtd.js'
 const ajv = new Ajv()
 
 /**
- * @typedef {{ cvss_v2: {version: string}, cvss_v3: {version: string}, cvss_v4: {version: string}}} MetricContent
+ * @typedef {object} MetricContent
+ * @property {object} [cvss_v2]
+ * @property {string} cvss_v2.version
+ * @property {object} [cvss_v3]
+ * @property {string} cvss_v3.version
+ * @property {object} [cvss_v4]
+ * @property {string} cvss_v4.version
  */
 
 /**
- * @typedef {Object} Metric
- * @property {MetricContent} content
+ * @typedef {object} Metric
+ * @property {MetricContent} [content]
  * @property {Array<string>} products
  */
 
@@ -25,7 +31,7 @@ const inputSchema = /** @type {const} */ ({
               additionalProperties: true,
               properties: {
                 products: {
-                  elements: {},
+                  elements: { type: 'string' },
                 },
               },
               optionalProperties: {
@@ -85,24 +91,23 @@ export function informativeTest_6_3_1(doc) {
       versionSet.add(metric.content?.cvss_v2.version)
     }
     if (metric.content?.cvss_v3?.version !== undefined) {
-      versionSet.add(metric.content?.cvss_v3.version)
+      versionSet.add(metric.content.cvss_v3.version)
     }
     if (metric.content?.cvss_v4?.version !== undefined) {
-      versionSet.add(metric.content?.cvss_v4.version)
+      versionSet.add(metric.content.cvss_v4.version)
     }
   }
 
-  /** @type {Array<any>} */
   const vulnerabilities = doc.vulnerabilities
 
   vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     /** @type {Map<string, Set<string>>} */
     const cvssVersionsByProduct = new Map()
     const metricIndexByProduct = new Map()
-    /** @type {Array<any>} */
+    /** @type {Array<Metric> | undefined} */
     const metrics = vulnerability.metrics
     metrics?.forEach((metric, metricIndex) => {
-      /** @type {Array<any>} */
+      /** @type {Array<string>} */
       const products = metric.products
       products.forEach((product) => {
         const versionSet = cvssVersionsByProduct.get(product) ?? new Set()
