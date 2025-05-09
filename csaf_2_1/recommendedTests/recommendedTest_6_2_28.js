@@ -43,8 +43,8 @@ export function recommendedTest_6_2_28(doc) {
   const sharingGroup = doc.document.distribution.sharing_group
   if (sharingGroup.id === MAX_UUID) {
     ctx.warnings.push({
-      instancePath: '/document/distribution/sharing_group/id',
       message: 'The Max UUID should not be used as sharing group id.',
+      instancePath: '/document/distribution/sharing_group/id',
     })
   }
 
