@@ -29,7 +29,8 @@ const validateInput = ajv.compile(inputSchema)
 
 /**
  * Test for the optional test 6.2.28
- * The Nil UUID should not be used for the sharing group id.
+ * The Nil UUID should not be used as sharing group id.
+ * 
  * @param {any} doc
  */
 export function optionalTest_6_2_29(doc) {
@@ -44,7 +45,7 @@ export function optionalTest_6_2_29(doc) {
   const sharingGroup = doc.document.distribution.sharing_group
   if (sharingGroup.id === NIL_UUID) {
     ctx.warnings.push({
-      message: 'The Nil UUID should not be used for the sharing group id.',
+      message: 'The Nil UUID should not be used as sharing group id.',
       instancePath: `/document/distribution/sharing_group/id`,
     })
   }
