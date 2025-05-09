@@ -19,10 +19,7 @@ const inputSchema = /** @type {const} */ ({
           properties: {
             sharing_group: {
               additionalProperties: true,
-              properties: {
-                id: { type: 'string' },
-                name: { type: 'string' },
-              },
+              properties: {},
             },
             tlp: {
               additionalProperties: true,
@@ -42,7 +39,7 @@ const validateInput = ajv.compile(inputSchema)
  * This implements the optional test 6.2.30 of the CSAF 2.1 standard.
  * @param {any} doc
  */
-export function optionalTest_6_2_30(doc) {
+export function recommendedTest_6_2_30(doc) {
   const ctx = {
     warnings:
       /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
@@ -54,12 +51,12 @@ export function optionalTest_6_2_30(doc) {
 
   // Check for sharing_group usage when TLP is CLEAR
   if (
-    doc.document.distribution.tlp?.label === 'CLEAR' &&
+    doc.document.distribution.tlp.label === 'CLEAR' &&
     doc.document.distribution.sharing_group
   ) {
     ctx.warnings.push({
-      message: 'TLP:CLEAR documents should not use a "sharing_goup"',
-      instancePath: `/document/distribution/sharing_group`,
+      instancePath: '/document/distribution/sharing_group',
+      message: 'TLP:CLEAR documents should not use a "sharing_group"',
     })
   }
 
