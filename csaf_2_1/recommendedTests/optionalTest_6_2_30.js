@@ -58,7 +58,7 @@ export function optionalTest_6_2_30(doc) {
     doc.document.distribution.sharing_group
   ) {
     ctx.warnings.push({
-      message: 'No sharing group must be used when TLP is CLEAR.',
+      message: 'TLP:CLEAR documents should not use a "sharing_goup"',
       instancePath: `/document/distribution/sharing_group`,
     })
   }
