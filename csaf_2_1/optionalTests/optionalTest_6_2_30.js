@@ -58,8 +58,8 @@ export function optionalTest_6_2_30(doc) {
     doc.document.distribution.sharing_group
   ) {
     ctx.warnings.push({
+      instancePath: '/document/distribution/sharing_group',
       message: 'TLP:CLEAR documents should not use a "sharing_goup"',
-      instancePath: `/document/distribution/sharing_group`,
     })
   }
 
