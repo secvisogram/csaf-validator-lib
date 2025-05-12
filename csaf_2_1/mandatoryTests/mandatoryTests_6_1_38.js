@@ -1,9 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-
-/**
- * The max uuid to check the sharing_group.id for.
- */
-const MAX_UUID = 'ffffffff-ffff-ffff-ffff-ffffffffffff'
+import { MAX_UUID } from '../sharingGroup.js'
 
 const ajv = new Ajv()
 
