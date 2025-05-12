@@ -42,8 +42,17 @@ for (const version of cwec) {
     await readFile(INPUT_FILE, 'utf-8')
   )
 
+  /*
+   * The release date of CWE v1.0 is missing in the .xml file describing its content.
+   * Therefore, its release date is hard coded here.
+   * */
+  let firstCweVersionReleaseDate = undefined
+  if (version === '1.0') {
+    console.log('here')
+    firstCweVersionReleaseDate = '2008-09-09'
+  }
   const json = {
-    date: fileXML.Date || fileXML.Catalog_Date,
+    date: fileXML.Date || fileXML.Catalog_Date || firstCweVersionReleaseDate,
     weaknesses: fileXML.Weaknesses.Weakness.map(
       (/** @type {Weakness} */ weakness) => {
         return {
