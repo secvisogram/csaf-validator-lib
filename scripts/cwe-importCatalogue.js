@@ -32,7 +32,6 @@ const parser = new xml2js.Parser({
   mergeAttrs: true,
   explicitRoot: false,
 })
-console.log('here')
 const fileXML = await parser.parseStringPromise(
   await readFile(REGISTRY_FILE, 'utf-8')
 )
