@@ -1,0 +1,121 @@
+import Ajv from 'ajv/dist/jtd.js'
+import decision_points from '../../lib/cvss/decision_points.js'
+
+const ajv = new Ajv()
+
+/**
+ * @typedef {object} Selection
+ * @property {string} [name]
+ * @property {string} [namespace]
+ * @property {string} [version]
+ */
+
+/**
+ * @typedef {object} Ssvc1
+ * @property {Array<Selection>} [selections]
+ */
+
+/**
+ * @typedef {object} MetricContent
+ * @property {Ssvc1} [ssvc_v1]
+ */
+
+/**
+ * @typedef {object} Metric
+ * @property {MetricContent} [content]
+ */
+
+const inputSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  properties: {
+    vulnerabilities: {
+      elements: {
+        additionalProperties: true,
+        properties: {},
+        optionalProperties: {
+          metrics: {
+            elements: {
+              additionalProperties: true,
+              properties: {},
+              optionalProperties: {
+                content: {
+                  additionalProperties: true,
+                  properties: {},
+                  optionalProperties: {
+                    ssvc_v1: {
+                      additionalProperties: true,
+                      optionalProperties: {
+                        selections: {
+                          elements: {
+                            additionalProperties: true,
+                            properties: {},
+                            optionalProperties: {
+                              name: { type: 'string' },
+                              namespace: { type: 'string' },
+                              version: { type: 'string' },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+})
+
+const validateInput = ajv.compile(inputSchema)
+
+/**
+ * For each SSVC decision point given under selections with the namespace of ssvc,
+ * it MUST be tested the latest decision point version available at the time of the timestamp was used.
+ * The test SHALL fail if a later version was used.
+ * @param {unknown} doc
+ * @returns
+ */
+export function informativeTest_6_3_13(doc) {
+  const ctx = {
+    infos: /** @type {Array<{ message: string; instancePath: string }>} */ ([]),
+  }
+
+  if (!validateInput(doc)) {
+    return ctx
+  }
+
+  const decisionPointName2Version = new Map()
+  decision_points.decisionPoints.forEach((obj) => {
+    const currentVersion = decisionPointName2Version.get(obj.name)
+    if (!currentVersion || currentVersion < obj.version) {
+      decisionPointName2Version.set(obj.name, obj.version)
+    }
+  })
+
+  const vulnerabilities = doc.vulnerabilities
+
+  vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
+    /** @type {Array<Metric> | undefined} */
+    const metrics = vulnerability.metrics
+    metrics?.forEach((metric, metricIndex) => {
+      const selections = metric?.content?.ssvc_v1?.selections
+      selections?.forEach((selection, selectionIndex) => {
+        const latestVersion = decisionPointName2Version.get(selection?.name)
+        if (
+          selection.version !== latestVersion &&
+          selection.namespace === 'ssvc'
+        ) {
+          ctx.infos.push({
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}/version`,
+            message: `ssvc_v1 version '${selection.version}' is not latest decision point version '${latestVersion}'`,
+          })
+        }
+      })
+    })
+  })
+
+  return ctx
+}
