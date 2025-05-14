@@ -62,13 +62,8 @@ for (const version of cwec) {
           id: `CWE-${weakness.ID}`,
           name: weakness.Name,
           status: weakness.Status,
-          /*
-           * Please note that the Usage property only exists in cwe v4.12 and newer.
-           * Nevertheless this field must not be missing in the CWE catalogue for earlier versions,
-           * since this would lead to errors in the respective optional tests.
-           * Therefore the value null is assigned for the Usage property for earlier versions.
-           */
-          usage: weakness.Mapping_Notes?.Usage || null,
+          /* Please note that the Usage property only exists in cwe v4.12 and newer. */
+          usage: weakness.Mapping_Notes?.Usage,
         }
       }
     ),
