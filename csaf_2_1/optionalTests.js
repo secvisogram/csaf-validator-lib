@@ -20,3 +20,4 @@ export {
   optionalTest_6_2_20,
 } from '../optionalTests.js'
 export { optionalTest_6_2_3 } from './optionalTests/optionalTest_6_2_3.js'
+export { optionalTest_6_2_34 } from './optionalTests/optionalTest_6_2_34.js'
