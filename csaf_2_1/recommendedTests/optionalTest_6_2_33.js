@@ -1,6 +1,4 @@
 import Ajv from 'ajv/dist/jtd.js'
-import { ZonedDateTime, ZoneId } from '@js-joda/core'
-import { compareZonedDateTimes } from '../../lib/shared/dateHelper.js'
 
 const ajv = new Ajv()
 
@@ -51,23 +49,25 @@ export function optionalTest_6_2_33(doc) {
   if (!validate(doc)) {
     return context
   }
-  const currentTimestampUtc = ZonedDateTime.now(ZoneId.UTC)
+
+  // current date in UTC
+  const currentTimestampUtc = new Date()
+
   for (let i = 0; i < doc.vulnerabilities.length; ++i) {
-    const disclosureDate = doc.vulnerabilities[i].disclosure_date
+    const disclosureDate = new Date(doc.vulnerabilities[i].disclosure_date)
     // check if the disclosure date is in the past
-    if (compareZonedDateTimes(disclosureDate, currentTimestampUtc) < 1) {
+    if (currentTimestampUtc.getTime() - disclosureDate.getTime() > 0) {
       const revisionHistory = doc.document.tracking.revision_history
       // sort the revision history (ascending) so we don't need to loop through it
       // to find the date of its newest item
       revisionHistory.sort(
-        (a, b) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       )
       // compare the disclosure date with the date of the newest item in the revision history
       if (
-        compareZonedDateTimes(
-          disclosureDate,
-          revisionHistory[revisionHistory.length - 1].date
-        ) > 0
+        disclosureDate.getTime() -
+          new Date(revisionHistory[revisionHistory.length - 1].date).getTime() >
+        0
       ) {
         context.warnings.push({
           message:
