@@ -41,7 +41,7 @@ export function informativeTest_6_3_4(doc) {
     if (!vulnerability?.cwes?.length) {
       ctx.infos.push({
         instancePath: `/vulnerabilities/${vulnerabilityIndex}`,
-        message: "missing cwe's",
+        message: 'missing cwe',
       })
     }
   })
