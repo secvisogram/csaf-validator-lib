@@ -5,4 +5,21 @@ describe('informativeTest_6_3_2', function () {
   it('only runs on relevant documents', function () {
     assert.equal(informativeTest_6_3_2({ document: 'mydoc' }).infos.length, 0)
   })
+  it('only runs on valid inputSchema', function () {
+    assert.equal(
+      informativeTest_6_3_2({
+        document: {},
+        vulnerabilities: [
+          {
+            metrics: [
+              {
+                content: {},
+              },
+            ],
+          },
+        ],
+      }).infos.length,
+      0
+    )
+  })
 })
