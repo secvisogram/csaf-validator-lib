@@ -8,7 +8,6 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {},
         optionalProperties: {
           metrics: {
             elements: {
@@ -19,7 +18,6 @@ const inputSchema = /** @type {const} */ ({
                   optionalProperties: {
                     cvss_v3: {
                       additionalProperties: true,
-                      properties: {},
                       optionalProperties: {
                         version: { type: 'string' },
                         vectorString: { type: 'string' },
