@@ -58,7 +58,7 @@ describe('CVSS4Attribute', () => {
 
     it('Metrics can be updated from a 4.0 vector-string', () => {
       const vector = new Cvss4JsonWrapper({
-        availabilityImpact: 'NONE',
+        vulnAvailabilityImpact: 'NONE',
       })
       vector.updateFromVectorString(
         'CVSS:4.0/AV:P/AC:L/AT:N/PR:H/UI:A/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N/CR:L'
@@ -70,20 +70,20 @@ describe('CVSS4Attribute', () => {
         attackComplexity: 'LOW',
         privilegesRequired: 'HIGH',
         userInteraction: 'ACTIVE',
-        availabilityImpact: 'NONE',
+        vulnAvailabilityImpact: 'NONE',
       })
     })
 
     it('Updating from an invalid vector-string clears all fields', () => {
       const vector = new Cvss4JsonWrapper({
-        availabilityImpact: 'NONE',
+        vulnAvailabilityImpact: 'NONE',
         attackVector: '',
         attackComplexity: '',
         privilegesRequired: '',
         userInteraction: '',
         scope: '',
-        confidentialityImpact: '',
-        integrityImpact: '',
+        vulnConfidentialityImpact: '',
+        vulnIntegrityImpact: '',
       })
       vector.updateFromVectorString('CVSS:4.0/AV:N/AC:L/PR:L/UI:R/S:U/C:H/I:x')
 
@@ -95,23 +95,23 @@ describe('CVSS4Attribute', () => {
         privilegesRequired: '',
         userInteraction: '',
         scope: '',
-        confidentialityImpact: '',
-        integrityImpact: '',
-        availabilityImpact: 'NONE',
+        vulnConfidentialityImpact: '',
+        vulnIntegrityImpact: '',
+        vulnAvailabilityImpact: '',
       })
       expect(vector.data).to.not.contain({ exploitCodeMaturity: '' })
     })
 
     it('Updating from an invalid vector-string, fix vector string after set field', () => {
       const vector = new Cvss4JsonWrapper({
-        availabilityImpact: 'NONE',
+        vulnAvailabilityImpact: 'NONE',
         attackVector: '',
         attackComplexity: '',
         privilegesRequired: '',
         userInteraction: '',
         scope: '',
-        confidentialityImpact: '',
-        integrityImpact: '',
+        vulnConfidentialityImpact: '',
+        vulnIntegrityImpact: '',
       })
 
       vector.updateFromVectorString('1')
