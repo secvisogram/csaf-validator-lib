@@ -1,6 +1,6 @@
 import cvss2js from 'cvss2js'
 import { getEnvironmentalScoreFromVectorString } from '../../lib/shared/cvss2.js'
-import { cvss30 as CVSS, cvss31 as CVSS31 } from '../../lib/shared/first.js'
+import { cvss30 as CVSS30, cvss31 as CVSS31 } from '../../lib/shared/first.js'
 import Ajv from 'ajv/dist/jtd.js'
 import { calculateCvss4_0_Score } from '../../lib/shared/cvss4.js'
 
@@ -191,7 +191,8 @@ function calculateCvss3(metric) {
     (metric.content.cvss_v3.version === '3.1' ||
       metric.content.cvss_v3.version === '3.0')
   ) {
-    const calculator = metric.content.cvss_v3.version === '3.0' ? CVSS : CVSS31
+    const calculator =
+      metric.content.cvss_v3.version === '3.0' ? CVSS30 : CVSS31
     const result = calculator.calculateCVSSFromVector(
       metric.content.cvss_v3.vectorString
     )
