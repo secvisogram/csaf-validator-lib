@@ -118,7 +118,7 @@ if (cliOptions['csaf-version'] === '2.0') {
     {
       mandatoryTests: () => import('../csaf_2_1/mandatoryTests.js'),
       informativeTests: () => import('../csaf_2_1/informativeTests.js'),
-      optionalTests: () => import('../csaf_2_1/optionalTests.js'),
+      optionalTests: () => import('../csaf_2_1/recommendedTests.js'),
       schemaTests: () => import('../csaf_2_1/schemaTests.js'),
     },
     { filePath, testName }
