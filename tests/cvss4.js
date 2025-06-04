@@ -56,7 +56,7 @@ describe('CVSS4Attribute', () => {
       expect(data.threatSeverity).to.equal('Medium')
     })
 
-    it('Metrics can be updated from a 4.0 vector-string', () => {
+    it('Metrics can be updated from a partly 4.0 vector-string', () => {
       const vector = new Cvss4JsonWrapper({
         vulnAvailabilityImpact: 'NONE',
       })
@@ -68,9 +68,95 @@ describe('CVSS4Attribute', () => {
         version: '4.0',
         attackVector: 'PHYSICAL',
         attackComplexity: 'LOW',
+        attackRequirements: 'NONE',
         privilegesRequired: 'HIGH',
         userInteraction: 'ACTIVE',
+        vulnConfidentialityImpact: 'NONE',
+        vulnIntegrityImpact: 'NONE',
         vulnAvailabilityImpact: 'NONE',
+        subConfidentialityImpact: 'NONE',
+        subIntegrityImpact: 'NONE',
+        subAvailabilityImpact: 'NONE',
+
+        Safety: 'NOT_DEFINED',
+        Automatable: 'NOT_DEFINED',
+        Recovery: 'NOT_DEFINED',
+        valueDensity: 'NOT_DEFINED',
+        vulnerabilityResponseEffort: 'NOT_DEFINED',
+        providerUrgency: 'NOT_DEFINED',
+
+        modifiedAttackVector: 'NOT_DEFINED',
+        modifiedAttackComplexity: 'NOT_DEFINED',
+        modifiedAttackRequirements: 'NOT_DEFINED',
+        modifiedPrivilegesRequired: 'NOT_DEFINED',
+        modifiedUserInteraction: 'NOT_DEFINED',
+
+        modifiedVulnConfidentialityImpact: 'NOT_DEFINED',
+        modifiedVulnIntegrityImpact: 'NOT_DEFINED',
+        modifiedVulnAvailabilityImpact: 'NOT_DEFINED',
+
+        modifiedSubConfidentialityImpact: 'NOT_DEFINED',
+        modifiedSubIntegrityImpact: 'NOT_DEFINED',
+        modifiedSubAvailabilityImpact: 'NOT_DEFINED',
+
+        confidentialityRequirement: 'LOW',
+        integrityRequirement: 'NOT_DEFINED',
+        availabilityRequirement: 'NOT_DEFINED',
+
+        exploitMaturity: 'NOT_DEFINED',
+      })
+    })
+
+    it('Metrics can be updated from a complete 4.0 vector-string', () => {
+      const vector = new Cvss4JsonWrapper({
+        vulnAvailabilityImpact: 'NONE',
+      })
+      vector.updateFromVectorString(
+        'CVSS:4.0/AV:L/AC:H/AT:P/PR:H/UI:P/VC:L/VI:H/VA:L/SC:L/SI:H/SA:L/E:P/CR:H/IR:M/AR:L/MAV:N/MAC:L/MAT:P/MPR:L/MUI:N/MVC:H/MVI:L/MVA:N/MSC:H/MSI:L/MSA:N/AU:N/R:U/V:D/RE:M/U:Green'
+      )
+
+      expect(vector.data).to.contain({
+        version: '4.0',
+        attackVector: 'LOCAL',
+        attackComplexity: 'HIGH',
+        attackRequirements: 'PRESENT',
+        privilegesRequired: 'HIGH',
+        userInteraction: 'PASSIVE',
+
+        vulnConfidentialityImpact: 'LOW',
+        vulnIntegrityImpact: 'HIGH',
+        vulnAvailabilityImpact: 'LOW',
+
+        subConfidentialityImpact: 'LOW',
+        subIntegrityImpact: 'HIGH',
+        subAvailabilityImpact: 'LOW',
+
+        Safety: 'NOT_DEFINED',
+        Automatable: 'NO',
+        Recovery: 'USER',
+        valueDensity: 'DIFFUSE',
+        vulnerabilityResponseEffort: 'MODERATE',
+        providerUrgency: 'GREEN',
+
+        modifiedAttackVector: 'NETWORK',
+        modifiedAttackComplexity: 'LOW',
+        modifiedAttackRequirements: 'PRESENT',
+        modifiedPrivilegesRequired: 'LOW',
+        modifiedUserInteraction: 'NONE',
+
+        modifiedVulnConfidentialityImpact: 'HIGH',
+        modifiedVulnIntegrityImpact: 'LOW',
+        modifiedVulnAvailabilityImpact: 'NONE',
+
+        modifiedSubConfidentialityImpact: 'HIGH',
+        modifiedSubIntegrityImpact: 'LOW',
+        modifiedSubAvailabilityImpact: 'NEGLIGIBLE',
+
+        confidentialityRequirement: 'HIGH',
+        integrityRequirement: 'MEDIUM',
+        availabilityRequirement: 'LOW',
+
+        exploitMaturity: 'PROOF_OF_CONCEPT',
       })
     })
 
