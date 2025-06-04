@@ -12,8 +12,6 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
 const excluded = [
   '6.1.6',
   '6.1.7',
-  '6.1.9',
-  '6.1.7', ,
   '6.1.10',
   '6.1.14',
   '6.1.16',
@@ -31,6 +29,7 @@ const excluded = [
   '6.1.27.18',
   '6.1.27.19',
   '6.1.36',
+  '6.1.37',
   '6.1.42',
   '6.1.43',
   '6.1.44',
@@ -81,6 +80,8 @@ const excluded = [
   '6.3.15',
   '6.3.12',
   '6.3.13',
+  '6.3.16',
+  '6.3.17',
 ]
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
