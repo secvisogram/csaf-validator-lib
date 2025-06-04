@@ -10,6 +10,7 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
   Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
+  '6.1.6',
   '6.1.7',
   '6.1.9',
   '6.1.10',
@@ -26,7 +27,10 @@ const excluded = [
   '6.1.27.15',
   '6.1.27.16',
   '6.1.27.17',
+  '6.1.27.18',
+  '6.1.27.19',
   '6.1.36',
+  '6.1.37',
   '6.1.42',
   '6.1.43',
   '6.1.44',
@@ -35,8 +39,15 @@ const excluded = [
   '6.1.47',
   '6.1.48',
   '6.1.49',
+  '6.1.50',
+  '6.1.51',
+  '6.1.52',
+  '6.1.53',
+  '6.1.54',
+  '6.1.55',
   '6.2.11',
   '6.2.19',
+  '6.2.20',
   '6.2.21',
   '6.2.23',
   '6.2.24',
@@ -56,12 +67,22 @@ const excluded = [
   '6.2.38',
   '6.2.39.1',
   '6.2.39.2',
+  '6.2.39.3',
+  '6.2.39.4',
   '6.2.40',
+  '6.2.41',
+  '6.2.42',
+  '6.2.43',
+  '6.2.44',
+  '6.2.45',
+  '6.2.46',
   '6.3.2',
   '6.3.14',
   '6.3.15',
   '6.3.12',
   '6.3.13',
+  '6.3.16',
+  '6.3.17',
 ]
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
@@ -109,7 +130,12 @@ const testCases = /** @type {TestCases} */ (
 
 const testMap = parseTestCases()
 
-for (const [group, t] of testMap) {
+for (const [groupRaw, t] of testMap) {
+  /*
+    This is temporary fix until we rename the tests from optional to recommended.
+   */
+  const group = groupRaw === 'recommended' ? 'optional' : groupRaw
+
   describe(group, function () {
     for (const [testId, u] of t) {
       describe(testId, function () {
