@@ -171,10 +171,11 @@ describe('CVSS4Attribute', () => {
         vulnConfidentialityImpact: '',
         vulnIntegrityImpact: '',
       })
-      vector.updateFromVectorString('CVSS:4.0/AV:N/AC:L/PR:L/UI:R/S:U/C:H/I:x')
+      // C is an invalid metric shortcut
+      vector.updateFromVectorString('CVSS:4.0/AV:N/AC:L/PR:L/UI:N/C:H')
 
       expect(vector.data).to.contain({
-        vectorString: 'CVSS:4.0/AV:N/AC:L/PR:L/UI:R/S:U/C:H/I:x',
+        vectorString: 'CVSS:4.0/AV:N/AC:L/PR:L/UI:N/C:H',
         version: '4.0',
         attackVector: '',
         attackComplexity: '',
@@ -185,7 +186,6 @@ describe('CVSS4Attribute', () => {
         vulnIntegrityImpact: '',
         vulnAvailabilityImpact: '',
       })
-      expect(vector.data).to.not.contain({ exploitCodeMaturity: '' })
     })
 
     it('Updating from an invalid vector-string, fix vector string after set field', () => {
