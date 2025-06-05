@@ -17,7 +17,7 @@
     - CSAF 2.1
       - [Module `csaf_2_1/schemaTests.js`](#module-csaf_2_1schematestsjs)
       - [Module `csaf_2_1/mandatoryTests.js`](#module-csaf_2_1mandatorytestsjs)
-      - [Module `csaf_2_1/recommendedTests.js`](#module-csaf_2_1optionaltestsjs)
+      - [Module `csaf_2_1/recommendedTests.js`](#module-csaf_2_1recommendedtestsjs)
       - [Module `csaf_2_1/informativeTests.js`](#module-csaf_2_1informativetestsjs)
       - [Module `csaf_2_1/basic.js`](#module-csaf_2_1basicjs)
       - [Module `csaf_2_1/extended.js`](#module-csaf_2_1extendedjs)
