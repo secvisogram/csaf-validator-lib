@@ -12,11 +12,11 @@ describe('CVSS4Attribute', () => {
 
       const data = wrapper.data
       expect(data.baseScore).to.equal(0)
-      expect(data.baseSeverity).to.equal('None')
+      expect(data.baseSeverity).to.equal('NONE')
       expect(data.environmentalScore).to.equal(0)
-      expect(data.environmentalSeverity).to.equal('None')
+      expect(data.environmentalSeverity).to.equal('NONE')
       expect(data.threatScore).to.equal(0)
-      expect(data.threatSeverity).to.equal('None')
+      expect(data.threatSeverity).to.equal('NONE')
     })
 
     it('4.0 metrics can be calculated', () => {
@@ -31,11 +31,11 @@ describe('CVSS4Attribute', () => {
 
       const data = wrapper.data
       expect(data.baseScore).to.equal(4.1)
-      expect(data.baseSeverity).to.equal('Medium')
+      expect(data.baseSeverity).to.equal('MEDIUM')
       expect(data.environmentalScore).to.equal(4.1)
-      expect(data.environmentalSeverity).to.equal('Medium')
+      expect(data.environmentalSeverity).to.equal('MEDIUM')
       expect(data.threatScore).to.equal(4.1)
-      expect(data.threatSeverity).to.equal('Medium')
+      expect(data.threatSeverity).to.equal('MEDIUM')
     })
 
     it('4.0 set metrics by fields', () => {
@@ -49,11 +49,11 @@ describe('CVSS4Attribute', () => {
 
       const data = wrapper.data
       expect(data.baseScore).to.equal(4.1)
-      expect(data.baseSeverity).to.equal('Medium')
+      expect(data.baseSeverity).to.equal('MEDIUM')
       expect(data.environmentalScore).to.equal(4.1)
-      expect(data.environmentalSeverity).to.equal('Medium')
+      expect(data.environmentalSeverity).to.equal('MEDIUM')
       expect(data.threatScore).to.equal(4.1)
-      expect(data.threatSeverity).to.equal('Medium')
+      expect(data.threatSeverity).to.equal('MEDIUM')
     })
 
     it('Metrics can be updated from a partly 4.0 vector-string', () => {
