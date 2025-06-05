@@ -14,9 +14,9 @@
  *      can insert any test name from `mandatoryTests.js`, `optionalTests.js`,
  *      `informativeTests.js` and `schemaTests.js`.
  *      If you use 2.1 here you can insert any test name from `csaf_2_1/mandatoryTests.js`,
- *      `csaf_2_1/optionalTests.js`, `csaf_2_1/informativeTests.js` and `csaf_2_1/schemaTests.js`.
- *      Some presets are also allowed such as `mandatory`, `optional`, `informative`,
- *      `schema` and `base`.
+ *      `csaf_2_1/recommendedTests.js`, `csaf_2_1/informativeTests.js` and `csaf_2_1/schemaTests.js`.
+ *      Some presets are also allowed such as `mandatory`, `optional` (only CSAF 2.0), recommended (only CSAF 2.1),
+ *      `informative`, `schema` and `base`.
  *
  *    -c <csaf-version> (default: 2.0)
  *      Specifies the csaf version to use. The currently allowed versions are `2.0` (the default)
