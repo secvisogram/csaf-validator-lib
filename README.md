@@ -17,7 +17,7 @@
     - CSAF 2.1
       - [Module `csaf_2_1/schemaTests.js`](#module-csaf_2_1schematestsjs)
       - [Module `csaf_2_1/mandatoryTests.js`](#module-csaf_2_1mandatorytestsjs)
-      - [Module `csaf_2_1/optionalTests.js`](#module-csaf_2_1optionaltestsjs)
+      - [Module `csaf_2_1/recommendedTests.js`](#module-csaf_2_1recommendedtestsjs)
       - [Module `csaf_2_1/informativeTests.js`](#module-csaf_2_1informativetestsjs)
       - [Module `csaf_2_1/basic.js`](#module-csaf_2_1basicjs)
       - [Module `csaf_2_1/extended.js`](#module-csaf_2_1extendedjs)
@@ -357,29 +357,29 @@ export const mandatoryTest_6_1_33: DocumentTest
 
 [(back to top)](#bsi-csaf-validator-lib)
 
-#### Module `csaf_2_1/optionalTests.js`
+#### Module `csaf_2_1/recommendedTests.js`
 
 ```typescript
-export const optionalTest_6_2_1: DocumentTest
-export const optionalTest_6_2_2: DocumentTest
-export const optionalTest_6_2_3: DocumentTest
-export const optionalTest_6_2_4: DocumentTest
-export const optionalTest_6_2_5: DocumentTest
-export const optionalTest_6_2_6: DocumentTest
-export const optionalTest_6_2_7: DocumentTest
-export const optionalTest_6_2_8: DocumentTest
-export const optionalTest_6_2_9: DocumentTest
-export const optionalTest_6_2_10: DocumentTest
-export const optionalTest_6_2_11: DocumentTest
-export const optionalTest_6_2_12: DocumentTest
-export const optionalTest_6_2_13: DocumentTest
-export const optionalTest_6_2_14: DocumentTest
-export const optionalTest_6_2_15: DocumentTest
-export const optionalTest_6_2_16: DocumentTest
-export const optionalTest_6_2_17: DocumentTest
-export const optionalTest_6_2_18: DocumentTest
-export const optionalTest_6_2_19: DocumentTest
-export const optionalTest_6_2_20: DocumentTest
+export const recommendedTest_6_2_1: DocumentTest
+export const recommendedTest_6_2_2: DocumentTest
+export const recommendedTest_6_2_3: DocumentTest
+export const recommendedTest_6_2_4: DocumentTest
+export const recommendedTest_6_2_5: DocumentTest
+export const recommendedTest_6_2_6: DocumentTest
+export const recommendedTest_6_2_7: DocumentTest
+export const recommendedTest_6_2_8: DocumentTest
+export const recommendedTest_6_2_9: DocumentTest
+export const recommendedTest_6_2_10: DocumentTest
+export const recommendedTest_6_2_11: DocumentTest
+export const recommendedTest_6_2_12: DocumentTest
+export const recommendedTest_6_2_13: DocumentTest
+export const recommendedTest_6_2_14: DocumentTest
+export const recommendedTest_6_2_15: DocumentTest
+export const recommendedTest_6_2_16: DocumentTest
+export const recommendedTest_6_2_17: DocumentTest
+export const recommendedTest_6_2_18: DocumentTest
+export const recommendedTest_6_2_19: DocumentTest
+export const recommendedTest_6_2_20: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)

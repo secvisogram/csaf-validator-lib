@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
 import assert from 'node:assert/strict'
 import * as informative from '../../csaf_2_1/informativeTests.js'
-import * as optional from '../../csaf_2_1/optionalTests.js'
+import * as recommended from '../../csaf_2_1/recommendedTests.js'
 import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
 
 /*
@@ -113,7 +113,10 @@ const tests = new Map([
     'informative',
     /** @type {TestMap} */ (new Map(Object.entries(informative))),
   ],
-  ['optional', /** @type {TestMap} */ (new Map(Object.entries(optional)))],
+  [
+    'recommended',
+    /** @type {TestMap} */ (new Map(Object.entries(recommended))),
+  ],
   ['mandatory', /** @type {TestMap} */ (new Map(Object.entries(mandatory)))],
 ])
 
@@ -130,12 +133,7 @@ const testCases = /** @type {TestCases} */ (
 
 const testMap = parseTestCases()
 
-for (const [groupRaw, t] of testMap) {
-  /*
-    This is temporary fix until we rename the tests from optional to recommended.
-   */
-  const group = groupRaw === 'recommended' ? 'optional' : groupRaw
-
+for (const [group, t] of testMap) {
   describe(group, function () {
     for (const [testId, u] of t) {
       describe(testId, function () {
@@ -169,7 +167,7 @@ for (const [groupRaw, t] of testMap) {
                 } else {
                   assert.equal(result.isValid === undefined, testSpec.valid)
 
-                  if (group === 'optional') {
+                  if (group === 'recommended') {
                     assert.equal(
                       Boolean(result.warnings?.length),
                       type === 'failures',

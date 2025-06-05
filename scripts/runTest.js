@@ -14,9 +14,9 @@
  *      can insert any test name from `mandatoryTests.js`, `optionalTests.js`,
  *      `informativeTests.js` and `schemaTests.js`.
  *      If you use 2.1 here you can insert any test name from `csaf_2_1/mandatoryTests.js`,
- *      `csaf_2_1/optionalTests.js`, `csaf_2_1/informativeTests.js` and `csaf_2_1/schemaTests.js`.
- *      Some presets are also allowed such as `mandatory`, `optional`, `informative`,
- *      `schema` and `base`.
+ *      `csaf_2_1/recommendedTests.js`, `csaf_2_1/informativeTests.js` and `csaf_2_1/schemaTests.js`.
+ *      Some presets are also allowed such as `mandatory`, `optional` (only CSAF 2.0), recommended (only CSAF 2.1),
+ *      `informative`, `schema` and `base`.
  *
  *    -c <csaf-version> (default: 2.0)
  *      Specifies the csaf version to use. The currently allowed versions are `2.0` (the default)
@@ -43,13 +43,20 @@ import assert from 'node:assert'
  * @param {DocumentTestLoader} ctx.schemaTests
  * @param {DocumentTestLoader} ctx.mandatoryTests
  * @param {DocumentTestLoader} ctx.optionalTests
+ * @param {DocumentTestLoader} ctx.recommendedTests
  * @param {DocumentTestLoader} ctx.informativeTests
  * @param {object} params
  * @param {string} params.testName
  * @param {string} params.filePath
  */
 const main = async (
-  { informativeTests, mandatoryTests, optionalTests, schemaTests },
+  {
+    informativeTests,
+    mandatoryTests,
+    optionalTests,
+    recommendedTests,
+    schemaTests,
+  },
   { testName, filePath }
 ) => {
   const json = JSON.parse(await readFile(filePath, { encoding: 'utf-8' }))
@@ -59,6 +66,8 @@ const main = async (
       ? Object.values(await mandatoryTests())
       : testName === 'optional'
       ? Object.values(await optionalTests())
+      : testName === 'recommended'
+      ? Object.values(await recommendedTests())
       : testName === 'informative'
       ? Object.values(await informativeTests())
       : testName === 'schema'
@@ -69,6 +78,7 @@ const main = async (
         )
       : Object.values(await mandatoryTests())
           .concat(Object.values(await optionalTests()))
+          .concat(Object.values(await recommendedTests()))
           .concat(Object.values(await informativeTests()))
           .concat(Object.values(await schemaTests()))
           .filter((t) => t.name === testName)
@@ -109,6 +119,7 @@ if (cliOptions['csaf-version'] === '2.0') {
       mandatoryTests: () => import('../mandatoryTests.js'),
       informativeTests: () => import('../informativeTests.js'),
       optionalTests: () => import('../optionalTests.js'),
+      recommendedTests: async () => ({}),
       schemaTests: () => import('../schemaTests.js'),
     },
     { filePath, testName }
@@ -118,7 +129,8 @@ if (cliOptions['csaf-version'] === '2.0') {
     {
       mandatoryTests: () => import('../csaf_2_1/mandatoryTests.js'),
       informativeTests: () => import('../csaf_2_1/informativeTests.js'),
-      optionalTests: () => import('../csaf_2_1/optionalTests.js'),
+      optionalTests: async () => ({}),
+      recommendedTests: () => import('../csaf_2_1/recommendedTests.js'),
       schemaTests: () => import('../csaf_2_1/schemaTests.js'),
     },
     { filePath, testName }
