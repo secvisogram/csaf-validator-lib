@@ -4,8 +4,6 @@ export {
   mandatoryTest_6_1_4,
   mandatoryTest_6_1_5,
   mandatoryTest_6_1_6,
-  mandatoryTest_6_1_9,
-  mandatoryTest_6_1_10,
   mandatoryTest_6_1_12,
   mandatoryTest_6_1_15,
   mandatoryTest_6_1_17,
