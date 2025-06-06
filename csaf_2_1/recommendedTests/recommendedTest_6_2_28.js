@@ -32,7 +32,7 @@ const validateInput = ajv.compile(inputSchema)
  * The Max UUID should not be used for the sharing group id.
  * @param {any} doc
  */
-export function optionalTest_6_2_28(doc) {
+export function recommendedTest_6_2_28(doc) {
   const ctx = {
     warnings:
       /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
