@@ -1,43 +1,119 @@
 import * as cvss2 from '../../lib/shared/cvss2.js'
 import * as cvss3 from '../../lib/shared/cvss3.js'
 import * as cvss4 from '../../lib/shared/cvss4.js'
-import { convertOptionsArrayToObject } from '../../lib/shared/cvss4.js'
+import Ajv from 'ajv/dist/jtd.js'
 
-const cvssV3VectorStringMapping = cvss3.mapping
+const inputSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  properties: {
+    vulnerabilities: {
+      elements: {
+        additionalProperties: true,
+        properties: {
+          metrics: {
+            elements: {
+              additionalProperties: true,
+              properties: {
+                content: {
+                  additionalProperties: true,
+                  optionalProperties: {
+                    cvss_v2: {
+                      additionalProperties: true,
+                      optionalProperties: {
+                        vectorString: { type: 'string' },
+                      },
+                    },
+                    cvss_v3: {
+                      additionalProperties: true,
+                      optionalProperties: {
+                        vectorString: { type: 'string' },
+                        version: { type: 'string' },
+                      },
+                    },
+                    cvss_v4: {
+                      additionalProperties: true,
+                      optionalProperties: {
+                        vectorString: { type: 'string' },
+                        version: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+})
+const ajv = new Ajv()
+const validateInput = ajv.compile(inputSchema)
 
-/** @type {ReadonlyArray<readonly [string, string, Record<string, string>]>} */
-const cvssV2VectorStringMapping =
-  /** @type {ReadonlyArray<readonly [string, string, Record<string, string>]>} */ (
-    cvss2.mapping.map((mapping) => [
-      mapping[0],
+/** @type {  Record<string, { jsonName:string, optionsByKey:Record<string, string>}>} */
+const cvssV3VectorStringMapping = Object.fromEntries(
+  cvss3.mapping.map((mapping) => {
+    return [
       mapping[1],
-      Object.fromEntries(
-        Object.entries(mapping[2]).map(([key, value]) => [key, value.id])
-      ),
-    ])
-  )
+      {
+        jsonName: mapping[0],
+        optionsByKey: Object.fromEntries(
+          Object.entries(mapping[2]).map(([key, value]) => [value, key])
+        ),
+      },
+    ]
+  })
+)
 
-/** @type {ReadonlyArray<readonly [string, string, Record<string, string>]>} */
-const cvssV4VectorStringMapping =
-  /** @type {ReadonlyArray<readonly [string, string, Record<string, string>]>} */ (
-    cvss4.flatMetrics.map((flatMetric) => [
-      flatMetric.jsonName,
+/** @type {  Record<string, { jsonName:string, optionsByKey:Record<string, string>}>} */
+const cvssV2VectorStringMapping = Object.fromEntries(
+  cvss2.mapping.map((mapping) => {
+    return [
+      mapping[1],
+      {
+        jsonName: mapping[0],
+        optionsByKey: Object.fromEntries(
+          Object.entries(mapping[2]).map(([key, value]) => [value.id, key])
+        ),
+      },
+    ]
+  })
+)
+
+/**
+ * @param {{optionName: string, optionValue: string, optionKey: string}[]} optionsArray
+ * @return {any}
+ */
+function convertOptionsArrayToObject(optionsArray) {
+  /** @type {any} */
+  const result = {}
+  optionsArray.forEach((option) => {
+    result[option.optionKey] = option.optionValue
+  })
+  return result
+}
+
+/** @type {  Record<string, { jsonName:string, optionsByKey:Record<string, string>}>} */
+const cvssV4VectorStringMapping = Object.fromEntries(
+  cvss4.flatMetrics.map((flatMetric) => {
+    return [
       flatMetric.metricShort,
-      convertOptionsArrayToObject(flatMetric.options),
-    ])
-  )
+      {
+        jsonName: flatMetric.jsonName,
+        optionsByKey: convertOptionsArrayToObject(flatMetric.options),
+      },
+    ]
+  })
+)
 
 /**
  * @param {any} metric
  */
 function validateCvss2(metric) {
   if (typeof metric.content?.cvss_v2?.vectorString === 'string') {
-    const cvssV2 = metric.content.cvss_v2
-    const vectorString = /** @type {string} */ (cvssV2.vectorString)
     return validateCVSSAttributes({
-      vectorValues: vectorString.split('/').slice(1),
       vectorMapping: cvssV2VectorStringMapping,
-      cvss: cvssV2,
+      cvss: metric.content.cvss_v2,
     })
   } else {
     return []
@@ -53,12 +129,9 @@ function validateCvss3(metric) {
     (metric.content.cvss_v3.version === '3.1' ||
       metric.content.cvss_v3.version === '3.0')
   ) {
-    const cvssV3 = metric.content.cvss_v3
-    const vectorString = /** @type {string} */ (cvssV3.vectorString)
     return validateCVSSAttributes({
-      vectorValues: vectorString.split('/').slice(1),
       vectorMapping: cvssV3VectorStringMapping,
-      cvss: cvssV3,
+      cvss: metric.content.cvss_v3,
     })
   } else {
     return []
@@ -70,12 +143,9 @@ function validateCvss3(metric) {
  */
 function validateCvss4(metric) {
   if (typeof metric.content.cvss_v4?.vectorString === 'string') {
-    const cvssV4 = metric.content.cvss_v4
-    const vectorString = /** @type {string} */ (cvssV4.vectorString)
     return validateCVSSAttributes({
-      vectorValues: vectorString.split('/').slice(1),
       vectorMapping: cvssV4VectorStringMapping,
-      cvss: cvssV4,
+      cvss: metric.content.cvss_v4,
     })
   } else {
     return []
@@ -89,6 +159,10 @@ export function mandatoryTest_6_1_10(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
   const errors = []
 
+  if (!validateInput(doc)) {
+    return { errors, isValid: true }
+  }
+
   if (Array.isArray(doc.vulnerabilities)) {
     /** @type {Array<any>} */
     const vulnerabilities = doc.vulnerabilities
@@ -99,7 +173,7 @@ export function mandatoryTest_6_1_10(doc) {
       metrics.forEach((metric, metricIndex) => {
         validateCvss2(metric).forEach((attributeKey) => {
           errors.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/scores/${metricIndex}/cvss_v2/${attributeKey}`,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/cvss_v2/${attributeKey}`,
             message: 'value is not consistent with the vector string',
           })
         })
@@ -107,7 +181,7 @@ export function mandatoryTest_6_1_10(doc) {
         /** @type {Record<string, unknown>} */
         validateCvss3(metric).forEach((attributeKey) => {
           errors.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/scores/${metricIndex}/cvss_v3/${attributeKey}`,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/cvss_v3/${attributeKey}`,
             message: 'value is not consistent with the vector string',
           })
         })
@@ -115,7 +189,7 @@ export function mandatoryTest_6_1_10(doc) {
         /** @type {Record<string, unknown>} */
         validateCvss4(metric).forEach((attributeKey) => {
           errors.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/scores/${metricIndex}/cvss_v4/${attributeKey}`,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/cvss_v4/${attributeKey}`,
             message: 'value is not consistent with the vector string',
           })
         })
@@ -127,32 +201,28 @@ export function mandatoryTest_6_1_10(doc) {
 }
 
 /**
+ * validate the cvss vector against the cvss properties
  * @param {object} params
- * @param {string[]} params.vectorValues
- * @param {ReadonlyArray<readonly [string, string, { [key: string]: string }]>} params.vectorMapping
- * @param {Record<string, unknown>} params.cvss
+ * @param {Record<string, { jsonName:string, optionsByKey:Record<string, string>}>} params.vectorMapping cvss version specific mapping
+ * @param {Record<string, unknown>} params.cvss cvss object
 
  */
-function validateCVSSAttributes({ vectorValues, vectorMapping, cvss }) {
+function validateCVSSAttributes({ vectorMapping, cvss }) {
+  const vectorString = /** @type {string} */ (cvss.vectorString)
+  const vectorValues = vectorString.split('/').slice(1)
   /**
    * @type {string[]}
    */
   const invalidKeys = []
-  vectorValues.forEach((str) => {
-    const [key, value] = str.split(':')
-    const entry = vectorMapping.find((e) => e[1] === key)
-    if (entry) {
-      const [attributeKey] = entry
-      const attributeValue = cvss[attributeKey]
-      if (typeof attributeValue == 'string') {
-        const expectedAttributeValue = Object.entries(entry[2]).find(
-          (e) => e[1] === value
-        )?.[0]
-        if (
-          typeof expectedAttributeValue === 'string' &&
-          attributeValue !== expectedAttributeValue
-        ) {
-          invalidKeys.push(attributeKey)
+  vectorValues.forEach((vectorValue) => {
+    const [vectorMetricKey, vectorOptionKey] = vectorValue.split(':')
+    const mapping = vectorMapping[vectorMetricKey]
+    if (mapping) {
+      const metricOptionValue = cvss[mapping.jsonName]
+      if (typeof metricOptionValue == 'string') {
+        const expectedOptionValue = mapping.optionsByKey[vectorOptionKey]
+        if (metricOptionValue !== expectedOptionValue) {
+          invalidKeys.push(mapping.jsonName)
         }
       }
     }
