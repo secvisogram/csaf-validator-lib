@@ -12,12 +12,11 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {},
-        optionalProperties: {
+        properties: {
           metrics: {
             elements: {
               additionalProperties: true,
-              optionalProperties: {
+              properties: {
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
