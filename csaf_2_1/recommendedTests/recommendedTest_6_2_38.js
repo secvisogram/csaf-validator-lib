@@ -17,12 +17,12 @@ const inputSchema = /** @type {const} */ ({
 const validate = ajv.compile(inputSchema)
 
 /**
- * This implements the optional test 6.2.38 of the CSAF 2.1 standard.
+ * This implements the recommended test 6.2.38 of the CSAF 2.1 standard.
  *
 /**
  * @param {any} doc
  */
-export function optionalTest_6_2_38(doc) {
+export function recommendedTest_6_2_38(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
   const warnings = []
   const context = { warnings }
