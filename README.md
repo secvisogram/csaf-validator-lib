@@ -14,7 +14,8 @@
       - [Module `basic.js`](#module-basicjs)
       - [Module `extended.js`](#module-extendedjs)
       - [Module `full.js`](#module-fulljs)
-    - CSAF 2.1
+    - CSAF 2.1 (experimental)
+      - [Known Issues](#known-issues)
       - [Module `csaf_2_1/schemaTests.js`](#module-csaf_2_1schematestsjs)
       - [Module `csaf_2_1/mandatoryTests.js`](#module-csaf_2_1mandatorytestsjs)
       - [Module `csaf_2_1/recommendedTests.js`](#module-csaf_2_1recommendedtestsjs)
@@ -296,7 +297,83 @@ This module exports all tests included in `extended.js` and all informative test
 
 [(back to top)](#bsi-csaf-validator-lib)
 
-### CSAF 2.1
+### CSAF 2.1 (experimental)
+
+**HEADS UP**: The feature set in this section is not stable nor complete yet and changes without introducing a major version update. Please use it with caution! As soon as it becomes stable this README will be updated.
+
+In CSAF 2.1 the "optional tests" have been renamed to "recommended tests".
+
+#### Known Issues
+
+The following tests are not yet implemented and therefore missing:
+
+**Mandatory Tests**
+
+- Mandatory Test 6.1.7
+- Mandatory Test 6.1.10
+- Mandatory Test 6.1.14
+- Mandatory Test 6.1.16
+- Mandatory Test 6.1.27.12
+- Mandatory Test 6.1.27.13
+- Mandatory Test 6.1.27.14
+- Mandatory Test 6.1.27.15
+- Mandatory Test 6.1.27.16
+- Mandatory Test 6.1.27.17
+- Mandatory Test 6.1.27.18
+- Mandatory Test 6.1.27.19
+- Mandatory Test 6.1.36
+- Mandatory Test 6.1.42
+- Mandatory Test 6.1.43
+- Mandatory Test 6.1.44
+- Mandatory Test 6.1.45
+- Mandatory Test 6.1.46
+- Mandatory Test 6.1.47
+- Mandatory Test 6.1.48
+- Mandatory Test 6.1.49
+- Mandatory Test 6.1.50
+- Mandatory Test 6.1.51
+- Mandatory Test 6.1.52
+- Mandatory Test 6.1.53
+- Mandatory Test 6.1.54
+- Mandatory Test 6.1.55
+
+**Recommended Tests**
+
+- Recommeded Test 6.2.21
+- Recommeded Test 6.2.22
+- Recommeded Test 6.2.23
+- Recommeded Test 6.2.24
+- Recommeded Test 6.2.25
+- Recommeded Test 6.2.26
+- Recommeded Test 6.2.27
+- Recommeded Test 6.2.28
+- Recommeded Test 6.2.29
+- Recommeded Test 6.2.30
+- Recommeded Test 6.2.31
+- Recommeded Test 6.2.32
+- Recommeded Test 6.2.33
+- Recommeded Test 6.2.34
+- Recommeded Test 6.2.35
+- Recommeded Test 6.2.36
+- Recommeded Test 6.2.37
+- Recommeded Test 6.2.38
+- Recommeded Test 6.2.39
+- Recommeded Test 6.2.40
+- Recommeded Test 6.2.41
+- Recommeded Test 6.2.42
+- Recommeded Test 6.2.43
+- Recommeded Test 6.2.44
+- Recommeded Test 6.2.45
+- Recommeded Test 6.2.46
+
+**Informative Tests**
+
+- Informative Test 6.2.12
+- Informative Test 6.2.13
+- Informative Test 6.2.14
+- Informative Test 6.2.15
+- Informative Test 6.2.16
+- Informative Test 6.2.17
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -316,16 +393,12 @@ export const mandatoryTest_6_1_3: DocumentTest
 export const mandatoryTest_6_1_4: DocumentTest
 export const mandatoryTest_6_1_5: DocumentTest
 export const mandatoryTest_6_1_6: DocumentTest
-export const mandatoryTest_6_1_7: DocumentTest
 export const mandatoryTest_6_1_8: DocumentTest
 export const mandatoryTest_6_1_9: DocumentTest
-export const mandatoryTest_6_1_10: DocumentTest
 export const mandatoryTest_6_1_11: DocumentTest
 export const mandatoryTest_6_1_12: DocumentTest
 export const mandatoryTest_6_1_13: DocumentTest
-export const mandatoryTest_6_1_14: DocumentTest
 export const mandatoryTest_6_1_15: DocumentTest
-export const mandatoryTest_6_1_16: DocumentTest
 export const mandatoryTest_6_1_17: DocumentTest
 export const mandatoryTest_6_1_18: DocumentTest
 export const mandatoryTest_6_1_19: DocumentTest
@@ -353,6 +426,13 @@ export const mandatoryTest_6_1_30: DocumentTest
 export const mandatoryTest_6_1_31: DocumentTest
 export const mandatoryTest_6_1_32: DocumentTest
 export const mandatoryTest_6_1_33: DocumentTest
+export const mandatoryTest_6_1_34: DocumentTest
+export const mandatoryTest_6_1_35: DocumentTest
+export const mandatoryTest_6_1_37: DocumentTest
+export const mandatoryTest_6_1_38: DocumentTest
+export const mandatoryTest_6_1_39: DocumentTest
+export const mandatoryTest_6_1_40: DocumentTest
+export const mandatoryTest_6_1_41: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -380,6 +460,7 @@ export const recommendedTest_6_2_17: DocumentTest
 export const recommendedTest_6_2_18: DocumentTest
 export const recommendedTest_6_2_19: DocumentTest
 export const recommendedTest_6_2_20: DocumentTest
+export const recommendedTest_6_2_22: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -489,5 +570,10 @@ For the complete list of dependencies please take a look at [package.json](https
 - [cvss2js](https://github.com/sparticvs/cvss2js)
 - [json-pointer](https://github.com/manuelstofer/json-pointer)
 - [lodash](https://lodash.com/)
+- [packageurl-js](https://github.com/package-url/packageurl-js)
+- [semver](https://github.com/npm/node-semver)
+- [undici](https://undici.nodejs.org)
+- [@js-joda/core](https://js-joda.github.io/js-joda/)
+- [@js-joda/timezone](https://js-joda.github.io/js-joda/)
 
 [(back to top)](#bsi-csaf-validator-lib)
