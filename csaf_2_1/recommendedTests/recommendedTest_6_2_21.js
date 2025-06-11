@@ -16,8 +16,8 @@ const inputSchema = /** @type {const} */ ({
             revision_history: {
               elements: {
                 additionalProperties: true,
-                optionalProperties: {
-                  date: { type: 'string' },
+                properties: {
+                  date: { type: 'timestamp' },
                   number: { type: 'string' },
                 },
               },
@@ -43,28 +43,25 @@ export function recommendedTest_6_2_21(doc) {
     return context
   }
 
-  const revisionHistory = doc.document.tracking.revision_history
-  for (let i = 0; i < revisionHistory.length - 1; i++) {
-    if (revisionHistory[i].date) {
-      for (let j = i + 1; j < revisionHistory.length; j++) {
-        if (revisionHistory[j].date) {
-          if (
-            compareZonedDateTimes(
-              /**@type {string} */ (revisionHistory[i].date),
-              /**@type {string} */ (revisionHistory[j].date)
-            ) === 0
-          ) {
-            warnings.push({
-              instancePath: `/document/tracking/revision_history/${j}/date`,
-              message:
-                `the timestamps of the revision history items with version number ` +
-                `${revisionHistory[i].number} ` +
-                `and ${revisionHistory[j].number} are equal`,
-            })
-          }
-        }
+  const allDatesInRevisionHistory = doc.document.tracking.revision_history.map(
+    (item) => item.date
+  )
+
+  for (let i = 0; i < allDatesInRevisionHistory.length - 1; i++) {
+    for (let j = i + 1; j < allDatesInRevisionHistory.length; j++) {
+      if (
+        compareZonedDateTimes(
+          /** @type {string} */ (allDatesInRevisionHistory[i]),
+          /** @type {string} */ (allDatesInRevisionHistory[j])
+        ) === 0
+      ) {
+        warnings.push({
+          instancePath: `/document/tracking/revision_history/${j}/date`,
+          message: `timestamps of the revision history items with version number ${doc.document.tracking.revision_history[i].number} and ${doc.document.tracking.revision_history[j].number} are equal `,
+        })
       }
     }
   }
+
   return context
 }
