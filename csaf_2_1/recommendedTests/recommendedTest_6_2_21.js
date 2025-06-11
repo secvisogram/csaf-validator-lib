@@ -34,7 +34,7 @@ const validate = ajv.compile(inputSchema)
 /**
  * @param {any} doc
  */
-export function optionalTest_6_2_21(doc) {
+export function recommendedTest_6_2_21(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
   const warnings = []
   const context = { warnings }
