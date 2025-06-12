@@ -27,3 +27,4 @@ export { recommendedTest_6_2_8 } from './recommendedTests/recommendedTest_6_2_8.
 export { recommendedTest_6_2_9 } from './recommendedTests/recommendedTest_6_2_9.js'
 export { recommendedTest_6_2_3 } from './recommendedTests/recommendedTest_6_2_3.js'
 export { recommendedTest_6_2_22 } from './recommendedTests/recommendedTest_6_2_22.js'
+export { recommendedTest_6_2_38 } from './recommendedTests/recommendedTest_6_2_38.js'
