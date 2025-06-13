@@ -31,16 +31,13 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {},
         optionalProperties: {
           metrics: {
             elements: {
               additionalProperties: true,
-              properties: {},
               optionalProperties: {
                 content: {
                   additionalProperties: true,
-                  properties: {},
                   optionalProperties: {
                     ssvc_v1: {
                       additionalProperties: true,
@@ -48,7 +45,6 @@ const inputSchema = /** @type {const} */ ({
                         selections: {
                           elements: {
                             additionalProperties: true,
-                            properties: {},
                             optionalProperties: {
                               name: { type: 'string' },
                               namespace: { type: 'string' },
