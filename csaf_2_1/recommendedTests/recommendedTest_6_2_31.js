@@ -17,7 +17,7 @@ const productIdentificationHelperSchema = {
 const relationshipSchema = {
   elements: {
     additionalProperties: true,
-    optionalProperties: {
+    properties: {
       product_reference: { type: 'string' },
       relates_to_product_reference: { type: 'string' },
     },
@@ -44,8 +44,10 @@ const inputSchema = /** @type {const} */ ({
                         optionalProperties: {
                           product: {
                             additionalProperties: true,
-                            optionalProperties: {
+                            properties: {
                               product_id: { type: 'string' },
+                            },
+                            optionalProperties: {
                               product_identification_helper: productIdentificationHelperSchema,
                             },
                           },
@@ -61,8 +63,10 @@ const inputSchema = /** @type {const} */ ({
         full_product_names: {
           elements: {
             additionalProperties: true,
-            optionalProperties: {
+            properties: {
               product_id: { type: 'string' },
+            },
+            optionalProperties: {
               product_identification_helper: productIdentificationHelperSchema,
             },
           },
@@ -80,7 +84,7 @@ const validateInput = ajv.compile(inputSchema)
  * This implements the optional test 6.2.31 of the CSAF 2.1 standard.
  * @param {any} doc
  */
-export function optionalTest_6_2_31(doc) {
+export function recommendedTest_6_2_31(doc) {
   const ctx = {
     warnings:
       /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
@@ -90,14 +94,15 @@ export function optionalTest_6_2_31(doc) {
     return ctx
   }
 
-  const relationships = Array.isArray(doc.product_tree?.relationships)
-    ? doc.product_tree.relationships
+  const safeDoc = /** @type {any} */ (doc);
+  const relationships = Array.isArray(safeDoc.product_tree?.relationships)
+    ? safeDoc.product_tree.relationships
     : []
 
   // Start the recursive check from the root branches
-  checkBranches(doc.product_tree?.branches ?? [], relationships, ctx)
+  checkBranches(safeDoc.product_tree?.branches ?? [], relationships, ctx)
 
-  checkFullProductNames(doc.product_tree?.full_product_names ?? [], relationships, ctx)
+  checkFullProductNames(safeDoc.product_tree?.full_product_names ?? [], relationships, ctx)
 
   return ctx
 }
@@ -135,7 +140,7 @@ function checkFullProductNames(full_product_names, relationships, ctx) {
  * Recursive function to check branches for products with serial_numbers or model_numbers
  * but no corresponding relationship.
  * @param {Array<any>} branches - The current level of branches to process.
- * @param {any} relationships - The relationships array to check against.
+ * @param {Array<any>} relationships - The relationships array to check against.
  * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx - The context to store warnings.
  * @param {string} [path='/product_tree/branches'] - The current JSON path.
  */
