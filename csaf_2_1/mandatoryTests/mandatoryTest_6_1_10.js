@@ -51,7 +51,7 @@ const ajv = new Ajv()
 const validateInput = ajv.compile(inputSchema)
 
 /** @type {  Record<string, { jsonName:string, optionsByKey:Record<string, string>}>} */
-const cvssV3VectorStringMapping = Object.fromEntries(
+const cvssV3MappingByMetricKey = Object.fromEntries(
   cvss3.mapping.map((mapping) => {
     return [
       mapping[1],
@@ -66,7 +66,7 @@ const cvssV3VectorStringMapping = Object.fromEntries(
 )
 
 /** @type {  Record<string, { jsonName:string, optionsByKey:Record<string, string>}>} */
-const cvssV2VectorStringMapping = Object.fromEntries(
+const cvssV2MappingByMetricKey = Object.fromEntries(
   cvss2.mapping.map((mapping) => {
     return [
       mapping[1],
@@ -94,7 +94,7 @@ function convertOptionsArrayToObject(optionsArray) {
 }
 
 /** @type {  Record<string, { jsonName:string, optionsByKey:Record<string, string>}>} */
-const cvssV4VectorStringMapping = Object.fromEntries(
+const cvssV4MappingByMetricKey = Object.fromEntries(
   cvss4.flatMetrics.map((flatMetric) => {
     return [
       flatMetric.metricShort,
@@ -111,10 +111,10 @@ const cvssV4VectorStringMapping = Object.fromEntries(
  */
 function validateCvss2(metric) {
   if (typeof metric.content?.cvss_v2?.vectorString === 'string') {
-    return validateCVSSAttributes({
-      vectorMapping: cvssV2VectorStringMapping,
-      cvss: metric.content.cvss_v2,
-    })
+    return validateCVSSAttributes(
+      cvssV2MappingByMetricKey,
+      metric.content.cvss_v2
+    )
   } else {
     return []
   }
@@ -129,10 +129,10 @@ function validateCvss3(metric) {
     (metric.content.cvss_v3.version === '3.1' ||
       metric.content.cvss_v3.version === '3.0')
   ) {
-    return validateCVSSAttributes({
-      vectorMapping: cvssV3VectorStringMapping,
-      cvss: metric.content.cvss_v3,
-    })
+    return validateCVSSAttributes(
+      cvssV3MappingByMetricKey,
+      metric.content.cvss_v3
+    )
   } else {
     return []
   }
@@ -143,10 +143,10 @@ function validateCvss3(metric) {
  */
 function validateCvss4(metric) {
   if (typeof metric.content.cvss_v4?.vectorString === 'string') {
-    return validateCVSSAttributes({
-      vectorMapping: cvssV4VectorStringMapping,
-      cvss: metric.content.cvss_v4,
-    })
+    return validateCVSSAttributes(
+      cvssV4MappingByMetricKey,
+      metric.content.cvss_v4
+    )
   } else {
     return []
   }
@@ -202,12 +202,11 @@ export function mandatoryTest_6_1_10(doc) {
 
 /**
  * validate the cvss vector against the cvss properties
- * @param {object} params
- * @param {Record<string, { jsonName:string, optionsByKey:Record<string, string>}>} params.vectorMapping cvss version specific mapping
- * @param {Record<string, unknown>} params.cvss cvss object
+ * @param {Record<string, { jsonName:string, optionsByKey:Record<string, string>}>}mappingByMetricKey cvss version specific mapping
+ * @param {Record<string, unknown>} cvss cvss object
 
  */
-function validateCVSSAttributes({ vectorMapping, cvss }) {
+function validateCVSSAttributes(mappingByMetricKey, cvss) {
   const vectorString = /** @type {string} */ (cvss.vectorString)
   const vectorValues = vectorString.split('/').slice(1)
   /**
@@ -216,7 +215,7 @@ function validateCVSSAttributes({ vectorMapping, cvss }) {
   const invalidKeys = []
   vectorValues.forEach((vectorValue) => {
     const [vectorMetricKey, vectorOptionKey] = vectorValue.split(':')
-    const mapping = vectorMapping[vectorMetricKey]
+    const mapping = mappingByMetricKey[vectorMetricKey]
     if (mapping) {
       const metricOptionValue = cvss[mapping.jsonName]
       if (typeof metricOptionValue == 'string') {
