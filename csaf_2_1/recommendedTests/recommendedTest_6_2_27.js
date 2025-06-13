@@ -25,12 +25,12 @@ const ajv = new Ajv()
  */
 
 /**
- * This map holds prohibited category combinations.
+ * This map holds discouraged category combinations.
  * See https://github.com/oasis-tcs/csaf/blob/master/csaf_2.1/prose/share/csaf-v2.1-draft.md#324131-vulnerabilities-property---remediations---category-
  *
  * @type {Map<string, Set<string>>}
  */
-const prohibitionRuleMap = new Map(
+const discouragedRuleMap = new Map(
   /** @satisfies {Array<[Category, ProductStatus[]]>} */ ([
     ['workaround', ['under_investigation', 'unknown']],
     ['mitigation', ['under_investigation', 'unknown']],
@@ -52,23 +52,22 @@ const productStatusSchema = /** @type {const} */ ({
     last_affected: { elements: { type: 'string' } },
     recommended: { elements: { type: 'string' } },
     under_investigation: { elements: { type: 'string' } },
+    unknown: { elements: { type: 'string' } },
   },
 })
 
 const remediationSchema = /** @type {const} */ ({
   additionalProperties: true,
+  properties: {
+    category: { type: 'string' }
+  },
   optionalProperties: {
     group_ids: {
-      elements: {
-        type: 'string',
-      },
+      elements: { type: 'string' },
     },
     product_ids: {
-      elements: {
-        type: 'string',
-      },
+      elements: { type: 'string' },
     },
-    category: { type: 'string' },
   },
 })
 
@@ -81,7 +80,7 @@ const inputSchema = /** @type {const} */ ({
         product_groups: {
           elements: {
             additionalProperties: true,
-            optionalProperties: {
+            properties: {
               group_id: { type: 'string' },
               product_ids: {
                 elements: {
@@ -171,12 +170,12 @@ export function recommendedTest_6_2_27(doc) {
       })
 
       /**
-       * Ensures that a product is not associated with a prohibited combination of product status and remediation category.
+       * Check for discouraged combinations of product status and remediation category.
        */
       for (const [productId, categories] of productToCategoriesMap) {
         for (const category of categories) {
-          const status = prohibitionRuleMap.get(category)
-          if (!status) continue // No prohibition rules for this category
+          const status = discouragedRuleMap.get(category)
+          if (!status) continue// There are no discouraged rules for this category.
           status.forEach((s) => {
             const statusList = productStatus.get(s);
             if (Array.isArray(statusList) && statusList.includes(productId)) {
