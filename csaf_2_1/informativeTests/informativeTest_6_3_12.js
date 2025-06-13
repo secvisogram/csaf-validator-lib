@@ -24,8 +24,7 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {},
-        optionalProperties: {
+        properties: {
           metrics: {
             elements: {
               additionalProperties: true,
@@ -33,8 +32,6 @@ const inputSchema = /** @type {const} */ ({
                 products: {
                   elements: { type: 'string' },
                 },
-              },
-              optionalProperties: {
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
@@ -70,7 +67,7 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 
 /**
- * For each item in the list of metrics it MUST be tested that a cvss_v4 object is present.
+ * For each item in the list of metrics, it MUST be tested that a cvss_v4 object is present.
  * @param {unknown} doc
  * @returns
  */
