@@ -16,7 +16,6 @@ const inputSchema = /** @type {const} */ ({
               additionalProperties: true,
               properties: {
                 id: { type: 'string' },
-                name: { type: 'string' },
               },
             },
           },
