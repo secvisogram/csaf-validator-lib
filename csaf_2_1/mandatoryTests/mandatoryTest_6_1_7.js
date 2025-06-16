@@ -3,19 +3,19 @@ import Ajv from 'ajv/dist/jtd.js'
 /**
  * @typedef {object} MetricContent
  * @property {object} [cvss_v2]
- * @property {string} cvss_v2.version
+ * @property {string} [cvss_v2.version]
  * @property {object} [cvss_v3]
- * @property {string} cvss_v3.version
+ * @property {string} [cvss_v3.version]
  * @property {object} [cvss_v4]
- * @property {string} cvss_v4.version
+ * @property {string} [cvss_v4.version]
  */
 
 /**
  * @typedef {string} Product
-  * /
+ * /
 
 
-/**
+ /**
  * @typedef {Object} Metric
  * @property {MetricContent} [content]
  * @property {Array<Product>} [products]
@@ -24,7 +24,7 @@ import Ajv from 'ajv/dist/jtd.js'
 
 /**
  * @typedef {Object} Vulnerability
- * @property {Array<Metric>} metrics
+ * @property {Array<Metric>} [metrics]
  */
 
 const jtdAjv = new Ajv()
@@ -35,37 +35,35 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {
+        optionalProperties: {
           metrics: {
             elements: {
               additionalProperties: true,
-              properties: {
-                products: {
-                  elements: { type: 'string' },
-                },
-              },
               optionalProperties: {
                 source: {
                   type: 'string',
+                },
+                products: {
+                  elements: { type: 'string' },
                 },
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
                     cvss_v2: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         version: { type: 'string' },
                       },
                     },
                     cvss_v3: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         version: { type: 'string' },
                       },
                     },
                     cvss_v4: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         version: { type: 'string' },
                       },
                     },
@@ -83,7 +81,8 @@ const inputSchema = /** @type {const} */ ({
 const validate = jtdAjv.compile(inputSchema)
 
 /**
- *
+ * For each item in /vulnerabilities it MUST be tested that the same Product ID
+ * is not a member of more than one CVSS-Vectors with the same version and the same source.
  * @param {unknown} doc
  */
 export function mandatoryTest_6_1_7(doc) {
@@ -101,7 +100,6 @@ export function mandatoryTest_6_1_7(doc) {
     return ctx
   }
 
-  // 6.1.7 Multiple Scores with same Version per Product
   /** @type {Array<Vulnerability>} */
   const vulnerabilities = doc.vulnerabilities
 
@@ -162,7 +160,7 @@ export function mandatoryTest_6_1_7(doc) {
     /** @type {Map<string, Set<string>>} */
     const cvssVersionsByProductName = new Map()
 
-    /** @type {Array<Metric>} */
+    /** @type {Array<Metric> | undefined} */
     const metrics = vulnerability.metrics
     metrics?.forEach((metric, metricIndex) => {
       /** @type {Array<Product> | undefined} */
