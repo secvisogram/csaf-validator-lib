@@ -5,17 +5,17 @@ const ajv = new Ajv()
 /**
  * @typedef {object} MetricContent
  * @property {object} [cvss_v2]
- * @property {string} cvss_v2.version
+ * @property {string} [cvss_v2.version]
  * @property {object} [cvss_v3]
- * @property {string} cvss_v3.version
+ * @property {string} [cvss_v3.version]
  * @property {object} [cvss_v4]
- * @property {string} cvss_v4.version
+ * @property {string} [cvss_v4.version]
  */
 
 /**
  * @typedef {object} Metric
  * @property {MetricContent} [content]
- * @property {Array<string>} products
+ * @property {Array<string>} [products]
  */
 
 const inputSchema = /** @type {const} */ ({
@@ -24,32 +24,29 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {
+        optionalProperties: {
           metrics: {
             elements: {
               additionalProperties: true,
-              properties: {
-                products: {
-                  elements: { type: 'string' },
-                },
+              optionalProperties: {
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
                     cvss_v2: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         version: { type: 'string' },
                       },
                     },
                     cvss_v3: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         version: { type: 'string' },
                       },
                     },
                     cvss_v4: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         version: { type: 'string' },
                       },
                     },
