@@ -9,11 +9,11 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {
+        optionalProperties: {
           metrics: {
             elements: {
               additionalProperties: true,
-              properties: {
+              optionalProperties: {
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
