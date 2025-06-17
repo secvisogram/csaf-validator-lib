@@ -305,6 +305,8 @@ In CSAF 2.1 the "optional tests" have been renamed to "recommended tests".
 
 #### Known Issues
 
+The CVSS 4.0 computation is still under debate as it it unclear from the specification how to compute threatScore and environmentalScore.
+
 The following tests are not yet implemented and therefore missing:
 
 **Mandatory Tests**
