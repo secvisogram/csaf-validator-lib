@@ -37,6 +37,7 @@ After that you can reference the modules from within your JavaScript application
 There is an [official package](https://www.npmjs.com/package/@secvisogram/csaf-validator-lib) in the npm registry.
 
 You can add it to your project using the following command:
+
 ```sh
 npm install @secvisogram/csaf-validator-lib
 ```
@@ -52,30 +53,33 @@ You can also include this library as a subtree in your repository.
   ```
 
 - install dependencies
+
   ```sh
   cd csaf-validator-lib && npm ci --prod
   ```
 
-- This repository includes git submodules. Make sure to initialize and update 
+- This repository includes git submodules. Make sure to initialize and update
   the submodules before you start working with the repository.
+
   ```sh
   git submodule update --init --recursive
   ```
 
-- For test 6.3.8 an installation of hunspell as well as all languages that 
+- For test 6.3.8 an installation of hunspell as well as all languages that
   you want to spell check is required.
 
 ### Managing Hunspell languages
 
 A CSAF Document can contain a [language](https://docs.oasis-open.org/csaf/csaf/v2.0/cs02/csaf-v2.0-cs02.html#3216-document-property---language).
 For example, valid entries could be `en` or `en-US`. When running test 6.3.8 we
-try to match this language to the list of installed hunspell languages. If the 
+try to match this language to the list of installed hunspell languages. If the
 region is specified (like in `en-US`) and the corresponding language is
 installed the test will run. If you want/need to check a `en` language
 specifically with `en-US` (or any other variant) you need to make sure that you
 link `en` to `en-US` using a symlink.
 
 Example of linking `en` to `en-US`:
+
 ```sh
 ln -s /usr/share/hunspell/en_US.aff /usr/share/hunspell/en.aff
 ln -s /usr/share/hunspell/en_US.dic /usr/share/hunspell/en.dic
@@ -83,9 +87,9 @@ ln -s /usr/share/hunspell/en_US.dic /usr/share/hunspell/en.dic
 
 You can find out what languages you have installed by running `hunspell -D`.
 
-If you need additional languages they are most likely available in the 
+If you need additional languages they are most likely available in the
 repository of your distribution. If you have a custom dictionary
-copy them in the directory provided by the command above. Hunspell should 
+copy them in the directory provided by the command above. Hunspell should
 automatically recognize them.
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -117,7 +121,7 @@ automatically recognize them.
 The library has two validate functions, `validate` and `validateStrict`.
 `validateStrict` checks whether the test that should be executed was defined in
 the library. Otherwise, it throws an error. To extend the library you can use
-the `validate` function instead. In such case, **the calling function is 
+the `validate` function instead. In such case, **the calling function is
 responsible for checking** whether the test function passed to the
 `csaf-validator-lib` is benign. **Calling arbitrary** functions (especially
 those resulting from user input) may result in a **code execution
@@ -287,7 +291,7 @@ This function validates the given document against the given tests.
 
 #### Module `validateStrict.js`
 
-This function validates the given document against the given tests. It throws 
+This function validates the given document against the given tests. It throws
 an error if an unknown test function was passed. See [Strict Mode](#strict-mode)
 for more details.
 
@@ -326,7 +330,7 @@ export const weaknesses: Array<{ id: string; name: string }>
 
 ## Testing
 
-Tests are implemented using [mocha](https://mochajs.org/). The minimal supported Node.js version is **14**. They can be run using the following command:
+Tests are implemented using [mocha](https://mochajs.org/). The minimal supported Node.js version is **20**. They can be run using the following command:
 
 ```sh
 npm test
