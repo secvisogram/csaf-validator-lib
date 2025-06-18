@@ -1,31 +1,16 @@
 import Ajv from 'ajv/dist/jtd.js'
 
 /**
- * @typedef {object} MetricContent
- * @property {object} [cvss_v2]
- * @property {string} [cvss_v2.version]
- * @property {object} [cvss_v3]
- * @property {string} [cvss_v3.version]
- * @property {object} [cvss_v4]
- * @property {string} [cvss_v4.version]
- */
-
-/**
  * @typedef {string} Product
  * /
 
+ /** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
 
- /**
- * @typedef {Object} Metric
- * @property {MetricContent} [content]
- * @property {Array<Product>} [products]
- * @property {string} [source]
- */
+/** @typedef {InputSchema['vulnerabilities'][number]} Vulnerability */
 
-/**
- * @typedef {Object} Vulnerability
- * @property {Array<Metric>} [metrics]
- */
+/** @typedef {NonNullable<Vulnerability['metrics']>[number]} Metric */
+
+/** @typedef {NonNullable<Metric['content']>} MetricContent */
 
 const jtdAjv = new Ajv()
 
