@@ -58,10 +58,8 @@ const productStatusSchema = /** @type {const} */ ({
 
 const remediationSchema = /** @type {const} */ ({
   additionalProperties: true,
-  properties: {
-    category: { type: 'string' }
-  },
   optionalProperties: {
+    category: { type: 'string' },
     group_ids: {
       elements: { type: 'string' },
     },
@@ -80,7 +78,7 @@ const inputSchema = /** @type {const} */ ({
         product_groups: {
           elements: {
             additionalProperties: true,
-            properties: {
+            optionalProperties: {
               group_id: { type: 'string' },
               product_ids: {
                 elements: {
