@@ -229,11 +229,10 @@ export default {
               type: 'array',
             },
             model_numbers: {
-              description:
-                'Contains a list of full or abbreviated (partial) model numbers.',
+              description: 'Contains a list of model numbers.',
               items: {
                 description:
-                  'Contains a full or abbreviated (partial) model number of the component to identify.',
+                  'Contains a model number of the component to identify - possibly with placeholders.',
                 minLength: 1,
                 title: 'Model number',
                 type: 'string',
@@ -273,11 +272,10 @@ export default {
               type: 'array',
             },
             serial_numbers: {
-              description:
-                'Contains a list of full or abbreviated (partial) serial numbers.',
+              description: 'Contains a list of serial numbers.',
               items: {
                 description:
-                  'Contains a full or abbreviated (partial) serial number of the component to identify.',
+                  'Contains a serial number of the component to identify - possibly with placeholders.',
                 minLength: 1,
                 title: 'Serial number',
                 type: 'string',
@@ -382,6 +380,12 @@ export default {
             ],
             title: 'Note category',
             type: 'string',
+          },
+          group_ids: {
+            $ref: '#/$defs/product_groups_t',
+          },
+          product_ids: {
+            $ref: '#/$defs/products_t',
           },
           text: {
             description:
@@ -496,8 +500,8 @@ export default {
       type: 'string',
     },
   },
-  $id: 'https://docs.oasis-open.org/csaf/csaf/v2.1/csaf_json_schema.json?strict',
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
+  $id: 'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/csaf.json?strict',
+  $schema: 'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/meta.json',
   additionalProperties: false,
   description:
     'Representation of security advisory information as a JSON document.',
@@ -505,9 +509,7 @@ export default {
     $schema: {
       description:
         'Contains the URL of the CSAF JSON schema which the document promises to be valid for.',
-      enum: [
-        'https://docs.oasis-open.org/csaf/csaf/v2.1/csaf_json_schema.json',
-      ],
+      enum: ['https://docs.oasis-open.org/csaf/csaf/v2.1/schema/csaf.json'],
       format: 'uri',
       title: 'JSON schema',
       type: 'string',
@@ -657,6 +659,19 @@ export default {
           description:
             'Identifies the language used by this document, corresponding to IETF BCP 47 / RFC 5646.',
           title: 'Document language',
+        },
+        license_expression: {
+          description:
+            'Contains the SPDX license expression for the CSAF document.',
+          examples: [
+            'CC-BY-4.0',
+            'LicenseRef-www.example.org-Example-CSAF-License-3.0+',
+            'LicenseRef-scancode-public-domain',
+            'MIT OR any-OSI',
+          ],
+          minLength: 1,
+          title: 'License expression',
+          type: 'string',
         },
         notes: {
           $ref: '#/$defs/notes_t',
@@ -828,7 +843,8 @@ export default {
               type: 'string',
             },
             initial_release_date: {
-              description: 'The date when this document was first published.',
+              description:
+                'The date when this document was first released to the specified target group.',
               format: 'date-time',
               title: 'Initial release date',
               type: 'string',
@@ -1064,6 +1080,7 @@ export default {
                     "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')",
                   ],
                   minLength: 1,
+                  pattern: '^[^\\s\\-_\\.](.*[^\\s\\-_\\.])?$',
                   title: 'Weakness name',
                   type: 'string',
                 },
@@ -1071,7 +1088,6 @@ export default {
                   description:
                     'Holds the version string of the CWE specification this weakness was extracted from.',
                   examples: ['1.0', '3.4.1', '4.0', '4.11', '4.12'],
-                  minLength: 1,
                   pattern: '^[1-9]\\d*\\.([0-9]|([1-9]\\d+))(\\.\\d+)?$',
                   title: 'CWE version',
                   type: 'string',
@@ -1086,12 +1102,58 @@ export default {
             type: 'array',
             uniqueItems: true,
           },
+          disclosure_date: {
+            description:
+              'Holds the date and time the vulnerability was originally disclosed to the public.',
+            format: 'date-time',
+            title: 'Disclosure date',
+            type: 'string',
+          },
           discovery_date: {
             description:
               'Holds the date and time the vulnerability was originally discovered.',
             format: 'date-time',
             title: 'Discovery date',
             type: 'string',
+          },
+          first_known_exploitation_dates: {
+            description:
+              'Contains a list of dates of first known exploitations.',
+            items: {
+              additionalProperties: false,
+              description:
+                'Contains information on when this vulnerability was first known to be exploited in the wild in the products specified.',
+              minProperties: 3,
+              properties: {
+                date: {
+                  description:
+                    'Contains the date when the information was last updated.',
+                  format: 'date-time',
+                  title: 'Date of the information',
+                  type: 'string',
+                },
+                exploitation_date: {
+                  description:
+                    'Contains the date when the exploitation happened.',
+                  format: 'date-time',
+                  title: 'Date of the exploitation',
+                  type: 'string',
+                },
+                group_ids: {
+                  $ref: '#/$defs/product_groups_t',
+                },
+                product_ids: {
+                  $ref: '#/$defs/products_t',
+                },
+              },
+              required: ['date', 'exploitation_date'],
+              title: 'First known exploitation date',
+              type: 'object',
+            },
+            minItems: 1,
+            title: 'List of first known exploitation dates',
+            type: 'array',
+            uniqueItems: true,
           },
           flags: {
             description: 'Contains a list of machine readable flags.',
@@ -1176,12 +1238,22 @@ export default {
               description:
                 'Is a container, that allows the document producers to comment on the level of involvement (or engagement) of themselves or third parties in the vulnerability identification, scoping, and remediation process.',
               properties: {
+                contact: {
+                  description:
+                    'Contains the contact information of the party that was used in this state.',
+                  minLength: 1,
+                  title: 'Party contact information',
+                  type: 'string',
+                },
                 date: {
                   description:
                     'Holds the date and time of the involvement entry.',
                   format: 'date-time',
                   title: 'Date of involvement',
                   type: 'string',
+                },
+                group_ids: {
+                  $ref: '#/$defs/product_groups_t',
                 },
                 party: {
                   description: 'Defines the category of the involved party.',
@@ -1194,6 +1266,9 @@ export default {
                   ],
                   title: 'Party category',
                   type: 'string',
+                },
+                product_ids: {
+                  $ref: '#/$defs/products_t',
                 },
                 status: {
                   description: 'Defines contact status of the involved party.',
@@ -1254,6 +1329,39 @@ export default {
                     },
                     cvss_v4: {
                       $ref: 'https://www.first.org/cvss/cvss-v4.0.json',
+                    },
+                    epss: {
+                      additionalProperties: false,
+                      description: 'Contains the EPSS data.',
+                      properties: {
+                        percentile: {
+                          description:
+                            'Contains the rank ordering of probabilities from highest to lowest.',
+                          pattern: '^(([0]\\.([0-9])+)|([1]\\.[0]+))$',
+                          title: 'Percentile',
+                          type: 'string',
+                        },
+                        probability: {
+                          description:
+                            'Contains the likelihood that any exploitation activity for this Vulnerability is being observed in the 30 days following the given timestamp.',
+                          pattern: '^(([0]\\.([0-9])+)|([1]\\.[0]+))$',
+                          title: 'Probability',
+                          type: 'string',
+                        },
+                        timestamp: {
+                          description:
+                            'Holds the date and time the EPSS value was recorded.',
+                          format: 'date-time',
+                          title: 'EPSS timestamp',
+                          type: 'string',
+                        },
+                      },
+                      required: ['percentile', 'probability', 'timestamp'],
+                      title: 'EPSS',
+                      type: 'object',
+                    },
+                    ssvc_v1: {
+                      $ref: 'https://certcc.github.io/SSVC/data/schema/v1/Decision_Point_Value_Selection-1-0-1.schema.json',
                     },
                   },
                   title: 'Content',
@@ -1338,6 +1446,12 @@ export default {
                   'It is not known yet whether these versions are or are not affected by the vulnerability. However, it is still under investigation - the result will be provided in a later release of the document.',
                 title: 'Under investigation',
               },
+              unknown: {
+                $ref: '#/$defs/products_t',
+                description:
+                  'It is not known whether these versions are or are not affected by the vulnerability. There is also no investigation and therefore the status might never be determined.',
+                title: 'Unknown',
+              },
             },
             title: 'Product status',
             type: 'object',
@@ -1347,13 +1461,6 @@ export default {
             description:
               'Holds a list of references associated with this vulnerability item.',
             title: 'Vulnerability references',
-          },
-          release_date: {
-            description:
-              'Holds the date and time the vulnerability was originally released into the wild.',
-            format: 'date-time',
-            title: 'Release date',
-            type: 'string',
           },
           remediations: {
             description: 'Contains a list of remediations.',
