@@ -32,7 +32,7 @@ const fileXML = await parser.parseStringPromise(
 const json = {
   weaknesses: fileXML.Weaknesses.Weakness.map(
     (/** @type {Weakness} */ weakness) => {
-      return { id: `CWE-${weakness.ID}`, name: weakness.Name }
+      return { id: `CWE-${weakness.ID}`, name: weakness.Name.trim() }
     }
   ),
 }
