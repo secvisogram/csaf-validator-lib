@@ -1,6 +1,10 @@
 import { expect } from 'chai'
 import { mandatoryTest_6_1_7 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_7.js'
 import minimalDoc from './shared/minimalDoc.js'
+import {
+  cvssV31Content,
+  productTreeWithFullProductName,
+} from './shared/csafDocHelper.js'
 import csaf_2_1 from '../../csaf_2_1/schemaTests/csaf_2_1.js'
 
 const emptyMandatoryTest6_1_7 = {
@@ -8,20 +12,13 @@ const emptyMandatoryTest6_1_7 = {
   document: {
     ...minimalDoc.document,
   },
-  product_tree: {
-    full_product_names: [
-      {
-        product_id: 'CSAFPID-9080700',
-        name: 'Product A',
-      },
-    ],
-  },
+  product_tree: productTreeWithFullProductName('CSAFPID-9080700', 'Product A'),
   vulnerabilities: [
     {
       metrics: [
         {
           cvss_v3: {
-            version: '2.0',
+            version: '3.0',
           },
         },
       ],
@@ -42,50 +39,17 @@ const failingTestWithNotConsideredObject6_1_7 = {
   document: {
     ...minimalDoc.document,
   },
-  product_tree: {
-    full_product_names: [
-      {
-        product_id: 'CSAFPID-9080700',
-        name: 'Product A',
-      },
-    ],
-  },
+  product_tree: productTreeWithFullProductName('CSAFPID-9080700', 'Product A'),
   vulnerabilities: [
-    {},
+    {}, // input schema should not consider this
     {
       metrics: [
-        {
-          content: {
-            cvss_v3: {
-              version: '3.0',
-              vectorString: 'CVSS:3.1/AV:L/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H',
-              baseScore: 6.5,
-              baseSeverity: 'MEDIUM',
-            },
-          },
-        },
-        {
-          content: {
-            cvss_v3: {
-              version: '3.1',
-              vectorString: 'CVSS:3.1/AV:L/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H',
-              baseScore: 6.5,
-              baseSeverity: 'MEDIUM',
-            },
-          },
-          products: ['CSAFPID-9080700'],
-        },
-        {
-          content: {
-            cvss_v3: {
-              version: '3.1',
-              vectorString: 'CVSS:3.1/AV:L/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H',
-              baseScore: 6.5,
-              baseSeverity: 'MEDIUM',
-            },
-          },
-          products: ['CSAFPID-9080700'],
-        },
+        cvssV31Content(6.5, 'CVSS:3.1/AV:L/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H', [
+          'CSAFPID-9080700',
+        ]),
+        cvssV31Content(6.5, 'CVSS:3.1/AV:L/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H', [
+          'CSAFPID-9080700',
+        ]),
       ],
     },
   ],
