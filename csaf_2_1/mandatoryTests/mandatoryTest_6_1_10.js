@@ -29,6 +29,7 @@ const inputSchema = /** @type {const} */ ({
                       additionalProperties: true,
                       optionalProperties: {
                         vectorString: { type: 'string' },
+                        version: { type: 'string' },
                       },
                     },
                     cvss_v3: {
