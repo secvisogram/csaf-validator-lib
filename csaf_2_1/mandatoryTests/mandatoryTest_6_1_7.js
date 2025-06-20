@@ -191,7 +191,7 @@ export function mandatoryTest_6_1_7(doc) {
             isValid = false
             const sourceOfMetric = metric.source ? metric.source : ''
             errors.push({
-              message: `Product is member of more than one CVSS-Vectors with the same version '${sameVersion}' and same source ${sourceOfMetric}.`,
+              message: `Product is member of more than one CVSS-Vectors with the same version '${sameVersion}' and same source '${sourceOfMetric}'.`,
               instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/products/${productIndex}`,
             })
           }
