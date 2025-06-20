@@ -89,34 +89,47 @@ export function mandatoryTest_6_1_7(doc) {
   const vulnerabilities = doc.vulnerabilities
 
   /**
+   * Create a unique string for the tuple of version and source
+   * to compare them easily
    * @param {string} version
-   * @param {string} source
+   * @param {string | undefined} source
    */
-  function hashVersionSource(version, source) {
-    return JSON.stringify({ version: version, source: source })
+  function createIdForVersionAndSource(version, source) {
+    return JSON.stringify({ version: version, source: source ?? '' })
   }
 
   /**
    *
    * @param  {Metric}  metric
-   * @param {string}  version
-   * @param {string}  source
+   * @param {string}  versionSourceId
    * @returns {string|null}
    */
-  function getSameVersionInMetric(metric, version, source) {
+  function findCvssVersionWithSameVersionAndSource(metric, versionSourceId) {
     if (
       metric.content?.cvss_v2?.version !== undefined &&
-      version === hashVersionSource(metric.content?.cvss_v2.version, source)
+      versionSourceId ===
+        createIdForVersionAndSource(
+          metric.content?.cvss_v2.version,
+          metric.source
+        )
     ) {
       return metric.content?.cvss_v2?.version
     } else if (
       metric.content?.cvss_v3?.version !== undefined &&
-      version === hashVersionSource(metric.content?.cvss_v3.version, source)
+      versionSourceId ===
+        createIdForVersionAndSource(
+          metric.content?.cvss_v3.version,
+          metric.source
+        )
     ) {
       return metric.content?.cvss_v3?.version
     } else if (
       metric.content?.cvss_v4?.version !== undefined &&
-      version === hashVersionSource(metric.content?.cvss_v4.version, source)
+      versionSourceId ===
+        createIdForVersionAndSource(
+          metric.content?.cvss_v4.version,
+          metric.source
+        )
     ) {
       return metric.content?.cvss_v4?.version
     } else {
@@ -126,48 +139,65 @@ export function mandatoryTest_6_1_7(doc) {
 
   /**
    * @param {Metric} metric
-   * @param {Set<string>} versionSet
-   * @param {string}  source
+   * @param {Set<string>} versionSourceIdSet
    */
-  function addVersionsInMetricToSet(metric, versionSet, source) {
+  function addAllVersionSourceIdsInMetricToSet(metric, versionSourceIdSet) {
     if (metric.content?.cvss_v2?.version !== undefined) {
-      versionSet.add(hashVersionSource(metric.content?.cvss_v2.version, source))
+      versionSourceIdSet.add(
+        createIdForVersionAndSource(
+          metric.content?.cvss_v2.version,
+          metric.source
+        )
+      )
     }
     if (metric.content?.cvss_v3?.version !== undefined) {
-      versionSet.add(hashVersionSource(metric.content?.cvss_v3.version, source))
+      versionSourceIdSet.add(
+        createIdForVersionAndSource(
+          metric.content?.cvss_v3.version,
+          metric.source
+        )
+      )
     }
     if (metric.content?.cvss_v4?.version !== undefined) {
-      versionSet.add(hashVersionSource(metric.content?.cvss_v4.version, source))
+      versionSourceIdSet.add(
+        createIdForVersionAndSource(
+          metric.content?.cvss_v4.version,
+          metric.source
+        )
+      )
     }
   }
 
-  vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
+  vulnerabilities.forEach((vulnerabilityItem, vulnerabilityIndex) => {
     /** @type {Map<string, Set<string>>} */
-    const cvssVersionsByProductName = new Map()
+    const versionsSourceIdSetByProduct = new Map()
 
     /** @type {Array<Metric> | undefined} */
-    const metrics = vulnerability.metrics
+    const metrics = vulnerabilityItem.metrics
     metrics?.forEach((metric, metricIndex) => {
       /** @type {Array<Product> | undefined} */
-      const products = metric.products
-      const source = metric.source ? metric.source : ''
-      products?.forEach((product, productIndex) => {
-        const versionSet = cvssVersionsByProductName.get(product) ?? new Set()
-        cvssVersionsByProductName.set(product, versionSet)
+      const productsOfMetric = metric.products
+      productsOfMetric?.forEach((product, productIndex) => {
+        const versionSourceIdsOfProduct =
+          versionsSourceIdSetByProduct.get(product) ?? new Set()
+        versionsSourceIdSetByProduct.set(product, versionSourceIdsOfProduct)
 
-        versionSet.forEach((version) => {
-          const sameVersion = getSameVersionInMetric(metric, version, source)
+        versionSourceIdsOfProduct.forEach((versionSourceIdOfProduct) => {
+          const sameVersion = findCvssVersionWithSameVersionAndSource(
+            metric,
+            versionSourceIdOfProduct
+          )
           if (sameVersion) {
             isValid = false
-
+            const sourceOfMetric = metric.source ? metric.source : ''
             errors.push({
-              message: `Product is member of more than one CVSS-Vectors with the same version '${sameVersion}' and same source ${source}.`,
+              message: `Product is member of more than one CVSS-Vectors with the same version '${sameVersion}' and same source ${sourceOfMetric}.`,
               instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/products/${productIndex}`,
             })
           }
         })
 
-        addVersionsInMetricToSet(metric, versionSet, source)
+        addAllVersionSourceIdsInMetricToSet(metric, versionSourceIdsOfProduct)
       })
     })
   })
