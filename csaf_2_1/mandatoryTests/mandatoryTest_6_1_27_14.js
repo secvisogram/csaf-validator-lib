@@ -61,7 +61,7 @@ export function mandatoryTest_6_1_27_14(doc) {
   if (!doc.document.notes?.find((n) => n.category === 'description')) {
     ctx.isValid = false
     ctx.errors.push({
-      instancePath: `/document`,
+      instancePath: '/document/notes',
       message: 'needs at least one note with the category "description"',
     })
   }
