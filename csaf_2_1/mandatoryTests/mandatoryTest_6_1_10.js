@@ -3,6 +3,14 @@ import * as cvss3 from '../../lib/shared/cvss3.js'
 import * as cvss4 from '../../lib/shared/cvss4.js'
 import Ajv from 'ajv/dist/jtd.js'
 
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
+
+/** @typedef {InputSchema['vulnerabilities'][number]} Vulnerability */
+
+/** @typedef {NonNullable<Vulnerability['metrics']>[number]} Metric */
+
+/** @typedef {NonNullable<Metric['content']>} MetricContent */
+
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
   properties: {
@@ -82,10 +90,10 @@ const cvssV2MappingByMetricKey = Object.fromEntries(
 
 /**
  * @param {{optionName: string, optionValue: string, optionKey: string}[]} optionsArray
- * @return {any}
+ * @return {Record<string, string>}
  */
 function convertOptionsArrayToObject(optionsArray) {
-  /** @type {any} */
+  /** @type {Record<string, string>} */
   const result = {}
   optionsArray.forEach((option) => {
     result[option.optionKey] = option.optionValue
@@ -107,7 +115,7 @@ const cvssV4MappingByMetricKey = Object.fromEntries(
 )
 
 /**
- * @param {any} metric
+ * @param {Metric} metric
  */
 function validateCvss2(metric) {
   if (typeof metric.content?.cvss_v2?.vectorString === 'string') {
@@ -121,11 +129,11 @@ function validateCvss2(metric) {
 }
 
 /**
- * @param {any} metric
+ * @param {Metric} metric
  */
 function validateCvss3(metric) {
   if (
-    typeof metric.content.cvss_v3?.vectorString === 'string' &&
+    typeof metric?.content?.cvss_v3?.vectorString === 'string' &&
     (metric.content.cvss_v3.version === '3.1' ||
       metric.content.cvss_v3.version === '3.0')
   ) {
@@ -139,10 +147,10 @@ function validateCvss3(metric) {
 }
 
 /**
- * @param {any} metric
+ * @param {Metric} metric
  */
 function validateCvss4(metric) {
-  if (typeof metric.content.cvss_v4?.vectorString === 'string') {
+  if (typeof metric?.content?.cvss_v4?.vectorString === 'string') {
     return validateCVSSAttributes(
       cvssV4MappingByMetricKey,
       metric.content.cvss_v4
@@ -153,7 +161,7 @@ function validateCvss4(metric) {
 }
 
 /**
- * @param {any} doc
+ * @param {unknown} doc
  */
 export function mandatoryTest_6_1_10(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
@@ -164,11 +172,11 @@ export function mandatoryTest_6_1_10(doc) {
   }
 
   if (Array.isArray(doc.vulnerabilities)) {
-    /** @type {Array<any>} */
+    /** @type {Array<Vulnerability>} */
     const vulnerabilities = doc.vulnerabilities
     vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
       if (!Array.isArray(vulnerability.metrics)) return
-      /** @type {Array<any>} */
+      /** @type {Array<Metric>} */
       const metrics = vulnerability.metrics
       metrics.forEach((metric, metricIndex) => {
         validateCvss2(metric).forEach((attributeKey) => {
@@ -178,7 +186,6 @@ export function mandatoryTest_6_1_10(doc) {
           })
         })
 
-        /** @type {Record<string, unknown>} */
         validateCvss3(metric).forEach((attributeKey) => {
           errors.push({
             instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/cvss_v3/${attributeKey}`,
@@ -186,7 +193,6 @@ export function mandatoryTest_6_1_10(doc) {
           })
         })
 
-        /** @type {Record<string, unknown>} */
         validateCvss4(metric).forEach((attributeKey) => {
           errors.push({
             instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/cvss_v4/${attributeKey}`,
