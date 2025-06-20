@@ -3,27 +3,11 @@ import decision_points from '../../lib/cvss/decision_points.js'
 
 const ajv = new Ajv()
 
-/**
- * @typedef {object} Selection
- * @property {string} [name]
- * @property {string} [namespace]
- * @property {string} [version]
- */
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
 
-/**
- * @typedef {object} Ssvc1
- * @property {Array<Selection>} [selections]
- */
+/** @typedef {InputSchema['vulnerabilities'][number]} Vulnerability */
 
-/**
- * @typedef {object} MetricContent
- * @property {Ssvc1} [ssvc_v1]
- */
-
-/**
- * @typedef {object} Metric
- * @property {MetricContent} [content]
- */
+/** @typedef {NonNullable<Vulnerability['metrics']>[number]} Metric */
 
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
