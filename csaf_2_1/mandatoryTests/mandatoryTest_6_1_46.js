@@ -22,7 +22,7 @@ const inputSchema = /** @type {const} */ ({
               optionalProperties: {
                 content: {
                   additionalProperties: true,
-                  properties: {
+                  optionalProperties: {
                     ssvc_v1: {
                       additionalProperties: true,
                       properties: {},
@@ -66,14 +66,16 @@ export function mandatoryTest_6_1_46(doc) {
 
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
-      const valid = validate_ssvc_v1(metric.content?.ssvc_v1)
-      if (!valid) {
-        ctx.isValid = false
-        for (const err of validate_ssvc_v1.errors ?? []) {
-          ctx.errors.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1${err.instancePath}`,
-            message: err.message ?? '',
-          })
+      if (metric.content?.ssvc_v1) {
+        const valid = validate_ssvc_v1(metric.content.ssvc_v1)
+        if (!valid) {
+          ctx.isValid = false
+          for (const err of validate_ssvc_v1.errors ?? []) {
+            ctx.errors.push({
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1${err.instancePath}`,
+              message: err.message ?? '',
+            })
+          }
         }
       }
     })
