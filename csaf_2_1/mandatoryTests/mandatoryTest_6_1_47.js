@@ -85,8 +85,8 @@ export function mandatoryTest_6_1_47(doc) {
           ctx.isValid = false
           ctx.errors.push({
             instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/id`,
-            message:
-              'the ssvc id equals the `document/tracking/id` even the csaf document has multiple vulnerabilities',
+            message: `the ssvc id equals the 'document/tracking/id' 
+              even the csaf document has multiple vulnerabilities `,
           })
         }
       } else {
@@ -95,8 +95,8 @@ export function mandatoryTest_6_1_47(doc) {
           ctx.isValid = false
           ctx.errors.push({
             instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/id`,
-            message:
-              'the ssvc id does neither match the `cve` nor it matches the `text` of any item in the `ids` array',
+            message: `the ssvc id does neither match the 'cve' 
+              nor it matches the 'text' of any item in the 'ids' array`,
           })
         }
       }
