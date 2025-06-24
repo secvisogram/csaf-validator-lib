@@ -41,7 +41,7 @@ const inputSchema = /** @type {const} */ ({
               optionalProperties: {
                 content: {
                   additionalProperties: true,
-                  properties: {
+                  optionalProperties: {
                     ssvc_v1: {
                       additionalProperties: true,
                       properties: {
@@ -79,25 +79,27 @@ export function mandatoryTest_6_1_47(doc) {
 
   doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
-      const ssvcId = metric.content?.ssvc_v1.id
-      if (ssvcId === doc.document.tracking.id) {
-        if (doc.vulnerabilities.length > 1) {
-          ctx.isValid = false
-          ctx.errors.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/id`,
-            message: `the ssvc id equals the 'document/tracking/id' 
+      if (metric.content?.ssvc_v1) {
+        const ssvcId = metric.content.ssvc_v1.id
+        if (ssvcId === doc.document.tracking.id) {
+          if (doc.vulnerabilities.length > 1) {
+            ctx.isValid = false
+            ctx.errors.push({
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/id`,
+              message: `the ssvc id equals the 'document/tracking/id' 
               even the csaf document has multiple vulnerabilities `,
-          })
-        }
-      } else {
-        const idTexts = vulnerability.ids?.map((id) => id.text)
-        if (ssvcId !== vulnerability.cve && !idTexts?.includes(ssvcId)) {
-          ctx.isValid = false
-          ctx.errors.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/id`,
-            message: `the ssvc id does neither match the 'cve' 
+            })
+          }
+        } else {
+          const idTexts = vulnerability.ids?.map((id) => id.text)
+          if (ssvcId !== vulnerability.cve && !idTexts?.includes(ssvcId)) {
+            ctx.isValid = false
+            ctx.errors.push({
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/id`,
+              message: `the ssvc id does neither match the 'cve' 
               nor it matches the 'text' of any item in the 'ids' array`,
-          })
+            })
+          }
         }
       }
     })
