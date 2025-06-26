@@ -56,7 +56,7 @@ export function recommendedTest_6_2_30(doc) {
   ) {
     ctx.warnings.push({
       instancePath: '/document/distribution/sharing_group',
-      message: 'TLP:CLEAR documents should not use a "sharing_group"',
+      message: `TLP:CLEAR documents should not use a 'sharing_group'`,
     })
   }
 
