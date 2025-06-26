@@ -2,6 +2,31 @@ import Ajv from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
+/**
+ * @typedef {Object} FullProductName
+ * @property {string} name
+ * @property {string} product_id
+ * @property {ProductIdentificationHelper} product_identification_helper
+ */
+
+/**
+ * @typedef {Object} Branch
+ * @property {Array<Branch>} branches
+ * @property {FullProductName} product
+ */
+
+/**
+ * @typedef {Object} ProductIdentificationHelper
+ * @property {string[]=} serial_numbers
+ * @property {string[]=} model_numbers
+ */
+
+/**
+ * @typedef {Object} Relationship
+ * @property {string} product_reference
+ * @property {string} relates_to_product_reference
+ */
+
 const productIdentificationHelperSchema = {
   additionalProperties: true,
   optionalProperties: {
@@ -109,8 +134,8 @@ export function recommendedTest_6_2_31(doc) {
 
 /**
  * Check full_product_names for serial_numbers or model_numbers
- * @param {Array<any>} full_product_names
- * @param {any} relationships
+ * @param {Array<FullProductName>} full_product_names
+ * @param {Array<Relationship>} relationships
  * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx
  */
 function checkFullProductNames(full_product_names, relationships, ctx) {
@@ -128,7 +153,7 @@ function checkFullProductNames(full_product_names, relationships, ctx) {
       ) {
         ctx.warnings.push({
           instancePath: `/product_tree/full_product_names/${index}`,
-          message: `missing relationship: Product with serial or model number must be referenced.`,
+          message: 'missing relationship: Product with serial or model number must be referenced.',
         })
       }
     }
@@ -139,8 +164,8 @@ function checkFullProductNames(full_product_names, relationships, ctx) {
 /**
  * Recursive function to check branches for products with serial_numbers or model_numbers
  * but no corresponding relationship.
- * @param {Array<any>} branches - The current level of branches to process.
- * @param {Array<any>} relationships - The relationships array to check against.
+ * @param {Array<Branch>} branches - The current level of branches to process.
+ * @param {Array<Relationship>} relationships - The relationships array to check against.
  * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx - The context to store warnings.
  * @param {string} [path='/product_tree/branches'] - The current JSON path.
  */
@@ -159,7 +184,7 @@ function checkBranches(branches, relationships, ctx, path = '/product_tree/branc
       ) {
         ctx.warnings.push({
           instancePath: `${currentPath}/product`,
-          message: `missing relationship: Product with serial or model number must be referenced.`,
+          message: 'missing relationship: Product with serial or model number must be referenced',
         })
       }
     }
@@ -173,8 +198,8 @@ function checkBranches(branches, relationships, ctx, path = '/product_tree/branc
 
 /**
  * Helper function to check if a product_id exists in relationships
- * @param relationships {Array<{ product_reference: string; relates_to_product_reference: string }>}
- * @param productId {string}
+ * @param {Array<Relationship>} relationships
+ * @param {string} productId
  * @returns {boolean}
  */
 function hasRelationship(relationships, productId) {
