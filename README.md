@@ -315,7 +315,6 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.27.13
 - Mandatory Test 6.1.42
 - Mandatory Test 6.1.44
-- Mandatory Test 6.1.45
 - Mandatory Test 6.1.47
 - Mandatory Test 6.1.48
 - Mandatory Test 6.1.49

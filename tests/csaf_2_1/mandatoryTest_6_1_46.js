@@ -4,7 +4,7 @@ import { expect } from 'chai'
 
 const failingInputSchemaTestWithEmptyVulnerability6_1_46 = {
   vulnerabilities: [
-    {}, // even this vulnerability is empty, the test should not fail due to the inputSchema
+    {}, // even this vulnerability is empty, the test should run
     {
       cve: 'CVE-1900-0001',
       metrics: [
