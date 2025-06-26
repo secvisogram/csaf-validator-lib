@@ -13,10 +13,10 @@ const inputSchema = /** @type {const} */ ({
   properties: {
     document: {
       additionalProperties: true,
-      properties: {
+      optionalProperties: {
         tracking: {
           additionalProperties: true,
-          properties: {
+          optionalProperties: {
             id: { type: 'string' },
           },
         },
@@ -44,7 +44,7 @@ const inputSchema = /** @type {const} */ ({
                   optionalProperties: {
                     ssvc_v1: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         id: { type: 'string' },
                       },
                     },
@@ -81,7 +81,7 @@ export function mandatoryTest_6_1_47(doc) {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
       if (metric.content?.ssvc_v1) {
         const ssvcId = metric.content.ssvc_v1.id
-        if (ssvcId === doc.document.tracking.id) {
+        if (ssvcId === doc.document.tracking?.id) {
           if (doc.vulnerabilities.length > 1) {
             ctx.isValid = false
             ctx.errors.push({
