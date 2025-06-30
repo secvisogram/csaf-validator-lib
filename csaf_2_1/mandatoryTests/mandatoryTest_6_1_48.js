@@ -78,51 +78,47 @@ export function mandatoryTest_6_1_48(doc) {
   doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
       const selections = metric.content?.ssvc_v1.selections
-      if (selections) {
-        selections.forEach((selection, selectionIndex) => {
-          if (selection.namespace) {
-            if (registeredSsvcNamespaces.includes(selection.namespace)) {
-              const decisionPoints = ssvcDecisionPoints.decisionPoints
-
-              // check if a decision point with these properties exists
-              const currentDecisionPoints = decisionPoints.filter(
-                (dp) =>
-                  dp.name === selection.name &&
-                  dp.namespace === selection.namespace &&
-                  dp.version === selection.version
+      const selectionsWithRegisteredNamespace = selections?.filter(
+        (s) =>
+          s.namespace !== undefined &&
+          registeredSsvcNamespaces.includes(s.namespace)
+      )
+      selectionsWithRegisteredNamespace?.forEach(
+        (selection, selectionIndex) => {
+          // check if a decision point with these properties exists
+          const filteredDecisionPoints =
+            ssvcDecisionPoints.decisionPoints.filter(
+              (dp) =>
+                dp.name === selection.name &&
+                dp.namespace === selection.namespace &&
+                dp.version === selection.version
+            )
+          if (filteredDecisionPoints.length === 0) {
+            ctx.isValid = false
+            ctx.errors.push({
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
+              message: `there exists no decision point with name ${selection.name} and version ${selection.version} in the namespace ${selection.namespace}`,
+            })
+          } else {
+            // name, namespace and version define a unique decisionPoint, i.e. the array filteredDecisionPoints
+            // can only have zero (catched in the previous if-statement) or one entry.
+            // Therefore, it is sufficient to access the first and only entry in filteredDecisionPoints here
+            if (
+              selection.values &&
+              !areValuesValidAndinOrder(
+                filteredDecisionPoints[0].values.map((value) => value.name),
+                selection.values
               )
-              if (currentDecisionPoints.length === 0) {
-                ctx.isValid = false
-                ctx.errors.push({
-                  instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
-                  message: `there exists no decision point with name ${selection.name} and version ${selection.version} in the namespace ${selection.namespace}`,
-                })
-              } else {
-                if (selection.values) {
-                  // name, namespace and version define a unique decisionPoint, i.e. the array currentDecisionPoint
-                  // can only have zero (catched in the previous if-statement) or one entry.
-                  // Therefore, it is sufficient to access the first and only entry in currentDecisionPoint here
-                  if (
-                    !areValuesValidAndinOrder(
-                      currentDecisionPoints[0].values.map(
-                        (value) => value.name
-                      ),
-                      selection.values
-                    )
-                  ) {
-                    ctx.isValid = false
-                    ctx.errors.push({
-                      instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
-                      message: `this decision point contains invalid values or its values are not in order`,
-                    })
-                  }
-                }
-              }
+            ) {
+              ctx.isValid = false
+              ctx.errors.push({
+                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
+                message: `this decision point contains invalid values or its values are not in order`,
+              })
             }
-            // in the else-case, i.e. if a non-registered namespace is used, this test shall pass
           }
-        })
-      }
+        }
+      )
     })
   })
 
