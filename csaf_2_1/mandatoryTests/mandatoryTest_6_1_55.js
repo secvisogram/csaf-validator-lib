@@ -1,6 +1,7 @@
 import Ajv from 'ajv/dist/jtd.js'
 import { parse, validate } from 'license-expressions'
 import license_information from '../../lib/license/license_information.js'
+import bcp47 from 'bcp47'
 
 const ajv = new Ajv()
 
@@ -43,23 +44,6 @@ const inputSchema = /** @type {const} */ ({
 })
 
 const validateSchema = ajv.compile(inputSchema)
-
-const ENGLISH_LANGUAGES = [
-  'en',
-  'en-AU',
-  'en-BZ',
-  'en-CA',
-  'en-CB',
-  'en-IE',
-  'en-JM',
-  'en-NZ',
-  'en-PH',
-  'en-PH',
-  'en-TT',
-  'en-US',
-  'en-ZA',
-  'en-ZW',
-]
 
 const ABOUT_CODE_LICENSE_REF_PREFIX = 'LicenseRef-scancode-'
 
@@ -141,7 +125,7 @@ export function existsNotListedLicenses(licenseToCheck) {
  * @returns {boolean} True if the language is valid, false otherwise
  */
 export function isLangEnglishOrUnspecified(language) {
-  return !language || ENGLISH_LANGUAGES.includes(language)
+  return !language || bcp47.parse(language)?.langtag.language.language === 'en'
 }
 
 /**
