@@ -14,10 +14,10 @@ const inputSchema = /** @type {const} */ ({
   properties: {
     document: {
       additionalProperties: true,
-      optionalProperties: {
+      properties: {
         tracking: {
           additionalProperties: true,
-          optionalProperties: {
+          properties: {
             revision_history: {
               elements: {
                 additionalProperties: true,
@@ -78,10 +78,10 @@ export function mandatoryTest_6_1_49(doc) {
   }
 
   if (
-    doc.document.tracking?.status === 'final' ||
-    doc.document.tracking?.status === 'interim'
+    doc.document.tracking.status === 'final' ||
+    doc.document.tracking.status === 'interim'
   ) {
-    const revisionHistory = doc.document.tracking?.revision_history
+    const revisionHistory = doc.document.tracking.revision_history
     if (revisionHistory) {
       // sort the revision history (descending) and save the newest entry
       const newestRevisionHistoryItem = revisionHistory
