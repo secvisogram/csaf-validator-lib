@@ -22,7 +22,7 @@ const inputSchema = /** @type {const} */ ({
               optionalProperties: {
                 content: {
                   additionalProperties: true,
-                  properties: {
+                  optionalProperties: {
                     ssvc_v1: {
                       additionalProperties: true,
                       optionalProperties: {
@@ -77,7 +77,7 @@ export function mandatoryTest_6_1_48(doc) {
 
   doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
-      const selections = metric.content?.ssvc_v1.selections
+      const selections = metric.content?.ssvc_v1?.selections
       const selectionsWithRegisteredNamespace = selections?.filter(
         (s) =>
           s.namespace !== undefined &&
