@@ -334,7 +334,6 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.51
 - Mandatory Test 6.1.52
 - Mandatory Test 6.1.53
-- Mandatory Test 6.1.54
 - Mandatory Test 6.1.55
 
 **Recommended Tests**
@@ -435,6 +434,7 @@ export const mandatoryTest_6_1_38: DocumentTest
 export const mandatoryTest_6_1_39: DocumentTest
 export const mandatoryTest_6_1_40: DocumentTest
 export const mandatoryTest_6_1_41: DocumentTest
+export const mandatoryTest_6_1_54: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -577,5 +577,8 @@ For the complete list of dependencies please take a look at [package.json](https
 - [undici](https://undici.nodejs.org)
 - [@js-joda/core](https://js-joda.github.io/js-joda/)
 - [@js-joda/timezone](https://js-joda.github.io/js-joda/)
+- [aboutcode licenses](https://scancode-licensedb.aboutcode.org/index.json)
+- [SPDX licenses](https://raw.githubusercontent.com/spdx/license-list-data/refs/heads/main/json/licenses.json)
+- [license-expressions](https://github.com/lkoskela/license-expressions)
 
 [(back to top)](#bsi-csaf-validator-lib)
