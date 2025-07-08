@@ -74,6 +74,16 @@ export function mandatoryTest_6_1_48(doc) {
   }
 
   const registeredSsvcNamespaces = ['ssvc', 'cvss']
+  // subset of all the valid decision points containing only the relevant properties
+  const relevantSsvcDecisionPointsSubset =
+    ssvcDecisionPoints.decisionPoints.map((dp) =>
+      JSON.stringify({
+        name: dp.name ?? '',
+        namespace: dp.namespace ?? '',
+        version: dp.version ?? '',
+        values: dp.values ?? '',
+      })
+    )
 
   doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
@@ -87,12 +97,14 @@ export function mandatoryTest_6_1_48(doc) {
         (selection, selectionIndex) => {
           // check if a decision point with these properties exists
           const filteredDecisionPoints =
-            ssvcDecisionPoints.decisionPoints.filter(
-              (dp) =>
+            relevantSsvcDecisionPointsSubset.filter((jsonDp) => {
+              const dp = JSON.parse(jsonDp)
+              return (
                 dp.name === selection.name &&
                 dp.namespace === selection.namespace &&
                 dp.version === selection.version
-            )
+              )
+            })
           if (filteredDecisionPoints.length === 0) {
             ctx.isValid = false
             ctx.errors.push({
@@ -106,7 +118,9 @@ export function mandatoryTest_6_1_48(doc) {
             if (
               selection.values &&
               !areValuesValidAndinOrder(
-                filteredDecisionPoints[0].values.map((value) => value.name),
+                JSON.parse(filteredDecisionPoints[0]).values.map(
+                  (/** @type {{ name: string; }} */ value) => value.name
+                ),
                 selection.values
               )
             ) {
