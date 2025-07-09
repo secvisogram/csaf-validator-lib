@@ -34,7 +34,7 @@ describe('mandatoryTest_6_1_42', function () {
         'pkg:golang/google.golang.com/genproto#googleapis/api/annotations',
       ]),
       'change in namespace'
-    ).to.eql(['1'])
+    ).to.eql([1])
     expect(
       checkPurls([
         'pkg:npm/%40angular/animation@12.3.1',
@@ -43,6 +43,6 @@ describe('mandatoryTest_6_1_42', function () {
         'pkg:npm/%40angular/animation@12.3.3',
       ]),
       'change in version and invalid PURL'
-    ).to.eql(['1', '2', '3'])
+    ).to.eql([1, 2, 3])
   })
 })
