@@ -98,12 +98,12 @@ export function mandatoryTest_6_1_48(doc) {
 
   doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
-      const selections = metric.content?.ssvc_v1?.selections
-      const selectionsWithRegisteredNamespace = selections?.filter(
-        (s) =>
-          s.namespace !== undefined &&
-          registeredSsvcNamespaces.includes(s.namespace)
-      )
+      const selectionsWithRegisteredNamespace =
+        metric.content?.ssvc_v1?.selections?.filter(
+          (s) =>
+            s.namespace !== undefined &&
+            registeredSsvcNamespaces.includes(s.namespace)
+        )
       selectionsWithRegisteredNamespace?.forEach(
         (selection, selectionIndex) => {
           // check if a decision point with these properties exists
