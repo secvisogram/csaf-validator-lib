@@ -92,16 +92,16 @@ export function containMultipleUnescapedStars(stringToCheck) {
  * check whether they contain multiple unescaped stars
  *
  * @param {Array<string> | undefined} modelNumbers model_numbers to check
- * @return {Array<string>} indexes of the model_numbers that invalid
+ * @return {Array<number>} indexes of the model_numbers that invalid
  */
 export function checkModelNumbers(modelNumbers) {
-  /** @type {Array<string>}*/
+  /** @type {Array<number>}*/
   const invalidNumbers = []
   if (modelNumbers) {
     for (let i = 0; i < modelNumbers.length; i++) {
       const modelNumber = modelNumbers[i]
       if (containMultipleUnescapedStars(modelNumber)) {
-        invalidNumbers.push('' + i)
+        invalidNumbers.push(i)
       }
     }
   }
@@ -166,7 +166,7 @@ export function mandatoryTest_6_1_43(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `${prefix}/product_identification_helper/model_numbers/${invalidNumberIndex}`,
-        message: `Model number contains multiple unescaped stars`,
+        message: `model number contains multiple unescaped stars`,
       })
     })
   }
@@ -187,7 +187,7 @@ export function mandatoryTest_6_1_43(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `${prefix}/product/product_identification_helper/model_numbers/${invalidNumberIndex}`,
-        message: `Model number contains multiple unescaped stars`,
+        message: `model number contains multiple unescaped stars`,
       })
     })
     branch.branches?.forEach((branch, index) => {
