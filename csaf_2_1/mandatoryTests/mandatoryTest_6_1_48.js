@@ -104,31 +104,40 @@ export function mandatoryTest_6_1_48(doc) {
           s.namespace !== undefined &&
           registeredSsvcNamespaces.includes(s.namespace)
       )
-      selectionsWithRegisteredNamespace?.forEach((select, selectionIndex) => {
-        // check if a decision point with these properties exists
-        const selectedDecisionPnt = decisionPointMap.get(
-          decisionPointHash(select.name, select.namespace, select.version)
-        )
+      selectionsWithRegisteredNamespace?.forEach(
+        (selection, selectionIndex) => {
+          // check if a decision point with these properties exists
+          const selectedDecisionPnt = decisionPointMap.get(
+            decisionPointHash(
+              selection.name,
+              selection.namespace,
+              selection.version
+            )
+          )
 
-        if (!selectedDecisionPnt) {
-          ctx.isValid = false
-          ctx.errors.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
-            message: `there exists no decision point with name ${select.name} and version ${select.version} in the namespace ${select.namespace}`,
-          })
-        } else {
-          if (
-            select.values &&
-            !areValuesValidAndinOrder(selectedDecisionPnt.values, select.values)
-          ) {
+          if (!selectedDecisionPnt) {
             ctx.isValid = false
             ctx.errors.push({
               instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
-              message: `this decision point contains invalid values or its values are not in order`,
+              message: `there exists no decision point with name ${selection.name} and version ${selection.version} in the namespace ${selection.namespace}`,
             })
+          } else {
+            if (
+              selection.values &&
+              !areValuesValidAndinOrder(
+                selectedDecisionPnt.values,
+                selection.values
+              )
+            ) {
+              ctx.isValid = false
+              ctx.errors.push({
+                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
+                message: `this decision point contains invalid values or its values are not in order`,
+              })
+            }
           }
         }
-      })
+      )
     })
   })
 
