@@ -58,6 +58,27 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 
 /**
+ * @param {string | undefined} name
+ * @param {string | undefined} namespace
+ * @param {string | undefined} version
+ */
+function decisionPointHash(name, namespace, version) {
+  return JSON.stringify({
+    name: name ?? '',
+    namespace: namespace ?? '',
+    version: version ?? '',
+  })
+}
+
+/** @type {Map<string,{ name: string; namespace: string; version: string; key?: string; values: { key: string; name: string; description: string; }[]; }>} */
+const decisionPointMap = new Map(
+  ssvcDecisionPoints.decisionPoints.map((obj) => [
+    decisionPointHash(obj.name, obj.namespace, obj.version),
+    obj,
+  ])
+)
+
+/**
  * This implements the mandatory test 6.1.48 of the CSAF 2.1 standard.
  *
  * @param {any} doc
@@ -74,16 +95,6 @@ export function mandatoryTest_6_1_48(doc) {
   }
 
   const registeredSsvcNamespaces = ['ssvc', 'cvss']
-  // subset of all the valid decision points containing only the relevant properties
-  const relevantSsvcDecisionPointsSubset =
-    ssvcDecisionPoints.decisionPoints.map((dp) =>
-      JSON.stringify({
-        name: dp.name ?? '',
-        namespace: dp.namespace ?? '',
-        version: dp.version ?? '',
-        values: dp.values ?? '',
-      })
-    )
 
   doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
@@ -93,46 +104,31 @@ export function mandatoryTest_6_1_48(doc) {
           s.namespace !== undefined &&
           registeredSsvcNamespaces.includes(s.namespace)
       )
-      selectionsWithRegisteredNamespace?.forEach(
-        (selection, selectionIndex) => {
-          // check if a decision point with these properties exists
-          const filteredDecisionPoints =
-            relevantSsvcDecisionPointsSubset.filter((jsonDp) => {
-              const dp = JSON.parse(jsonDp)
-              return (
-                dp.name === selection.name &&
-                dp.namespace === selection.namespace &&
-                dp.version === selection.version
-              )
-            })
-          if (filteredDecisionPoints.length === 0) {
+      selectionsWithRegisteredNamespace?.forEach((select, selectionIndex) => {
+        // check if a decision point with these properties exists
+        const selectedDecisionPnt = decisionPointMap.get(
+          decisionPointHash(select.name, select.namespace, select.version)
+        )
+
+        if (!selectedDecisionPnt) {
+          ctx.isValid = false
+          ctx.errors.push({
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
+            message: `there exists no decision point with name ${select.name} and version ${select.version} in the namespace ${select.namespace}`,
+          })
+        } else {
+          if (
+            select.values &&
+            !areValuesValidAndinOrder(selectedDecisionPnt.values, select.values)
+          ) {
             ctx.isValid = false
             ctx.errors.push({
               instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
-              message: `there exists no decision point with name ${selection.name} and version ${selection.version} in the namespace ${selection.namespace}`,
+              message: `this decision point contains invalid values or its values are not in order`,
             })
-          } else {
-            // name, namespace and version define a unique decisionPoint, i.e. the array filteredDecisionPoints
-            // can only have zero (catched in the previous if-statement) or one entry.
-            // Therefore, it is sufficient to access the first and only entry in filteredDecisionPoints here
-            if (
-              selection.values &&
-              !areValuesValidAndinOrder(
-                JSON.parse(filteredDecisionPoints[0]).values.map(
-                  (/** @type {{ name: string; }} */ value) => value.name
-                ),
-                selection.values
-              )
-            ) {
-              ctx.isValid = false
-              ctx.errors.push({
-                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
-                message: `this decision point contains invalid values or its values are not in order`,
-              })
-            }
           }
         }
-      )
+      })
     })
   })
 
@@ -144,11 +140,12 @@ export function mandatoryTest_6_1_48(doc) {
  * according to the specification.
  * If values are missing, this is not an issue.
  *
- * @param {string[]} specifiedValues the valid elements of the values array of the respective decision point
+ * @param {{ key: string; name: string; description: string; }[]} decisionPointValues the valid elements of the values array of the respective decision point
  *                                   and their order according to the SSVC specification
  * @param {string[]} usedValues the actual used values of the decision point
  */
-function areValuesValidAndinOrder(specifiedValues, usedValues) {
+function areValuesValidAndinOrder(decisionPointValues, usedValues) {
+  const specifiedValues = decisionPointValues.map((value) => value.name)
   //check if there is an invalid value used
   for (let i = 0; i < usedValues.length; i++) {
     const element = usedValues[i]
