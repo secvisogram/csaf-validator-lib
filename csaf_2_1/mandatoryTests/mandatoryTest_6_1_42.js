@@ -99,14 +99,13 @@ function onlyDifferInQualifiers(firstPurl, secondPurl) {
  * differ only in qualifiers to the first URL
  *
  * @param {Array<string> | undefined} purls PURLs to check
- * @return {Array<string>} indexes of the PURLs that differ
+ * @return {Array<number>} indexes of the PURLs that differ
  */
 export function checkPurls(purls) {
+  /** @type {Array<number>}*/
   const invalidPurls = []
   if (purls) {
-    /**
-     * @type {Array<PackageURL | null>}
-     */
+    /** @type {Array<PackageURL | null>} */
     const packageUrls = purls.map((purl) => {
       try {
         return PackageURL.fromString(purl)
@@ -124,7 +123,7 @@ export function checkPurls(purls) {
       for (let i = 1; i < packageUrls.length; i++) {
         const packageUrl = packageUrls[i]
         if (!packageUrl || !onlyDifferInQualifiers(firstPurls, packageUrl)) {
-          invalidPurls.push('' + i)
+          invalidPurls.push(i)
         }
       }
     }
@@ -191,7 +190,7 @@ export function mandatoryTest_6_1_42(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `${prefix}/product_identification_helper/purls/${invalidPurlIndex}`,
-        message: `The PURL differs to the first PURL not only in qualifiers`,
+        message: 'the PURL differs to the first PURL not only in qualifiers',
       })
     })
   }
@@ -212,7 +211,7 @@ export function mandatoryTest_6_1_42(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `${prefix}/product/product_identification_helper/purls/${invalidPurlIndex}`,
-        message: `The PURL differs to the first PURL not only in qualifiers`,
+        message: 'the PURL differs to the first PURL not only in qualifiers',
       })
     })
     branch.branches?.forEach((branch, index) => {
