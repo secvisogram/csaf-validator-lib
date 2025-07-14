@@ -46,12 +46,10 @@ const inputSchema = /** @type {const} */ ({
 const validateSchema = ajv.compile(inputSchema)
 
 /**
- * If the document language is specified but not English, and the license_expression contains license
- * identifiers or exceptions that are not listed in the SPDX license list or Aboutcode's "ScanCode LicenseDB",
- * it MUST be tested that exactly one item in document notes exists that has the language specific translation
- * of the term License as title. The category of this item MUST be legal_disclaimer.
- * If no language-specific translation has been recorded, the test MUST be skipped
- * and output information to the user that no such translation is known.
+ * If the document language is specified but not English, it MUST be tested that exactly one item in document
+ * notes exists that has the language specific translation of the term Reasoning for Withdrawal as title.
+ * The category of this item MUST be description. If no language-specific translation has been recorded,
+ * the test MUST be skipped and output an information to the user that no such translation is known.
  *
  * @param {unknown} doc
  */
