@@ -34,7 +34,7 @@ const profileValues = [
   'csaf_withdrawn',
   'csaf_superseded',
 ]
-const otherProfileValues = [
+const prohibitedDocumentCategoryNames = [
   'securityincidentresponse',
   'informationaladvisory',
   'securityadvisory',
@@ -82,7 +82,9 @@ export function mandatoryTest_6_1_26(doc) {
 
   // Fail on name similarity
   if (
-    otherProfileValues.includes(category.replace(/[_-\s]+/g, '').toLowerCase())
+    prohibitedDocumentCategoryNames.includes(
+      category.replace(/[_-\s]+/g, '').toLowerCase()
+    )
   ) {
     ctx.isValid = false
     ctx.errors.push({
