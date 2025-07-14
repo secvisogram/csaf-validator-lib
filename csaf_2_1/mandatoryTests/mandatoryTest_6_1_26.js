@@ -73,8 +73,8 @@ export function mandatoryTest_6_1_26(doc) {
   if (category.toLowerCase().startsWith('csaf_')) {
     ctx.isValid = false
     ctx.errors.push({
-      instancePath: `/document/category`,
-      message: `reserved prefix used`,
+      instancePath: '/document/category',
+      message: 'reserved prefix used',
     })
 
     return ctx
@@ -88,8 +88,8 @@ export function mandatoryTest_6_1_26(doc) {
   ) {
     ctx.isValid = false
     ctx.errors.push({
-      instancePath: `/document/category`,
-      message: `value prohibited`,
+      instancePath: '/document/category',
+      message: 'value prohibited',
     })
   }
   return ctx
