@@ -120,7 +120,8 @@ export function informativeTest_6_3_15(doc) {
         ) {
           ctx.infos.push({
             instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}/namespace`,
-            message: `namespace is  private and document is not labeled TLP:CLEAR`,
+            message:
+              'namespace is  private and document is not labeled TLP:CLEAR',
           })
         }
       })
