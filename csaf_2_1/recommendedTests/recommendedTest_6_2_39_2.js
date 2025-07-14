@@ -89,7 +89,7 @@ export function recommendedTest_6_2_39_2(doc) {
       !containsOneNoteWithTitleAndCategory(
         notes,
         withdrawalInDocLang,
-        'description'
+        noteCategory
       )
     ) {
       ctx.warnings.push({
