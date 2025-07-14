@@ -152,7 +152,7 @@ export function mandatoryTest_6_1_43(doc) {
   return ctx
 
   /**
-   *  Check whether the Model numbers contain multiple unescaped stars
+   *  Check whether the model numbers contain multiple unescaped stars for a full product name object
    *
    * @param {string} prefix The instance path prefix of the "full product name". It is
    *    used to generate error messages.
