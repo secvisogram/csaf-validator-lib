@@ -1,9 +1,7 @@
-import {
-  getTranslationInDocumentLang,
-  recommendedTest_6_2_39_2,
-} from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_39_2.js'
+import { recommendedTest_6_2_39_2 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_39_2.js'
 import { expect } from 'chai'
 import assert from 'node:assert'
+import { getTranslationInDocumentLang } from '../../lib/shared/languageSpecificTranslation.js'
 
 describe('recommendedTest_6_2_39_2', function () {
   it('only runs on relevant documents', function () {
