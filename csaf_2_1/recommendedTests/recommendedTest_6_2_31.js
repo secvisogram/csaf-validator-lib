@@ -2,30 +2,6 @@ import Ajv from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
-/**
- * @typedef {object} ProductIdentificationHelper
- * @property {string[]} [serial_numbers]
- * @property {string[]} [model_numbers]
- */
-
-/**
- * @typedef {object} Product
- * @property {string} product_id
- * @property {ProductIdentificationHelper} [product_identification_helper]
- */
-
-/**
- * @typedef {object} Branch
- * @property {Product} [product]
- * @property {Branch[]} [branches]
- */
-
-/**
- * @typedef {Object} Relationship
- * @property {string} product_reference
- * @property {string} relates_to_product_reference
- */
-
 const relationshipSchema = /** @type {const} */ ({
   additionalProperties: true,
   properties: {
@@ -84,6 +60,15 @@ const inputSchema = /** @type {const} */ ({
 })
 
 const validateInput = ajv.compile(inputSchema)
+
+/**
+ * @typedef {import('ajv/dist/core').JTDDataType<typeof relationshipSchema>} Relationship
+ * @typedef {import('ajv/dist/core').JTDDataType<typeof productIdentificationHelperSchema>} ProductIdentificationHelper
+ * @typedef {import('ajv/dist/core').JTDDataType<typeof productSchema>} Product
+ * @typedef {import('ajv/dist/core').JTDDataType<typeof productSchema>} FullProductName
+ * @typedef {import('ajv/dist/core').JTDDataType<typeof branchSchema>} Branch
+ *
+ */
 
 /**
  * This implements the optional test 6.2.31 of the CSAF 2.1 standard.
