@@ -61,7 +61,7 @@ export function recommendedTest_6_2_37(doc) {
       const role = metric.content?.ssvc_v1?.role
       if (role !== undefined && !registeredSsvcRoles.includes(role)) {
         context.warnings.push({
-          message: `The  used role "${role}" is not a registered role`,
+          message: `The used role "${role}" is not registered`,
           instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/role`,
         })
       }
