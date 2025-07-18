@@ -8,17 +8,17 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {
+        optionalProperties: {
           metrics: {
             elements: {
               additionalProperties: true,
-              properties: {
+              optionalProperties: {
                 content: {
                   additionalProperties: true,
-                  properties: {
+                  optionalProperties: {
                     ssvc_v1: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         role: {
                           type: 'string',
                         },
@@ -57,9 +57,9 @@ export function recommendedTest_6_2_37(doc) {
   const registeredSsvcRoles = ['Supplier', 'Deployer', 'Coordinator']
 
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
-    vulnerability.metrics.forEach((metric, metricIndex) => {
-      const role = metric.content.ssvc_v1.role
-      if (!registeredSsvcRoles.includes(role)) {
+    vulnerability.metrics?.forEach((metric, metricIndex) => {
+      const role = metric.content?.ssvc_v1?.role
+      if (role !== undefined && !registeredSsvcRoles.includes(role)) {
         context.warnings.push({
           message: `The  used role "${role}" is not a registered role`,
           instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/role`,
