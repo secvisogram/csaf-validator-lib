@@ -1,14 +1,14 @@
 # Developing CSAF Validator Lib
 
 ## Table of Contents
+
 - [Code Style](#code-style)
   - [Formatting with prettier](#formatting-with-prettier)
   - [Quoting Strings](#quoting-strings)
 
-
 ## Code Style
 
-### Formatting with prettier 
+### Formatting with prettier
 
 JavaScript code must be formatted with Prettier before it can be pushed to the repository.
 A prettier.config.cjs is provided.
@@ -18,9 +18,11 @@ A prettier.config.cjs is provided.
 Strings have to be quoted in the following way:
 
 - **Single quotes ''**
+
   - We use `''` (single quotes) when the string has no expressions inside.
 
 - **Template literals (backticks)**
+
   - We use ` `` ` (template literals) when there is an expression to resolve in the string, e.g. ${metricIndex}
 
 - **Quotation mark in string**
