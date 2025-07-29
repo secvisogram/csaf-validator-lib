@@ -4,7 +4,7 @@ const ajv = new Ajv()
 
 const relationshipSchema = /** @type {const} */ ({
   additionalProperties: true,
-  properties: {
+  optionalProperties: {
     product_reference: { type: 'string' },
     relates_to_product_reference: { type: 'string' },
   },
@@ -24,10 +24,8 @@ const productIdentificationHelperSchema = /** @type {const} */ ({
 
 const productSchema = /** @type {const} */ ({
   additionalProperties: true,
-  properties: {
-    product_id: { type: 'string' },
-  },
   optionalProperties: {
+    product_id: { type: 'string' },
     product_identification_helper: productIdentificationHelperSchema,
   },
 })
