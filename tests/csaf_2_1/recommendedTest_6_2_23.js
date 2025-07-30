@@ -9,4 +9,25 @@ describe('recommendedTest_6_2_23', function () {
       0
     )
   })
+  it('skips empty objects', async function () {
+    assert.equal(
+      (
+        await recommendedTest_6_2_23({
+          vulnerabilities: [
+            {
+              cwes: [
+                {
+                  id: 'CWE-596',
+                  name: 'DEPRECATED: Incorrect Semantic Object Comparison',
+                  version: '4.13',
+                },
+              ],
+            },
+            {}, // should be ignored
+          ],
+        })
+      ).warnings.length,
+      1
+    )
+  })
 })
