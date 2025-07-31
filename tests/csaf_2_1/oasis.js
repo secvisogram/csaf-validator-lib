@@ -10,7 +10,6 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
   Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
-  '6.1.6',
   '6.1.14',
   '6.1.16',
   '6.1.26',
@@ -40,7 +39,6 @@ const excluded = [
   '6.1.53',
   '6.1.54',
   '6.1.55',
-  '6.2.11',
   '6.2.19',
   '6.2.20',
   '6.2.21',
