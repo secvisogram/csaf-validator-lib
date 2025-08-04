@@ -9,4 +9,25 @@ describe('recommendedTest_6_2_25', function () {
       0
     )
   })
+  it('skips empty objects', async function () {
+    assert.equal(
+      (
+        await recommendedTest_6_2_25({
+          vulnerabilities: [
+            {
+              cwes: [
+                {
+                  id: 'CWE-20',
+                  name: 'Improper Input Validation',
+                  version: '4.13',
+                },
+              ],
+            },
+            {}, // should be ignored
+          ],
+        })
+      ).warnings.length,
+      1
+    )
+  })
 })
