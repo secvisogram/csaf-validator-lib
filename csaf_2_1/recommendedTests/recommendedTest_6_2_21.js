@@ -16,8 +16,8 @@ const inputSchema = /** @type {const} */ ({
             revision_history: {
               elements: {
                 additionalProperties: true,
-                properties: {
-                  date: { type: 'timestamp' },
+                optionalProperties: {
+                  date: { type: 'string' },
                   number: { type: 'string' },
                 },
               },
@@ -43,23 +43,26 @@ export function recommendedTest_6_2_21(doc) {
     return context
   }
 
-  const allDatesInRevisionHistory = doc.document.tracking.revision_history.map(
-    (item) => item.date
-  )
-
+  // Since the revision_history items are optionalProperties we have to filter here on undefined ones
+  // to be able to access the elements of the allDatesInRevisionHistory array later
+  // without further checking if its entries are undefined.
+  const allDatesInRevisionHistory = doc.document.tracking.revision_history
+    .map((item) => item.date)
+    .filter((date) => date !== undefined)
   for (let i = 0; i < allDatesInRevisionHistory.length - 1; i++) {
     for (let j = i + 1; j < allDatesInRevisionHistory.length; j++) {
       if (
         compareZonedDateTimes(
-          /** @type {string} */ (allDatesInRevisionHistory[i]),
-          /** @type {string} */ (allDatesInRevisionHistory[j])
+          allDatesInRevisionHistory[i],
+          allDatesInRevisionHistory[j]
         ) === 0
       ) {
         warnings.push({
           instancePath: `/document/tracking/revision_history/${j}/date`,
-          message: `timestamps of the revision history items with version number 
-          ${doc.document.tracking.revision_history[i].number} 
-          and ${doc.document.tracking.revision_history[j].number} are equal`,
+          message:
+            `the timestamps of the revision history items with version number ` +
+            `${doc.document.tracking.revision_history[i].number} ` +
+            `and ${doc.document.tracking.revision_history[j].number} are equal`,
         })
       }
     }

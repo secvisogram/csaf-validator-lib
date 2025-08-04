@@ -8,4 +8,28 @@ describe('recommendedTest_6_2_21', function () {
       0
     )
   })
+  it('skips empty objects', function () {
+    assert.equal(
+      recommendedTest_6_2_21({
+        document: {
+          tracking: {
+            revision_history: [
+              {
+                date: '2024-01-22T10:00:00.000Z',
+                number: '1',
+                summary: 'Initial version.',
+              },
+              {
+                date: '2024-01-22T10:00:00.000Z',
+                number: '2',
+                summary: 'Second version.',
+              },
+              {}, // should be ignored
+            ],
+          },
+        },
+      }).warnings.length,
+      1
+    )
+  })
 })
