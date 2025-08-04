@@ -42,11 +42,11 @@ const cweSchema = /** @type {const} */ ({
 const validateCWE = ajv.compile(cweSchema)
 
 /**
- * This implements the optional test 6.2.25 of the CSAF 2.1 standard.
+ * This implements the recommended test 6.2.25 of the CSAF 2.1 standard.
  *
  * @param {any} doc
  */
-export async function optionalTest_6_2_25(doc) {
+export async function recommendedTest_6_2_25(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
   const warnings = []
   const context = { warnings }
