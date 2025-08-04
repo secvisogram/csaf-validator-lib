@@ -15,7 +15,7 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {
+        optionalProperties: {
           cwes: {
             elements: {
               additionalProperties: true,
@@ -57,38 +57,27 @@ export async function recommendedTest_6_2_25(doc) {
 
   for (let i = 0; i < doc.vulnerabilities.length; ++i) {
     const vulnerability = doc.vulnerabilities[i]
-    for (let j = 0; j < vulnerability.cwes.length; ++j) {
-      const cwe = vulnerability.cwes.at(j)
-      if (validateCWE(cwe)) {
-        const cwec = cwecMap.get(cwe.version)
-        if (!cwec) {
-          context.warnings.push({
-            instancePath: `/vulnerabilities/${i}/cwes/${j}/version`,
-            message: 'no such cwe version is recognized',
-          })
-          continue
-        }
-        const entry = (await cwec()).default.weaknesses.find(
-          (w) => w.id === cwe.id
-        )
-        if (!entry) {
-          context.warnings.push({
-            instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
-            message: `no weakness with this id is recognized in CWE ${cwe.version}`,
-          })
-          continue
-        }
-        //NOTE: the usage property is not available in cwe version 4.11 and older
-        if (
-          entry.usage !== 'Allowed' &&
-          entry.usage !== 'Allowed-with-Review'
-        ) {
-          context.warnings.push({
-            instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
-            message:
-              'the usage of the weakness with the given id is not allowed',
-          })
-          continue
+    if (vulnerability.cwes) {
+      for (let j = 0; j < vulnerability.cwes.length; ++j) {
+        const cwe = vulnerability.cwes.at(j)
+        if (validateCWE(cwe)) {
+          const cwec = cwecMap.get(cwe.version)
+          if (cwec) {
+            const entry = (await cwec()).default.weaknesses.find(
+              (w) => w.id === cwe.id
+            )
+            //NOTE: the usage property is not available in cwe version 4.11 and older
+            if (
+              entry?.usage !== 'Allowed' &&
+              entry?.usage !== 'Allowed-with-Review'
+            ) {
+              context.warnings.push({
+                instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
+                message:
+                  'the usage of the weakness with the given id is not allowed',
+              })
+            }
+          }
         }
       }
     }
