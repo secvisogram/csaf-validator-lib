@@ -257,7 +257,6 @@ export const optionalTest_6_2_17: DocumentTest
 export const optionalTest_6_2_18: DocumentTest
 export const optionalTest_6_2_19: DocumentTest
 export const optionalTest_6_2_20: DocumentTest
-export const optionalTest_6_2_21: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
