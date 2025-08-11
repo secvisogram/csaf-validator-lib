@@ -119,10 +119,10 @@ export function checkPurls(purls) {
      * @type {Array<PackageURL>}
      */
     if (packageUrls.length > 1) {
-      const firstPurls = packageUrls[0]
+      const firstPurl = packageUrls[0]
       for (let i = 1; i < packageUrls.length; i++) {
         const packageUrl = packageUrls[i]
-        if (!packageUrl || !onlyDifferInQualifiers(firstPurls, packageUrl)) {
+        if (!packageUrl || !onlyDifferInQualifiers(firstPurl, packageUrl)) {
           invalidPurls.push(i)
         }
       }
@@ -190,7 +190,8 @@ export function mandatoryTest_6_1_42(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `${prefix}/product_identification_helper/purls/${invalidPurlIndex}`,
-        message: 'the PURL differs to the first PURL not only in qualifiers',
+        message:
+          'the PURL differs from the first PURL in other parts than just the qualifiers',
       })
     })
   }
@@ -211,7 +212,8 @@ export function mandatoryTest_6_1_42(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `${prefix}/product/product_identification_helper/purls/${invalidPurlIndex}`,
-        message: 'the PURL differs to the first PURL not only in qualifiers',
+        message:
+          'the PURL differs from the first PURL in other parts than just the qualifiers',
       })
     })
     branch.branches?.forEach((branch, index) => {
