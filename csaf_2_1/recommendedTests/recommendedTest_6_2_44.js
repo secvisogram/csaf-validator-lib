@@ -41,7 +41,8 @@ const DEPRECATED_SPDX_LICENSE_KEYS = new Set(
 const validateSchema = ajv.compile(inputSchema)
 
 /**
- * Check whether the license identifiers ref is a deprecated Aboutcode's license
+ * Check whether the license identifiers ref is a deprecated AboutCode's license
+ * Ignores other license inventorying entities
  * @param {string} licenseRefToCheck
  * @return {boolean}
  */
@@ -133,13 +134,13 @@ export function recommendedTest_6_2_44(doc) {
   const licenseToCheck = doc.document.license_expression
 
   if (validate(licenseToCheck).valid) {
-    const deprecatedLicenseIdentifier =
+    const deprecatedLicenseIdentifiers =
       allDeprecatedInLicenseString(licenseToCheck)
 
-    deprecatedLicenseIdentifier.forEach((licenseKey) => {
+    deprecatedLicenseIdentifiers.forEach((licenseKey) => {
       ctx.warnings.push({
         instancePath: '/document/license_expression',
-        message: `License identifier ${licenseKey}  is deprecated `,
+        message: `License identifier ${licenseKey} is deprecated `,
       })
     })
   }
