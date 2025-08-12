@@ -68,9 +68,8 @@ export async function recommendedTest_6_2_23(doc) {
             )
             if (entry?.status === 'Deprecated') {
               context.warnings.push({
-                instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
-                message:
-                  'the status of the weakness with the given id is deprecated',
+                instancePath: `/vulnerabilities/${i}/cwes/${j}`,
+                message: `this CWE is deprecated in version ${cwe.version}`,
               })
             }
           }
