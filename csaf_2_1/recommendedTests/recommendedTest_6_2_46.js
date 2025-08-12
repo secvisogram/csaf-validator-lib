@@ -116,7 +116,7 @@ function containsNotListedLicenses(parsedExpression) {
 }
 
 /**
- * Checks if a license expression string contains any document references.
+ * Checks if a license expression string contains any not listed licenses.
  *
  * @param {string} licenseToCheck - The license expression to check
  * @returns {boolean} True if the license expression contains any document references, false otherwise
