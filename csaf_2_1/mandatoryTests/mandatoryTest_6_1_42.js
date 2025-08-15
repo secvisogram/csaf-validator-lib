@@ -81,17 +81,28 @@ const validate = ajv.compile(inputSchema)
 /**
  *
  * @param {PackageURL | null} firstPurl
- * @param {PackageURL} secondPurl
- * @return {boolean}
+ * @param {PackageURL | null} secondPurl
+ * @return {Array<string>} the parts of the PURLS that differ
  */
-function onlyDifferInQualifiers(firstPurl, secondPurl) {
-  return (
-    !!firstPurl &&
-    firstPurl.type === secondPurl.type &&
-    firstPurl.namespace === secondPurl.namespace &&
-    firstPurl.name === secondPurl.name &&
-    firstPurl.version === secondPurl.version
-  )
+function purlPartsThatDifferExceptQualifiers(firstPurl, secondPurl) {
+  /** @type {Array<string>}*/
+  const partsThatDiffer = []
+
+  if (firstPurl && secondPurl) {
+    if (firstPurl.type !== secondPurl.type) {
+      partsThatDiffer.push('type')
+    }
+    if (firstPurl.namespace !== secondPurl.namespace) {
+      partsThatDiffer.push('namespace')
+    }
+    if (firstPurl.name !== secondPurl.name) {
+      partsThatDiffer.push('name')
+    }
+    if (firstPurl.version !== secondPurl.version) {
+      partsThatDiffer.push('version')
+    }
+  }
+  return partsThatDiffer
 }
 
 /**
@@ -99,10 +110,10 @@ function onlyDifferInQualifiers(firstPurl, secondPurl) {
  * differ only in qualifiers to the first URL
  *
  * @param {Array<string> | undefined} purls PURLs to check
- * @return {Array<number>} indexes of the PURLs that differ
+ * @return {Array<{index:number, purlParts: Array<string> }>} indexes and parts of the PURLs that differ
  */
 export function checkPurls(purls) {
-  /** @type {Array<number>}*/
+  /** @type {Array<{index:number, purlParts: Array<string> }>} */
   const invalidPurls = []
   if (purls) {
     /** @type {Array<PackageURL | null>} */
@@ -110,7 +121,7 @@ export function checkPurls(purls) {
       try {
         return PackageURL.fromString(purl)
       } catch (e) {
-        // ignore
+        // ignore, tested in CSAF 2.1 test 6.1.13
         return null
       }
     })
@@ -121,9 +132,13 @@ export function checkPurls(purls) {
     if (packageUrls.length > 1) {
       const firstPurl = packageUrls[0]
       for (let i = 1; i < packageUrls.length; i++) {
-        const packageUrl = packageUrls[i]
-        if (!packageUrl || !onlyDifferInQualifiers(firstPurl, packageUrl)) {
-          invalidPurls.push(i)
+        /** @type {Array<string>}*/
+        const purlParts = purlPartsThatDifferExceptQualifiers(
+          firstPurl,
+          packageUrls[i]
+        )
+        if (purlParts.length > 0) {
+          invalidPurls.push({ index: i, purlParts: purlParts })
         }
       }
     }
@@ -183,15 +198,14 @@ export function mandatoryTest_6_1_42(doc) {
    * @param {FullProductName} fullProductName The "full product name" object.
    */
   function checkFullProductName(prefix, fullProductName) {
-    const invalidPurlsIndexes = checkPurls(
+    const invalidPurls = checkPurls(
       fullProductName.product_identification_helper?.purls
     )
-    invalidPurlsIndexes.forEach((invalidPurlIndex) => {
+    invalidPurls.forEach((invalidPurl) => {
       ctx.isValid = false
       ctx.errors.push({
-        instancePath: `${prefix}/product_identification_helper/purls/${invalidPurlIndex}`,
-        message:
-          'the PURL differs from the first PURL in other parts than just the qualifiers',
+        instancePath: `${prefix}/product_identification_helper/purls/${invalidPurl.index}`,
+        message: `the PURL differs from the first PURL in the following part(s): ${invalidPurl.purlParts.join()}`,
       })
     })
   }
@@ -205,15 +219,14 @@ export function mandatoryTest_6_1_42(doc) {
    * @param {Branch} branch The "branch" object.
    */
   function checkBranch(prefix, branch) {
-    const invalidPurlsIndexes = checkPurls(
+    const invalidPurls = checkPurls(
       branch.product?.product_identification_helper?.purls
     )
-    invalidPurlsIndexes.forEach((invalidPurlIndex) => {
+    invalidPurls.forEach((invalidPurl) => {
       ctx.isValid = false
       ctx.errors.push({
-        instancePath: `${prefix}/product/product_identification_helper/purls/${invalidPurlIndex}`,
-        message:
-          'the PURL differs from the first PURL in other parts than just the qualifiers',
+        instancePath: `${prefix}/product/product_identification_helper/purls/${invalidPurl.index}`,
+        message: `the PURL differs from the first PURL in the following parts: ${invalidPurl.purlParts.join()}`,
       })
     })
     branch.branches?.forEach((branch, index) => {
