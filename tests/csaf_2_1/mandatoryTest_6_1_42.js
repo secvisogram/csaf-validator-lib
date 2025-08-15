@@ -34,15 +34,32 @@ describe('mandatoryTest_6_1_42', function () {
         'pkg:golang/google.golang.com/genproto#googleapis/api/annotations',
       ]),
       'change in namespace'
-    ).to.eql([1])
+    ).to.eql([{ index: 1, purlParts: ['namespace'] }])
+    expect(
+      checkPurls([
+        'pkg:golang/google.golang.org/genproto#googleapis/api/annotations',
+        'pkg:npm/google.golang.org/genproto#googleapis/api/annotations',
+      ]),
+      'change in type'
+    ).to.eql([{ index: 1, purlParts: ['type'] }])
+    expect(
+      checkPurls([
+        'pkg:golang/google.golang.org/genproto#googleapis/api/annotations',
+        'pkg:golang/google.golang.org/genproto2#googleapis/api/annotations',
+      ]),
+      'change in name'
+    ).to.eql([{ index: 1, purlParts: ['name'] }])
     expect(
       checkPurls([
         'pkg:npm/%40angular/animation@12.3.1',
         'invalid',
         'pkg:npm/%40angular/animation@12.3.2',
-        'pkg:npm/%40angular/animation@12.3.3',
+        'pkg:golang/%40angular/animation@12.3.3',
       ]),
       'change in version and invalid PURL'
-    ).to.eql([1, 2, 3])
+    ).to.eql([
+      { index: 2, purlParts: ['version'] },
+      { index: 3, purlParts: ['type', 'version'] },
+    ])
   })
 })
