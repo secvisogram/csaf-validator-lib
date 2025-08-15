@@ -173,7 +173,7 @@ export function mandatoryTest_6_1_44(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `${prefix}/product_identification_helper/serial_numbers/${invalidNumberIndex}`,
-        message: `Serial number contains multiple unescaped stars`,
+        message: 'Serial number contains multiple unescaped stars',
       })
     })
   }
@@ -194,7 +194,7 @@ export function mandatoryTest_6_1_44(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `${prefix}/product/product_identification_helper/serial_numbers/${invalidNumberIndex}`,
-        message: `Serial number contains multiple unescaped stars`,
+        message: 'Serial number contains multiple unescaped stars',
       })
     })
     branch.branches?.forEach((branch, index) => {
