@@ -340,7 +340,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.23
 - Recommended Test 6.2.24
 - Recommended Test 6.2.25
-- Recommended Test 6.2.26
 - Recommended Test 6.2.27
 - Recommended Test 6.2.28
 - Recommended Test 6.2.29
@@ -461,6 +460,7 @@ export const recommendedTest_6_2_16: DocumentTest
 export const recommendedTest_6_2_17: DocumentTest
 export const recommendedTest_6_2_18: DocumentTest
 export const recommendedTest_6_2_22: DocumentTest
+export const recommendedTest_6_2_26: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
