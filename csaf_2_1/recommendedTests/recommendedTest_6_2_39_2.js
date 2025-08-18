@@ -58,9 +58,11 @@ export function recommendedTest_6_2_39_2(doc) {
       The `ctx` variable holds the state that is accumulated during the test run and is
       finally returned by the function.
      */
+  /** @type { {warnings: Array<{ message: string; instancePath: string }>;
+   * infos: Array<{ message: string; instancePath: string }>}} */
   const ctx = {
-    warnings:
-      /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
+    warnings: [],
+    infos: [],
   }
 
   const noteCategory = 'description'
@@ -74,7 +76,7 @@ export function recommendedTest_6_2_39_2(doc) {
     'reasoning_for_withdrawal'
   )
   if (!withdrawalInDocLang) {
-    ctx.warnings.push({
+    ctx.infos.push({
       instancePath: '/document/notes',
       message:
         'no language specific translation for "Reasoning for Withdrawal" has been recorded',
