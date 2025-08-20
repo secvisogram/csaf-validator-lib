@@ -156,7 +156,7 @@ function checkBranches(
         ctx.warnings.push({
           instancePath: `${currentPath}/product`,
           message:
-            'missing relationship: Product with serial or model number must be referenced',
+            'missing relationship: Product with serial number or model number must be referenced',
         })
       }
     }
