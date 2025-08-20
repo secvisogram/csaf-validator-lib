@@ -323,7 +323,6 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.49
 - Mandatory Test 6.1.50
 - Mandatory Test 6.1.51
-- Mandatory Test 6.1.52
 - Mandatory Test 6.1.53
 - Mandatory Test 6.1.54
 - Mandatory Test 6.1.55
@@ -435,6 +434,7 @@ export const mandatoryTest_6_1_39: DocumentTest
 export const mandatoryTest_6_1_40: DocumentTest
 export const mandatoryTest_6_1_41: DocumentTest
 export const mandatoryTest_6_1_43: DocumentTest
+export const mandatoryTest_6_1_52: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
