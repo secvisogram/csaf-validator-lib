@@ -120,7 +120,7 @@ function checkFullProductNames(full_product_names, relationships, ctx) {
         ctx.warnings.push({
           instancePath: `/product_tree/full_product_names/${index}`,
           message:
-            'missing relationship: Product with serial or model number must be referenced.',
+            'missing relationship: Product with serial number or model number must be referenced.',
         })
       }
     }
