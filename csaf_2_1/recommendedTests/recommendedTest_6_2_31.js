@@ -34,6 +34,12 @@ const branchSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
     product: productSchema,
+    branches: {
+      elements: {
+        additionalProperties: true,
+        properties: {},
+      },
+    },
   },
 })
 
@@ -58,19 +64,17 @@ const inputSchema = /** @type {const} */ ({
 })
 
 const validateInput = ajv.compile(inputSchema)
+const validateBranch = ajv.compile(branchSchema)
 
 /**
  * @typedef {import('ajv/dist/core').JTDDataType<typeof relationshipSchema>} Relationship
- * @typedef {import('ajv/dist/core').JTDDataType<typeof productIdentificationHelperSchema>} ProductIdentificationHelper
- * @typedef {import('ajv/dist/core').JTDDataType<typeof productSchema>} Product
  * @typedef {import('ajv/dist/core').JTDDataType<typeof productSchema>} FullProductName
  * @typedef {import('ajv/dist/core').JTDDataType<typeof branchSchema>} Branch
- *
  */
 
 /**
  * This implements the optional test 6.2.31 of the CSAF 2.1 standard.
- * @param {any} doc
+ * @param {unknown} doc
  */
 export function recommendedTest_6_2_31(doc) {
   const ctx = {
@@ -100,8 +104,8 @@ export function recommendedTest_6_2_31(doc) {
 
 /**
  * Check full_product_names for serial_numbers or model_numbers
- * @param {Product[]} full_product_names
- * @param {Array<Relationship>} relationships
+ * @param {FullProductName[]} full_product_names
+ * @param {Relationship[]} relationships
  * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx
  */
 function checkFullProductNames(full_product_names, relationships, ctx) {
@@ -115,7 +119,7 @@ function checkFullProductNames(full_product_names, relationships, ctx) {
 
       if (
         (serial_numbers?.length || model_numbers?.length) &&
-        !hasRelationship(relationships, fullProductName.product_id)
+        !checkRelationship(relationships, fullProductName.product_id)
       ) {
         ctx.warnings.push({
           instancePath: `/product_tree/full_product_names/${index}`,
@@ -130,8 +134,8 @@ function checkFullProductNames(full_product_names, relationships, ctx) {
 /**
  * Recursive function to check branches for products with serial_numbers or model_numbers
  * but no corresponding relationship.
- * @param {Array<Branch>} branches - The current level of branches to process.
- * @param {Array<Relationship>} relationships - The relationships array to check against.
+ * @param {Branch[]} branches - The current level of branches to process.
+ * @param {Relationship[]} relationships - The relationships array to check against.
  * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx - The context to store warnings.
  * @param {string} [path='/product_tree/branches'] - The current JSON path.
  */
@@ -142,6 +146,9 @@ function checkBranches(
   path = '/product_tree/branches'
 ) {
   branches?.forEach((branch, branchIndex) => {
+    // Skip invalid branches
+    if (!validateBranch(branch)) return
+
     const currentPath = `${path}/${branchIndex}`
     const product = branch.product
 
@@ -151,7 +158,7 @@ function checkBranches(
 
       if (
         (serial_numbers?.length || model_numbers?.length) &&
-        !hasRelationship(relationships, product.product_id)
+        !checkRelationship(relationships, product.product_id)
       ) {
         ctx.warnings.push({
           instancePath: `${currentPath}/product`,
@@ -174,15 +181,25 @@ function checkBranches(
 }
 
 /**
- * Helper function to check if a product_id exists in relationships
- * @param {Array<Relationship>} relationships
+ * Check if there is a valid relationship for the given productId.
+ * @param {Relationship[]} relationships
  * @param {string} productId
  * @returns {boolean}
  */
-function hasRelationship(relationships, productId) {
-  return relationships.some(
-    (rel) =>
+function checkRelationship(relationships, productId) {
+  return relationships.some((rel) => {
+    if (!rel.product_reference || !rel.relates_to_product_reference) {
+      return false
+    }
+
+    // Check for self-referencing relationships
+    if (rel.product_reference === rel.relates_to_product_reference) {
+      return false
+    }
+    // Check if the productId matches either reference
+    return (
       rel.product_reference === productId ||
       rel.relates_to_product_reference === productId
-  )
+    )
+  })
 }
