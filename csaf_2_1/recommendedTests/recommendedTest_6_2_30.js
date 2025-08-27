@@ -17,15 +17,17 @@ const inputSchema = /** @type {const} */ ({
         distribution: {
           additionalProperties: true,
           properties: {
-            sharing_group: {
-              additionalProperties: true,
-              properties: {},
-            },
             tlp: {
               additionalProperties: true,
               properties: {
                 label: { type: 'string' },
               },
+            },
+          },
+          optionalProperties: {
+            sharing_group: {
+              additionalProperties: true,
+              properties: {},
             },
           },
         },
