@@ -1,5 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-import { parse } from 'license-expressions'
+import { parse, validate } from 'license-expressions'
 import license_information from '../../lib/license/license_information.js'
 import translations from '../../lib/language_specific_translation/translations.js'
 import bcp47 from 'bcp47'
@@ -80,19 +80,23 @@ function isAboutCodeLicense(licenseRefToCheck) {
  * Recursively checks if a parsed license expression contains not listed licenses.
  *
  * @param {import('license-expressions').ParsedSpdxExpression} parsedExpression - The parsed license expression
- * @returns {boolean} True if the expression contains any license references, false otherwise
+ * @returns {Array<string>} all not listed licenses
  */
-function containsNotListedLicenses(parsedExpression) {
+function notListedLicenses(parsedExpression) {
+  /** @type {Array<string>} */
+  const deprecatedLicenses = []
   // If it's a LicenseRef type directly
   if ('licenseRef' in parsedExpression) {
-    return !isAboutCodeLicense(parsedExpression.licenseRef)
+    if (!isAboutCodeLicense(parsedExpression.licenseRef)) {
+      deprecatedLicenses.push(parsedExpression.licenseRef)
+    }
   }
 
   if (
     'license' in parsedExpression &&
     !SPDX_LICENSE_KEYS.has(parsedExpression.license)
   ) {
-    return true
+    deprecatedLicenses.push(parsedExpression.license)
   }
 
   if (
@@ -100,30 +104,28 @@ function containsNotListedLicenses(parsedExpression) {
     parsedExpression.exception &&
     !SPDX_LICENSE_KEYS.has(parsedExpression.exception)
   ) {
-    return true
+    deprecatedLicenses.push(parsedExpression.exception)
   }
 
   // If it's a conjunction, check both sides
   if ('conjunction' in parsedExpression) {
-    return (
-      containsNotListedLicenses(parsedExpression.left) ||
-      containsNotListedLicenses(parsedExpression.right)
-    )
+    deprecatedLicenses.push(...notListedLicenses(parsedExpression.left))
+    deprecatedLicenses.push(...notListedLicenses(parsedExpression.right))
   }
 
   // If it's a LicenseInfo type, it doesn't contain not listed licenses
-  return false
+  return deprecatedLicenses
 }
 
 /**
  * Checks if a license expression string contains any not listed licenses.
  *
  * @param {string} licenseToCheck - The license expression to check
- * @returns {boolean} True if the license expression contains any document references, false otherwise
+ * @returns {Array<string>} all not listed licenses
  */
-function hasNotListedLicenses(licenseToCheck) {
+function allNotListedLicenses(licenseToCheck) {
   const parseResult = parse(licenseToCheck)
-  return containsNotListedLicenses(parseResult)
+  return notListedLicenses(parseResult)
 }
 
 /**
@@ -131,10 +133,14 @@ function hasNotListedLicenses(licenseToCheck) {
  * that are not listed in the SPDX license list or Aboutcode's "ScanCode LicenseDB"
  *
  * @param {string} licenseToCheck - The license expression to check
- * @returns {boolean} True if the license has not listed licenses, false otherwise
+ * @returns {Array<string>} all not listed licenses
  */
-export function existsNotListedLicenses(licenseToCheck) {
-  return !!licenseToCheck && hasNotListedLicenses(licenseToCheck)
+export function getNotListedLicenses(licenseToCheck) {
+  if (!licenseToCheck || !validate(licenseToCheck).valid) {
+    return []
+  } else {
+    return allNotListedLicenses(licenseToCheck)
+  }
 }
 
 /**
@@ -216,7 +222,8 @@ export function recommendedTest_6_2_46(doc) {
 
   const licenseToCheck = doc.document.license_expression
   if (isLangSpecifiedAndNotEnglish(doc.document.lang)) {
-    if (existsNotListedLicenses(licenseToCheck)) {
+    const notListedLicenses = getNotListedLicenses(licenseToCheck)
+    if (notListedLicenses.length > 0) {
       const notes = doc.document.notes
       if (
         !notes ||
@@ -225,9 +232,11 @@ export function recommendedTest_6_2_46(doc) {
         ctx.warnings.push({
           instancePath: '/document/notes',
           message:
-            'The license_expression contains a license identifiers or exceptions that is not ' +
-            'listed in Aboutcode or  SPDX license list. Therefore exactly one note with ' +
-            'title "License" and category "legal_disclaimer" must exist',
+            `The license_expression contains contains the following license identifiers that ` +
+            `are nor listed in Aboutcode or SPDX license list: ` +
+            `"${notListedLicenses.join(', ')}". ` +
+            `Therefore exactly one note with ` +
+            `title "License" and category "legal_disclaimer" must exist`,
         })
       }
     }
