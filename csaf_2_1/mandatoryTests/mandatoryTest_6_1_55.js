@@ -100,29 +100,31 @@ function notListedLicenses(parsedExpression) {
 }
 
 /**
- * Checks if a license expression string contains any not listed references.
+ * Checks if a valid license expression string contains any not listed references.
  *
- * @param {string} licenseToCheck - The license expression to check
- * @returns {Array<string>} True if the license expression contains any document references, false otherwise
+ * @param {string} licenseToCheck - The valid license expression to check
+ * @returns {Array<string>} all not listed licenses
  */
-function allNotListedLicenses(licenseToCheck) {
+function allNotListedLicensesInValidExpression(licenseToCheck) {
   const parseResult = parse(licenseToCheck)
   return notListedLicenses(parseResult)
 }
 
 /**
- * check if the license_expression contains license identifiers or exceptions
+ * Check if the license_expression contains license identifiers or exceptions
  * that are not listed in the SPDX license list or Aboutcode's "ScanCode LicenseDB"
- *
+ * When the license expression is not valid SPDX the check is skipped
+ * (this is checked in 6.1.54)
  * @param {string} licenseToCheck - The license expression to check
- * @returns {Array<string>} True if the license has not listed licenses, false otherwise
+ * @returns {Array<string>} all not listed licenses
+ *                          empty array when the SPDX expression in not a valid
  */
 export function getNotListedLicenses(licenseToCheck) {
   // Validate ensures that no invalid SPDX licenses are present
   if (!licenseToCheck || !validate(licenseToCheck).valid) {
     return []
   } else {
-    return allNotListedLicenses(licenseToCheck)
+    return allNotListedLicensesInValidExpression(licenseToCheck)
   }
 }
 
@@ -137,9 +139,9 @@ export function isLangEnglishOrUnspecified(language) {
 }
 
 /**
- *  test whether exactly one item in document notes exists that has the title License. The category of this item MUST be legal_disclaimer.
+ * Test whether exactly one item in document notes exists that has the title 'License'. The category of this item MUST be 'legal_disclaimer'.
  * @param {({} & { category?: string | undefined; title?: string | undefined; } & Record<string, unknown>)[]} notes
- * @returns {boolean} True if the language is valid, false otherwise
+ * @returns {boolean} True there is exactly one note with title License and category legal_disclaimer
  */
 function containsOneLegalNote(notes) {
   return (
@@ -181,7 +183,7 @@ export function mandatoryTest_6_1_55(doc) {
           message:
             `The license_expression contains the following license identifiers that ` +
             `are nor listed in Aboutcode's or  SPDX license list: ` +
-            `"${notListedLicenses.join()}". ` +
+            `"${notListedLicenses.join(', ')}". ` +
             `Therefore exactly one note with ` +
             `title "License" and category "legal_disclaimer" must exist`,
         })
