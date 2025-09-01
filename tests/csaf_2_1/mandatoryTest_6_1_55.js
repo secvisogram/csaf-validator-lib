@@ -26,6 +26,15 @@ describe('mandatoryTest_6_1_55', function () {
       'Exception associated with unrelated license'
     ).to.eql([])
     expect(
+      getNotListedLicenses('MIT OR GPL-3.0-only WITH Autoconf-exception-2.0'),
+      'Exception associated with valid exception'
+    ).to.eql([])
+    expect(
+      getNotListedLicenses('GPL-3.0-only WITH AdditionRef-exception-2.0'),
+      'Exception associated with exception ref'
+    ).to.eql([])
+
+    expect(
       getNotListedLicenses('3dslicer-1.0'),
       'SPDX License List matching guidelines'
     ).to.eql([])
