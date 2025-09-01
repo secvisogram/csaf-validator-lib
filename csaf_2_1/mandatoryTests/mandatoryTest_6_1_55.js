@@ -49,7 +49,15 @@ const ABOUT_CODE_LICENSE_REF_PREFIX = 'LicenseRef-scancode-'
 
 const ABOUT_CODE_LICENSE_KEYS = new Set(
   license_information.licenses
-    .filter((license) => license.source === 'aboutCode')
+    .filter(
+      (license) => license.source === 'aboutCode' && !license.is_exception
+    )
+    .map((license) => license.license_key)
+)
+
+const ABOUT_CODE_EXCEPTION_KEYS = new Set(
+  license_information.licenses
+    .filter((license) => license.source === 'aboutCode' && license.is_exception)
     .map((license) => license.license_key)
 )
 
