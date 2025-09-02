@@ -22,6 +22,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Start language tool
+        run: docker compose up -d
+      - name: Wait for app start
+        uses: ifaxity/wait-on-action@v1
+        with:
+          delay: 1
+          timeout: 30000
+          resource: tcp:localhost:8010
       - run: npm ci
       - run: npm run test-report
       - run: npm run test-coverage-lcov
