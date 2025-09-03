@@ -1,5 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-import { compareZonedDateTimes } from '../../lib/shared/dateHelper.js'
+import { compareZonedDateTimes } from '../dateHelper.js'
 
 const ajv = new Ajv()
 
