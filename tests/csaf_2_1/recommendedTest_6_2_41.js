@@ -41,7 +41,7 @@ describe('recommendedTest_6_2_41', function () {
     )
   })
 
-  it('skips empty metrics object', function () {
+  it('Skips vulnerabilities without metrics object', function () {
     assert.equal(
       recommendedTest_6_2_41({
         document: {
@@ -50,13 +50,7 @@ describe('recommendedTest_6_2_41', function () {
             status: 'final',
           },
         },
-        vulnerabilities: [
-          {
-            metrics: [
-              {}, // should be ignored
-            ],
-          },
-        ],
+        vulnerabilities: [{}],
       }).warnings.length,
       0
     )
