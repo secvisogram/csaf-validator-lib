@@ -4,7 +4,7 @@ Script to read all CVSS decision points from github and create a json File with 
 
 import fs from 'node:fs'
 
-const CVSS_DECISION_POINT_URL =
+const CVSS_DECISION_POINT_ROOT_URL =
   'https://api.github.com/repos/CERTCC/SSVC/contents/data/json/decision_points?ref=main'
 const OUTPUT_FILE = '../lib/cvss/decision_points.js'
 
@@ -38,6 +38,7 @@ const GITHUB_TOKEN = ''
  * @property {string} name
  * @property {string} namespace
  * @property {string} version
+ * @property {string} schemaVersion
  * @property {string} key
  */
 
@@ -66,26 +67,39 @@ async function readJson(dataUrl, githubToken) {
  */
 async function readDecisionPoints(githubToken) {
   /** @type {Array<GithubResponse>} */
-  const data = await readJson(CVSS_DECISION_POINT_URL, githubToken)
+  const decisionPointDirectories = await readJson(
+    CVSS_DECISION_POINT_ROOT_URL,
+    githubToken
+  )
+  /** @type {Array<string>} */
+  const decisionPointFiles = []
   /** @type {Array<DecisionPointInfo>} */
-  const result = []
-  for (const item of data) {
-    if (item.name.endsWith('.json')) {
-      /** @type {DecisionPoint} */
-      const decisionPoint = await readJson(item.download_url, githubToken)
-      result.push({
-        name: decisionPoint.name,
-        namespace: decisionPoint.namespace,
-        version: decisionPoint.version,
-        key: decisionPoint.key,
-      })
+  for (const directory of decisionPointDirectories) {
+    /** @type {Array<GithubResponse>} */
+    const decisionPoints = await readJson(directory.url, githubToken)
+    for (const decisionPoint of decisionPoints) {
+      if (decisionPoint.name.endsWith('.json')) {
+        decisionPointFiles.push(decisionPoint.download_url)
+      }
     }
+  }
+
+  const result = []
+  for (const fileName of decisionPointFiles) {
+    /** @type {DecisionPoint} */
+    const decisionPoint = await readJson(fileName, githubToken)
+    result.push({
+      name: decisionPoint.name,
+      namespace: decisionPoint.namespace,
+      schemaVersion: decisionPoint.schemaVersion,
+      version: decisionPoint.version,
+      key: decisionPoint.key,
+    })
   }
   return result
 }
 
 readDecisionPoints(GITHUB_TOKEN).then((points) => {
-  console.log(points)
   const pointsObject = { decisionPoints: points }
   const pointsJson = 'export default ' + JSON.stringify(pointsObject)
   fs.writeFile(OUTPUT_FILE, pointsJson, (err) => {
