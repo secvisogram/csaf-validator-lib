@@ -17,7 +17,7 @@ const failingTestWithNotConsideredObject = {
         {},
         {
           content: {
-            ssvc_v1: {
+            ssvc_v2: {
               id: 'CVE-1900-0001',
               schemaVersion: '1-0-1',
               selections: [
