@@ -1,5 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-import decision_points from '../../lib/cvss/decision_points.js'
+import decision_points from '../../lib/ssvc/decision_points.js'
 
 const ajv = new Ajv()
 
