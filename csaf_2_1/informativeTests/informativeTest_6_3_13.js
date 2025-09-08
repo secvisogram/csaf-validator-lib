@@ -51,6 +51,16 @@ const inputSchema = /** @type {const} */ ({
 
 const validateInput = ajv.compile(inputSchema)
 
+/** from https://github.com/CERTCC/SSVC/blob/main/src/ssvc/namespaces.py */
+const REGISTERED_NAMESPACES = [
+  'ssvc',
+  'cvss',
+  'cisa',
+  'basic',
+  'example',
+  'test',
+]
+
 /**
  * For each SSVC decision point given under `selections` with a registered
  * `namespace`, it MUST be tested the latest decision point
@@ -88,12 +98,15 @@ export function informativeTest_6_3_13(doc) {
       const selections = metric?.content?.ssvc_v2?.selections
       selections?.forEach((selection, selectionIndex) => {
         const latestVersion = decisionPointName2Version.get(selection?.name)
+        /** @type {string | undefined} */
+        const namespace = selection.namespace
         if (
           selection.version !== latestVersion &&
-          selection.namespace === 'ssvc'
+          namespace &&
+          REGISTERED_NAMESPACES.includes(namespace)
         ) {
           ctx.infos.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}/version`,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}/version`,
             message: `ssvc_v1 version '${selection.version}' is not latest decision point version '${latestVersion}'`,
           })
         }
