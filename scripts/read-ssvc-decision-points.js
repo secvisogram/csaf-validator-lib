@@ -6,7 +6,7 @@ import fs from 'node:fs'
 
 const CVSS_DECISION_POINT_ROOT_URL =
   'https://api.github.com/repos/CERTCC/SSVC/contents/data/json/decision_points?ref=main'
-const OUTPUT_FILE = '../lib/cvss/decision_points.js'
+const OUTPUT_FILE = '../lib/ssvc/decision_points.js'
 
 const GITHUB_TOKEN = ''
 
