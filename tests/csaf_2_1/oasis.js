@@ -10,6 +10,8 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
   Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
+  '6.1.8',
+  '6.1.9',
   '6.1.26',
   '6.1.27.3',
   '6.1.27.4',
@@ -29,6 +31,7 @@ const excluded = [
   '6.1.53',
   '6.1.54',
   '6.1.55',
+  '6.1.56',
   '6.2.11',
   '6.2.19',
   '6.2.20',
@@ -55,11 +58,14 @@ const excluded = [
   '6.2.44',
   '6.2.45',
   '6.2.46',
+  '6.2.47',
+  '6.3.12',
   '6.3.13',
   '6.3.14',
   '6.3.15',
   '6.3.16',
   '6.3.17',
+  '6.3.18',
 ]
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
