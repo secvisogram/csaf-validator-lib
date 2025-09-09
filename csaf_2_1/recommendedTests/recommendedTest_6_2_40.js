@@ -76,9 +76,12 @@ export function containsNoteGroupIdOrProductId(note) {
  * @param {any} doc
  */
 export function recommendedTest_6_2_40(doc) {
-  /** @type {Array<{ message: string; instancePath: string }>} */
-  const warnings = []
-  const context = { warnings }
+  /** @type { {warnings: Array<{ message: string; instancePath: string }>;
+   * infos: Array<{ message: string; instancePath: string }>}} */
+  const context = {
+    warnings: [],
+    infos: [],
+  }
 
   if (!validate(doc)) {
     return context
@@ -92,7 +95,7 @@ export function recommendedTest_6_2_40(doc) {
             context.warnings.push({
               instancePath: `/document/notes/${noteIndex}`,
               message:
-                'The given note item must include one of the elements "group_id" or "product_id"',
+                'the given note item must include one of the elements "group_id" or "product_id"',
             })
           }
         }
@@ -106,10 +109,7 @@ export function recommendedTest_6_2_40(doc) {
           'product_description'
         )
         if (!translation) {
-          //TODO: The warning is just a placeholder. The test should "...be skipped and a output should be shown to the
-          // user with the text that no translation available...".
-          // How this output should be implemented has to be clarified
-          context.warnings.push({
+          context.infos.push({
             instancePath: `/document/notes/${noteIndex}`,
             message:
               'no language specific translation for the "title" of this note has been recorded',
@@ -121,7 +121,7 @@ export function recommendedTest_6_2_40(doc) {
             context.warnings.push({
               instancePath: `/document/notes/${noteIndex}`,
               message:
-                'The given note item must include one of the elements "group_id" or "product_id"',
+                'the given note item must include one of the elements "group_id" or "product_id"',
             })
           }
         }
