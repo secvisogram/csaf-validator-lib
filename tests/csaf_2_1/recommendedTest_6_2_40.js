@@ -22,7 +22,6 @@ describe('recommendedTest_6_2_40', function () {
       1
     )
   })
-  // TODO: just a placeholder to get a proper code coverage until to-do in csaf_2_1/recommendedTests/recommendedTest_6_2_40.js is solved
   it('no language specific translation', function () {
     assert.equal(
       recommendedTest_6_2_40({
@@ -37,7 +36,7 @@ describe('recommendedTest_6_2_40', function () {
             },
           ],
         },
-      }).warnings.length,
+      }).infos.length,
       1
     )
   })
