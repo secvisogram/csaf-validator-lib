@@ -69,7 +69,7 @@ describe('recommendedTest_6_2_21', function () {
       }).warnings,
       [
         {
-          instancePath: '/document/tracking/revision_history/2/date',
+          instancePath: '/document/tracking/revision_history/5/date',
           message:
             'the timestamps of the revision history items with version number 2.0.0 and 1.0.0 are equal',
         },
