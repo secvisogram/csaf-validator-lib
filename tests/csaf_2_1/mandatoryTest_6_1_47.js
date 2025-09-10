@@ -11,17 +11,21 @@ const failingInputSchemaTestWithEmptyVulnerability6_1_47 = {
       metrics: [
         {
           content: {
-            ssvc_v1: {
-              id: 'CVE-1900-0002',
-              schemaVersion: '1-0-1',
+            ssvc_v2: {
+              schemaVersion: '2.0.0',
               selections: [
                 {
-                  name: 'Exploitation',
+                  key: 'E',
                   namespace: 'ssvc',
-                  values: ['None'],
+                  values: [
+                    {
+                      key: 'N',
+                    },
+                  ],
                   version: '1.1.0',
                 },
               ],
+              target_ids: ['CVE-1900-0002'],
               timestamp: '2024-01-24T10:00:00.000Z',
             },
           },
