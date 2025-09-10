@@ -88,7 +88,7 @@ export function mandatoryTest_6_1_47(doc) {
                 instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/${ssvcIdIndex}`,
                 message:
                   `the ssvc id equals the "document/tracking/id" ` +
-                  `even the csaf document has multiple vulnerabilities `,
+                  `but the csaf document has multiple vulnerabilities`,
               })
             }
           }
