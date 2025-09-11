@@ -1,5 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-import csafAjv from '../../lib/shared/csafAjv.js'
+import csafAjv from '../csafAjv.js'
 
 const ajv = new Ajv()
 
@@ -23,7 +23,7 @@ const inputSchema = /** @type {const} */ ({
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
-                    ssvc_v1: {
+                    ssvc_v2: {
                       additionalProperties: true,
                       properties: {},
                     },
@@ -40,8 +40,8 @@ const inputSchema = /** @type {const} */ ({
 
 const validateInput = ajv.compile(inputSchema)
 
-const validate_ssvc_v1 = csafAjv.compile({
-  $ref: 'https://certcc.github.io/SSVC/data/schema/v1/Decision_Point_Value_Selection-1-0-1.schema.json',
+const validate_ssvc_v2 = csafAjv.compile({
+  $ref: 'https://certcc.github.io/SSVC/data/schema/v2/Decision_Point_Value_Selection-2-0-0.schema.json',
 })
 
 /**
@@ -66,13 +66,13 @@ export function mandatoryTest_6_1_46(doc) {
 
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
-      if (metric.content?.ssvc_v1) {
-        const valid = validate_ssvc_v1(metric.content.ssvc_v1)
+      if (metric.content?.ssvc_v2) {
+        const valid = validate_ssvc_v2(metric.content.ssvc_v2)
         if (!valid) {
           ctx.isValid = false
-          for (const err of validate_ssvc_v1.errors ?? []) {
+          for (const err of validate_ssvc_v2.errors ?? []) {
             ctx.errors.push({
-              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1${err.instancePath}`,
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2${err.instancePath}`,
               message: err.message ?? '',
             })
           }
