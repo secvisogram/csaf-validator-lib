@@ -6,28 +6,12 @@ describe('mandatoryTest_6_1_53', function () {
     assert.equal(mandatoryTest_6_1_53({ document: 'mydoc' }).isValid, true)
   })
 
-  it('skips status draft', function () {
-    assert.equal(
-      mandatoryTest_6_1_53({
-        document: {
-          tracking: {
-            revision_history: [],
-            status: 'draft',
-          },
-        },
-        vulnerabilities: [],
-      }).isValid,
-      true
-    )
-  })
-
   it('skips empty vulnerability', function () {
     assert.equal(
       mandatoryTest_6_1_53({
         document: {
           tracking: {
             revision_history: [],
-            status: 'final',
           },
         },
         vulnerabilities: [
@@ -52,7 +36,6 @@ describe('mandatoryTest_6_1_53', function () {
         document: {
           tracking: {
             revision_history: [],
-            status: 'final',
           },
         },
         vulnerabilities: [

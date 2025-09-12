@@ -1,5 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-import { compareZonedDateTimes } from '../../lib/shared/dateHelper.js'
+import { compareZonedDateTimes } from '../dateHelper.js'
 
 const ajv = new Ajv()
 
@@ -26,7 +26,6 @@ const inputSchema = /** @type {const} */ ({
                 },
               },
             },
-            status: { type: 'string' },
           },
         },
       },
@@ -71,10 +70,6 @@ export function mandatoryTest_6_1_53(doc) {
   if (!validate(doc)) {
     return ctx
   }
-  const status = doc.document.tracking.status
-  if (status !== 'final' && status !== 'interim') {
-    return ctx
-  }
 
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
     const exploitDate = vulnerability.first_known_exploitation_dates || []
@@ -91,7 +86,7 @@ export function mandatoryTest_6_1_53(doc) {
         ctx.isValid = false
         ctx.errors.push({
           instancePath: `/vulnerabilities/${vulnerabilityIndex}/first_known_exploitation_dates/${exploitIdx}`,
-          message: `the status is ${status}, but the "exploitation_date" are newer than the "date"`,
+          message: 'the "exploitation_date" is newer than the "date"',
         })
       }
     })
