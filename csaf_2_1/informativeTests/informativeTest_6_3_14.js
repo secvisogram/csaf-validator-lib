@@ -2,6 +2,16 @@ import Ajv from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
+/** from https://github.com/CERTCC/SSVC/blob/main/src/ssvc/namespaces.py */
+const REGISTERED_NAMESPACES = [
+  'ssvc',
+  'cvss',
+  'cisa',
+  'basic',
+  'example',
+  'test',
+]
+
 /**
  * @typedef {object} Selection
  * @property {string} [name]
@@ -10,13 +20,13 @@ const ajv = new Ajv()
  */
 
 /**
- * @typedef {object} Ssvc1
+ * @typedef {object} Ssvc2
  * @property {Array<Selection>} [selections]
  */
 
 /**
  * @typedef {object} MetricContent
- * @property {Ssvc1} [ssvc_v1]
+ * @property {Ssvc2} [ssvc_v2]
  */
 
 /**
@@ -54,7 +64,7 @@ const inputSchema = /** @type {const} */ ({
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
-                    ssvc_v1: {
+                    ssvc_v2: {
                       additionalProperties: true,
                       optionalProperties: {
                         selections: {
@@ -85,14 +95,14 @@ const validateInput = ajv.compile(inputSchema)
 /**
  * @param {string | undefined } namespace
  */
-function isPrivateNamespace(namespace) {
-  return namespace ? namespace.startsWith('x_') : false
+function isRegisteredNamespace(namespace) {
+  return namespace ? REGISTERED_NAMESPACES.includes(namespace) : false
 }
 
 /**
- * or each SSVC decision point given under selections,
- * it MUST be tested the namespace is not a private one
- * if the document is not labeled TLP:CLEAR.
+ * For each SSVC decision point given under `selections`, it MUST be tested that the base `namespace` is not an unregistered one
+ * if the document is not labeled `TLP:CLEAR`.
+ * Namespaces reserved for special purpose MUST be treated as per their definition.
  * @param {unknown} doc
  * @returns
  */
@@ -111,15 +121,16 @@ export function informativeTest_6_3_14(doc) {
     /** @type {Array<Metric> | undefined} */
     const metrics = vulnerability.metrics
     metrics?.forEach((metric, metricIndex) => {
-      const selections = metric?.content?.ssvc_v1?.selections
+      const selections = metric?.content?.ssvc_v2?.selections
       selections?.forEach((selection, selectionIndex) => {
         if (
-          isPrivateNamespace(selection.namespace) &&
+          !isRegisteredNamespace(selection.namespace) &&
           doc.document.distribution.tlp.label !== 'TLP:CLEAR'
         ) {
           ctx.infos.push({
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}/namespace`,
-            message: 'namespace is  private and document is not labeled TLP:CLEAR',
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}/namespace`,
+            message:
+              'namespace is not an unregistered one document is not labeled TLP:CLEAR',
           })
         }
       })

@@ -23,13 +23,13 @@ describe('informativeTest_6_3_14', function () {
             metrics: [
               {
                 content: {
-                  ssvc_v1: {
+                  ssvc_v2: {
                     id: 'CVE-1900-0001',
                     schemaVersion: '1-0-1',
                     selections: [
                       {
                         name: 'Technical Impact',
-                        namespace: 'x_custom',
+                        namespace: 'cisa',
                         values: ['Total'],
                         version: '1.0.0',
                       },
