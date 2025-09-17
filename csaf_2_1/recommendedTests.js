@@ -38,3 +38,4 @@ export { recommendedTest_6_2_38 } from './recommendedTests/recommendedTest_6_2_3
 export { recommendedTest_6_2_39_2 } from './recommendedTests/recommendedTest_6_2_39_2.js'
 export { recommendedTest_6_2_40 } from './recommendedTests/recommendedTest_6_2_40.js'
 export { recommendedTest_6_2_43 } from './recommendedTests/recommendedTest_6_2_43.js'
+export { recommendedTest_6_2_47 } from './recommendedTests/recommendedTest_6_2_47.js'
