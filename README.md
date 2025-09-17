@@ -480,6 +480,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_18: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
