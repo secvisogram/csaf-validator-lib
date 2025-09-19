@@ -348,7 +348,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.38
 - Recommended Test 6.2.39
 - Recommended Test 6.2.40
-- Recommended Test 6.2.41
 - Recommended Test 6.2.42
 - Recommended Test 6.2.43
 - Recommended Test 6.2.44
