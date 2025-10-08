@@ -1,11 +1,11 @@
-// schema from csaf/csaf_2.1/referenced_schema/certcc/Decision_Point_Value_Selection-2-0-0.schema.json
-// in the regex in line 85 the '/' are additionally escaped
+// schema from https://github.com/CERTCC/SSVC/blob/main/data/schema/v2/Decision_Point_Value_Selection-2-0-0.schema.json
+// which is a soft link to https://github.com/CERTCC/SSVC/blob/8ea19675f13d77216d2e2f3845d1286042130d93/data/schema/v2/SelectionList_2_0_0.schema.json
 export default {
-  title: 'Decision Point Value Selection List',
+  title: 'SelectionList',
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://certcc.github.io/SSVC/data/schema/v2/Decision_Point_Value_Selection-2-0-0.schema.json',
+  $id: 'https://certcc.github.io/SSVC/data/schema/v2/SelectionList_2_0_0.schema.json',
   description:
-    'This schema defines the structure for representing selected values from SSVC Decision Points. Each selection list can have multiple selection objects, each representing a decision point, and each selection object can have multiple selected values when full certainty (i.e., a singular value selection) is not available.',
+    'This schema defines the structure to represent an SSVC SelectionList object.',
   type: 'object',
   $defs: {
     MinimalDecisionPointValue: {
@@ -16,10 +16,12 @@ export default {
       properties: {
         name: {
           title: 'Name',
+          minLength: 1,
           type: 'string',
         },
-        description: {
-          title: 'Description',
+        definition: {
+          title: 'Definition',
+          minLength: 1,
           type: 'string',
         },
         key: {
@@ -83,7 +85,7 @@ export default {
           maxLength: 1000,
           minLength: 3,
           pattern:
-            '^(?=.{3,1000}$)(x_([a-z]|[0-9])(((([a-z]|[0-9])|-)){,61}([a-z]|[0-9]))?(\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){,61}([a-z]|[0-9]))?)+\\#(([a-z]|[0-9]))+([.\\-](([a-z]|[0-9]))+)*|[a-z]([a-z]|[0-9])([.\\-]?(([a-z]|[0-9]))+)+(\\#(([a-z]|[0-9]))+([.\\-](([a-z]|[0-9]))+)*)?)((\\/|\\/(([a-zA-Z]{2,3}(-[a-zA-Z]{3}(-[a-zA-Z]{3}){,2})?|[a-zA-Z]{4,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-(([a-zA-Z0-9]){5,8}|[0-9]([a-zA-Z0-9]){3}))*(-[0-9A-WY-Za-wy-z](-([a-zA-Z0-9]){2,8})+)*(-[xX](-([a-zA-Z0-9]){2,8})+)?|[xX](-([a-zA-Z0-9]){2,8})+|i-default|i-mingo))((\\/((([a-zA-Z]{2,3}(-[a-zA-Z]{3}(-[a-zA-Z]{3}){,2})?|[a-zA-Z]{4,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-(([a-zA-Z0-9]){5,8}|[0-9]([a-zA-Z0-9]){3}))*(-[0-9A-WY-Za-wy-z](-([a-zA-Z0-9]){2,8})+)*(-[xX](-([a-zA-Z0-9]){2,8})+)?|[xX](-([a-zA-Z0-9]){2,8})+|i-default|i-mingo)|\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){,61}([a-z]|[0-9]))?(\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){,61}([a-z]|[0-9]))?)+\\#(([a-z]|[0-9]))+([.\\-](([a-z]|[0-9]))+)*|\\.(([a-z]|[0-9])(((([a-z]|[0-9])|-)){,61}([a-z]|[0-9]))?(\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){,61}([a-z]|[0-9]))?)+|([a-z]|[0-9])(((([a-z]|[0-9])|-)){,61}([a-z]|[0-9]))?(\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){,61}([a-z]|[0-9]))?)+\\#(([a-z]|[0-9]))+([.\\-](([a-z]|[0-9]))+)*)\\$(([a-zA-Z]{2,3}(-[a-zA-Z]{3}(-[a-zA-Z]{3}){,2})?|[a-zA-Z]{4,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-(([a-zA-Z0-9]){5,8}|[0-9]([a-zA-Z0-9]){3}))*(-[0-9A-WY-Za-wy-z](-([a-zA-Z0-9]){2,8})+)*(-[xX](-([a-zA-Z0-9]){2,8})+)?|[xX](-([a-zA-Z0-9]){2,8})+|i-default|i-mingo)))+)?)?$',
+            '^(x_([a-z]|[0-9])(((([a-z]|[0-9])|-)){0,61}([a-z]|[0-9]))?(\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){0,61}([a-z]|[0-9]))?)+#(([a-z]|[0-9]))+((\\.|-)(([a-z]|[0-9]))+)*|[a-z]([a-z]|[0-9])(((\\.|-))?(([a-z]|[0-9]))+)+(#(([a-z]|[0-9]))+((\\.|-)(([a-z]|[0-9]))+)*)?)((/|/(([a-zA-Z]{2,3}(-[a-zA-Z]{3}(-[a-zA-Z]{3}){0,2})?|[a-zA-Z]{4,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-(([a-zA-Z0-9]){5,8}|[0-9]([a-zA-Z0-9]){3}))*(-[0-9A-WY-Za-wy-z](-([a-zA-Z0-9]){2,8})+)*(-[xX](-([a-zA-Z0-9]){2,8})+)?|[xX](-([a-zA-Z0-9]){2,8})+|i-default|i-mingo))((/((([a-zA-Z]{2,3}(-[a-zA-Z]{3}(-[a-zA-Z]{3}){0,2})?|[a-zA-Z]{4,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-(([a-zA-Z0-9]){5,8}|[0-9]([a-zA-Z0-9]){3}))*(-[0-9A-WY-Za-wy-z](-([a-zA-Z0-9]){2,8})+)*(-[xX](-([a-zA-Z0-9]){2,8})+)?|[xX](-([a-zA-Z0-9]){2,8})+|i-default|i-mingo)|\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){0,61}([a-z]|[0-9]))?(\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){0,61}([a-z]|[0-9]))?)+#(([a-z]|[0-9]))+((\\.|-)(([a-z]|[0-9]))+)*|\\.(([a-z]|[0-9])(((([a-z]|[0-9])|-)){0,61}([a-z]|[0-9]))?(\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){0,61}([a-z]|[0-9]))?)+|([a-z]|[0-9])(((([a-z]|[0-9])|-)){0,61}([a-z]|[0-9]))?(\\.([a-z]|[0-9])(((([a-z]|[0-9])|-)){0,61}([a-z]|[0-9]))?)+#(([a-z]|[0-9]))+((\\.|-)(([a-z]|[0-9]))+)*)\\$(([a-zA-Z]{2,3}(-[a-zA-Z]{3}(-[a-zA-Z]{3}){0,2})?|[a-zA-Z]{4,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-(([a-zA-Z0-9]){5,8}|[0-9]([a-zA-Z0-9]){3}))*(-[0-9A-WY-Za-wy-z](-([a-zA-Z0-9]){2,8})+)*(-[xX](-([a-zA-Z0-9]){2,8})+)?|[xX](-([a-zA-Z0-9]){2,8})+|i-default|i-mingo)))+)?)?$',
           type: 'string',
         },
         key: {
@@ -117,10 +119,12 @@ export default {
         },
         name: {
           title: 'Name',
+          minLength: 1,
           type: 'string',
         },
-        description: {
-          title: 'Description',
+        definition: {
+          title: 'Definition',
+          minLength: 1,
           type: 'string',
         },
         values: {
