@@ -2,9 +2,15 @@
 
 ## Table of Contents
 
-- [Code Style](#code-style)
-  - [Formatting with prettier](#formatting-with-prettier)
-  - [Quoting Strings](#quoting-strings)
+<!-- TOC -->
+
+- [Developing CSAF Validator Lib](#developing-csaf-validator-lib)
+  - [Table of Contents](#table-of-contents)
+  - [Code Style](#code-style)
+    - [Formatting with prettier](#formatting-with-prettier)
+    - [Quoting Strings](#quoting-strings)
+  - [Generated Files](#generated-files)
+    - [SSVC](#ssvc)
 
 ## Code Style
 
@@ -49,3 +55,10 @@ message:
   'the ssvc id does neither match the "cve" nor it '+
   'matches the "text" of any item in the "ids" array',
 ```
+
+## Generated Files
+
+### SSVC
+
+The script `scripts/read-ssvc-decision-points.js` reads the SSVC decision points and writes them to
+the file `lib/ssvc/decision_points.js`. See the comments in the script for further usage information.
