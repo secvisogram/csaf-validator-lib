@@ -8,13 +8,25 @@ describe('recommendedTest_6_2_39_2', function () {
     assert.equal(recommendedTest_6_2_39_2({}).warnings.length, 0)
   })
 
-  it('only runs on valid language', function () {
-    assert.equal(
-      recommendedTest_6_2_39_2({
-        document: { lang: '123', license_expression: 'MIT' },
-      }).warnings.length,
-      0
-    )
+  it('only runs on valid category', function () {
+    const result = recommendedTest_6_2_39_2({
+      document: { category: '123', license_expression: 'MIT' },
+    })
+
+    assert.equal(result.warnings.length, 0)
+    assert.equal(result.infos.length, 0)
+  })
+
+  it('info on invalid language', function () {
+    const result = recommendedTest_6_2_39_2({
+      document: {
+        category: 'csaf_withdrawn',
+        lang: '123',
+        license_expression: 'MIT',
+      },
+    })
+    assert.equal(result.warnings.length, 0)
+    assert.equal(result.infos.length, 1)
   })
 
   it('check get ReasoningForWithdrawal in document lang', function () {
