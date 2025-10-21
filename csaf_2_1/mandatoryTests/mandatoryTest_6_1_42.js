@@ -3,31 +3,6 @@ import Ajv from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
-const branchSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    branches: {
-      elements: {
-        additionalProperties: true,
-        properties: {},
-      },
-    },
-    product: {
-      additionalProperties: true,
-      optionalProperties: {
-        product_identification_helper: {
-          additionalProperties: true,
-          optionalProperties: {
-            purls: { elements: { type: 'string' } },
-          },
-        },
-      },
-    },
-  },
-})
-
-const validateBranch = ajv.compile(branchSchema)
-
 const fullProductNameSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
@@ -39,6 +14,21 @@ const fullProductNameSchema = /** @type {const} */ ({
     },
   },
 })
+
+const branchSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    branches: {
+      elements: {
+        additionalProperties: true,
+        properties: {},
+      },
+    },
+    product: fullProductNameSchema,
+  },
+})
+
+const validateBranch = ajv.compile(branchSchema)
 
 /*
   This is the jtd schema that needs to match the input document so that the
@@ -81,24 +71,24 @@ const validate = ajv.compile(inputSchema)
 /**
  *
  * @param {PackageURL | null} firstPurl
- * @param {PackageURL | null} secondPurl
+ * @param {PackageURL | null} otherPurl
  * @return {Array<string>} the parts of the PURLS that differ
  */
-function purlPartsThatDifferExceptQualifiers(firstPurl, secondPurl) {
+function purlPartsThatDifferExceptQualifiers(firstPurl, otherPurl) {
   /** @type {Array<string>}*/
   const partsThatDiffer = []
 
-  if (firstPurl && secondPurl) {
-    if (firstPurl.type !== secondPurl.type) {
+  if (firstPurl && otherPurl) {
+    if (firstPurl.type !== otherPurl.type) {
       partsThatDiffer.push('type')
     }
-    if (firstPurl.namespace !== secondPurl.namespace) {
+    if (firstPurl.namespace !== otherPurl.namespace) {
       partsThatDiffer.push('namespace')
     }
-    if (firstPurl.name !== secondPurl.name) {
+    if (firstPurl.name !== otherPurl.name) {
       partsThatDiffer.push('name')
     }
-    if (firstPurl.version !== secondPurl.version) {
+    if (firstPurl.version !== otherPurl.version) {
       partsThatDiffer.push('version')
     }
   }
