@@ -2,31 +2,6 @@ import Ajv from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
-const branchSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    branches: {
-      elements: {
-        additionalProperties: true,
-        properties: {},
-      },
-    },
-    product: {
-      additionalProperties: true,
-      optionalProperties: {
-        product_identification_helper: {
-          additionalProperties: true,
-          optionalProperties: {
-            serial_numbers: { elements: { type: 'string' } },
-          },
-        },
-      },
-    },
-  },
-})
-
-const validateBranch = ajv.compile(branchSchema)
-
 const fullProductNameSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
@@ -38,6 +13,21 @@ const fullProductNameSchema = /** @type {const} */ ({
     },
   },
 })
+
+const branchSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    branches: {
+      elements: {
+        additionalProperties: true,
+        properties: {},
+      },
+    },
+    product: fullProductNameSchema,
+  },
+})
+
+const validateBranch = ajv.compile(branchSchema)
 
 /*
   This is the jtd schema that needs to match the input document so that the
@@ -105,8 +95,8 @@ export function checkSerialNumbers(serialNumbers) {
   const invalidNumbers = []
   if (serialNumbers) {
     for (let i = 0; i < serialNumbers.length; i++) {
-      const modelNumber = serialNumbers[i]
-      if (containMultipleUnescapedStars(modelNumber)) {
+      const serialNumber = serialNumbers[i]
+      if (containMultipleUnescapedStars(serialNumber)) {
         invalidNumbers.push('' + i)
       }
     }
