@@ -1,5 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-import csafAjv from '../../lib/shared/csafAjv.js'
+import csafAjv from '../csafAjv.js'
 
 const jtdAjv = new Ajv()
 
@@ -58,7 +58,7 @@ const validate_3 = csafAjv.compile({
 })
 
 const validate_4_0 = csafAjv.compile({
-  $ref: 'https://www.first.org/cvss/cvss-v4.0.json',
+  $ref: 'https://www.first.org/cvss/cvss-v4.0.1.json',
 })
 
 /**
