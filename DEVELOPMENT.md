@@ -2,9 +2,16 @@
 
 ## Table of Contents
 
+- [Language Tool](#language-tool)
 - [Code Style](#code-style)
   - [Formatting with prettier](#formatting-with-prettier)
   - [Quoting Strings](#quoting-strings)
+
+## Language Tool
+
+The informative test 6.3.16 needs a running languagetool server. To set one for development you can use the `compose.yml` provided with the repository:
+
+    docker compose up -d
 
 ## Code Style
 
