@@ -94,13 +94,19 @@ export function recommendedTest_6_2_41(doc) {
       .map((m) => m.content?.epss)
       .filter((item) => item?.timestamp != null)
       .sort((a, z) => {
+        if (!a || !z) return 0
         return compareZonedDateTimes(
           /** @type {string} */ (z.timestamp),
           /** @type {string} */ (a.timestamp)
         )
       })[0]
 
-    if (!newestEpss || !newestEpss.timestamp) {
+    if (
+      !newestEpss ||
+      !newestEpss.timestamp ||
+      !newestRevisionHistoryItem ||
+      !newestRevisionHistoryItem.date
+    ) {
       return context
     }
 
