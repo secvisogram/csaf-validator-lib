@@ -332,9 +332,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.21
 - Recommended Test 6.2.24
 - Recommended Test 6.2.26
-- Recommended Test 6.2.27
-- Recommended Test 6.2.28
-- Recommended Test 6.2.29
 - Recommended Test 6.2.31
 - Recommended Test 6.2.32
 - Recommended Test 6.2.33
