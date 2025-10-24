@@ -313,7 +313,6 @@ The following tests are not yet implemented and therefore missing:
 
 - Mandatory Test 6.1.26
 - Mandatory Test 6.1.27.13
-- Mandatory Test 6.1.44
 - Mandatory Test 6.1.46
 - Mandatory Test 6.1.47
 - Mandatory Test 6.1.48
@@ -426,6 +425,7 @@ export const mandatoryTest_6_1_40: DocumentTest
 export const mandatoryTest_6_1_41: DocumentTest
 export const mandatoryTest_6_1_42: DocumentTest
 export const mandatoryTest_6_1_43: DocumentTest
+export const mandatoryTest_6_1_44: DocumentTest
 export const mandatoryTest_6_1_45: DocumentTest
 export const mandatoryTest_6_1_51: DocumentTest
 export const mandatoryTest_6_1_52: DocumentTest
