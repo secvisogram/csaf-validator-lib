@@ -8,4 +8,37 @@ describe('recommendedTest_6_2_47', function () {
       0
     )
   })
+
+  it('runs on references with empty category in reference', function () {
+    assert.equal(
+      recommendedTest_6_2_47({
+        document: {
+          references: [
+            {
+              category: 'self',
+              summary: 'The canonical URL for the CSAF document.',
+              url: 'https://example.com/.well-known/csaf/clear/2024/oasis_csaf_tc-csaf_2_1-2024-6-2-47-02.json',
+            },
+            { url: 'https://some.other.url' },
+          ],
+          tracking: {
+            id: 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-47-11',
+          },
+        },
+        vulnerabilities: [
+          {
+            metrics: [
+              {
+                content: {
+                  qualitative_severity_rating: 'low',
+                },
+                products: ['CSAFPID-9080700'],
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      1
+    )
+  })
 })

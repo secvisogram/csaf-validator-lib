@@ -1,6 +1,5 @@
 import Ajv from 'ajv/dist/jtd.js'
-
-const ajv = new Ajv()
+import { isCanonicalUrl } from '../../lib/shared/urlHelper.js'
 
 /** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
 
@@ -9,6 +8,8 @@ const ajv = new Ajv()
 /** @typedef {NonNullable<Vulnerability['metrics']>[number]} Metric */
 
 /** @typedef {NonNullable<Metric['content']>} MetricContent */
+
+/** @typedef {{url?: string, category?: string}} Reference */
 
 const jtdAjv = new Ajv()
 
@@ -21,7 +22,7 @@ const inputSchema = /** @type {const} */ ({
         references: {
           elements: {
             additionalProperties: true,
-            properties: {
+            optionalProperties: {
               category: { type: 'string' },
               url: { type: 'string' },
             },
@@ -64,41 +65,24 @@ const inputSchema = /** @type {const} */ ({
   },
 })
 
-/** @typedef {{ url: string; category: string}} Reference */
-
-const referenceSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  properties: {
-    category: { type: 'string' },
-    url: { type: 'string' },
-  },
-})
-
-const validate = jtdAjv.compile(inputSchema)
-const validateReference = ajv.compile(referenceSchema)
+const validateInput = jtdAjv.compile(inputSchema)
 
 /**
  * Get the canonical url from the document
  * @return {string} canonical url or empty when no canonical url exists
- * @param {Array<Reference> | undefined} references
- * @param {string | undefined} trackingId
+ * @param {Array<{url?: string, category?: string}>|undefined} references
+ * @param {string|undefined} trackingId
  */
 function getCanonicalUrl(references, trackingId) {
   if (references && trackingId) {
     // Find the reference that matches our criteria
     /** @type {Reference| undefined} */
-    const canonicalUrlReference = references.find(
-      (reference) =>
-        validateReference(reference) &&
-        reference.category === 'self' &&
-        reference.url.startsWith('https://') &&
-        reference.url.endsWith(
-          trackingId.toLowerCase().replace(/[^+\-a-z0-9]+/g, '_') + '.json'
-        )
+    const canonicalUrlReference = references.find((reference) =>
+      isCanonicalUrl(reference, trackingId)
     )
 
     // When we find a matching reference, we know it has the url property
-    // because validateReference ensures it matches the Reference schema
+    // because isCanonicalUrl ensures it matches the Reference schema
     return canonicalUrlReference?.url ?? ''
   } else {
     return ''
@@ -112,7 +96,7 @@ function getCanonicalUrl(references, trackingId) {
  * @param {string} canonicalURL
  * @return {boolean}
  */
-function hasServerRatingAndNoSource(metric, canonicalURL) {
+function hasSeverityRatingAndNoSource(metric, canonicalURL) {
   return (
     (!metric.source || metric.source === canonicalURL) &&
     !!metric?.content?.qualitative_severity_rating
@@ -129,18 +113,18 @@ function hasServerRatingAndNoSource(metric, canonicalURL) {
  * @param {any} doc
  */
 export function recommendedTest_6_2_47(doc) {
-  /** @type {Array<{ message: string; instancePath: string }>} */
-  const warnings = []
-  const context = { warnings }
-
-  if (!validate(doc)) {
-    return context
+  const ctx = {
+    warnings:
+      /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
+  }
+  if (!validateInput(doc)) {
+    return ctx
   }
 
   /** @type {Array<Vulnerability>} */
   const vulnerabilities = doc.vulnerabilities
   const canonicalURL = getCanonicalUrl(
-    doc.document.references,
+    doc.document?.references,
     doc.document?.tracking?.id
   )
 
@@ -150,7 +134,7 @@ export function recommendedTest_6_2_47(doc) {
     /** @type {Array<String> | undefined} */
     const invalidPaths = metrics
       ?.map((metric, metricIndex) =>
-        hasServerRatingAndNoSource(metric, canonicalURL)
+        hasSeverityRatingAndNoSource(metric, canonicalURL)
           ? `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/qualitative_severity_rating`
           : null
       )
@@ -158,15 +142,15 @@ export function recommendedTest_6_2_47(doc) {
 
     if (!!invalidPaths) {
       invalidPaths.forEach((path) => {
-        context.warnings.push({
+        ctx.warnings.push({
           message:
-            'the metric has a qualitative severity rating and no source property' +
-            ' or a source property that ist equal to the canonical URL',
+            'a qualitative severity rating is used by the issuing party (as no "source" is given' +
+            '  or the source property equals to the canonical URL)',
           instancePath: path,
         })
       })
     }
   })
 
-  return context
+  return ctx
 }
