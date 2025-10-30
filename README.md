@@ -480,6 +480,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_17: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 ```
 
@@ -577,5 +578,8 @@ For the complete list of dependencies please take a look at [package.json](https
 - [undici](https://undici.nodejs.org)
 - [@js-joda/core](https://js-joda.github.io/js-joda/)
 - [@js-joda/timezone](https://js-joda.github.io/js-joda/)
+- [aboutcode licenses](https://scancode-licensedb.aboutcode.org/index.json)
+- [SPDX licenses](https://raw.githubusercontent.com/spdx/license-list-data/refs/heads/main/json/licenses.json)
+- [license-expressions](https://github.com/lkoskela/license-expressions)
 
 [(back to top)](#bsi-csaf-validator-lib)
