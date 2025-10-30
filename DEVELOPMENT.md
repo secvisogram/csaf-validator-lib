@@ -2,9 +2,18 @@
 
 ## Table of Contents
 
-- [Code Style](#code-style)
-  - [Formatting with prettier](#formatting-with-prettier)
-  - [Quoting Strings](#quoting-strings)
+<!-- TOC -->
+
+- [Developing CSAF Validator Lib](#developing-csaf-validator-lib)
+  - [Table of Contents](#table-of-contents)
+  - [Code Style](#code-style)
+    - [Formatting with prettier](#formatting-with-prettier)
+    - [Quoting Strings](#quoting-strings)
+  - [Generated Files](#generated-files)
+    - [License Information](#license-information)
+    - [CWE](#cwe)
+
+<!-- /TOC -->
 
 ## Code Style
 
@@ -49,3 +58,19 @@ message:
   'the ssvc id does neither match the "cve" nor it '+
   'matches the "text" of any item in the "ids" array',
 ```
+
+## Generated Files
+
+Certain tests need to process data from different sources. This data is usually downloaded from a URL. To avoid
+accessing external sources during testing and to improve performance, this data is pre-processed and the result is
+saved.
+
+### License Information
+
+The script `scripts/read-spdx-and-aboutcode-licenses.js` reads the SPDX and ScanCode License DB and writes them to
+the file `lib/license/license_information.js`. See the comments in the script for further usage information.
+
+### CWE
+
+The script `scripts/cwe-importCatalogue.js` reads CWE catalogues and writes them to the file `lib/cwec.js`. See the
+comments in the script for further usage information.
