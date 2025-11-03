@@ -24,7 +24,7 @@ const inputSchema = /** @type {const} */ ({
 
 const validateInput = jtdAjv.compile(inputSchema)
 
-const profileValues = [
+const allowedCategoryNames = [
   'csaf_base',
   'csaf_security_incident_response',
   'csaf_informational_advisory',
@@ -34,7 +34,10 @@ const profileValues = [
   'csaf_withdrawn',
   'csaf_superseded',
 ]
-const prohibitedDocumentCategoryNames = [
+
+// lowercase category names with without the prefix csaf_ and removed dash, whitespace, and underscore characters
+// without csaf_base
+const prohibitedCategoriesWithoutPrefix = [
   'securityincidentresponse',
   'informationaladvisory',
   'securityadvisory',
@@ -64,8 +67,8 @@ export function mandatoryTest_6_1_26(doc) {
   /** @type {string} */
   const category = doc.document.category
 
-  // Skip test if profile is not "CSAF Base" but one of the other profiles or matches exactly "csaf_base"
-  if (profileValues.includes(category)) {
+  // Skip test for the allowedCategoryNames in /document/category:
+  if (allowedCategoryNames.includes(category)) {
     return ctx
   }
 
@@ -74,15 +77,16 @@ export function mandatoryTest_6_1_26(doc) {
     ctx.isValid = false
     ctx.errors.push({
       instancePath: '/document/category',
-      message: 'reserved prefix used',
+      message: 'reserved prefix "csaf_" used',
     })
 
     return ctx
   }
 
-  // Fail on name similarity
+  // Fail on name case-insensitive similarity
   if (
-    prohibitedDocumentCategoryNames.includes(
+    prohibitedCategoriesWithoutPrefix.includes(
+      //remove occurrences of dash, whitespace, and underscore characters
       category.replace(/[_-\s]+/g, '').toLowerCase()
     )
   ) {
