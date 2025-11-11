@@ -1,16 +1,12 @@
 import Ajv from 'ajv/dist/jtd.js'
 
-/**
- * @typedef {string} Product
- * /
+/** @typedef {string} Product
 
- /** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
 
 /** @typedef {InputSchema['vulnerabilities'][number]} Vulnerability */
 
 /** @typedef {NonNullable<Vulnerability['metrics']>[number]} Metric */
-
-/** @typedef {NonNullable<Metric['content']>} MetricContent */
 
 const jtdAjv = new Ajv()
 
@@ -103,7 +99,7 @@ export function mandatoryTest_6_1_56(doc) {
   }
 
   /**
-   *
+   * check whether the given metric contains a cvss (v2, v3 or v4) content
    * @param  {Metric}  metric
    * @returns {boolean}
    */
@@ -146,7 +142,7 @@ export function mandatoryTest_6_1_56(doc) {
       if (productIdServiceTuplesRating.has(key))
         errors.push({
           message:
-            'in the metrics of the vulnerability a Qualitative Severity Rating and CVSS value' +
+            'in the metrics of the vulnerability a Qualitative Severity Rating and CVSS value ' +
             'with the same product id and source is used.',
           instancePath: value,
         })
