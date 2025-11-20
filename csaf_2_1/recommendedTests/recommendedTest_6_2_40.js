@@ -95,7 +95,7 @@ export function recommendedTest_6_2_40(doc) {
             context.warnings.push({
               instancePath: `/document/notes/${noteIndex}`,
               message:
-                'the given note item must include one of the elements "group_id" or "product_id"',
+                'The given note item describes a product. Therefore, it must include one of the elements "group_id" or "product_id"',
             })
           }
         }
@@ -112,7 +112,7 @@ export function recommendedTest_6_2_40(doc) {
           context.infos.push({
             instancePath: `/document/notes/${noteIndex}`,
             message:
-              'no language specific translation for the "title" of this note has been recorded',
+              'no language specific translation for "product description" has been recorded',
           })
           return context
         }
@@ -121,7 +121,7 @@ export function recommendedTest_6_2_40(doc) {
             context.warnings.push({
               instancePath: `/document/notes/${noteIndex}`,
               message:
-                'the given note item must include one of the elements "group_id" or "product_id"',
+                'The given note item describes a product. Therefore, it must include one of the elements "group_id" or "product_id"',
             })
           }
         }
