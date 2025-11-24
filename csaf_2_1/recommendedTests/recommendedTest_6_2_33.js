@@ -1,6 +1,6 @@
 import Ajv from 'ajv/dist/jtd.js'
-import { ZonedDateTime, ZoneId } from '@js-joda/core'
-import { compareZonedDateTimes } from '../../lib/shared/dateHelper.js'
+import { compareZonedDateTimes } from '../dateHelper.js'
+import { Temporal } from 'temporal-polyfill'
 
 const ajv = new Ajv()
 
@@ -51,7 +51,7 @@ export function recommendedTest_6_2_33(doc) {
   if (!validate(doc)) {
     return context
   }
-  const currentTimestampUtc = ZonedDateTime.now(ZoneId.UTC)
+  const currentTimestampUtc = Temporal.Now.zonedDateTimeISO('UTC').toString()
   for (let i = 0; i < doc.vulnerabilities.length; ++i) {
     const disclosureDate = doc.vulnerabilities[i].disclosure_date
     // check if the disclosure date is in the past
