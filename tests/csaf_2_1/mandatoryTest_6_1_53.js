@@ -9,11 +9,6 @@ describe('mandatoryTest_6_1_53', function () {
   it('skips empty vulnerability', function () {
     assert.equal(
       mandatoryTest_6_1_53({
-        document: {
-          tracking: {
-            revision_history: [],
-          },
-        },
         vulnerabilities: [
           {}, // should be ignored
           {
@@ -33,11 +28,6 @@ describe('mandatoryTest_6_1_53', function () {
   it('skips empty first_known_exploitation_date', function () {
     assert.equal(
       mandatoryTest_6_1_53({
-        document: {
-          tracking: {
-            revision_history: [],
-          },
-        },
         vulnerabilities: [
           {
             first_known_exploitation_dates: [

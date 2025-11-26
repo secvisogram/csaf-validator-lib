@@ -12,24 +12,6 @@ const ajv = new Ajv()
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
   properties: {
-    document: {
-      additionalProperties: true,
-      properties: {
-        tracking: {
-          additionalProperties: true,
-          properties: {
-            revision_history: {
-              elements: {
-                additionalProperties: true,
-                optionalProperties: {
-                  date: { type: 'string' },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
     vulnerabilities: {
       elements: {
         additionalProperties: true,
@@ -72,10 +54,10 @@ export function mandatoryTest_6_1_53(doc) {
   }
 
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
-    const exploitDate = vulnerability.first_known_exploitation_dates || []
-    exploitDate.forEach((exploit, exploitIdx) => {
-      const date = exploit.date
-      const exploitationDate = exploit.exploitation_date
+    const exploitationDates = vulnerability.first_known_exploitation_dates || []
+    exploitationDates.forEach((item, Index) => {
+      const date = item.date
+      const exploitationDate = item.exploitation_date
 
       if (
         compareZonedDateTimes(
@@ -85,8 +67,9 @@ export function mandatoryTest_6_1_53(doc) {
       ) {
         ctx.isValid = false
         ctx.errors.push({
-          instancePath: `/vulnerabilities/${vulnerabilityIndex}/first_known_exploitation_dates/${exploitIdx}`,
-          message: 'the "exploitation_date" is newer than the "date"',
+          instancePath: `/vulnerabilities/${vulnerabilityIndex}/first_known_exploitation_dates/${Index}`,
+          message:
+            'the "exploitation_date" is newer than the "date" which states when that information was last updated',
         })
       }
     })
