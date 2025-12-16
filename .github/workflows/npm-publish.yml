@@ -32,5 +32,6 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
+      - run: npm i -g npm@11
       - run: npm ci
       - run: npm publish
