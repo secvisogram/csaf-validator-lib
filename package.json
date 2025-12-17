@@ -10,6 +10,9 @@
     "test-coverage": "c8 node scripts/test.js",
     "test-coverage-lcov": "c8 --reporter lcovonly node scripts/test.js"
   },
+  "repository": {
+    "url": "https://github.com/secvisogram/csaf-validator-lib"
+  },
   "keywords": [
     "csaf",
     "csaf-validator-lib",
