@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
 import assert from 'node:assert/strict'
 import * as informative from '../../csaf_2_1/informativeTests.js'
-import * as optional from '../../csaf_2_1/optionalTests.js'
+import * as recommended from '../../csaf_2_1/recommendedTests.js'
 import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
 
 /*
@@ -10,49 +10,55 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
   Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
-  '6.1.7',
+  '6.1.8',
   '6.1.9',
-  '6.1.10',
-  '6.1.11',
-  '6.1.13',
-  '6.1.14',
-  '6.1.16',
-  '6.1.36',
+  '6.1.26',
+  '6.1.27.3',
+  '6.1.27.4',
+  '6.1.27.6',
+  '6.1.27.11',
+  '6.1.27.13',
   '6.1.37',
-  '6.1.38',
-  '6.1.39',
-  '6.1.40',
-  '6.1.41',
-  '6.1.42',
-  '6.1.43',
-  '6.1.44',
-  '6.1.45',
   '6.1.46',
   '6.1.47',
   '6.1.48',
   '6.1.49',
-  '6.2.6',
+  '6.1.50',
+  '6.1.53',
+  '6.1.54',
+  '6.1.55',
+  '6.1.56',
   '6.2.11',
+  '6.2.19',
+  '6.2.20',
   '6.2.21',
-  '6.2.22',
-  '6.2.23',
   '6.2.24',
-  '6.2.25',
   '6.2.26',
-  '6.2.27',
-  '6.2.28',
-  '6.2.29',
-  '6.2.30',
   '6.2.31',
   '6.2.32',
   '6.2.33',
   '6.2.34',
   '6.2.35',
-  '6.3.1',
-  '6.3.2',
-  '6.3.4',
+  '6.2.36',
+  '6.2.37',
+  '6.2.39.1',
+  '6.2.39.2',
+  '6.2.39.3',
+  '6.2.39.4',
+  '6.2.40',
+  '6.2.41',
+  '6.2.42',
+  '6.2.44',
+  '6.2.45',
+  '6.2.46',
+  '6.2.47',
+  '6.2.48',
   '6.3.12',
   '6.3.13',
+  '6.3.14',
+  '6.3.15',
+  '6.3.16',
+  '6.3.17',
 ]
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
@@ -83,7 +89,10 @@ const tests = new Map([
     'informative',
     /** @type {TestMap} */ (new Map(Object.entries(informative))),
   ],
-  ['optional', /** @type {TestMap} */ (new Map(Object.entries(optional)))],
+  [
+    'recommended',
+    /** @type {TestMap} */ (new Map(Object.entries(recommended))),
+  ],
   ['mandatory', /** @type {TestMap} */ (new Map(Object.entries(mandatory)))],
 ])
 
@@ -134,7 +143,7 @@ for (const [group, t] of testMap) {
                 } else {
                   assert.equal(result.isValid === undefined, testSpec.valid)
 
-                  if (group === 'optional') {
+                  if (group === 'recommended') {
                     assert.equal(
                       Boolean(result.warnings?.length),
                       type === 'failures',

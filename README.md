@@ -14,10 +14,11 @@
       - [Module `basic.js`](#module-basicjs)
       - [Module `extended.js`](#module-extendedjs)
       - [Module `full.js`](#module-fulljs)
-    - CSAF 2.1
+    - CSAF 2.1 (experimental)
+      - [Known Issues](#known-issues)
       - [Module `csaf_2_1/schemaTests.js`](#module-csaf_2_1schematestsjs)
       - [Module `csaf_2_1/mandatoryTests.js`](#module-csaf_2_1mandatorytestsjs)
-      - [Module `csaf_2_1/optionalTests.js`](#module-csaf_2_1optionaltestsjs)
+      - [Module `csaf_2_1/recommendedTests.js`](#module-csaf_2_1recommendedtestsjs)
       - [Module `csaf_2_1/informativeTests.js`](#module-csaf_2_1informativetestsjs)
       - [Module `csaf_2_1/basic.js`](#module-csaf_2_1basicjs)
       - [Module `csaf_2_1/extended.js`](#module-csaf_2_1extendedjs)
@@ -296,7 +297,62 @@ This module exports all tests included in `extended.js` and all informative test
 
 [(back to top)](#bsi-csaf-validator-lib)
 
-### CSAF 2.1
+### CSAF 2.1 (experimental)
+
+**HEADS UP**: The feature set in this section is not stable nor complete yet and changes without introducing a major version update. Please use it with caution! As soon as it becomes stable this README will be updated.
+
+In CSAF 2.1 the "optional tests" have been renamed to "recommended tests".
+
+#### Known Issues
+
+The CVSS 4.0 computation is still under debate as it it unclear from the specification how to compute threatScore and environmentalScore.
+
+The following tests are not yet implemented and therefore missing:
+
+**Mandatory Tests**
+
+- Mandatory Test 6.1.26
+- Mandatory Test 6.1.27.13
+- Mandatory Test 6.1.46
+- Mandatory Test 6.1.47
+- Mandatory Test 6.1.48
+- Mandatory Test 6.1.49
+- Mandatory Test 6.1.50
+- Mandatory Test 6.1.53
+- Mandatory Test 6.1.54
+- Mandatory Test 6.1.55
+
+**Recommended Tests**
+
+- Recommended Test 6.2.11
+- Recommended Test 6.2.19
+- Recommended Test 6.2.20
+- Recommended Test 6.2.21
+- Recommended Test 6.2.24
+- Recommended Test 6.2.26
+- Recommended Test 6.2.31
+- Recommended Test 6.2.32
+- Recommended Test 6.2.33
+- Recommended Test 6.2.34
+- Recommended Test 6.2.35
+- Recommended Test 6.2.36
+- Recommended Test 6.2.37
+- Recommended Test 6.2.38
+- Recommended Test 6.2.39
+- Recommended Test 6.2.40
+- Recommended Test 6.2.41
+- Recommended Test 6.2.42
+- Recommended Test 6.2.44
+- Recommended Test 6.2.45
+- Recommended Test 6.2.46
+
+**Informative Tests**
+
+- Informative Test 6.2.13
+- Informative Test 6.2.14
+- Informative Test 6.2.15
+- Informative Test 6.2.16
+- Informative Test 6.2.17
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -335,7 +391,6 @@ export const mandatoryTest_6_1_22: DocumentTest
 export const mandatoryTest_6_1_23: DocumentTest
 export const mandatoryTest_6_1_24: DocumentTest
 export const mandatoryTest_6_1_25: DocumentTest
-export const mandatoryTest_6_1_26: DocumentTest
 export const mandatoryTest_6_1_27_1: DocumentTest
 export const mandatoryTest_6_1_27_2: DocumentTest
 export const mandatoryTest_6_1_27_3: DocumentTest
@@ -347,39 +402,65 @@ export const mandatoryTest_6_1_27_8: DocumentTest
 export const mandatoryTest_6_1_27_9: DocumentTest
 export const mandatoryTest_6_1_27_10: DocumentTest
 export const mandatoryTest_6_1_27_11: DocumentTest
+export const mandatoryTest_6_1_27_12: DocumentTest
+export const mandatoryTest_6_1_27_14: DocumentTest
+export const mandatoryTest_6_1_27_15: DocumentTest
+export const mandatoryTest_6_1_27_16: DocumentTest
+export const mandatoryTest_6_1_27_17: DocumentTest
+export const mandatoryTest_6_1_27_18: DocumentTest
+export const mandatoryTest_6_1_27_19: DocumentTest
 export const mandatoryTest_6_1_28: DocumentTest
 export const mandatoryTest_6_1_29: DocumentTest
 export const mandatoryTest_6_1_30: DocumentTest
 export const mandatoryTest_6_1_31: DocumentTest
 export const mandatoryTest_6_1_32: DocumentTest
 export const mandatoryTest_6_1_33: DocumentTest
+export const mandatoryTest_6_1_34: DocumentTest
+export const mandatoryTest_6_1_35: DocumentTest
+export const mandatoryTest_6_1_36: DocumentTest
+export const mandatoryTest_6_1_37: DocumentTest
+export const mandatoryTest_6_1_38: DocumentTest
+export const mandatoryTest_6_1_39: DocumentTest
+export const mandatoryTest_6_1_40: DocumentTest
+export const mandatoryTest_6_1_41: DocumentTest
+export const mandatoryTest_6_1_42: DocumentTest
+export const mandatoryTest_6_1_43: DocumentTest
+export const mandatoryTest_6_1_44: DocumentTest
+export const mandatoryTest_6_1_45: DocumentTest
+export const mandatoryTest_6_1_51: DocumentTest
+export const mandatoryTest_6_1_52: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
 
-#### Module `csaf_2_1/optionalTests.js`
+#### Module `csaf_2_1/recommendedTests.js`
 
 ```typescript
-export const optionalTest_6_2_1: DocumentTest
-export const optionalTest_6_2_2: DocumentTest
-export const optionalTest_6_2_3: DocumentTest
-export const optionalTest_6_2_4: DocumentTest
-export const optionalTest_6_2_5: DocumentTest
-export const optionalTest_6_2_6: DocumentTest
-export const optionalTest_6_2_7: DocumentTest
-export const optionalTest_6_2_8: DocumentTest
-export const optionalTest_6_2_9: DocumentTest
-export const optionalTest_6_2_10: DocumentTest
-export const optionalTest_6_2_11: DocumentTest
-export const optionalTest_6_2_12: DocumentTest
-export const optionalTest_6_2_13: DocumentTest
-export const optionalTest_6_2_14: DocumentTest
-export const optionalTest_6_2_15: DocumentTest
-export const optionalTest_6_2_16: DocumentTest
-export const optionalTest_6_2_17: DocumentTest
-export const optionalTest_6_2_18: DocumentTest
-export const optionalTest_6_2_19: DocumentTest
-export const optionalTest_6_2_20: DocumentTest
+export const recommendedTest_6_2_1: DocumentTest
+export const recommendedTest_6_2_2: DocumentTest
+export const recommendedTest_6_2_3: DocumentTest
+export const recommendedTest_6_2_4: DocumentTest
+export const recommendedTest_6_2_5: DocumentTest
+export const recommendedTest_6_2_6: DocumentTest
+export const recommendedTest_6_2_7: DocumentTest
+export const recommendedTest_6_2_8: DocumentTest
+export const recommendedTest_6_2_9: DocumentTest
+export const recommendedTest_6_2_10: DocumentTest
+export const recommendedTest_6_2_12: DocumentTest
+export const recommendedTest_6_2_13: DocumentTest
+export const recommendedTest_6_2_14: DocumentTest
+export const recommendedTest_6_2_15: DocumentTest
+export const recommendedTest_6_2_16: DocumentTest
+export const recommendedTest_6_2_17: DocumentTest
+export const recommendedTest_6_2_18: DocumentTest
+export const recommendedTest_6_2_22: DocumentTest
+export const recommendedTest_6_2_23: DocumentTest
+export const recommendedTest_6_2_25: DocumentTest
+export const recommendedTest_6_2_27: DocumentTest
+export const recommendedTest_6_2_28: DocumentTest
+export const recommendedTest_6_2_29: DocumentTest
+export const recommendedTest_6_2_30: DocumentTest
+export const recommendedTest_6_2_43: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -398,6 +479,8 @@ export const informativeTest_6_3_8: DocumentTest
 export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
+export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_18: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -465,7 +548,7 @@ export const weaknesses: Array<{ id: string; name: string }>
 
 ## Testing
 
-Tests are implemented using [mocha](https://mochajs.org/). The minimal supported Node.js version is **14**. They can be run using the following command:
+Tests are implemented using [mocha](https://mochajs.org/). The minimal supported Node.js version is **20**. They can be run using the following command:
 
 ```sh
 npm test
@@ -489,5 +572,10 @@ For the complete list of dependencies please take a look at [package.json](https
 - [cvss2js](https://github.com/sparticvs/cvss2js)
 - [json-pointer](https://github.com/manuelstofer/json-pointer)
 - [lodash](https://lodash.com/)
+- [packageurl-js](https://github.com/package-url/packageurl-js)
+- [semver](https://github.com/npm/node-semver)
+- [undici](https://undici.nodejs.org)
+- [@js-joda/core](https://js-joda.github.io/js-joda/)
+- [@js-joda/timezone](https://js-joda.github.io/js-joda/)
 
 [(back to top)](#bsi-csaf-validator-lib)
