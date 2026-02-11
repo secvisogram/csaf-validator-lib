@@ -30,6 +30,7 @@
     "bcp47": "^1.1.2",
     "cvss2js": "^1.1.0",
     "json-pointer": "^0.6.1",
+    "license-expressions": "^0.7.3",
     "lodash": "^4.17.21",
     "packageurl-js": "^2.0.1",
     "semver": "^7.5.4",
