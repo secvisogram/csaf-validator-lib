@@ -98,7 +98,7 @@ export function recommendedTest_6_2_39_2(doc) {
         instancePath: '/document/notes',
         message:
           `for document category "csaf_withdrawn" exactly one note must exist ` +
-          `with note category "${noteCategory}" and title "${withdrawalInDocLang}`,
+          `with note category "${noteCategory}" and title "${withdrawalInDocLang}"`,
       })
     }
   }
