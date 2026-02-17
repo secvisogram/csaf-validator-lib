@@ -26,6 +26,7 @@ export default {
     'JSON Schema for Common Vulnerability Scoring System version 4.0, Revision 1',
   $id: 'https://www.first.org/cvss/cvss-v4.0.1.json?20250704',
   type: 'object',
+  additionalProperties: false,
   definitions: {
     attackVectorType: {
       type: 'string',
@@ -191,6 +192,12 @@ export default {
       pattern:
         '^CVSS:4[.]0/AV:[NALP]/AC:[LH]/AT:[NP]/PR:[NLH]/UI:[NPA]/VC:[HLN]/VI:[HLN]/VA:[HLN]/SC:[HLN]/SI:[HLN]/SA:[HLN](/E:[XAPU])?(/CR:[XHML])?(/IR:[XHML])?(/AR:[XHML])?(/MAV:[XNALP])?(/MAC:[XLH])?(/MAT:[XNP])?(/MPR:[XNLH])?(/MUI:[XNPA])?(/MVC:[XNLH])?(/MVI:[XNLH])?(/MVA:[XNLH])?(/MSC:[XNLH])?(/MSI:[XNLHS])?(/MSA:[XNLHS])?(/S:[XNP])?(/AU:[XNY])?(/R:[XAUI])?(/V:[XDC])?(/RE:[XLMH])?(/U:(X|Clear|Green|Amber|Red))?$',
     },
+    baseScore: { $ref: '#/definitions/noneScoreType' },
+    baseSeverity: { $ref: '#/definitions/noneSeverityType' },
+    threatScore: { $ref: '#/definitions/noneScoreType' },
+    threatSeverity: { $ref: '#/definitions/noneSeverityType' },
+    environmentalScore: { $ref: '#/definitions/noneScoreType' },
+    environmentalSeverity: { $ref: '#/definitions/noneSeverityType' },
     attackVector: { $ref: '#/definitions/attackVectorType' },
     attackComplexity: { $ref: '#/definitions/attackComplexityType' },
     attackRequirements: { $ref: '#/definitions/attackRequirementsType' },
