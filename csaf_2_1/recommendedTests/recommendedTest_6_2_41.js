@@ -89,16 +89,18 @@ export function recommendedTest_6_2_41(doc) {
   }
 
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
+    /** @type {Array<{ content?: {epss?: {timestamp?: string}}}>} */
     const metrics = vulnerability.metrics || []
     const newestEpss = metrics
-      .map((m) => m.content?.epss)
-      .filter((item) => item?.timestamp != null)
+      .map((metric) => metric.content?.epss)
+      .filter(
+        /**
+         * @returns {epss is { timestamp: string }}
+         */
+        (epss) => epss?.timestamp != null
+      )
       .sort((a, z) => {
-        if (!a || !z) return 0
-        return compareZonedDateTimes(
-          /** @type {string} */ (z.timestamp),
-          /** @type {string} */ (a.timestamp)
-        )
+        return compareZonedDateTimes(z.timestamp, a.timestamp)
       })[0]
 
     if (
