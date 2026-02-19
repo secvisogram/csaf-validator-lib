@@ -94,13 +94,20 @@ function getCanonicalUrl(references, trackingId) {
  *  and no `source` or `source` that is equal to the canonical URL.
  * @param {Metric}  metric
  * @param {string} canonicalURL
- * @return {boolean}
+ * @return {string | null}
  */
-function hasSeverityRatingAndNoSource(metric, canonicalURL) {
-  return (
-    (!metric.source || metric.source === canonicalURL) &&
-    !!metric?.content?.qualitative_severity_rating
-  )
+function checkSeverityRatingAndNoSource(metric, canonicalURL) {
+  if (!!metric?.content?.qualitative_severity_rating) {
+    if (!metric.source) {
+      return 'as no "source" is given'
+    } else if (metric.source === canonicalURL) {
+      return 'as the "source" property equals to the canonical URL'
+    } else {
+      return null
+    }
+  } else {
+    return null
+  }
 }
 
 /**
@@ -131,22 +138,24 @@ export function recommendedTest_6_2_47(doc) {
   vulnerabilities.forEach((vulnerabilityItem, vulnerabilityIndex) => {
     /** @type {Array<Metric> | undefined} */
     const metrics = vulnerabilityItem.metrics
-    /** @type {Array<String> | undefined} */
+    /** @type {Array<{path: string, message: string}> | undefined} */
     const invalidPaths = metrics
-      ?.map((metric, metricIndex) =>
-        hasSeverityRatingAndNoSource(metric, canonicalURL)
-          ? `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/qualitative_severity_rating`
+      ?.map((metric, metricIndex) => {
+        const message = checkSeverityRatingAndNoSource(metric, canonicalURL)
+        return message != null
+          ? {
+              path: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/qualitative_severity_rating`,
+              message: message,
+            }
           : null
-      )
+      })
       .filter((path) => path !== null)
 
     if (!!invalidPaths) {
       invalidPaths.forEach((path) => {
         ctx.warnings.push({
-          message:
-            'a qualitative severity rating is used by the issuing party (as no "source" is given' +
-            '  or the source property equals to the canonical URL)',
-          instancePath: path,
+          message: `a qualitative severity rating is used by the issuing party (${path.message})`,
+          instancePath: path.path,
         })
       })
     }
