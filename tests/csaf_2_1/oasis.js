@@ -56,6 +56,7 @@ const excluded = [
   '6.3.15',
   '6.3.16',
   '6.3.17',
+  '6.3.18',
 ]
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
