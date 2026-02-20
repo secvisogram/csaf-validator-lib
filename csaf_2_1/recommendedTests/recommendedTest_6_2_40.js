@@ -105,7 +105,7 @@ export function recommendedTest_6_2_40(doc) {
             documentLanguage
           ) /* This cast is allowed since the else statement is just called
            id documentLanguage is not undefined. Without the cast one must check here too
-           if documentLanguage is not undefined, which would be a code fragment that is newer used*/,
+           if documentLanguage is not undefined, which would be a code fragment that is never used*/,
           'product_description'
         )
         if (!translation) {
