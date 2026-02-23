@@ -97,7 +97,7 @@ function getCanonicalUrl(references, trackingId) {
  * @return {string | null}
  */
 function checkSeverityRatingAndNoSource(metric, canonicalURL) {
-  if (!!metric?.content?.qualitative_severity_rating) {
+  if (metric?.content?.qualitative_severity_rating) {
     if (!metric.source) {
       return 'as no "source" is given'
     } else if (metric.source === canonicalURL) {
@@ -151,14 +151,12 @@ export function recommendedTest_6_2_47(doc) {
       })
       .filter((path) => path !== null)
 
-    if (!!invalidPaths) {
-      invalidPaths.forEach((path) => {
-        ctx.warnings.push({
-          message: `a qualitative severity rating is used by the issuing party (${path.message})`,
-          instancePath: path.path,
-        })
+    invalidPaths?.forEach((path) => {
+      ctx.warnings.push({
+        message: `a qualitative severity rating is used by the issuing party (${path.message})`,
+        instancePath: path.path,
       })
-    }
+    })
   })
 
   return ctx
