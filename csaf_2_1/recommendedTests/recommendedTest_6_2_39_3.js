@@ -66,8 +66,12 @@ export function recommendedTest_6_2_39_3(doc) {
   }
 
   const noteCategory = 'description'
+  const documentCategoryCsafSuperseded = `csaf_superseded`
 
-  if (!validateSchema(doc) || doc.document.category !== 'csaf_superseded') {
+  if (
+    !validateSchema(doc) ||
+    doc.document.category !== documentCategoryCsafSuperseded
+  ) {
     return ctx
   }
 
@@ -97,7 +101,7 @@ export function recommendedTest_6_2_39_3(doc) {
       ctx.warnings.push({
         instancePath: '/document/notes',
         message:
-          `for document category "csaf_withdrawn" exactly one note must exist ` +
+          `for document category "${documentCategoryCsafSuperseded}" exactly one note must exist ` +
           `with note category "${noteCategory}" and title "${supersessionInDocLang}"`,
       })
     }
