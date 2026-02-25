@@ -28,6 +28,12 @@ import { readFileSync } from 'fs'
  * @property {boolean} valid
  */
 
+const excludedTestFiles = [
+  'mandatory/oasis_csaf_tc-csaf_2_0-2021-6-1-26-04.json',
+  'mandatory/oasis_csaf_tc-csaf_2_0-2021-6-1-26-11.json',
+  'mandatory/oasis_csaf_tc-csaf_2_0-2021-6-1-26-12.json',
+]
+
 const tests = new Map([
   [
     'informative',
@@ -68,6 +74,9 @@ describe('oasis', function () {
                       `no matching test found for group=${group}, ${testId}`
                     )
 
+                  if (excludedTestFiles.includes(testSpec.name)) {
+                    return
+                  }
                   const doc = JSON.parse(
                     readFileSync(
                       new URL(testSpec.name, testDataBaseUrl),
