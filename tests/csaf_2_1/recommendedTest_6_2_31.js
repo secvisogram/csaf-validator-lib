@@ -249,4 +249,76 @@ describe('recommendedTest_6_2_31', function () {
       2
     )
   })
+
+  it('warns when branch product has no product_id', function () {
+    const result = recommendedTest_6_2_31({
+      document: {},
+      product_tree: {
+        branches: [
+          {
+            category: 'product_version',
+            name: '1.0',
+            product: {
+              name: 'Example Company Controller A 1.0',
+              product_identification_helper: {
+                serial_numbers: ['143-D-354'],
+              },
+            },
+          },
+        ],
+      },
+    })
+    assert.equal(result.warnings.length, 1)
+    assert.equal(
+      result.warnings[0].instancePath,
+      '/product_tree/branches/0/product'
+    )
+  })
+
+  it('warns when full_product_names entry has no product_id', function () {
+    const result = recommendedTest_6_2_31({
+      document: {},
+      product_tree: {
+        full_product_names: [
+          {
+            name: 'Example Company Controller A 1.0',
+            product_identification_helper: {
+              serial_numbers: ['143-D-354'],
+            },
+          },
+        ],
+      },
+    })
+    assert.equal(result.warnings.length, 1)
+    assert.equal(
+      result.warnings[0].instancePath,
+      '/product_tree/full_product_names/0'
+    )
+  })
+
+  it('warns when relationship full_product_name has no product_id', function () {
+    const result = recommendedTest_6_2_31({
+      document: {},
+      product_tree: {
+        full_product_names: [],
+        relationships: [
+          {
+            product_reference: 'CSAFPID-908070601',
+            relates_to_product_reference: 'CSAFPID-908070602',
+            full_product_name: {
+              name: 'Example Company Controller A 1.0 on Windows',
+              product_identification_helper: {
+                serial_numbers: ['143-D-354'],
+              },
+            },
+          },
+        ],
+      },
+    })
+    assert.equal(result.warnings.length, 1)
+    assert.equal(
+      result.warnings[0].instancePath,
+      '/product_tree/relationships/0/full_product_name/0'
+    )
+  })
 })

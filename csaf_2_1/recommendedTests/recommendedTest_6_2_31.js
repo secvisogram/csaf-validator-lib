@@ -2,14 +2,6 @@ import Ajv from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
-const relationshipSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    product_reference: { type: 'string' },
-    relates_to_product_reference: { type: 'string' },
-  },
-})
-
 const productIdentificationHelperSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
@@ -30,6 +22,15 @@ const productSchema = /** @type {const} */ ({
   },
 })
 
+const relationshipSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    full_product_name: productSchema,
+    product_reference: { type: 'string' },
+    relates_to_product_reference: { type: 'string' },
+  },
+})
+
 const branchSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
@@ -37,6 +38,9 @@ const branchSchema = /** @type {const} */ ({
     branches: {
       elements: {
         additionalProperties: true,
+        // AJV's JTD does not support recursive schemas.
+        // Nested branches are validated at runtime in checkBranches() by calling
+        // validateBranch() on each child branch individually during the recursive traversal.
         properties: {},
       },
     },
@@ -67,9 +71,9 @@ const validateInput = ajv.compile(inputSchema)
 const validateBranch = ajv.compile(branchSchema)
 
 /**
- * @typedef {import('ajv/dist/core').JTDDataType<typeof relationshipSchema>} Relationship
- * @typedef {import('ajv/dist/core').JTDDataType<typeof productSchema>} FullProductName
  * @typedef {import('ajv/dist/core').JTDDataType<typeof branchSchema>} Branch
+ * @typedef {import('ajv/dist/core').JTDDataType<typeof productSchema>} FullProductName
+ * @typedef {import('ajv/dist/core').JTDDataType<typeof relationshipSchema>} Relationship
  */
 
 /**
@@ -99,6 +103,17 @@ export function recommendedTest_6_2_31(doc) {
     ctx
   )
 
+  relationships.forEach((rel, index) => {
+    if (rel?.full_product_name) {
+      checkFullProductNames(
+        [rel.full_product_name],
+        relationships,
+        ctx,
+        `/product_tree/relationships/${index}/full_product_name`
+      )
+    }
+  })
+
   return ctx
 }
 
@@ -107,13 +122,24 @@ export function recommendedTest_6_2_31(doc) {
  * @param {FullProductName[]} full_product_names
  * @param {Relationship[]} relationships
  * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx
+ * @param {string} [basePath='/product_tree/full_product_names'] - The base JSON path for warnings
  */
-function checkFullProductNames(full_product_names, relationships, ctx) {
+function checkFullProductNames(
+  full_product_names,
+  relationships,
+  ctx,
+  basePath = '/product_tree/full_product_names'
+) {
   full_product_names.forEach((fullProductName, index) => {
-    if (
-      fullProductName?.product_id &&
-      fullProductName?.product_identification_helper
-    ) {
+    if (fullProductName?.product_identification_helper) {
+      if (!fullProductName.product_id) {
+        ctx.warnings.push({
+          instancePath: `${basePath}/${index}`,
+          message:
+            'missing product_id: full product name cannot be referenced without a product id.',
+        })
+        return
+      }
       const { serial_numbers, model_numbers } =
         fullProductName.product_identification_helper
 
@@ -122,9 +148,9 @@ function checkFullProductNames(full_product_names, relationships, ctx) {
         !checkRelationship(relationships, fullProductName.product_id)
       ) {
         ctx.warnings.push({
-          instancePath: `/product_tree/full_product_names/${index}`,
+          instancePath: `${basePath}/${index}`,
           message:
-            'missing relationship: Product with serial number or model number must be referenced.',
+            'missing relationship: product with serial number or model number should be referenced.',
         })
       }
     }
@@ -152,19 +178,27 @@ function checkBranches(
     const currentPath = `${path}/${branchIndex}`
     const product = branch.product
 
-    if (product?.product_id && product.product_identification_helper) {
-      const { serial_numbers, model_numbers } =
-        product.product_identification_helper
-
-      if (
-        (serial_numbers?.length || model_numbers?.length) &&
-        !checkRelationship(relationships, product.product_id)
-      ) {
+    if (product) {
+      if (!product?.product_id) {
         ctx.warnings.push({
           instancePath: `${currentPath}/product`,
           message:
-            'missing relationship: Product with serial number or model number must be referenced',
+            'missing product_id: product cannot be referenced without a product id.',
         })
+      } else if (product.product_identification_helper) {
+        const { serial_numbers, model_numbers } =
+          product.product_identification_helper
+
+        if (
+          (serial_numbers?.length || model_numbers?.length) &&
+          !checkRelationship(relationships, product.product_id)
+        ) {
+          ctx.warnings.push({
+            instancePath: `${currentPath}/product`,
+            message:
+              'missing relationship: product with serial number or model number should be referenced.',
+          })
+        }
       }
     }
 
