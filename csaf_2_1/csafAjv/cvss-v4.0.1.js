@@ -26,7 +26,7 @@ export default {
     'JSON Schema for Common Vulnerability Scoring System version 4.0, Revision 1',
   $id: 'https://www.first.org/cvss/cvss-v4.0.1.json?20250704',
   type: 'object',
-  additionalProperties: false,
+  unevaluatedProperties: false,
   definitions: {
     attackVectorType: {
       type: 'string',
@@ -194,10 +194,6 @@ export default {
     },
     baseScore: { $ref: '#/definitions/noneScoreType' },
     baseSeverity: { $ref: '#/definitions/noneSeverityType' },
-    threatScore: { $ref: '#/definitions/noneScoreType' },
-    threatSeverity: { $ref: '#/definitions/noneSeverityType' },
-    environmentalScore: { $ref: '#/definitions/noneScoreType' },
-    environmentalSeverity: { $ref: '#/definitions/noneSeverityType' },
     attackVector: { $ref: '#/definitions/attackVectorType' },
     attackComplexity: { $ref: '#/definitions/attackComplexityType' },
     attackRequirements: { $ref: '#/definitions/attackRequirementsType' },

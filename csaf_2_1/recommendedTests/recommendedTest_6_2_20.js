@@ -15,12 +15,16 @@ export function recommendedTest_6_2_20(doc) {
   if (!validateStrictSchema(doc)) {
     const additionalPropertiesErrors =
       validateStrictSchema.errors?.filter(
-        (e) => e.keyword === 'additionalProperties'
+        (e) =>
+          e.keyword === 'additionalProperties' ||
+          e.keyword === 'unevaluatedProperties'
       ) ?? []
     for (const error of additionalPropertiesErrors) {
+      const propertyName =
+        error.params.additionalProperty ?? error.params.unevaluatedProperty
       ctx.warnings.push({
-        instancePath: error.instancePath,
-        message: error.message ?? '',
+        instancePath: `${error.instancePath}/${propertyName}`,
+        message: `property "${propertyName}" is not defined in the schema`,
       })
     }
   }
