@@ -26,16 +26,12 @@ const inputSchema = /** @type {const} */ ({
 
 const ABOUT_CODE_LICENSE_REF_PREFIX = 'LicenseRef-scancode-'
 
-const DEPRECATED_ABOUT_CODE_LICENSE_KEYS = new Set(
-  license_information.licenses
-    .filter((license) => license.deprecated && license.source === 'aboutCode')
-    .map((license) => license.license_key)
+const DEPRECATED_ABOUT_CODE_LICENSE_KEYS = license_information.licenses.filter(
+  (license) => license.is_deprecated && license.source === 'aboutCode'
 )
 
-const DEPRECATED_SPDX_LICENSE_KEYS = new Set(
-  license_information.licenses
-    .filter((license) => license.deprecated && license.source === 'spdx')
-    .map((license) => license.license_key)
+const DEPRECATED_SPDX_LICENSE_KEYS = license_information.licenses.filter(
+  (license) => license.is_deprecated && license.source === 'spdx'
 )
 
 const validateSchema = ajv.compile(inputSchema)
@@ -44,16 +40,18 @@ const validateSchema = ajv.compile(inputSchema)
  * Check whether the license identifiers ref is a deprecated AboutCode's license
  * Ignores other license inventorying entities
  * @param {string} licenseRefToCheck
- * @return {boolean}
+ * @returns {null | {license_key: string, is_deprecated: boolean, is_exception: boolean, source: string, deprecated_since: string, deprecated_date: string} | undefined}
  */
-function isDeprecatedLicenseRef(licenseRefToCheck) {
+function getDeprecatedLicenseRef(licenseRefToCheck) {
   if (!licenseRefToCheck.startsWith(ABOUT_CODE_LICENSE_REF_PREFIX)) {
-    return false
+    return null
   } else {
     const licenseKey = licenseRefToCheck.substring(
       ABOUT_CODE_LICENSE_REF_PREFIX.length
     )
-    return DEPRECATED_ABOUT_CODE_LICENSE_KEYS.has(licenseKey)
+    return DEPRECATED_ABOUT_CODE_LICENSE_KEYS.find((element) => {
+      return element.license_key === licenseKey
+    })
   }
 }
 
@@ -61,32 +59,35 @@ function isDeprecatedLicenseRef(licenseRefToCheck) {
  * Recursively checks if a parsed license expression contains deprecated licenses
  *
  * @param {import('license-expressions').ParsedSpdxExpression} parsedExpression - The parsed license expression
- * @returns {Array<string>} all deprecated licenses
+ * @returns {Array<{license_key: string, is_deprecated: boolean, is_exception: boolean, source: string, deprecated_since: string, deprecated_date: string}>} all deprecated licenses
  */
 function allDeprecatedLicenses(parsedExpression) {
-  /** @type {Array<string>} */
+  /** @type {Array<{license_key: string, is_deprecated: boolean, is_exception: boolean, source: string, deprecated_since: string, deprecated_date: string}>} */
   const deprecatedLicenses = []
   // If it's a LicenseRef type directly
-  if (
-    'licenseRef' in parsedExpression &&
-    isDeprecatedLicenseRef(parsedExpression.licenseRef)
-  ) {
-    deprecatedLicenses.push(parsedExpression.licenseRef)
+  if ('licenseRef' in parsedExpression) {
+    const licenseRef = getDeprecatedLicenseRef(parsedExpression.licenseRef)
+    if (licenseRef) {
+      deprecatedLicenses.push(licenseRef)
+    }
   }
 
-  if (
-    'license' in parsedExpression &&
-    DEPRECATED_SPDX_LICENSE_KEYS.has(parsedExpression.license)
-  ) {
-    deprecatedLicenses.push(parsedExpression.license)
+  if ('license' in parsedExpression) {
+    const license = DEPRECATED_SPDX_LICENSE_KEYS.find(
+      (elem) => elem.license_key === parsedExpression.license
+    )
+    if (license) {
+      deprecatedLicenses.push(license)
+    }
   }
 
-  if (
-    'exception' in parsedExpression &&
-    parsedExpression.exception &&
-    DEPRECATED_SPDX_LICENSE_KEYS.has(parsedExpression.exception)
-  ) {
-    deprecatedLicenses.push(parsedExpression.exception)
+  if ('exception' in parsedExpression) {
+    const license = DEPRECATED_SPDX_LICENSE_KEYS.find(
+      (elem) => elem.license_key === parsedExpression.exception
+    )
+    if (license) {
+      deprecatedLicenses.push(license)
+    }
   }
 
   // If it's a conjunction, check both sides
@@ -103,7 +104,7 @@ function allDeprecatedLicenses(parsedExpression) {
  * Checks if a license expression string contains deprecated licenses
  *
  * @param {string} licenseToCheck - The license expression to check
- * @returns {Array<string>} all deprecated licenses
+ * @returns {Array<{license_key: string, is_deprecated: boolean, is_exception: boolean, source: string, deprecated_since: string, deprecated_date: string}>} all deprecated licenses
  */
 export function allDeprecatedInLicenseString(licenseToCheck) {
   const parseResult = parse(licenseToCheck)
@@ -134,13 +135,12 @@ export function recommendedTest_6_2_44(doc) {
   const licenseToCheck = doc.document.license_expression
 
   if (validate(licenseToCheck).valid) {
-    const deprecatedLicenseIdentifiers =
-      allDeprecatedInLicenseString(licenseToCheck)
+    const deprecatedLicenses = allDeprecatedInLicenseString(licenseToCheck)
 
-    deprecatedLicenseIdentifiers.forEach((licenseKey) => {
+    deprecatedLicenses.forEach((license) => {
       ctx.warnings.push({
         instancePath: '/document/license_expression',
-        message: `License identifier ${licenseKey} is deprecated `,
+        message: `License Key "${license.license_key}" is deprecated since "${license.deprecated_since}"`,
       })
     })
   }
