@@ -22,11 +22,15 @@ describe('recommendedTest_6_2_44', function () {
     expect(allDeprecatedInLicenseString('Invalid-license-expression')).to.eql(
       []
     )
-    expect(allDeprecatedInLicenseString('GPL-2.0 OR BSD-3-Clause')).to.eql([
-      'GPL-2.0',
-    ])
     expect(
-      allDeprecatedInLicenseString('LGPL-2.1 OR BSD-3-Clause AND wxWindows')
+      allDeprecatedInLicenseString('GPL-2.0 OR BSD-3-Clause').map(
+        (elem) => elem.license_key
+      )
+    ).to.eql(['GPL-2.0'])
+    expect(
+      allDeprecatedInLicenseString(
+        'LGPL-2.1 OR BSD-3-Clause AND wxWindows'
+      ).map((elem) => elem.license_key)
     ).to.eql(['LGPL-2.1', 'wxWindows'])
     expect(
       allDeprecatedInLicenseString('(MIT AND (LGPL-2.1+ AND BSD-3-Clause))')
@@ -55,7 +59,7 @@ describe('recommendedTest_6_2_44', function () {
     ).to.eql([])
 
     expect(
-      allDeprecatedInLicenseString('wxWindows'),
+      allDeprecatedInLicenseString('wxWindows').map((elem) => elem.license_key),
       'Deprecated License'
     ).to.eql(['wxWindows'])
 
