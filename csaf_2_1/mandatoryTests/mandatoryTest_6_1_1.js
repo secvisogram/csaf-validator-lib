@@ -1,4 +1,4 @@
-import * as docUtils from '../../lib/mandatoryTests/shared/docUtils.js'
+import * as docUtils from './shared/docUtils.js'
 
 const { collectProductIds } = docUtils
 
@@ -67,23 +67,28 @@ function collectProductIdRefs({ document }) {
     }
   }
 
-  const relationshipGroups = document.product_tree?.relationships
-  if (relationshipGroups) {
-    for (let i = 0; i < relationshipGroups.length; ++i) {
-      const relationshipGroup = relationshipGroups[i]
-      const productRef = relationshipGroup.product_reference
-      if (productRef) {
+  const productPaths = document.product_tree?.product_paths
+  if (productPaths) {
+    for (let i = 0; i < productPaths.length; ++i) {
+      const productPath = productPaths[i]
+      const beginningProductRef = productPath.beginning_product_reference
+      if (beginningProductRef) {
         entries.push({
-          id: productRef,
-          instancePath: '/product_tree/relationships/${i}/product_reference',
+          id: beginningProductRef,
+          instancePath: `/product_tree/product_paths/${i}/beginning_product_reference`,
         })
       }
-      const relToProductRef = relationshipGroup.relates_to_product_reference
-      if (relToProductRef) {
-        entries.push({
-          id: relToProductRef,
-          instancePath: `/product_tree/relationships/${i}/relates_to_product_reference`,
-        })
+      const subpaths = productPath.subpaths
+      if (subpaths) {
+        for (let j = 0; j < subpaths.length; ++j) {
+          const nextProductRef = subpaths[j].next_product_reference
+          if (nextProductRef) {
+            entries.push({
+              id: nextProductRef,
+              instancePath: `/product_tree/product_paths/${i}/subpaths/${j}/next_product_reference`,
+            })
+          }
+        }
       }
     }
   }
@@ -109,6 +114,16 @@ function collectProductIdRefs({ document }) {
       )
       collectProductRefsInThreats(
         `/vulnerabilities/${i}/threats`,
+        vulnerability,
+        entries
+      )
+      collectProductRefsInFlags(
+        `/vulnerabilities/${i}/flags`,
+        vulnerability,
+        entries
+      )
+      collectProductRefsInFirstKnownExploitationDates(
+        `/vulnerabilities/${i}/first_known_exploitation_dates`,
         vulnerability,
         entries
       )
@@ -162,6 +177,11 @@ const collectRefsInProductStatus = (instancePath, vulnerability, entries) => {
   findRefsInProductStatus(
     vulnerability.product_status?.under_investigation,
     `${instancePath}/under_investigation`,
+    entries
+  )
+  findRefsInProductStatus(
+    vulnerability.product_status?.unknown,
+    `${instancePath}/unknown`,
     entries
   )
 }
@@ -252,6 +272,63 @@ const collectProductRefsInRemediations = (
     for (let i = 0; i < remediations.length; ++i) {
       const remediation = remediations[i]
       const productIds = remediation.product_ids
+      if (productIds) {
+        for (let j = 0; j < productIds.length; ++j) {
+          const productId = productIds[j]
+          if (productId) {
+            entries.push({
+              id: productId,
+              instancePath: `${instancePath}/${i}/product_ids/${j}`,
+            })
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * @param {string} instancePath
+ * @param {{flags: any}} vulnerability
+ * @param {*} entries
+ */
+const collectProductRefsInFlags = (instancePath, vulnerability, entries) => {
+  const flags = vulnerability.flags
+  if (flags) {
+    for (let i = 0; i < flags.length; ++i) {
+      const flag = flags[i]
+      const productIds = flag.product_ids
+      if (productIds) {
+        for (let j = 0; j < productIds.length; ++j) {
+          const productId = productIds[j]
+          if (productId) {
+            entries.push({
+              id: productId,
+              instancePath: `${instancePath}/${i}/product_ids/${j}`,
+            })
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * @param {string} instancePath
+ * @param {{first_known_exploitation_dates: any}} vulnerability
+ * @param {*} entries
+ */
+const collectProductRefsInFirstKnownExploitationDates = (
+  instancePath,
+  vulnerability,
+  entries
+) => {
+  const firstKnownExploitationDates =
+    vulnerability.first_known_exploitation_dates
+  if (firstKnownExploitationDates) {
+    for (let i = 0; i < firstKnownExploitationDates.length; ++i) {
+      const entry = firstKnownExploitationDates[i]
+      const productIds = entry.product_ids
       if (productIds) {
         for (let j = 0; j < productIds.length; ++j) {
           const productId = productIds[j]
