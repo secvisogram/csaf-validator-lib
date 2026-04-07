@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mandatoryTest_6_1_27_5 } from '../../csaf_2_1/mandatoryTests/mandatory_test_6_1_27_5.js'
+import { mandatoryTest_6_1_27_5 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_27_5.js'
 
 describe('mandatoryTest_6_1_27_5', function () {
   it('only runs on relevant documents', function () {
