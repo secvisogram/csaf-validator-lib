@@ -5,6 +5,7 @@
   "scripts": {
     "pretest": "tsc -b .",
     "test": "prettier --check . && node scripts/test.js",
+    "test-vers": "node --experimental-wasm-modules csaf_2_1/test-vers-integration.js",
     "pretest-report": "tsc -b .",
     "test-report": "prettier --check . && node scripts/test.js --reporter json > test-results.json",
     "test-coverage": "c8 node scripts/test.js",
@@ -23,6 +24,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@csaf-rs/vers-rs": "^0.1.2",
     "@js-joda/core": "^5.6.1",
     "@js-joda/timezone": "^2.18.2",
     "ajv": "^8.11.2",
