@@ -56,9 +56,7 @@ describe('mandatoryTest_6_1_43', function () {
             {
               product: {
                 product_identification_helper: {
-                  purls: [
-                    'pkg:oci/product-A@sha256%3Add134261219b2?repository_url=https://registry.example.com',
-                  ],
+                  model_numbers: ['*P\\*\\*?\\*'],
                 },
               },
               branches: [
@@ -84,9 +82,7 @@ describe('mandatoryTest_6_1_43', function () {
           product_paths: [
             {
               full_product_name: {
-                purls: [
-                  'pkg:oci/product-A@sha256%3Add134261219b2?repository_url=https://registry.example.com',
-                ],
+                model_numbers: ['*P\\*\\*?\\*'],
               },
             },
             {},
