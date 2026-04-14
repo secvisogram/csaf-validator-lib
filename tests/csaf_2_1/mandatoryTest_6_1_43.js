@@ -47,4 +47,91 @@ describe('mandatoryTest_6_1_43', function () {
       })
     })
   })
+
+  it('validates branches and skips invalid ones', function () {
+    assert.equal(
+      mandatoryTest_6_1_43({
+        product_tree: {
+          branches: [
+            {
+              product: {
+                product_identification_helper: {
+                  purls: [
+                    'pkg:oci/product-A@sha256%3Add134261219b2?repository_url=https://registry.example.com',
+                  ],
+                },
+              },
+              branches: [
+                {
+                  product: 'invalid',
+                },
+                {
+                  branches: [{}],
+                },
+              ],
+            },
+          ],
+        },
+      }).isValid,
+      true
+    )
+  })
+
+  it('validates product_paths and skips invalid ones', function () {
+    assert.equal(
+      mandatoryTest_6_1_43({
+        product_tree: {
+          product_paths: [
+            {
+              full_product_name: {
+                purls: [
+                  'pkg:oci/product-A@sha256%3Add134261219b2?repository_url=https://registry.example.com',
+                ],
+              },
+            },
+            {},
+          ],
+        },
+      }).isValid,
+      true
+    )
+  })
+
+  it('detects invalid model numbers in branches', function () {
+    assert.equal(
+      mandatoryTest_6_1_43({
+        product_tree: {
+          branches: [
+            {
+              product: {
+                product_identification_helper: {
+                  model_numbers: ['P*A*'],
+                },
+              },
+            },
+          ],
+        },
+      }).isValid,
+      false
+    )
+  })
+
+  it('detects invalid model numbers in product_paths', function () {
+    assert.equal(
+      mandatoryTest_6_1_43({
+        product_tree: {
+          product_paths: [
+            {
+              full_product_name: {
+                product_identification_helper: {
+                  model_numbers: ['P*A*'],
+                },
+              },
+            },
+          ],
+        },
+      }).isValid,
+      false
+    )
+  })
 })
