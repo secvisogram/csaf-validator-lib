@@ -102,6 +102,17 @@ repository of your distribution. If you have a custom dictionary
 copy them in the directory provided by the command above. Hunspell should
 automatically recognize them.
 
+### Running LanguageTool for informative test 6.3.16
+
+Informative test 6.3.16 requires a running LanguageTool server.
+The default URL in this library is `http://localhost:8010`.
+
+You can start LanguageTool with Docker Compose from the repository root:
+
+```sh
+docker compose -f dev/languagetool/compose.yml up -d
+```
+
 [(back to top)](#bsi-csaf-validator-lib)
 
 ## How to use
@@ -365,11 +376,10 @@ The following tests are not yet implemented and therefore missing:
 
 **Informative Tests**
 
-- Informative Test 6.2.13
-- Informative Test 6.2.14
-- Informative Test 6.2.15
-- Informative Test 6.2.16
-- Informative Test 6.2.17
+- Informative Test 6.3.13
+- Informative Test 6.3.14
+- Informative Test 6.3.15
+- Informative Test 6.3.17
 - Informative Test 6.2.19.1
 - Informative Test 6.2.19.2
 - Informative Test 6.2.19.3
@@ -520,6 +530,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_16: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 ```
 
