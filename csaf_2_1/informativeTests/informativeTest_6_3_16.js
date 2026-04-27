@@ -1,7 +1,7 @@
 /*
   This test depends on the languagetool server to be available. See
-  https://languagetool.org/de. A `compose.yml` file is available in the
-  repository root to start an instance.
+  https://languagetool.org/de. A compose file is available at
+  `dev/languagetool/compose.yml` to start an instance.
  */
 
 import Ajv from 'ajv/dist/jtd.js'
@@ -42,10 +42,12 @@ export async function informativeTest_6_3_16(doc) {
     return ctx
   }
 
-  const lang =
-    (doc.document?.lang &&
-      bcp47.parse(doc.document.lang)?.langtag.language.language) ??
-    'en'
+  const lang = doc.document?.lang
+  if (!lang) {
+    return ctx
+  }
+
+  const fallbackLang = bcp47.parse(lang)?.langtag.language.language
 
   /*
     Check if the language is supported by the languagetool server.
@@ -54,6 +56,7 @@ export async function informativeTest_6_3_16(doc) {
     /**
      * @typedef {object} Language
      * @property {string} code
+     * @property {string} [longCode]
      */
 
     /** @typedef {Language[]} Response */
@@ -63,14 +66,18 @@ export async function informativeTest_6_3_16(doc) {
         accept: 'application/json',
       },
     })
-    if (!res.ok) throw new Error('request to languagetool failed')
+    if (!res.ok) {
+      throw new Error(
+        `request to languagetool at ${context.languageToolUrl} failed`
+      )
+    }
 
     const json = /** @type {Response} */ (await res.json())
 
-    if (!json.some((l) => l.code === lang)) {
+    if (!json.some((l) => l.longCode === lang || l.code === fallbackLang)) {
       ctx.infos.push({
         instancePath: '/document/lang',
-        message: 'language is not supported',
+        message: `language '${lang}' is not supported by languagetool`,
       })
     }
   }
@@ -191,7 +198,11 @@ async function checkString(str, lng) {
       ['text', str],
     ]),
   })
-  if (!res.ok) throw new Error('request to languagetool failed')
+  if (!res.ok) {
+    throw new Error(
+      `request to languagetool at ${context.languageToolUrl} failed`
+    )
+  }
 
   const json = /** @type {Response} */ (await res.json())
   return json.matches

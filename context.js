@@ -5,7 +5,8 @@
 
 /**
  * This is the context that is used to execute the tests. Modify it when
- * initializing the library to change settings.
+ * initializing the library to change settings. Port 8010 is the default exposed
+ * by the collabora/languagetool image in `dev/languagetool/compose.yml`.
  *
  * @type {Context}
  */

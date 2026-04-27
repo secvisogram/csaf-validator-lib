@@ -102,6 +102,17 @@ repository of your distribution. If you have a custom dictionary
 copy them in the directory provided by the command above. Hunspell should
 automatically recognize them.
 
+### Running LanguageTool for informative test 6.3.16
+
+Informative test 6.3.16 requires a running LanguageTool server.
+The default URL in this library is `http://localhost:8010`.
+
+You can start LanguageTool with Docker Compose from the repository root:
+
+```sh
+docker compose -f dev/languagetool/compose.yml up -d
+```
+
 [(back to top)](#bsi-csaf-validator-lib)
 
 ## How to use
