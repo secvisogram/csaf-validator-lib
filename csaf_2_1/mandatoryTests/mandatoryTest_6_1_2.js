@@ -87,7 +87,7 @@ export function mandatoryTest_6_1_2(doc) {
     return ctx
   }
 
-  /** @type {Map<string, string>} */
+  /** @type {Map<string, string | null>} */
   const seenProductIds = new Map()
 
   doc.product_tree?.branches?.forEach((branch, index) => {
@@ -121,9 +121,17 @@ export function mandatoryTest_6_1_2(doc) {
   function checkProductId(instancePath, productId) {
     if (seenProductIds.has(productId)) {
       ctx.isValid = false
+      const firstInstancePath = seenProductIds.get(productId)
+      if (firstInstancePath !== null) {
+        ctx.errors.push({
+          instancePath: /** @type {string} */ (firstInstancePath),
+          message: 'duplicate definition product id',
+        })
+        seenProductIds.set(productId, null)
+      }
       ctx.errors.push({
         instancePath,
-        message: 'duplicate definition of product_id',
+        message: 'duplicate definition product id',
       })
     } else {
       seenProductIds.set(productId, instancePath)
