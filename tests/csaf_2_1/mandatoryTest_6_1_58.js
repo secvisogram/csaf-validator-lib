@@ -46,4 +46,50 @@ describe('mandatoryTest_6_1_58', function () {
     assert.equal(result.errors.length, 0)
     assert.equal(result.isValid, true)
   })
+
+  it('reports all leaves under a conflicting branch', function () {
+    const result = mandatoryTest_6_1_58({
+      product_tree: {
+        branches: [
+          {
+            category: 'product_version',
+            name: '1.0',
+            branches: [
+              {
+                category: 'product_version_range',
+                name: 'vers:intdot/<1.1',
+                branches: [
+                  {
+                    category: 'architecture',
+                    name: 'x86',
+                    product: {
+                      name: 'Product x86',
+                      product_id: 'CSAFPID-2',
+                    },
+                  },
+                  {
+                    category: 'architecture',
+                    name: 'arm',
+                    product: {
+                      name: 'Product arm',
+                      product_id: 'CSAFPID-3',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    })
+    assert.equal(result.isValid, false)
+    assert.equal(result.errors.length, 2)
+    const paths = result.errors.map((e) => e.instancePath)
+    assert.ok(
+      paths.includes('/product_tree/branches/0/branches/0/branches/0/product')
+    )
+    assert.ok(
+      paths.includes('/product_tree/branches/0/branches/0/branches/1/product')
+    )
+  })
 })

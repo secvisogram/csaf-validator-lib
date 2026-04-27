@@ -104,11 +104,7 @@ function checkBranch(
     hasProductVersionRange || category === 'product_version_range'
 
   if (nowHasProductVersion && nowHasProductVersionRange) {
-    errors.push({
-      instancePath: `${basePath}/category`,
-      message:
-        'Both categories "product_version" and "product_version_range" are used along the same path.',
-    })
+    reportLeaves(branch, basePath, errors)
     return
   }
 
@@ -124,6 +120,31 @@ function checkBranch(
           nowHasProductVersionRange,
           errors
         )
+      }
+    )
+  }
+}
+
+/**
+ * Recursively reports all `product` leaves reachable from a branch that lies on a conflicting path.
+ *
+ * @param {any} branch
+ * @param {string} basePath
+ * @param {Array<{ instancePath: string; message: string }>} errors
+ */
+function reportLeaves(branch, basePath, errors) {
+  if (branch.product !== undefined) {
+    errors.push({
+      instancePath: `${basePath}/product`,
+      message:
+        'both categories "product_version" and "product_version_range" are used along the same path.',
+    })
+  }
+
+  if (Array.isArray(branch.branches)) {
+    branch.branches.forEach(
+      (/** @type {any} */ child, /** @type {number} */ index) => {
+        reportLeaves(child, `${basePath}/branches/${index}`, errors)
       }
     )
   }
