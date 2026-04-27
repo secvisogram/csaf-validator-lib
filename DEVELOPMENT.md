@@ -9,9 +9,9 @@
 
 ## Language Tool
 
-The informative test 6.3.16 needs a running languagetool server. To set one for development you can use the `compose.yml` provided with the repository:
+The informative test 6.3.16 needs a running languagetool server. To set one for development you can use `dev/languagetool/compose.yml`:
 
-    docker compose up -d
+docker compose -f dev/languagetool/compose.yml up -d
 
 ## Code Style
 
