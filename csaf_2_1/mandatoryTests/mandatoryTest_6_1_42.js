@@ -48,7 +48,7 @@ const inputSchema = /** @type {const} */ ({
         full_product_names: {
           elements: fullProductNameSchema,
         },
-        relationships: {
+        product_paths: {
           elements: {
             additionalProperties: true,
             optionalProperties: {
@@ -168,11 +168,11 @@ export function mandatoryTest_6_1_42(doc) {
     )
   })
 
-  doc.product_tree?.relationships?.forEach((relationship, index) => {
-    const fullProductName = relationship.full_product_name
+  doc.product_tree?.product_paths?.forEach((productPath, index) => {
+    const fullProductName = productPath.full_product_name
     if (fullProductName) {
       checkFullProductName(
-        `/product_tree/relationships/${index}/full_product_name`,
+        `/product_tree/product_paths/${index}/full_product_name`,
         fullProductName
       )
     }
