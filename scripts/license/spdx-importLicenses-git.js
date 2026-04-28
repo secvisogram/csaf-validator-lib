@@ -2,7 +2,8 @@
 
 /**
  * Script to import SPDX license list data from https://github.com/spdx/license-list-data
- * using the simple-git library.
+ * using native Node.js execFile() to execute git commands directly.
+ *
  *
  * Steps:
  *   1. Clone the spdx/license-list-data repository (shallow, sparse – only json/) into a
@@ -20,7 +21,7 @@ import { writeFile, readFile, rm, mkdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
-import simpleGit from 'simple-git'
+import { git } from './aboutcode-importLicenses-git.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const OUTPUT_FILE = path.join(__dirname, 'spdx_licenses.json')
@@ -53,32 +54,37 @@ async function readJSON(filePath) {
 async function cloneRepo(targetDir) {
   console.log(`Cloning ${SPDX_REPO_URL} (shallow + sparse) into ${targetDir} …`)
 
-  // 1. Create the target directory and init repo inside it
-  await mkdir(targetDir, { recursive: true })
-  const repoGit = simpleGit(targetDir)
-  await repoGit.init()
+  try {
+    // 1. Create the target directory and init repo
+    await mkdir(targetDir, { recursive: true })
+    await git(targetDir, ['init'])
 
-  // 2. Add remote
-  await repoGit.addRemote('origin', SPDX_REPO_URL)
+    // 2. Add remote
+    await git(targetDir, ['remote', 'add', 'origin', SPDX_REPO_URL])
 
-  // 3. Enable sparse-checkout
-  await repoGit.addConfig('core.sparseCheckout', 'true')
+    // 3. Enable sparse-checkout
+    await git(targetDir, ['config', 'core.sparseCheckout', 'true'])
 
-  // Write the sparse-checkout pattern
-  await writeFile(
-    path.join(targetDir, '.git', 'info', 'sparse-checkout'),
-    'json/\n',
-    'utf-8'
-  )
+    // Write the sparse-checkout pattern
+    const sparsePath = path.join(targetDir, '.git', 'info', 'sparse-checkout')
+    await mkdir(path.dirname(sparsePath), { recursive: true })
+    await writeFile(sparsePath, 'json/\n', 'utf-8')
 
-  // 4. Fetch tags + shallow main branch
-  console.log('  Fetching (this may take a moment) …')
-  await repoGit.fetch(['--depth=1', '--tags', 'origin', 'main'])
+    // 4. Fetch tags + shallow main branch
+    console.log('  Fetching (this may take a moment) …')
+    await git(targetDir, ['fetch', '--depth=1', '--tags', 'origin', 'main'])
 
-  // 5. Checkout
-  await repoGit.checkout('main')
+    // 5. Checkout
+    await git(targetDir, ['checkout', 'main'])
 
-  console.log('  Clone complete.')
+    console.log('  Clone complete.')
+  } catch (/** @type {unknown} */ error) {
+    throw new Error(
+      `Failed to clone repository: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    )
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -98,43 +104,41 @@ async function cloneRepo(targetDir) {
 async function buildVersionDateMap(repoDir) {
   console.log('Building version → date map from git tags …')
 
-  const repoGit = simpleGit(repoDir)
+  try {
+    const tagOutput = await git(repoDir, ['tag', '-l'])
+    const tags = tagOutput.split('\n').filter(Boolean)
 
-  // List all tags
-  const tagResult = await repoGit.tags()
-  const tags = tagResult.all
+    /** @type {Map<string, string>} */
+    const map = new Map()
 
-  /** @type {Map<string, string>} */
-  const map = new Map()
-
-  for (const tag of tags) {
-    // Get the date the tag points to (for annotated tags use dereferenced object)
-    let date = ''
-    try {
-      const output = await repoGit.raw([
-        'show',
-        '-s',
-        `--format=%ci`,
-        `${tag}^{}`,
-      ])
-      // %ci format: "YYYY-MM-DD HH:MM:SS +ZZZZ" – extract just the date part
-      const match = output.match(/(\d{4}-\d{2}-\d{2})/)
-      date = match ? match[1] : ''
-    } catch {
-      // skip tags that cannot be resolved
-      continue
+    for (const tag of tags) {
+      // Get the date the tag points to (for annotated tags use dereferenced object)
+      try {
+        const dateOutput = await git(repoDir, [
+          'show',
+          '-s',
+          '--format=%ci',
+          `${tag}^{}`,
+        ])
+        // %ci format: "YYYY-MM-DD HH:MM:SS +ZZZZ" – extract just the date part
+        const match = dateOutput.match(/(\d{4}-\d{2}-\d{2})/)
+        if (match) {
+          const date = match[1]
+          // Normalize: strip leading "v"
+          const version = tag.replace(/^v/, '')
+          map.set(version, date)
+          map.set(`v${version}`, date)
+        }
+      } catch {
+        // skip tags that cannot be resolved
+      }
     }
 
-    if (date) {
-      // Normalize: strip leading "v"
-      const version = tag.replace(/^v/, '')
-      map.set(version, date)
-      map.set(`v${version}`, date)
-    }
+    console.log(`  Found ${map.size / 2} tagged releases.`)
+    return map
+  } catch (/** @type {any} */ error) {
+    throw new Error(`Failed to build version map: ${error.message}`)
   }
-
-  console.log(`  Found ${map.size / 2} tagged releases.`)
-  return map
 }
 
 // ---------------------------------------------------------------------------
