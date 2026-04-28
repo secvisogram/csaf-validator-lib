@@ -260,12 +260,34 @@ const containsVulnerabilitiesWithOptionalReferencesSchema =
                 },
               },
             },
-            scores: {
+            metrics: {
               elements: {
                 additionalProperties: true,
 
                 optionalProperties: {
                   products: {
+                    elements: { type: 'string' },
+                  },
+                },
+              },
+            },
+            flags: {
+              elements: {
+                additionalProperties: true,
+
+                optionalProperties: {
+                  product_ids: {
+                    elements: { type: 'string' },
+                  },
+                },
+              },
+            },
+            first_known_exploitation_dates: {
+              elements: {
+                additionalProperties: true,
+
+                optionalProperties: {
+                  product_ids: {
                     elements: { type: 'string' },
                   },
                 },
@@ -352,8 +374,14 @@ function isReferenced(doc, productId) {
         vulnerability.remediations?.some((remediation) =>
           remediation.product_ids?.includes(productId)
         ) ||
-        vulnerability.scores?.some((score) =>
-          score.products?.includes(productId)
+        vulnerability.metrics?.some((metric) =>
+          metric.products?.includes(productId)
+        ) ||
+        vulnerability.flags?.some((flag) =>
+          flag.product_ids?.includes(productId)
+        ) ||
+        vulnerability.first_known_exploitation_dates?.some((entry) =>
+          entry.product_ids?.includes(productId)
         ) ||
         vulnerability.threats?.some((threat) =>
           threat.product_ids?.includes(productId)

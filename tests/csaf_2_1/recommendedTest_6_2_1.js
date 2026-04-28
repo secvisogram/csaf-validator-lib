@@ -69,15 +69,53 @@ describe('recommendedTest_6_2_1', function () {
     )
   })
 
-  it('no warning if product_id is referenced in vulnerabilities.scores.products', function () {
+  it('no warning if product_id is referenced in vulnerabilities.metrics.products', function () {
     assert.equal(
       recommendedTest_6_2_1({
         ...baseDoc,
         vulnerabilities: [
           {
-            scores: [
+            metrics: [
               {
                 products: ['CSAFPID-0001'],
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      0
+    )
+  })
+
+  it('no warning if product_id is referenced in vulnerabilities.flags.product_ids', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            flags: [
+              {
+                label: 'component_not_present',
+                product_ids: ['CSAFPID-0001'],
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      0
+    )
+  })
+
+  it('no warning if product_id is referenced in vulnerabilities.first_known_exploitation_dates.product_ids', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            first_known_exploitation_dates: [
+              {
+                date: '2024-01-01T00:00:00Z',
+                product_ids: ['CSAFPID-0001'],
               },
             ],
           },
