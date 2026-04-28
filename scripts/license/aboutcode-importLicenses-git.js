@@ -3,21 +3,19 @@
 /**
  * Script to import AboutCode / ScanCode license list data from
  * https://scancode-licensedb.aboutcode.org/index.json
- * using simple-git to determine the deprecation date from the git history.
+ * using native Node.js execFile() to execute git commands directly.
+ * You need git locally installed and available in your PATH for this script to work.
  *
  * Steps:
  *   1. Fetch the license index from
  *      https://scancode-licensedb.aboutcode.org/index.json.
  *   2. Clone the aboutcode-org/scancode-toolkit repository using a blobless
  *      partial clone (--filter=blob:none) with sparse-checkout restricted to
- *      src/licensedcode/data/licenses/.  This gives us full commit history
- *      without downloading every file blob upfront.
+ *      src/licensedcode/data/licenses/.
  *   3. Build a version → date map from the git tags of the cloned repo.
  *   4. For each deprecated license use `git log -S 'is_deprecated: yes'` on
  *      its .LICENSE file to find the oldest commit that introduced the
- *      deprecation flag.  That commit's date becomes `deprecated_date`.
- *      The earliest release tag whose date is >= that commit date becomes
- *      `deprecated_since`.
+ *      deprecation flag.
  *   5. Write the result to scripts/aboutcode_licenses.json and clean up.
  *
  * Usage:
@@ -28,7 +26,10 @@ import { writeFile, rm, mkdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
-import simpleGit from 'simple-git'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
+
+const execFileAsync = promisify(execFile)
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const OUTPUT_FILE = path.join(__dirname, 'aboutcode_licenses.json')
@@ -43,6 +44,28 @@ const SPARSE_PATH = 'src/licensedcode/data/licenses/'
 const INDEX_URL = 'https://scancode-licensedb.aboutcode.org/index.json'
 
 // ---------------------------------------------------------------------------
+// Helper: Execute git commands
+// ---------------------------------------------------------------------------
+
+/**
+ * Execute a git command in the specified directory.
+ *
+ * @param {string} cwd - Working directory for the git command
+ * @param {string[]} args - Arguments to pass to git
+ * @returns {Promise<string>} - stdout output
+ */
+export async function git(cwd, args) {
+  try {
+    const { stdout } = await execFileAsync('git', args, { cwd })
+    return stdout.trim()
+  } catch (/** @type {any} */ error) {
+    throw new Error(
+      `Git command failed: git ${args.join(' ')}\n${error.message}`
+    )
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Clone with blobless partial clone + sparse-checkout
 // ---------------------------------------------------------------------------
 
@@ -50,7 +73,6 @@ const INDEX_URL = 'https://scancode-licensedb.aboutcode.org/index.json'
  * Clone the scancode-toolkit repo into `targetDir` using a blobless partial
  * clone so that full commit history is available without fetching every blob.
  * Only the `src/licensedcode/data/licenses/` subtree is checked out.
- * Tags are fetched so we can map versions to dates.
  *
  * @param {string} targetDir
  */
@@ -58,23 +80,26 @@ async function cloneRepo(targetDir) {
   console.log(
     `Cloning ${SCANCODE_REPO_URL} (blobless + sparse) into ${targetDir} …`
   )
+  await mkdir(targetDir, { recursive: true })
+  try {
+    await execFileAsync('git', [
+      'clone',
+      '--filter=blob:none',
+      '--sparse',
+      '--single-branch',
+      '--branch',
+      'develop',
+      SCANCODE_REPO_URL,
+      targetDir,
+    ])
 
-  // Use git directly via simpleGit's raw interface so we can pass
-  // --filter=blob:none and --sparse in a single clone command.
-  const git = simpleGit()
-  await git.clone(SCANCODE_REPO_URL, targetDir, [
-    '--filter=blob:none',
-    '--sparse',
-    '--single-branch',
-    '--branch',
-    'develop',
-  ])
+    // Configure sparse-checkout to only the licenses directory
+    await git(targetDir, ['sparse-checkout', 'set', SPARSE_PATH])
 
-  // Configure sparse-checkout to only the licenses directory
-  const repoGit = simpleGit(targetDir)
-  await repoGit.raw(['sparse-checkout', 'set', SPARSE_PATH])
-
-  console.log('  Clone complete.')
+    console.log('  Clone complete.')
+  } catch (/** @type {any} */ error) {
+    throw new Error(`Failed to clone repository: ${error.message}`)
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -91,39 +116,38 @@ async function cloneRepo(targetDir) {
 async function buildVersionDateMap(repoDir) {
   console.log('Building version → date map from git tags …')
 
-  const repoGit = simpleGit(repoDir)
+  try {
+    const tagOutput = await git(repoDir, ['tag', '-l'])
+    const tags = tagOutput.split('\n').filter(Boolean)
 
-  // List all tags
-  const tagResult = await repoGit.tags()
-  const tags = tagResult.all
+    /** @type {Map<string, string>} */
+    const map = new Map()
 
-  /** @type {Map<string, string>} */
-  const map = new Map()
-
-  for (const tag of tags) {
-    let date = ''
-    try {
-      const output = await repoGit.raw([
-        'show',
-        '-s',
-        '--format=%ci',
-        `${tag}^{}`,
-      ])
-      const match = output.match(/(\d{4}-\d{2}-\d{2})/)
-      date = match ? match[1] : ''
-    } catch {
-      continue
+    for (const tag of tags) {
+      try {
+        const dateOutput = await git(repoDir, [
+          'show',
+          '-s',
+          '--format=%ci',
+          `${tag}^{}`,
+        ])
+        const match = dateOutput.match(/(\d{4}-\d{2}-\d{2})/)
+        if (match) {
+          const date = match[1]
+          const version = tag.replace(/^v/, '')
+          map.set(version, date)
+          map.set(`v${version}`, date)
+        }
+      } catch {
+        // Ignore tags that don't have the expected format
+      }
     }
 
-    if (date) {
-      const version = tag.replace(/^v/, '')
-      map.set(version, date)
-      map.set(`v${version}`, date)
-    }
+    console.log(`  Found ${map.size / 2} tagged releases.`)
+    return map
+  } catch (/** @type {any} */ error) {
+    throw new Error(`Failed to build version map: ${error.message}`)
   }
-
-  console.log(`  Found ${map.size / 2} tagged releases.`)
-  return map
 }
 
 /**
@@ -132,15 +156,19 @@ async function buildVersionDateMap(repoDir) {
  * already deprecated).
  *
  * @param {string} deprecatedDate  ISO date string (YYYY-MM-DD)
- * @param {Map<string, string>} versionDateMap  version → date (both "x.y" and "vx.y" keys)
+ * @param {Map<string, string>} versionDateMap  version → date
  * @returns {string}  version string like "v32.0", or "" if not found
  */
 function findDeprecatedSince(deprecatedDate, versionDateMap) {
   if (deprecatedDate) {
     // Collect unique entries (only "vX.Y" keys to avoid duplicates)
     const entries = []
+    const seenVersions = new Set()
     for (const [key, date] of versionDateMap) {
-      entries.push({ version: key, date })
+      if (key.startsWith('v') && !seenVersions.has(key)) {
+        entries.push({ version: key, date })
+        seenVersions.add(key)
+      }
     }
 
     // Sort by date ascending
@@ -162,21 +190,15 @@ function findDeprecatedSince(deprecatedDate, versionDateMap) {
  * Find the date when `is_deprecated: yes` was first added to a .LICENSE file
  * by scanning the git log for commits that introduced that string.
  *
- * `git log --format=%ci -S 'is_deprecated: yes' -- <file>` returns, newest
- * first, all commits where the count of `is_deprecated: yes` changed.  The
- * *last* line of the output is the earliest such commit (= when deprecation
- * was first set).
- *
  * @param {string} repoDir
  * @param {string} licenseKey
  * @returns {Promise<string>}  ISO date string (YYYY-MM-DD) or empty string
  */
 async function findDeprecationCommitDate(repoDir, licenseKey) {
   const filePath = `${SPARSE_PATH}${licenseKey}.LICENSE`
-  const repoGit = simpleGit(repoDir)
 
   try {
-    const output = await repoGit.raw([
+    const output = await git(repoDir, [
       'log',
       '--format=%ci',
       '-S',
@@ -239,7 +261,6 @@ async function main() {
 
   try {
     // 2. Clone repo (blobless + sparse)
-    await mkdir(tmpDir, { recursive: true })
     await cloneRepo(tmpDir)
 
     // 3. Build version → date map from git tags
