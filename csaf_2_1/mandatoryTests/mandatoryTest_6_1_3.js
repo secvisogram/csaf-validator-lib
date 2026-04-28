@@ -143,7 +143,7 @@ function buildDependencyGraph(productPaths) {
 
     if (!beginningProductReference || !productId) return
 
-    addEdge(graph, beginningProductReference, productId, index, 'main')
+    addEdge(graph, productId, beginningProductReference, index, 'main')
 
     path.subpaths?.forEach((sub, subIndex) => {
       if (sub.next_product_reference) {
