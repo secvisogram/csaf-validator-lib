@@ -56,7 +56,7 @@ describe('recommendedTest_6_2_8', function () {
     assert.equal(result.warnings.length, 1)
     assert.equal(
       result.warnings[0].instancePath,
-      '/product_tree/branches/0/branches/1/product/product_identification_helper/hashes/0'
+      '/product_tree/branches/0/branches/1/product/product_identification_helper/hashes/0/file_hashes'
     )
   })
 
@@ -89,7 +89,7 @@ describe('recommendedTest_6_2_8', function () {
     assert.equal(result.warnings.length, 1)
     assert.equal(
       result.warnings[0].instancePath,
-      '/product_tree/product_paths/1/full_product_name/product_identification_helper/hashes/0'
+      '/product_tree/product_paths/1/full_product_name/product_identification_helper/hashes/0/file_hashes'
     )
   })
 })
