@@ -95,7 +95,6 @@ const excluded = [
  */
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-01-12.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
