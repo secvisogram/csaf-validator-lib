@@ -18,7 +18,7 @@ const hashSchema = /** @type {const} */ ({
 const validateHash = ajv.compile(hashSchema)
 
 /**
- * @param {any} doc
+ * @param {unknown} doc
  * @param {string} hashName
  */
 export default function checkForUnsafeHashAlgorithms(doc, hashName) {
