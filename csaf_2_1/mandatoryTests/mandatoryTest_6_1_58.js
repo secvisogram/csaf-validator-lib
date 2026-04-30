@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
@@ -38,7 +38,7 @@ const validateInput = ajv.compile(inputSchema)
 const validateBranch = ajv.compile(branchSchema)
 
 /**
- * @typedef {import('ajv/dist/core').JTDDataType<typeof branchSchema>} Branch
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
  */
 
 /**
