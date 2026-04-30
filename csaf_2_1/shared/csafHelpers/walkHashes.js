@@ -4,9 +4,15 @@ const ajv = new Ajv()
 
 const hashSchema = /** @type {const} */ ({
   additionalProperties: true,
-  optionalProperties: {
+  properties: {
     file_hashes: {
-      elements: { additionalProperties: true, properties: {} },
+      elements: {
+        additionalProperties: true,
+        properties: {
+          algorithm: { type: 'string' },
+          value: { type: 'string' },
+        },
+      },
     },
   },
 })
@@ -67,10 +73,15 @@ const validateInput = ajv.compile(inputSchema)
 const validateFullProductName = ajv.compile(fullProductNameSchema)
 const validateBranch = ajv.compile(branchSchema)
 const validateProductPath = ajv.compile(productPathSchema)
+const validateFileHash = ajv.compile(hashSchema)
+
+/**
+ * @typedef {{ file_hashes: Array<{ algorithm: string; value: string }> }} FileHashEntry
+ */
 
 /**
  * @param {any} doc
- * @param {(params: { path: string; hash: {} }) => void} onHashFound
+ * @param {(params: { path: string; hash: FileHashEntry }) => void} onHashFound
  */
 export function walkHashes(doc, onHashFound) {
   if (!validateInput(doc)) {
@@ -85,6 +96,7 @@ export function walkHashes(doc, onHashFound) {
 
       fullProductName.product_identification_helper?.hashes?.forEach(
         (hash, hashIndex) => {
+          if (!validateFileHash(hash)) return
           onHashFound({
             path: `/product_tree/full_product_names/${fullProductNameIndex}/product_identification_helper/hashes/${hashIndex}/file_hashes`,
             hash,
@@ -106,6 +118,7 @@ export function walkHashes(doc, onHashFound) {
 
       branch.product?.product_identification_helper?.hashes?.forEach(
         (hash, hashIndex) => {
+          if (!validateFileHash(hash)) return
           onHashFound({
             path: `${prefix}${branchIndex}/product/product_identification_helper/hashes/${hashIndex}/file_hashes`,
             hash,
@@ -128,6 +141,7 @@ export function walkHashes(doc, onHashFound) {
 
     productPath.full_product_name?.product_identification_helper?.hashes?.forEach(
       (hash, hashIndex) => {
+        if (!validateFileHash(hash)) return
         onHashFound({
           path: `/product_tree/product_paths/${productPathIndex}/full_product_name/product_identification_helper/hashes/${hashIndex}/file_hashes`,
           hash,
