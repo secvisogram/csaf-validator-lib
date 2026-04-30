@@ -1,21 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
 import { walkHashes } from '../shared/csafHelpers/walkHashes.js'
-
-const ajv = new Ajv()
-
-const hashSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  properties: {
-    file_hashes: {
-      elements: {
-        additionalProperties: true,
-        properties: {},
-      },
-    },
-  },
-})
-
-const validateHash = ajv.compile(hashSchema)
 
 /**
  * @param {unknown} doc
@@ -27,10 +10,7 @@ export function informativeTest_6_3_5(doc) {
   }
 
   walkHashes(doc, ({ path, hash }) => {
-    if (!validateHash(hash)) return
-    const typedHash =
-      /** @type {{ file_hashes: Array<{ value?: unknown }> }} */ (hash)
-    typedHash.file_hashes.forEach((fileHash, fileHashIndex) => {
+    hash.file_hashes.forEach((fileHash, fileHashIndex) => {
       if (typeof fileHash.value === 'string' && fileHash.value.length < 64) {
         ctx.infos.push({
           instancePath: `${path}/${fileHashIndex}/value`,
