@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 import {
   existsReferenceWithSummaryAndCategory,
   getTranslationInDocumentLang,
@@ -66,29 +66,29 @@ export function recommendedTest_6_2_39_4(doc) {
   }
 
   const referenceCategory = 'external'
-  const documentCategoryCsafSuperseded = `csaf_superseded`
+  const docCategoryCsafSuperseded = `csaf_superseded`
 
   if (
     !validateSchema(doc) ||
-    doc.document.category !== documentCategoryCsafSuperseded
+    doc.document.category !== docCategoryCsafSuperseded
   ) {
     return ctx
   }
 
-  const supersedingInDocLang = getTranslationInDocumentLang(
-    doc,
-    'superseding_document'
-  )
-  if (!supersedingInDocLang) {
-    ctx.infos.push({
-      instancePath: '/document/references',
-      message:
-        'no language specific translation for "Superseding Document" has been recorded',
-    })
-    return ctx
-  }
-
   if (isLangSpecifiedAndNotEnglish(doc.document.lang)) {
+    const supersedingInDocLang = getTranslationInDocumentLang(
+      doc,
+      'superseding_document'
+    )
+    if (!supersedingInDocLang) {
+      ctx.infos.push({
+        instancePath: '/document/references',
+        message:
+          'no language specific translation for "Superseding Document" has been recorded',
+      })
+      return ctx
+    }
+
     const references = doc.document.references
     if (
       !references ||
@@ -101,7 +101,7 @@ export function recommendedTest_6_2_39_4(doc) {
       ctx.warnings.push({
         instancePath: '/document/references',
         message:
-          `for document category "${documentCategoryCsafSuperseded}" at least one references must exist ` +
+          `for document category "${docCategoryCsafSuperseded}" at least one references must exist ` +
           `with reference category "${referenceCategory}" and whose summary begins with  ${supersedingInDocLang}`,
       })
     }
