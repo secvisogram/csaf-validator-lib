@@ -66,25 +66,29 @@ export function recommendedTest_6_2_39_2(doc) {
   }
 
   const noteCategory = 'description'
+  const docCategoryCsafWithdrawn = `csaf_withdrawn`
 
-  if (!validateSchema(doc) || doc.document.category !== 'csaf_withdrawn') {
-    return ctx
-  }
-
-  const withdrawalInDocLang = getTranslationInDocumentLang(
-    doc,
-    'reasoning_for_withdrawal'
-  )
-  if (!withdrawalInDocLang) {
-    ctx.infos.push({
-      instancePath: '/document/notes',
-      message:
-        'no language specific translation for "Reasoning for Withdrawal" has been recorded',
-    })
+  if (
+    !validateSchema(doc) ||
+    doc.document.category !== docCategoryCsafWithdrawn
+  ) {
     return ctx
   }
 
   if (isLangSpecifiedAndNotEnglish(doc.document.lang)) {
+    const withdrawalInDocLang = getTranslationInDocumentLang(
+      doc,
+      'reasoning_for_withdrawal'
+    )
+    if (!withdrawalInDocLang) {
+      ctx.infos.push({
+        instancePath: '/document/notes',
+        message:
+          'no language specific translation for "Reasoning for Withdrawal" has been recorded',
+      })
+      return ctx
+    }
+
     const notes = doc.document.notes
     if (
       !notes ||
@@ -97,7 +101,7 @@ export function recommendedTest_6_2_39_2(doc) {
       ctx.warnings.push({
         instancePath: '/document/notes',
         message:
-          `for document category "csaf_withdrawn" exactly one note must exist ` +
+          `for document category "${docCategoryCsafWithdrawn}" exactly one note must exist ` +
           `with note category "${noteCategory}" and title "${withdrawalInDocLang}"`,
       })
     }
