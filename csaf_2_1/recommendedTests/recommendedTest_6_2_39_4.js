@@ -102,7 +102,7 @@ export function recommendedTest_6_2_39_4(doc) {
         instancePath: '/document/references',
         message:
           `for document category "${docCategoryCsafSuperseded}" at least one references must exist ` +
-          `with reference category "${referenceCategory}" and whose summary begins with  ${supersedingInDocLang}`,
+          `with reference category "${referenceCategory}" and whose summary begins with ${supersedingInDocLang}`,
       })
     }
   }
