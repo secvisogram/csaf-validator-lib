@@ -1,4 +1,3 @@
-// created with: python ./csaf/csaf_2.1/test/generate_strict_schema.py ./csaf/csaf_2.1/json_schema/csaf.json > ./csaf_2_1/schemaTests/csaf_2_1_strict/schema.json
 export default {
   $id: 'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/csaf.json?strict',
   $schema: 'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/meta.json',
@@ -87,7 +86,6 @@ export default {
               'architecture',
               'host_name',
               'language',
-              'legacy',
               'patch_level',
               'platform',
               'product_family',
@@ -129,6 +127,17 @@ export default {
       minItems: 1,
       title: 'List of branches',
       type: 'array',
+    },
+    extensions_t: {
+      description:
+        'Contains a list of extension elements for the current context.',
+      items: {
+        $ref: 'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-content.json',
+      },
+      minItems: 1,
+      title: 'List of extensions',
+      type: 'array',
+      uniqueItems: true,
     },
     full_product_name_t: {
       additionalProperties: false,
@@ -192,19 +201,20 @@ export default {
                             'sha512',
                           ],
                           minLength: 1,
+                          pattern: '^[0-9a-z][0-9a-z-]*$',
                           title: 'Algorithm of the cryptographic hash',
                           type: 'string',
                         },
                         value: {
                           description:
-                            'Contains the cryptographic hash value in hexadecimal representation.',
+                            'Contains the cryptographic hash value in lowercase hexadecimal representation.',
                           examples: [
                             '37df33cb7464da5c7f077f4d56a32bc84987ec1d85b234537c1c1a4d4fc8d09dc29e2e762cb5203677bf849a2855a0283710f1f5fe1d6ce8d5ac85c645d0fcb3',
                             '4775203615d9534a8bfca96a93dc8b461a489f69124a130d786b42204f3341cc',
                             '9ea4c8200113d49d26505da0e02e2f49055dc078d1ad7a419b32e291c7afebbb84badfbd46dec42883bea0b2a1fa697c',
                           ],
                           minLength: 32,
-                          pattern: '^[0-9a-fA-F]{32,}$',
+                          pattern: '^[0-9a-f]{32,}$',
                           title: 'Value of the cryptographic hash',
                           type: 'string',
                         },
@@ -249,18 +259,18 @@ export default {
               uniqueItems: true,
             },
             purls: {
-              description: 'Contains a list of package URLs (purl).',
+              description: 'Contains a list of Package-URLs (PURL).',
               items: {
                 description:
-                  'The package URL (purl) attribute refers to a method for reliably identifying and locating software packages external to this specification.',
+                  'The Package-URL (PURL) attribute refers to a method for reliably identifying and locating software packages external to this specification.',
                 format: 'uri',
                 minLength: 7,
-                pattern: '^pkg:[A-Za-z\\.\\-\\+][A-Za-z0-9\\.\\-\\+]*\\/.+',
-                title: 'package URL representation',
+                pattern: '^pkg:[a-z][a-z0-9\\.\\-]*\\/.+',
+                title: 'Package-URL representation',
                 type: 'string',
               },
               minItems: 1,
-              title: 'List of package URLs',
+              title: 'List of PURLs',
               type: 'array',
               uniqueItems: true,
             },
@@ -292,11 +302,10 @@ export default {
               uniqueItems: true,
             },
             skus: {
-              description:
-                'Contains a list of full or abbreviated (partial) stock keeping units.',
+              description: 'Contains a list of stock keeping units.',
               items: {
                 description:
-                  'Contains a full or abbreviated (partial) stock keeping unit (SKU) which is used in the ordering process to identify the component.',
+                  'Contains a stock keeping unit (SKU) which is used in the ordering process to identify the component - possibly with placeholders.',
                 minLength: 1,
                 title: 'Stock keeping unit',
                 type: 'string',
@@ -338,6 +347,12 @@ export default {
           },
           title: 'Helper to identify the product',
           type: 'object',
+        },
+        x_extensions: {
+          $ref: '#/$defs/extensions_t',
+          description:
+            'Contains a list of extensions valid at the full product name element level of the CSAF document and associated with this full product name element.',
+          title: 'Product-level Extensions',
         },
       },
       required: ['name', 'product_id'],
@@ -495,6 +510,35 @@ export default {
       minItems: 1,
       title: 'List of references',
       type: 'array',
+    },
+    subpath_t: {
+      additionalProperties: false,
+      description:
+        'Contains the next node along the current path and its relationship to the previous node.',
+      properties: {
+        category: {
+          description:
+            'Defines the category of relationship between the previous item and the referenced next product.',
+          enum: [
+            'default_component_of',
+            'external_component_of',
+            'installed_on',
+            'installed_with',
+            'optional_component_of',
+          ],
+          title: 'Relationship category',
+          type: 'string',
+        },
+        next_product_reference: {
+          $ref: '#/$defs/product_id_t',
+          description:
+            'Holds a Product ID that refers to the Full Product Name element, which is referenced as the second element of the relationship.',
+          title: 'Next product reference',
+        },
+      },
+      required: ['category', 'next_product_reference'],
+      title: 'Subpath',
+      type: 'object',
     },
     version_t: {
       description:
@@ -912,6 +956,12 @@ export default {
           title: 'Tracking',
           type: 'object',
         },
+        x_extensions: {
+          $ref: '#/$defs/extensions_t',
+          description:
+            'Contains a list of extensions valid at the document property level of the CSAF document and associated with this document metadata.',
+          title: 'Document-level Extensions',
+        },
       },
       required: [
         'category',
@@ -983,53 +1033,43 @@ export default {
           title: 'List of product groups',
           type: 'array',
         },
-        relationships: {
-          description: 'Contains a list of relationships.',
+        product_paths: {
+          description: 'Contains a list of product paths.',
           items: {
             additionalProperties: false,
             description:
-              'Establishes a link between two existing full_product_name_t elements, allowing the document producer to define a combination of two products that form a new full_product_name entry.',
+              'Establishes a path along existing full_product_name_t elements, allowing the document producer to define a path of multiple products that form a new full_product_name entry.',
             properties: {
-              category: {
+              beginning_product_reference: {
+                $ref: '#/$defs/product_id_t',
                 description:
-                  'Defines the category of relationship for the referenced component.',
-                enum: [
-                  'default_component_of',
-                  'external_component_of',
-                  'installed_on',
-                  'installed_with',
-                  'optional_component_of',
-                ],
-                title: 'Relationship category',
-                type: 'string',
+                  'Holds a Product ID that refers to the Full Product Name element, which is the beginning node of the product path.',
+                title: 'Beginning product reference',
               },
               full_product_name: {
                 $ref: '#/$defs/full_product_name_t',
               },
-              product_reference: {
-                $ref: '#/$defs/product_id_t',
+              subpaths: {
                 description:
-                  'Holds a Product ID that refers to the Full Product Name element, which is referenced as the first element of the relationship.',
-                title: 'Product reference',
-              },
-              relates_to_product_reference: {
-                $ref: '#/$defs/product_id_t',
-                description:
-                  'Holds a Product ID that refers to the Full Product Name element, which is referenced as the second element of the relationship.',
-                title: 'Relates to product reference',
+                  'Contains an ordered list of product subpaths, each one relating to the path defined by all previous elements up to the beginning node of the product path.',
+                items: {
+                  $ref: '#/$defs/subpath_t',
+                },
+                minItems: 1,
+                title: 'List of product subpaths',
+                type: 'array',
               },
             },
             required: [
-              'category',
+              'beginning_product_reference',
               'full_product_name',
-              'product_reference',
-              'relates_to_product_reference',
+              'subpaths',
             ],
-            title: 'Relationship',
+            title: 'Product path',
             type: 'object',
           },
           minItems: 1,
-          title: 'List of relationships',
+          title: 'List of product paths',
           type: 'array',
         },
       },
@@ -1209,7 +1249,11 @@ export default {
                 system_name: {
                   description:
                     'Indicates the name of the vulnerability tracking or numbering system.',
-                  examples: ['Cisco Bug ID', 'GitHub Issue'],
+                  examples: [
+                    'Cisco Bug ID',
+                    'GitHub Issue',
+                    'https://github.com/oasis-tcs/csaf',
+                  ],
                   minLength: 1,
                   title: 'System name',
                   type: 'string',
@@ -1217,7 +1261,7 @@ export default {
                 text: {
                   description:
                     'Is unique label or tracking ID for the vulnerability (if such information exists).',
-                  examples: ['CSCso66472', 'oasis-tcs/csaf#210'],
+                  examples: ['CSCso66472', 'oasis-tcs/csaf#210', '#1217'],
                   minLength: 1,
                   title: 'Text',
                   type: 'string',
@@ -1331,7 +1375,7 @@ export default {
                       title: 'CVSS v3',
                     },
                     cvss_v4: {
-                      $ref: 'https://www.first.org/cvss/cvss-v4.0.1.json',
+                      $ref: 'https://www.first.org/cvss/cvss-v4.0.json',
                       title: 'CVSS v4',
                     },
                     epss: {
@@ -1372,8 +1416,14 @@ export default {
                       type: 'string',
                     },
                     ssvc_v2: {
-                      $ref: 'https://certcc.github.io/SSVC/data/schema/v2/Decision_Point_Value_Selection-2-0-0.schema.json',
+                      $ref: 'https://certcc.github.io/SSVC/data/schema/v2/SelectionList_2_0_0.schema.json',
                       title: 'SSVC v2',
+                    },
+                    x_extensions: {
+                      $ref: '#/$defs/extensions_t',
+                      description:
+                        'Contains a list of extensions valid at the metrics-content-level of the CSAF document and associated with this metric element.',
+                      title: 'Metrics-content-level Extensions',
                     },
                   },
                   title: 'Content',
@@ -1630,6 +1680,12 @@ export default {
             title: 'Title',
             type: 'string',
           },
+          x_extensions: {
+            $ref: '#/$defs/extensions_t',
+            description:
+              'Contains a list of extensions valid at the vulnerability item level of the CSAF document and associated with this vulnerability element.',
+            title: 'Vulnerability-level Extensions',
+          },
         },
         title: 'Vulnerability',
         type: 'object',
@@ -1637,6 +1693,12 @@ export default {
       minItems: 1,
       title: 'Vulnerabilities',
       type: 'array',
+    },
+    x_extensions: {
+      $ref: '#/$defs/extensions_t',
+      description:
+        'Contains a list of extensions valid at the root-level of the CSAF document and associated with this CSAF document.',
+      title: 'Root-level Extensions',
     },
   },
   required: ['$schema', 'document'],
