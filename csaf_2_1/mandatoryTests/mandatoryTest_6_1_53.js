@@ -33,6 +33,8 @@ const inputSchema = /** @type {const} */ ({
 
 const validate = ajv.compile(inputSchema)
 
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>['vulnerabilities'][number]} Vulnerability */
+
 /**
  * This implements the mandatory test 6.1.53 of the CSAF 2.1 standard.
  *
@@ -53,9 +55,11 @@ export function mandatoryTest_6_1_53(doc) {
     return ctx
   }
 
-  doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
+  /** @type {Array<Vulnerability>} */
+  const vulnerabilities = doc.vulnerabilities
+  vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
     const exploitationDates = vulnerability.first_known_exploitation_dates || []
-    exploitationDates.forEach((item, Index) => {
+    exploitationDates.forEach((item, index) => {
       const date = item.date
       const exploitationDate = item.exploitation_date
 
@@ -67,7 +71,7 @@ export function mandatoryTest_6_1_53(doc) {
       ) {
         ctx.isValid = false
         ctx.errors.push({
-          instancePath: `/vulnerabilities/${vulnerabilityIndex}/first_known_exploitation_dates/${Index}/exploitation_date`,
+          instancePath: `/vulnerabilities/${vulnerabilityIndex}/first_known_exploitation_dates/${index}/exploitation_date`,
           message:
             'the "exploitation_date" is newer than the "date" which states when that information was last updated',
         })

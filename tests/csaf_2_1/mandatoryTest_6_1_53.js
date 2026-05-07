@@ -6,7 +6,7 @@ describe('mandatoryTest_6_1_53', function () {
     assert.equal(mandatoryTest_6_1_53({ document: 'mydoc' }).isValid, true)
   })
 
-  it('skips empty vulnerability', function () {
+  it('skips vulnerability without first_known_exploitation_dates', function () {
     assert.equal(
       mandatoryTest_6_1_53({
         vulnerabilities: [
