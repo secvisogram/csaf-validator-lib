@@ -5,7 +5,7 @@ import * as mandatory from '../mandatoryTests.js'
 import { expect } from 'chai'
 import { readFileSync } from 'fs'
 
-/** @typedef {import('../lib/shared/types').DocumentTest} DocumentTest */
+/** @typedef {import('../lib/shared/types.js').DocumentTest} DocumentTest */
 
 /** @typedef {Map<string, DocumentTest>} TestMap */
 
@@ -98,9 +98,6 @@ describe('oasis', function () {
                           : `should not have warnings, but had ${result.warnings?.length}`
                       ).to.equal(type === 'failures')
                     } else if (group === 'informative') {
-                      if (result.infos?.length && type === 'valid') {
-                        console.log(testId, result.infos)
-                      }
                       expect(
                         Boolean(result.infos?.length),
                         type === 'failures'
