@@ -1,11 +1,7 @@
+import { Ajv } from 'ajv/dist/jtd.js'
 import { collectProductIdsFromFullProductPath } from './shared/docProductUtils.js'
 
-/*
-  This is the jtd schema that needs to match the input document so that the
-  test is activated. If this schema doesn't match it normally means that the input
-  document does not validate against the csaf json schema or optional fields that
-  the test checks are not present.
- */
+const ajv = new Ajv()
 
 const productIdsSchema = /** @type {const} */ ({
   additionalProperties: true,
@@ -29,20 +25,20 @@ const productStatusSchema = /** @type {const} */ ({
   },
 })
 
+const metricSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    products: { elements: { type: 'string' } },
+  },
+})
+
 const vulnerabilitySchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
     flags: { elements: productIdsSchema },
     first_known_exploitation_dates: { elements: productIdsSchema },
     involvements: { elements: productIdsSchema },
-    metrics: {
-      elements: {
-        additionalProperties: true,
-        optionalProperties: {
-          products: { elements: { type: 'string' } },
-        },
-      },
-    },
+    metrics: { elements: metricSchema },
     notes: { elements: productIdsSchema },
     product_status: productStatusSchema,
     remediations: { elements: productIdsSchema },
@@ -80,6 +76,12 @@ const productTreeSchema = /** @type {const} */ ({
   },
 })
 
+/*
+  This is the jtd schema that needs to match the input document so that the
+  test is activated. If this schema doesn't match it normally means that the input
+  document does not validate against the csaf json schema or optional fields that
+  the test checks are not present.
+ */
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
@@ -89,9 +91,12 @@ const inputSchema = /** @type {const} */ ({
   },
 })
 
+const validateInput = ajv.compile(inputSchema)
+
 /**
- * @typedef {import('ajv/dist/core').JTDDataType<typeof vulnerabilitySchema>} Vulnerability
- * @typedef {import('ajv/dist/core').JTDDataType<typeof inputSchema>} InputSchema
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof vulnerabilitySchema>} Vulnerability
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof inputSchema>} InputSchema
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof metricSchema>} MetricSchema
  * @typedef {{id: string, instancePath: string}} ProductIdRef
  */
 
@@ -109,6 +114,10 @@ export function mandatoryTest_6_1_1(doc) {
     errors:
       /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
     isValid: true,
+  }
+
+  if (!validateInput(doc)) {
+    return ctx
   }
 
   const productIds = collectProductIdsFromFullProductPath({ document: doc })
@@ -138,32 +147,24 @@ function collectProductIdRefs({ document }) {
   const entries = /** @type {ProductIdRef[]} */ ([])
   document.notes?.forEach((documentNote, documentNoteIndex) => {
     const productIds = documentNote.product_ids
-    if (productIds) {
-      productIds?.forEach((productId, productIdIndex) => {
-        if (productId) {
-          entries.push({
-            id: productId,
-            instancePath: `/notes/${documentNoteIndex}/product_ids/${productIdIndex}`,
-          })
-        }
+    productIds?.forEach((productId, productIdIndex) => {
+      entries.push({
+        id: productId,
+        instancePath: `/notes/${documentNoteIndex}/product_ids/${productIdIndex}`,
       })
-    }
+    })
   })
 
   const productGroups = document.product_tree?.product_groups
   if (productGroups) {
     productGroups?.forEach((productGroup, productGroupIndex) => {
       const productIds = productGroup.product_ids
-      if (productIds) {
-        productIds?.forEach((productId, productIdIndex) => {
-          if (productId) {
-            entries.push({
-              id: productId,
-              instancePath: `/product_tree/product_groups/${productGroupIndex}/product_ids/${productIdIndex}`,
-            })
-          }
+      productIds?.forEach((productId, productIdIndex) => {
+        entries.push({
+          id: productId,
+          instancePath: `/product_tree/product_groups/${productGroupIndex}/product_ids/${productIdIndex}`,
         })
-      }
+      })
     })
   }
 
@@ -301,12 +302,10 @@ const collectRefsInProductStatus = (instancePath, vulnerability, entries) => {
  */
 const findRefsInProductStatus = (refs, instancePath, entries) => {
   refs?.forEach((ref, refIndex) => {
-    if (ref) {
-      entries.push({
-        id: ref,
-        instancePath: `${instancePath}/${refIndex}`,
-      })
-    }
+    entries.push({
+      id: ref,
+      instancePath: `${instancePath}/${refIndex}`,
+    })
   })
 }
 
@@ -319,12 +318,10 @@ const collectProductRefsInThreats = (instancePath, vulnerability, entries) => {
   vulnerability.threats?.forEach((threat, threatIndex) => {
     const productIds = threat.product_ids
     productIds?.forEach((productId, productIdIndex) => {
-      if (productId) {
-        entries.push({
-          id: productId,
-          instancePath: `${instancePath}/${threatIndex}/product_ids/${productIdIndex}`,
-        })
-      }
+      entries.push({
+        id: productId,
+        instancePath: `${instancePath}/${threatIndex}/product_ids/${productIdIndex}`,
+      })
     })
   })
 }
@@ -338,12 +335,10 @@ const collectRefsInMetrics = (instancePath, vulnerability, entries) => {
   vulnerability.metrics?.forEach((metric, metricIndex) => {
     const products = metric.products
     products?.forEach((productId, productIdIndex) => {
-      if (productId) {
-        entries.push({
-          id: productId,
-          instancePath: `${instancePath}/${metricIndex}/products/${productIdIndex}`,
-        })
-      }
+      entries.push({
+        id: productId,
+        instancePath: `${instancePath}/${metricIndex}/products/${productIdIndex}`,
+      })
     })
   })
 }
@@ -361,12 +356,10 @@ const collectProductRefsInRemediations = (
   vulnerability.remediations?.forEach((remediation, remediationIndex) => {
     const productIds = remediation.product_ids
     productIds?.forEach((productId, productIdIndex) => {
-      if (productId) {
-        entries.push({
-          id: productId,
-          instancePath: `${instancePath}/${remediationIndex}/product_ids/${productIdIndex}`,
-        })
-      }
+      entries.push({
+        id: productId,
+        instancePath: `${instancePath}/${remediationIndex}/product_ids/${productIdIndex}`,
+      })
     })
   })
 }
@@ -380,12 +373,10 @@ const collectProductRefsInFlags = (instancePath, vulnerability, entries) => {
   vulnerability.flags?.forEach((flag, flagIndex) => {
     const productIds = flag.product_ids
     productIds?.forEach((productId, productIdIndex) => {
-      if (productId) {
-        entries.push({
-          id: productId,
-          instancePath: `${instancePath}/${flagIndex}/product_ids/${productIdIndex}`,
-        })
-      }
+      entries.push({
+        id: productId,
+        instancePath: `${instancePath}/${flagIndex}/product_ids/${productIdIndex}`,
+      })
     })
   })
 }
@@ -404,12 +395,10 @@ const collectProductRefsInFirstKnownExploitationDates = (
     (firstKnownExploitationDate, firstKnownExploitationDateIndex) => {
       const productIds = firstKnownExploitationDate.product_ids
       productIds?.forEach((productId, productIdIndex) => {
-        if (productId) {
-          entries.push({
-            id: productId,
-            instancePath: `${instancePath}/${firstKnownExploitationDateIndex}/product_ids/${productIdIndex}`,
-          })
-        }
+        entries.push({
+          id: productId,
+          instancePath: `${instancePath}/${firstKnownExploitationDateIndex}/product_ids/${productIdIndex}`,
+        })
       })
     }
   )
@@ -428,12 +417,10 @@ const collectProductRefsInInvolvements = (
   vulnerability.involvements?.forEach((involvement, involvementIndex) => {
     const productIds = involvement.product_ids
     productIds?.forEach((productId, productIdIndex) => {
-      if (productId) {
-        entries.push({
-          id: productId,
-          instancePath: `${instancePath}/${involvementIndex}/product_ids/${productIdIndex}`,
-        })
-      }
+      entries.push({
+        id: productId,
+        instancePath: `${instancePath}/${involvementIndex}/product_ids/${productIdIndex}`,
+      })
     })
   })
 }
@@ -447,12 +434,10 @@ const collectProductRefsInNotes = (instancePath, vulnerability, entries) => {
   vulnerability.notes?.forEach((note, noteIndex) => {
     const productIds = note.product_ids
     productIds?.forEach((productId, productIdIndex) => {
-      if (productId) {
-        entries.push({
-          id: productId,
-          instancePath: `${instancePath}/${noteIndex}/product_ids/${productIdIndex}`,
-        })
-      }
+      entries.push({
+        id: productId,
+        instancePath: `${instancePath}/${noteIndex}/product_ids/${productIdIndex}`,
+      })
     })
   })
 }
