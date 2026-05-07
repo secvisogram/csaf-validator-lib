@@ -49,10 +49,6 @@ const inputSchema = /** @type {const} */ ({
                         version: { type: 'string' },
                         baseScore: { type: 'float64' },
                         baseSeverity: { type: 'string' },
-                        threatScore: { type: 'float64' },
-                        threatSeverity: { type: 'string' },
-                        environmentalScore: { type: 'float64' },
-                        environmentalSeverity: { type: 'string' },
                       },
                     },
                   },
@@ -98,12 +94,13 @@ export function mandatoryTest_6_1_9(doc) {
         })
       })
 
-      calculateCvss4(metric).forEach((failedMetricName) => {
+      let cvss4 = calculateCvss4(metric)
+      if (cvss4) {
         errors.push({
-          instancePath: `/vulnerabilities/${vulnerabilityIndex}/scores/${metricIndex}/cvss_v4/${failedMetricName}`,
+          instancePath: `/vulnerabilities/${vulnerabilityIndex}/scores/${metricIndex}/cvss_v4/${cvss4}`,
           message: 'invalid calculated value',
         })
-      })
+      }
     })
   })
 
@@ -253,32 +250,31 @@ function calculateCvss3(metric) {
 
 /**
  * @param {any} metric
- * @return {string[]}
+ * @return {string | null}
  */
 function calculateCvss4(metric) {
   /**
-   * @type {string[]}
+   * @type {string | null}
    */
-  const failedMetrics = []
+  let failedMetric = null
   if (
     metric.content?.cvss_v4 &&
     typeof metric.content.cvss_v4.vectorString === 'string'
   ) {
-    const scores = calculateCvss4_0_Score(metric.content.cvss_v4.vectorString)
-    scores.forEach((score) => {
-      const expectedScore = metric.content.cvss_v4[score.scoreJsonName]
-      const expectedSeverity = metric.content.cvss_v4[score.severityJsonName]
-      if (typeof expectedScore === 'number' && score.score !== expectedScore) {
-        failedMetrics.push(score.scoreJsonName)
-      }
+    const score = calculateCvss4_0_Score(metric.content.cvss_v4.vectorString)
 
-      if (
-        typeof expectedSeverity === 'string' &&
-        score.severity.toUpperCase() !== expectedSeverity.toUpperCase()
-      ) {
-        failedMetrics.push(score.severityJsonName)
-      }
-    })
+    const expectedScore = metric.content?.cvss_v4.baseScore
+    if (typeof expectedScore === 'number' && score.score !== expectedScore) {
+      failedMetric = 'baseScore'
+    }
+
+    const expectedSeverity = metric.content?.cvss_v4.baseSeverity
+    if (
+      typeof expectedSeverity === 'string' &&
+      score.severity.toUpperCase() !== expectedSeverity.toUpperCase()
+    ) {
+      failedMetric = 'baseSeverity'
+    }
   }
-  return failedMetrics
+  return failedMetric
 }
