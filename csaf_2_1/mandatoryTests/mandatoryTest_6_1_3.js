@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
@@ -52,7 +52,7 @@ const inputSchema = /** @type {const} */ ({
 const validate = ajv.compile(inputSchema)
 
 /**
- * @typedef {import('ajv/dist/core').JTDDataType<typeof productPathSchema>} ProductPath
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productPathSchema>} ProductPath
  * @typedef {{dependencies: Array<{ productId: string, pathIndex: number, type: "main" | "sub", subIndex: number | null }> }} GraphNode
  * @typedef {Map<string, GraphNode>} DependencyGraph
  * @typedef {{cycleProductId: string, pathIndex: number, type: string, subIndex: number | null } | null} CircularDependency
