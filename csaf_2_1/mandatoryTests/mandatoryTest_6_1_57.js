@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
@@ -11,6 +11,7 @@ const branchSchema = /** @type {const} */ ({
         properties: {},
       },
     },
+    category: { type: 'string' },
   },
 })
 
@@ -37,10 +38,12 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 const validateBranch = ajv.compile(branchSchema)
 
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof branchSchema>} BranchSchema */
+
 /**
  * This implements the mandatory test 6.1.57 of the CSAF 2.1 standard.
  *
- * @param {any} doc
+ * @param {unknown} doc
  */
 export function mandatoryTest_6_1_57(doc) {
   const ctx = {
@@ -54,6 +57,7 @@ export function mandatoryTest_6_1_57(doc) {
   }
 
   // Start the recursive check from the root branches
+  /** @type {Array<BranchSchema>} */
   const branches = doc.product_tree?.branches ?? []
   branches.forEach((branch, index) => {
     checkBranch(branch, `/product_tree/branches/${index}`, [], ctx.errors)
@@ -70,7 +74,7 @@ export function mandatoryTest_6_1_57(doc) {
  * Validates a single branch and its nested branches recursively.
  * Checks that no category (except product_family) appears more than once along the path.
  *
- * @param {any} branch
+ * @param {BranchSchema} branch
  * @param {string} basePath
  * @param {string[]} categoriesInPath
  * @param {Array<{ instancePath: string; message: string }>} errors
@@ -95,7 +99,10 @@ function checkBranch(branch, basePath, categoriesInPath, errors) {
   // Recursively check nested branches
   if (Array.isArray(branch.branches)) {
     branch.branches.forEach(
-      (/** @type {any} */ childBranch, /** @type {number} */ index) => {
+      (
+        /** @type {BranchSchema} */ childBranch,
+        /** @type {number} */ index
+      ) => {
         if (!validateBranch(childBranch)) return
         checkBranch(
           childBranch,
