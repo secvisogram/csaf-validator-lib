@@ -33,6 +33,8 @@ const inputSchema = /** @type {const} */ ({
 
 const validate = ajv.compile(inputSchema)
 
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>['vulnerabilities'][number]} Vulnerability */
+
 /**
  * This implements the mandatory test 6.1.53 of the CSAF 2.1 standard.
  *
@@ -53,7 +55,9 @@ export function mandatoryTest_6_1_53(doc) {
     return ctx
   }
 
-  doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
+  /** @type {Array<Vulnerability>} */
+  const vulnerabilities = doc.vulnerabilities
+  vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
     const exploitationDates = vulnerability.first_known_exploitation_dates || []
     exploitationDates.forEach((item, Index) => {
       const date = item.date
