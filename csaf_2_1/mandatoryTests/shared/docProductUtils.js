@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
@@ -47,12 +47,13 @@ const docSchema = /** @type {const} */ ({
 })
 
 /**
- * @typedef {import('ajv/dist/core').JTDDataType<typeof docSchema>} Dokument
- * @typedef {import('ajv/dist/core').JTDDataType<typeof branchSchema>} Branch
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof docSchema>} Dokument
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productPathEntrySchema>} ProductPathEntry
  */
 
 const validateDoc = ajv.compile(docSchema)
-const validateBranch = ajv.compile(branchSchema)
 
 /**
  * This method collects definitions of product ids and corresponding names and instancePaths in the given document and returns a result object.
@@ -111,7 +112,6 @@ export const collectProductIdsFromFullProductPath = ({ document }) => {
  */
 const traverseBranches = (branches, entries, instancePath) => {
   branches?.forEach((branch, branchIndex) => {
-    if (!validateBranch(branch)) return
     const branchInstancePath = `${instancePath}/${branchIndex}`
     const product = branch.product
     if (product) {
