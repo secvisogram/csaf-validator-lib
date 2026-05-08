@@ -39,7 +39,7 @@ const productTreeSchema = /** @type {const} */ ({
   },
 })
 
-const docSchema = /** @type {const} */ ({
+const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
     product_tree: productTreeSchema,
@@ -47,28 +47,28 @@ const docSchema = /** @type {const} */ ({
 })
 
 /**
- * @typedef {import('ajv/dist/core.js').JTDDataType<typeof docSchema>} Dokument
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof inputSchema>} InputSchema
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productPathEntrySchema>} ProductPathEntry
  */
 
-const validateDoc = ajv.compile(docSchema)
+const validateDoc = ajv.compile(inputSchema)
 
 /**
  * This method collects definitions of product ids and corresponding names and instancePaths in the given document and returns a result object.
- * @param {Dokument} document
+ * @param {InputSchema} doc
  * @returns {{id: string, name: string, instancePath: string}[]}
  */
-export const collectProductIdsFromFullProductPath = ({ document }) => {
+export const collectProductIdsFromFullProductPath = (doc) => {
   const entries =
     /** @type {{id: string, name: string, instancePath: string}[]} */ ([])
 
-  if (!validateDoc(document)) {
+  if (!validateDoc(doc)) {
     return entries
   }
 
-  const fullProductNames = document.product_tree?.full_product_names
+  const fullProductNames = doc.product_tree?.full_product_names
   if (fullProductNames) {
     fullProductNames?.forEach((fullProductName, fullProductNameIndex) => {
       if (fullProductName.product_id) {
@@ -81,7 +81,7 @@ export const collectProductIdsFromFullProductPath = ({ document }) => {
     })
   }
 
-  const productPaths = document.product_tree?.product_paths
+  const productPaths = doc.product_tree?.product_paths
   if (productPaths) {
     productPaths?.forEach((productPath, productPathIndex) => {
       const fullProductName = productPath.full_product_name
@@ -97,7 +97,7 @@ export const collectProductIdsFromFullProductPath = ({ document }) => {
     })
   }
 
-  const branches = document.product_tree?.branches
+  const branches = doc.product_tree?.branches
   if (branches) {
     traverseBranches(branches, entries, '/product_tree/branches')
   }

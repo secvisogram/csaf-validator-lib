@@ -53,10 +53,18 @@ const subpathSchema = /** @type {const} */ ({
   },
 })
 
+const fullProductNameRefSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    product_id: { type: 'string' },
+  },
+})
+
 const productPathSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
     beginning_product_reference: { type: 'string' },
+    full_product_name: fullProductNameRefSchema,
     subpaths: { elements: subpathSchema },
   },
 })
@@ -85,7 +93,12 @@ const productTreeSchema = /** @type {const} */ ({
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
-    notes: { elements: productIdsSchema },
+    document: {
+      additionalProperties: true,
+      optionalProperties: {
+        notes: { elements: productIdsSchema },
+      },
+    },
     product_tree: productTreeSchema,
     vulnerabilities: { elements: vulnerabilitySchema },
   },
@@ -103,7 +116,7 @@ const validateInput = ajv.compile(inputSchema)
 /**
  * This implements the mandatory test 6.1.1 of the CSAF 2.1 standard.
  *
- * @param {InputSchema} doc
+ * @param {unknown} doc
  */
 export function mandatoryTest_6_1_1(doc) {
   /*
@@ -120,8 +133,8 @@ export function mandatoryTest_6_1_1(doc) {
     return ctx
   }
 
-  const productIds = collectProductIdsFromFullProductPath({ document: doc })
-  const productIdRefs = collectProductIdRefs({ document: doc })
+  const productIds = collectProductIdsFromFullProductPath(doc)
+  const productIdRefs = collectProductIdRefs(doc)
   const missingProductDefinitions = findMissingDefinitions(
     productIds,
     productIdRefs
@@ -140,22 +153,22 @@ export function mandatoryTest_6_1_1(doc) {
 
 /**
  * This method collects references to product ids and corresponding instancePaths in the given document and returns a result object.
- * @param {{ document: InputSchema }} document
+ * @param {InputSchema} doc
  * @returns {ProductIdRef[]}
  */
-function collectProductIdRefs({ document }) {
+function collectProductIdRefs(doc) {
   const entries = /** @type {ProductIdRef[]} */ ([])
-  document.notes?.forEach((documentNote, documentNoteIndex) => {
+  doc.document?.notes?.forEach((documentNote, documentNoteIndex) => {
     const productIds = documentNote.product_ids
     productIds?.forEach((productId, productIdIndex) => {
       entries.push({
         id: productId,
-        instancePath: `/notes/${documentNoteIndex}/product_ids/${productIdIndex}`,
+        instancePath: `/document/notes/${documentNoteIndex}/product_ids/${productIdIndex}`,
       })
     })
   })
 
-  const productGroups = document.product_tree?.product_groups
+  const productGroups = doc.product_tree?.product_groups
   if (productGroups) {
     productGroups?.forEach((productGroup, productGroupIndex) => {
       const productIds = productGroup.product_ids
@@ -168,7 +181,7 @@ function collectProductIdRefs({ document }) {
     })
   }
 
-  const productPaths = document.product_tree?.product_paths
+  const productPaths = doc.product_tree?.product_paths
   if (productPaths) {
     productPaths?.forEach((productPath, productPathIndex) => {
       const beginningProductRef = productPath.beginning_product_reference
@@ -193,7 +206,7 @@ function collectProductIdRefs({ document }) {
     })
   }
 
-  const vulnerabilities = document.vulnerabilities
+  const vulnerabilities = doc.vulnerabilities
   if (vulnerabilities) {
     vulnerabilities?.forEach((vulnerability, vulnerabilitiyIndex) => {
       collectRefsInProductStatus(

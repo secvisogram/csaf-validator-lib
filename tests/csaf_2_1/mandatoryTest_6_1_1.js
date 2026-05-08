@@ -2,25 +2,22 @@ import assert from 'node:assert'
 import { mandatoryTest_6_1_1 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_1.js'
 
 describe('mandatoryTest_6_1_1', function () {
-  it('returns no errors when input does not match the schema', function () {
-    assert.equal(
-      mandatoryTest_6_1_1({
-        /** @type {any} */ notes: 'not-an-array',
-      }).errors.length,
-      0
-    )
+  it('only runs on relevant documents', function () {
+    assert.equal(mandatoryTest_6_1_1({ document: 'mydoc' }).isValid, true)
   })
 
   it('reports undefined product_id referenced in notes', function () {
     assert.equal(
       mandatoryTest_6_1_1({
-        notes: [
-          {
-            category: 'general',
-            text: 'note',
-            product_ids: ['CSAFPID-UNDEFINED'],
-          },
-        ],
+        document: {
+          notes: [
+            {
+              category: 'general',
+              text: 'note',
+              product_ids: ['CSAFPID-UNDEFINED'],
+            },
+          ],
+        },
       }).errors.length,
       1
     )
