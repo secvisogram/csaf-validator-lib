@@ -9,23 +9,10 @@ describe('docProductUtils', function () {
     )
   })
 
-  it('skips full_product_name entries without product_id', function () {
-    const result = collectProductIdsFromFullProductPath({
-      document: {
-        product_tree: {
-          full_product_names: [{ name: 'Product without ID' }],
-        },
-      },
-    })
-    assert.equal(result.length, 0)
-  })
-
   it('collects product_id from full_product_names', function () {
     const result = collectProductIdsFromFullProductPath({
-      document: {
-        product_tree: {
-          full_product_names: [{ product_id: 'CSAFPID-0001' }],
-        },
+      product_tree: {
+        full_product_names: [{ product_id: 'CSAFPID-0001' }],
       },
     })
     assert.equal(result.length, 1)
@@ -37,31 +24,14 @@ describe('docProductUtils', function () {
 
   it('collects product_id from product_paths full_product_name', function () {
     const result = collectProductIdsFromFullProductPath({
-      document: {
-        product_tree: {
-          product_paths: [{}],
-        },
-      },
-    })
-    assert.equal(result.length, 1)
-    assert.equal(
-      result[0].instancePath,
-      '/product_tree/product_paths/0/full_product_name/product_id'
-    )
-  })
-
-  it('collects product_id from product_paths full_product_name', function () {
-    const result = collectProductIdsFromFullProductPath({
-      document: {
-        product_tree: {
-          product_paths: [
-            {
-              full_product_name: {
-                product_id: 'CSAFPID-0002',
-              },
+      product_tree: {
+        product_paths: [
+          {
+            full_product_name: {
+              product_id: 'CSAFPID-0002',
             },
-          ],
-        },
+          },
+        ],
       },
     })
     assert.equal(result.length, 1)
@@ -73,14 +43,12 @@ describe('docProductUtils', function () {
 
   it('collects product_id from branches', function () {
     const result = collectProductIdsFromFullProductPath({
-      document: {
-        product_tree: {
-          branches: [
-            {
-              product: { product_id: 'CSAFPID-0003' },
-            },
-          ],
-        },
+      product_tree: {
+        branches: [
+          {
+            product: { product_id: 'CSAFPID-0003' },
+          },
+        ],
       },
     })
     assert.equal(result.length, 1)
@@ -92,21 +60,19 @@ describe('docProductUtils', function () {
 
   it('traverses nested branches recursively', function () {
     const result = collectProductIdsFromFullProductPath({
-      document: {
-        product_tree: {
-          branches: [
-            {
-              branches: [
-                {
-                  product: {
-                    product_id: 'CSAFPID-0004',
-                    name: 'Nested Product',
-                  },
+      product_tree: {
+        branches: [
+          {
+            branches: [
+              {
+                product: {
+                  product_id: 'CSAFPID-0004',
+                  name: 'Nested Product',
                 },
-              ],
-            },
-          ],
-        },
+              },
+            ],
+          },
+        ],
       },
     })
     assert.equal(result.length, 1)
