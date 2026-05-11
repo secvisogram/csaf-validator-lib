@@ -208,44 +208,44 @@ function collectProductIdRefs(doc) {
 
   const vulnerabilities = doc.vulnerabilities
   if (vulnerabilities) {
-    vulnerabilities?.forEach((vulnerability, vulnerabilitiyIndex) => {
+    vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
       collectRefsInProductStatus(
-        `/vulnerabilities/${vulnerabilitiyIndex}/product_status`,
+        `/vulnerabilities/${vulnerabilityIndex}/product_status`,
         vulnerability,
         entries
       )
       collectProductRefsInRemediations(
-        `/vulnerabilities/${vulnerabilitiyIndex}/remediations`,
+        `/vulnerabilities/${vulnerabilityIndex}/remediations`,
         vulnerability,
         entries
       )
       collectRefsInMetrics(
-        `/vulnerabilities/${vulnerabilitiyIndex}/metrics`,
+        `/vulnerabilities/${vulnerabilityIndex}/metrics`,
         vulnerability,
         entries
       )
       collectProductRefsInThreats(
-        `/vulnerabilities/${vulnerabilitiyIndex}/threats`,
+        `/vulnerabilities/${vulnerabilityIndex}/threats`,
         vulnerability,
         entries
       )
       collectProductRefsInFlags(
-        `/vulnerabilities/${vulnerabilitiyIndex}/flags`,
+        `/vulnerabilities/${vulnerabilityIndex}/flags`,
         vulnerability,
         entries
       )
       collectProductRefsInFirstKnownExploitationDates(
-        `/vulnerabilities/${vulnerabilitiyIndex}/first_known_exploitation_dates`,
+        `/vulnerabilities/${vulnerabilityIndex}/first_known_exploitation_dates`,
         vulnerability,
         entries
       )
       collectProductRefsInInvolvements(
-        `/vulnerabilities/${vulnerabilitiyIndex}/involvements`,
+        `/vulnerabilities/${vulnerabilityIndex}/involvements`,
         vulnerability,
         entries
       )
       collectProductRefsInNotes(
-        `/vulnerabilities/${vulnerabilitiyIndex}/notes`,
+        `/vulnerabilities/${vulnerabilityIndex}/notes`,
         vulnerability,
         entries
       )
