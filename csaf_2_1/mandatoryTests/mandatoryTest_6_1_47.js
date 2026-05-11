@@ -85,7 +85,7 @@ export function mandatoryTest_6_1_47(doc) {
             if (doc.vulnerabilities.length > 1) {
               ctx.isValid = false
               ctx.errors.push({
-                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/${ssvcIdIndex}`,
+                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/target_ids/${ssvcIdIndex}`,
                 message:
                   `the ssvc id equals the "document/tracking/id" ` +
                   `but the csaf document has multiple vulnerabilities`,
@@ -96,7 +96,7 @@ export function mandatoryTest_6_1_47(doc) {
           if (ssvcId !== vulnerability.cve && !idTexts?.includes(ssvcId)) {
             ctx.isValid = false
             ctx.errors.push({
-              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/${ssvcIdIndex}`,
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/target_ids/${ssvcIdIndex}`,
               message:
                 `the ssvc id does neither match the "cve" ` +
                 `nor it matches the "text" of any item in the "ids" array`,
