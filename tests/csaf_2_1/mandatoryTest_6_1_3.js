@@ -58,4 +58,73 @@ describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
       '/product_tree/product_paths/1/full_product_name/product_id'
     )
   })
+
+  it('returns valid when beginning_product_reference or product_id is missing', function () {
+    const doc = mandatoryTest_6_1_3({
+      product_tree: {
+        product_paths: [
+          {
+            beginning_product_reference: '',
+            full_product_name: {
+              name: 'A',
+              product_id: 'A',
+            },
+            subpaths: [],
+          },
+          {
+            beginning_product_reference: 'A',
+            full_product_name: {
+              name: 'B',
+              product_id: '',
+            },
+            subpaths: [],
+          },
+        ],
+      },
+    })
+    assert.equal(doc.isValid, true)
+    assert.equal(doc.errors.length, 0)
+  })
+
+  it('returns valid when two paths share a common dependency', function () {
+    const doc = mandatoryTest_6_1_3({
+      product_tree: {
+        product_paths: [
+          {
+            beginning_product_reference: 'A',
+            full_product_name: { name: 'B', product_id: 'B' },
+            subpaths: [],
+          },
+          {
+            beginning_product_reference: 'A',
+            full_product_name: { name: 'C', product_id: 'C' },
+            subpaths: [],
+          },
+        ],
+      },
+    })
+    assert.equal(doc.isValid, true)
+    assert.equal(doc.errors.length, 0)
+  })
+
+  it('does not report duplicate edges as circular (same target in beginning_product_reference and subpath)', function () {
+    const doc = mandatoryTest_6_1_3({
+      product_tree: {
+        product_paths: [
+          {
+            beginning_product_reference: 'A',
+            full_product_name: { name: 'B', product_id: 'B' },
+            subpaths: [
+              {
+                category: 'installed_on',
+                next_product_reference: 'A',
+              },
+            ],
+          },
+        ],
+      },
+    })
+    assert.equal(doc.isValid, true)
+    assert.equal(doc.errors.length, 0)
+  })
 })
