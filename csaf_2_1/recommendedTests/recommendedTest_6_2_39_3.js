@@ -46,14 +46,14 @@ const inputSchema = /** @type {const} */ ({
 const validateSchema = ajv.compile(inputSchema)
 
 /**
- * If the document language is specified but not English, it MUST be tested that exactly one item in document
- * notes exists that has the language specific translation of the term Reasoning for Withdrawal as title.
- * The category of this item MUST be description. If no language-specific translation has been recorded,
- * the test MUST be skipped and output an information to the user that no such translation is known.
+ * If the document language is specified but not English, it MUST be tested that exactly one item
+ * in document notes exists that has the language specific translation of the term Reasoning for Supersession as title,
+ * The category of this item MUST be description. If no language specific translation has been recorded,
+ *  the test MUST be skipped and output an information to the user that no such translation is known.
  *
  * @param {unknown} doc
  */
-export function recommendedTest_6_2_39_2(doc) {
+export function recommendedTest_6_2_39_3(doc) {
   /*
       The `ctx` variable holds the state that is accumulated during the test run and is
       finally returned by the function.
@@ -66,25 +66,25 @@ export function recommendedTest_6_2_39_2(doc) {
   }
 
   const noteCategory = 'description'
-  const docCategoryCsafWithdrawn = `csaf_withdrawn`
+  const docCategoryCsafSuperseded = `csaf_superseded`
 
   if (
     !validateSchema(doc) ||
-    doc.document.category !== docCategoryCsafWithdrawn
+    doc.document.category !== docCategoryCsafSuperseded
   ) {
     return ctx
   }
 
   if (isLangSpecifiedAndNotEnglish(doc.document.lang)) {
-    const withdrawalInDocLang = getTranslationInDocumentLang(
+    const supersessionInDocLang = getTranslationInDocumentLang(
       doc,
-      'reasoning_for_withdrawal'
+      'reasoning_for_supersession'
     )
-    if (!withdrawalInDocLang) {
+    if (!supersessionInDocLang) {
       ctx.infos.push({
         instancePath: '/document/notes',
         message:
-          'no language specific translation for "Reasoning for Withdrawal" has been recorded',
+          'no language specific translation for "Reasoning for Supersession" has been recorded',
       })
       return ctx
     }
@@ -94,15 +94,15 @@ export function recommendedTest_6_2_39_2(doc) {
       !notes ||
       !containsOneNoteWithTitleAndCategory(
         notes,
-        withdrawalInDocLang,
+        supersessionInDocLang,
         noteCategory
       )
     ) {
       ctx.warnings.push({
         instancePath: '/document/notes',
         message:
-          `for document category "${docCategoryCsafWithdrawn}" exactly one note must exist ` +
-          `with note category "${noteCategory}" and title "${withdrawalInDocLang}"`,
+          `for document category "${docCategoryCsafSuperseded}" exactly one note must exist ` +
+          `with note category "${noteCategory}" and title "${supersessionInDocLang}"`,
       })
     }
   }
