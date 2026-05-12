@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 import ssvcDecisionPoints from '../../lib/ssvc/ssvc_decision_points.js'
 
 const ajv = new Ajv()
@@ -55,6 +55,8 @@ const inputSchema = /** @type {const} */ ({
   },
 })
 
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>['vulnerabilities'][number]} Vulnerability */
+
 const validateInput = ajv.compile(inputSchema)
 
 /**
@@ -96,7 +98,9 @@ export function mandatoryTest_6_1_48(doc) {
 
   const registeredSsvcNamespaces = ['ssvc', 'cvss']
 
-  doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
+  /** @type {Array<Vulnerability>} */
+  const vulnerabilities = doc.vulnerabilities
+  vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
       const selectionsWithRegisteredNamespace =
         metric.content?.ssvc_v1?.selections?.filter(
