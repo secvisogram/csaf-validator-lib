@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
@@ -84,8 +84,8 @@ const inputSchema = /** @type {const} */ ({
 const validate = ajv.compile(inputSchema)
 
 /**
- * @typedef {import('ajv/dist/core').JTDDataType<typeof branchSchema>} Branch
- * @typedef {import('ajv/dist/core').JTDDataType<typeof fullProductNameSchema>} FullProductName
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
  */
 
 /**
@@ -93,7 +93,7 @@ const validate = ajv.compile(inputSchema)
  *
  * @param {unknown} doc
  */
-export default function mandatoryTest_6_1_25(doc) {
+export function mandatoryTest_6_1_25(doc) {
   const ctx = {
     errors:
       /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
