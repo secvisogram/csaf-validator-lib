@@ -80,6 +80,7 @@ const validateFileHash = ajv.compile(hashSchema)
  */
 
 /**
+ * Walks through the document and calls the callback for each found hash entry.
  * @param {any} doc
  * @param {(params: { path: string; hash: FileHashEntry }) => void} onHashFound
  */
@@ -107,6 +108,7 @@ export function walkHashes(doc, onHashFound) {
   )
 
   /**
+   * Recursively checks branches for hashes and nested branches.
    * @param {string} prefix
    * @param {unknown[]} branches
    */

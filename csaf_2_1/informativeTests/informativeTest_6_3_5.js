@@ -1,6 +1,7 @@
 import { walkHashes } from '../shared/csafHelpers/walkHashes.js'
 
 /**
+ * This implements the informative test 6.3.5 of the CSAF 2.1 standard.
  * @param {unknown} doc
  * @returns
  */
