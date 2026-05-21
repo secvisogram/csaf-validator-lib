@@ -16,7 +16,7 @@ describe('recommendedTest_6_2_16', function () {
     assert.equal(result.warnings.length, 0)
   })
 
-  it('skips invalid branch entries and does not throw', function () {
+  it('invalid branch entries are skipped without warning', function () {
     const result = recommendedTest_6_2_16({
       product_tree: {
         branches: [{ product: 'not-an-object' }],
@@ -25,7 +25,7 @@ describe('recommendedTest_6_2_16', function () {
     assert.equal(result.warnings.length, 0)
   })
 
-  it('skips invalid product_paths entries and does not throw', function () {
+  it('invalid product_paths entries are skipped without warning', function () {
     const result = recommendedTest_6_2_16({
       product_tree: {
         product_paths: [{ full_product_name: 'not-an-object' }],
