@@ -23,7 +23,12 @@ const inputSchema = /** @type {const} */ ({
       elements: {
         additionalProperties: true,
         optionalProperties: {
-          product_status: {},
+          product_status: {
+            elements: {
+              additionalProperties: true,
+              properties: {},
+            },
+          },
         },
       },
     },
@@ -53,10 +58,14 @@ export function mandatoryTest_6_1_27_6(doc) {
   const vulnerabilities = doc.vulnerabilities
   if (Array.isArray(vulnerabilities)) {
     vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
-      if (!vulnerability.product_status) {
+      if (
+        !vulnerability.product_status ||
+        vulnerability.product_status.length === 0
+      ) {
         isValid = false
         errors.push({
           instancePath: `/vulnerabilities/${vulnerabilityIndex}`,
+
           message: 'needs a `product status` attribute',
         })
       }
