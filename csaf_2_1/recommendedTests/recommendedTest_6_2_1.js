@@ -73,8 +73,15 @@ const validateProductPath = ajv.compile(productPathSchema)
 
 /**
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
- * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
- * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productGroupsSchema>} ProductGroups
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof noteSchema>} Note
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productGroupsSchema>['product_tree']['product_groups'][number]} ProductGroup
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productPathRefsSchema>['product_tree']['product_paths'][number]} ProductPathRef
+ * @typedef {NonNullable<import('ajv/dist/core.js').JTDDataType<typeof vulnOptionalRefsSchema>['vulnerabilities'][number]['remediations']>[number]} Remediation
+ * @typedef {NonNullable<import('ajv/dist/core.js').JTDDataType<typeof vulnOptionalRefsSchema>['vulnerabilities'][number]['metrics']>[number]} Metric
+ * @typedef {NonNullable<import('ajv/dist/core.js').JTDDataType<typeof vulnOptionalRefsSchema>['vulnerabilities'][number]['flags']>[number]} Flag
+ * @typedef {NonNullable<import('ajv/dist/core.js').JTDDataType<typeof vulnOptionalRefsSchema>['vulnerabilities'][number]['first_known_exploitation_dates']>[number]} ExploitationDate
+ * @typedef {NonNullable<import('ajv/dist/core.js').JTDDataType<typeof vulnOptionalRefsSchema>['vulnerabilities'][number]['threats']>[number]} Threat
+ * @typedef {NonNullable<import('ajv/dist/core.js').JTDDataType<typeof vulnInvolvementsSchema>['vulnerabilities'][number]['involvements']>[number]} Involvement
  */
 
 /**
@@ -294,7 +301,7 @@ const vulnOptionalRefsSchema = /** @type {const} */ ({
   },
 })
 
-const noteWithProductIdsSchema = /** @type {const} */ ({
+const noteSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
     product_ids: {
@@ -309,7 +316,7 @@ const docNotesSchema = /** @type {const} */ ({
     document: {
       additionalProperties: true,
       properties: {
-        notes: { elements: noteWithProductIdsSchema },
+        notes: { elements: noteSchema },
       },
     },
   },
@@ -322,7 +329,7 @@ const vulnNotesSchema = /** @type {const} */ ({
       elements: {
         additionalProperties: true,
         optionalProperties: {
-          notes: { elements: noteWithProductIdsSchema },
+          notes: { elements: noteSchema },
         },
       },
     },
@@ -386,7 +393,7 @@ function collectReferencedProductIds(doc) {
  */
 function collectDocumentNotes(doc, ids) {
   if (hasDocNotes(doc)) {
-    for (const note of doc.document.notes) {
+    for (const /** @type {Note} */ note of doc.document.notes) {
       for (const id of note.product_ids ?? []) {
         ids.add(id)
       }
@@ -401,7 +408,8 @@ function collectDocumentNotes(doc, ids) {
  */
 function collectProductGroups(doc, ids) {
   if (hasProductGroups(doc)) {
-    for (const group of doc.product_tree.product_groups) {
+    for (const /** @type {ProductGroup} */ group of doc.product_tree
+      .product_groups) {
       if (group.product_ids) {
         for (const id of group.product_ids) ids.add(id)
       }
@@ -416,7 +424,8 @@ function collectProductGroups(doc, ids) {
  */
 function collectProductPathRefs(doc, ids) {
   if (hasProductPathRefs(doc)) {
-    for (const productPath of doc.product_tree.product_paths) {
+    for (const /** @type {ProductPathRef} */ productPath of doc.product_tree
+      .product_paths) {
       if (typeof productPath.beginning_product_reference === 'string') {
         ids.add(productPath.beginning_product_reference)
       }
@@ -470,27 +479,29 @@ function collectVulnerabilityStatus(doc, ids) {
 function collectVulnerabilityOptionalRefs(doc, ids) {
   if (hasVulnOptionalRefs(doc)) {
     for (const vulnerability of doc.vulnerabilities) {
-      for (const remediation of vulnerability.remediations ?? []) {
+      for (const /** @type {Remediation} */ remediation of vulnerability.remediations ??
+        []) {
         for (const id of remediation.product_ids ?? []) {
           ids.add(id)
         }
       }
-      for (const metric of vulnerability.metrics ?? []) {
+      for (const /** @type {Metric} */ metric of vulnerability.metrics ?? []) {
         for (const id of metric.products ?? []) {
           ids.add(id)
         }
       }
-      for (const flag of vulnerability.flags ?? []) {
+      for (const /** @type {Flag} */ flag of vulnerability.flags ?? []) {
         for (const id of flag.product_ids ?? []) {
           ids.add(id)
         }
       }
-      for (const entry of vulnerability.first_known_exploitation_dates ?? []) {
+      for (const /** @type {ExploitationDate} */ entry of vulnerability.first_known_exploitation_dates ??
+        []) {
         for (const id of entry.product_ids ?? []) {
           ids.add(id)
         }
       }
-      for (const threat of vulnerability.threats ?? []) {
+      for (const /** @type {Threat} */ threat of vulnerability.threats ?? []) {
         for (const id of threat.product_ids ?? []) {
           ids.add(id)
         }
@@ -507,7 +518,7 @@ function collectVulnerabilityOptionalRefs(doc, ids) {
 function collectVulnerabilityNotes(doc, ids) {
   if (hasVulnNotes(doc)) {
     for (const vulnerability of doc.vulnerabilities) {
-      for (const note of vulnerability.notes ?? []) {
+      for (const /** @type {Note} */ note of vulnerability.notes ?? []) {
         for (const id of note.product_ids ?? []) {
           ids.add(id)
         }
@@ -524,7 +535,8 @@ function collectVulnerabilityNotes(doc, ids) {
 function collectVulnerabilityInvolvements(doc, ids) {
   if (hasVulnInvolvements(doc)) {
     for (const vulnerability of doc.vulnerabilities) {
-      for (const involvement of vulnerability.involvements ?? []) {
+      for (const /** @type {Involvement} */ involvement of vulnerability.involvements ??
+        []) {
         for (const id of involvement.product_ids ?? []) {
           ids.add(id)
         }
