@@ -29,6 +29,90 @@ describe('recommendedTest_6_2_1', function () {
     )
   })
 
+  // collectDocumentNotes
+  it('no warning if product_id is referenced in document.notes[].product_ids', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        document: {
+          notes: [{ product_ids: ['CSAFPID-0001'] }],
+        },
+      }).warnings.length,
+      0
+    )
+  })
+
+  it('warning if note has no product_ids', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        document: {
+          notes: [{ category: 'general', text: 'note without product_ids' }],
+        },
+      }).warnings.length,
+      1
+    )
+  })
+
+  it('no warning if product_id is referenced in product_tree.product_groups.product_ids', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        product_tree: {
+          full_product_names: [
+            { product_id: 'CSAFPID-0001', name: 'Product A' },
+          ],
+          product_groups: [
+            {
+              group_id: 'CSAFGID-0001',
+              product_ids: ['CSAFPID-0001'],
+            },
+          ],
+        },
+      }).warnings.length,
+      0
+    )
+  })
+
+  it('no warning if product_id is referenced in product_paths.beginning_product_reference', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        product_tree: {
+          product_paths: [{ beginning_product_reference: 'CSAFPID-0001' }],
+        },
+      }).warnings.length,
+      0
+    )
+  })
+
+  it('no warning if product_id is referenced in product_paths.subpath.next_product_reference', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        product_tree: {
+          product_paths: [
+            { subpaths: [{ next_product_reference: 'CSAFPID-0002' }] },
+          ],
+        },
+      }).warnings.length,
+      0
+    )
+  })
+
+  it('no warning if product_id is referenced in vulnerabilities[].product_status.unknown', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            product_status: {
+              unknown: ['CSAFPID-0001'],
+            },
+          },
+        ],
+      }).warnings.length,
+      0
+    )
+  })
+
   it('no warning if product_id is referenced in vulnerabilities.remediations.product_ids', function () {
     assert.equal(
       recommendedTest_6_2_1({
@@ -37,8 +121,6 @@ describe('recommendedTest_6_2_1', function () {
           {
             remediations: [
               {
-                category: 'vendor_fix',
-                details: 'Update.',
                 product_ids: ['CSAFPID-0001'],
               },
             ],
@@ -49,7 +131,7 @@ describe('recommendedTest_6_2_1', function () {
     )
   })
 
-  it('warns if product_id appears only in unrelated vulnerability fields', function () {
+  it('warns if product_id is unreferenced and remediation has no product_ids field', function () {
     assert.equal(
       recommendedTest_6_2_1({
         ...baseDoc,
@@ -59,7 +141,6 @@ describe('recommendedTest_6_2_1', function () {
               {
                 category: 'vendor_fix',
                 details: 'Update.',
-                product_ids: ['CSAFPID-9999'],
               },
             ],
           },
@@ -87,6 +168,24 @@ describe('recommendedTest_6_2_1', function () {
     )
   })
 
+  it('warning if product_id is unreferenced and metric has no products field', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            metrics: [
+              {
+                content: {},
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      1
+    )
+  })
+
   it('no warning if product_id is referenced in vulnerabilities.flags.product_ids', function () {
     assert.equal(
       recommendedTest_6_2_1({
@@ -95,7 +194,6 @@ describe('recommendedTest_6_2_1', function () {
           {
             flags: [
               {
-                label: 'component_not_present',
                 product_ids: ['CSAFPID-0001'],
               },
             ],
@@ -103,6 +201,24 @@ describe('recommendedTest_6_2_1', function () {
         ],
       }).warnings.length,
       0
+    )
+  })
+
+  it('warning if product_id is unreferenced and flag has no product_ids field', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            flags: [
+              {
+                label: 'component_not_present',
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      1
     )
   })
 
@@ -114,7 +230,6 @@ describe('recommendedTest_6_2_1', function () {
           {
             first_known_exploitation_dates: [
               {
-                date: '2024-01-01T00:00:00Z',
                 product_ids: ['CSAFPID-0001'],
               },
             ],
@@ -122,6 +237,24 @@ describe('recommendedTest_6_2_1', function () {
         ],
       }).warnings.length,
       0
+    )
+  })
+
+  it('warning if product_id is unreferenced and first_known_exploitation_date has no product_ids field', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            first_known_exploitation_dates: [
+              {
+                date: '2024-01-01T00:00:00Z',
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      1
     )
   })
 
@@ -133,8 +266,6 @@ describe('recommendedTest_6_2_1', function () {
           {
             threats: [
               {
-                category: 'exploit_status',
-                details: 'Exploits available.',
                 product_ids: ['CSAFPID-0001'],
               },
             ],
@@ -145,71 +276,35 @@ describe('recommendedTest_6_2_1', function () {
     )
   })
 
-  it('skips full_product_name entries that have no product_id field', function () {
+  it('warning if product_id is unreferenced and threat has no product_ids field', function () {
     assert.equal(
       recommendedTest_6_2_1({
-        product_tree: {
-          full_product_names: [{ name: 'Product A without ID' }],
-        },
-      }).warnings.length,
-      0
-    )
-  })
-
-  it('skips product_path entries that have no full_product_name field', function () {
-    assert.equal(
-      recommendedTest_6_2_1({
-        product_tree: {
-          product_paths: [{ beginning_product_reference: 'CSAFPID-0001' }],
-        },
-      }).warnings.length,
-      0
-    )
-  })
-
-  it('no warning if product_id is referenced in product_tree.product_groups.product_ids', function () {
-    assert.equal(
-      recommendedTest_6_2_1({
-        product_tree: {
-          full_product_names: [
-            { product_id: 'CSAFPID-0001', name: 'Product A' },
-          ],
-          product_groups: [
-            {
-              group_id: 'CSAFGID-0001',
-              product_ids: ['CSAFPID-0001'],
-            },
-          ],
-        },
-      }).warnings.length,
-      0
-    )
-  })
-
-  it('no warning if product_id is referenced in product_paths.subpaths.next_product_reference', function () {
-    assert.equal(
-      recommendedTest_6_2_1({
-        product_tree: {
-          full_product_names: [
-            { product_id: 'CSAFPID-0001', name: 'Product A' },
-            { product_id: 'CSAFPID-0002', name: 'Product B' },
-          ],
-          product_paths: [
-            {
-              full_product_name: {
-                product_id: 'CSAFPID-0003',
-                name: 'Product A on Product B',
-              },
-              beginning_product_reference: 'CSAFPID-0001',
-              subpaths: [{ next_product_reference: 'CSAFPID-0002' }],
-            },
-          ],
-        },
+        ...baseDoc,
         vulnerabilities: [
           {
-            product_status: {
-              known_affected: ['CSAFPID-0001', 'CSAFPID-0002', 'CSAFPID-0003'],
-            },
+            threats: [
+              {
+                category: 'exploit_status',
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      1
+    )
+  })
+
+  it('no warning if product_id is referenced in vulnerabilities[].notes[].product_ids', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            notes: [
+              {
+                product_ids: ['CSAFPID-0001'],
+              },
+            ],
           },
         ],
       }).warnings.length,
@@ -217,21 +312,57 @@ describe('recommendedTest_6_2_1', function () {
     )
   })
 
-  it('warns if product_id is not referenced and product_group has no product_ids', function () {
+  it('warning if product_id is unreferenced and vulnerability note has no product_ids field', function () {
     assert.equal(
       recommendedTest_6_2_1({
-        product_tree: {
-          full_product_names: [
-            { product_id: 'CSAFPID-0001', name: 'Product A' },
-          ],
-          product_groups: [
-            {
-              group_id: 'CSAFGID-0001',
-            },
-          ],
-        },
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            notes: [
+              {
+                category: 'general',
+              },
+            ],
+          },
+        ],
       }).warnings.length,
       1
+    )
+  })
+
+  it('no warning if product_id is referenced in vulnerabilities[].involvements[].product_ids', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            involvements: [
+              {
+                product_ids: ['CSAFPID-0001'],
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      0
+    )
+  })
+
+  it('warning if product_id is unreferenced and involvement has no product_ids field', function () {
+    assert.equal(
+      recommendedTest_6_2_1({
+        ...baseDoc,
+        vulnerabilities: [
+          {
+            involvements: [
+              {
+                party: 'vendor',
+              },
+            ],
+          },
+        ],
+      }).warnings.length,
+      0
     )
   })
 })
