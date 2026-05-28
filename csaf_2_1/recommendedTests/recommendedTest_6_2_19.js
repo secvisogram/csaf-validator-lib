@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 import { cvss30, cvss31 } from '../../lib/shared/first.js'
 import * as cvss2 from '../../lib/shared/cvss2.js'
 import * as cvss3 from '../../lib/shared/cvss3.js'
@@ -6,69 +6,73 @@ import * as cvss4 from '../../lib/shared/cvss4.js'
 
 const ajv = new Ajv()
 
+const cvssSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    environmentalScore: { type: 'float64' },
+    vectorString: { type: 'string' },
+    version: { type: 'string' },
+  },
+})
+
+const metricContentSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    cvss_v4: cvssSchema,
+    cvss_v3: cvssSchema,
+    cvss_v2: cvssSchema,
+  },
+})
+
+const metricSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    content: metricContentSchema,
+    products: {
+      elements: { type: 'string' },
+    },
+  },
+})
+
+const productStatusSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    fixed: {
+      elements: { type: 'string' },
+    },
+    first_fixed: {
+      elements: { type: 'string' },
+    },
+  },
+})
+
+const vulnerabilitySchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    product_status: productStatusSchema,
+    metrics: {
+      elements: metricSchema,
+    },
+  },
+})
+
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
   properties: {
     vulnerabilities: {
-      elements: {
-        additionalProperties: true,
-        optionalProperties: {
-          product_status: {
-            additionalProperties: true,
-            optionalProperties: {
-              fixed: {
-                elements: { type: 'string' },
-              },
-              first_fixed: {
-                elements: { type: 'string' },
-              },
-            },
-          },
-          metrics: {
-            elements: {
-              additionalProperties: true,
-              optionalProperties: {
-                content: {
-                  additionalProperties: true,
-                  optionalProperties: {
-                    cvss_v4: {
-                      additionalProperties: true,
-                      optionalProperties: {
-                        environmentalScore: { type: 'float64' },
-                        vectorString: { type: 'string' },
-                        version: { type: 'string' },
-                      },
-                    },
-                    cvss_v3: {
-                      additionalProperties: true,
-                      optionalProperties: {
-                        environmentalScore: { type: 'float64' },
-                        vectorString: { type: 'string' },
-                        version: { type: 'string' },
-                      },
-                    },
-                    cvss_v2: {
-                      additionalProperties: true,
-                      optionalProperties: {
-                        environmentalScore: { type: 'float64' },
-                        vectorString: { type: 'string' },
-                        version: { type: 'string' },
-                      },
-                    },
-                  },
-                },
-                products: {
-                  elements: { type: 'string' },
-                },
-              },
-            },
-          },
-        },
-      },
+      elements: vulnerabilitySchema,
     },
   },
 })
+
 const validateInput = ajv.compile(inputSchema)
+
+/**
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof vulnerabilitySchema>} Vulnerability
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof metricSchema>} Metric
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof metricContentSchema>} MetricContent
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof cvssSchema>} Cvss
+ */
 
 /**
  * @param {any} doc
@@ -82,26 +86,35 @@ export function recommendedTest_6_2_19(doc) {
   if (!validateInput(doc)) {
     return ctx
   }
-
-  doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
+  const /** @type Vulnerability[] */ vulnerabilities = doc.vulnerabilities
+  vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     const fixedProductIDs = new Set([
       ...(vulnerability.product_status?.first_fixed ?? []),
       ...(vulnerability.product_status?.fixed ?? []),
     ])
     for (const productID of fixedProductIDs) {
-      vulnerability.metrics?.forEach((metric, metricIndex) => {
-        if (!metric.products?.includes(productID)) return
-        const content = metric.content
-        if (content !== undefined) {
-          const cvssTypes = ['cvss_v4', 'cvss_v3', 'cvss_v2']
-          cvssTypes.forEach((cvssType) => {
-            if (content[cvssType] && checkCVSS(content[cvssType])) {
-              ctx.warnings.push({
-                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/${cvssType}`,
-                message: `environmental score should be 0 since "${productID}" is listed as fixed`,
-              })
-            }
-          })
+      const /** @type {Metric[] | undefined} */ metrics = vulnerability.metrics
+      metrics?.forEach((metric, metricIndex) => {
+        if (metric.products?.includes(productID)) {
+          const content = metric.content
+          if (content !== undefined) {
+            const cvssTypes = /** @type {Array<keyof MetricContent>} */ ([
+              'cvss_v4',
+              'cvss_v3',
+              'cvss_v2',
+            ])
+            cvssTypes.forEach((cvssType) => {
+              if (
+                content[cvssType] &&
+                checkCVSS(/** @type {Cvss} */ (content[cvssType]))
+              ) {
+                ctx.warnings.push({
+                  instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/${cvssType}`,
+                  message: `environmental score should be 0 since "${productID}" is listed as fixed`,
+                })
+              }
+            })
+          }
         }
       })
     }
@@ -112,11 +125,10 @@ export function recommendedTest_6_2_19(doc) {
 
 /**
  * Check if the cvss object has a valid environmental score.
- * @param {any} cvss
+ * @param {Cvss} cvss
  * @returns {boolean}
  */
 function checkCVSS(cvss) {
-  if (!cvss) return false
   const calculatedValue = calculateEnvironmentalScoreFromMetrics({
     version: cvss.version,
     vectorString: cvss.vectorString ?? '',
@@ -132,7 +144,7 @@ function checkCVSS(cvss) {
 
 /**
  * @param {object} params
- * @param {'2.0' | '3.0' | '3.1' | '4.0'} params.version
+ * @param {string | undefined} params.version
  * @param {string} params.vectorString
  * @param {Record<string, unknown>} params.metrics
  */
@@ -194,12 +206,8 @@ function calculateMetricScoreForCVSS4(
   const versionPrefix = vectorString.split('/')[0]
   const completeVectorString = [versionPrefix, ...completeVectorParts].join('/')
 
-  const calculateScoreObject =
-    cvss4.calculateCvss4_0_Score(completeVectorString)
-  const environmentalScoreObject = calculateScoreObject.find(
-    (scoreObject) => scoreObject.metricTypeId === 'ENVIRONMENTAL'
-  )
-  return environmentalScoreObject?.score ?? null
+  const scoreObject = cvss4.calculateCvss4_0_Score(completeVectorString)
+  return scoreObject?.score ?? null
 }
 
 /**
@@ -257,7 +265,7 @@ function calculateMetricScoreForCVSS3(
  * This function takes a cvss vector and a metric object and extracts all cvss
  * @param {Map<string, string>} vectorFromVectorString
  * @param {Record<string, unknown>} metrics
- * @returns {number|*|null}
+ * @returns {number|null}
  */
 function calculateMetricScoreForCVSS2(vectorFromVectorString, metrics) {
   const vector = Object.fromEntries(
@@ -314,10 +322,8 @@ function calculateMetricArray({ vector, metrics, mapping }) {
   return mapping.map((e) => {
     const metricAbbrev = e[1]
     const metricPropertyName = e[0]
-    /** @type {any} */
-    const metricValueAbbrevMap = e[2]
-    /** @type {any} */
-    const metricValue = metrics[metricPropertyName]
+    const /** @type {Record<string, string>} */ metricValueAbbrevMap = e[2]
+    const metricValue = /** @type {string} */ (metrics[metricPropertyName])
     return [
       metricAbbrev,
       vector.get(metricAbbrev) ?? metricValueAbbrevMap[metricValue],
@@ -326,8 +332,8 @@ function calculateMetricArray({ vector, metrics, mapping }) {
 }
 
 /**
- * @param {string | {}} vectorString
- * @returns
+ * @param {Record<string, string | undefined>} vectorString
+ * @returns {{ success: true; environmentalMetricScore: number } | { success: false; environmentalMetricScore: -1 }}
  */
 function safelyParseCVSSV2Vector(vectorString) {
   try {
@@ -336,7 +342,7 @@ function safelyParseCVSSV2Vector(vectorString) {
       environmentalMetricScore:
         cvss2.getEnvironmentalScoreFromVectorString(vectorString),
     }
-  } catch (e) {
+  } catch {
     return {
       success: false,
       environmentalMetricScore: -1,
