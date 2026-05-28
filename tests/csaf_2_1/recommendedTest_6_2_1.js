@@ -362,7 +362,7 @@ describe('recommendedTest_6_2_1', function () {
           },
         ],
       }).warnings.length,
-      0
+      1
     )
   })
 })
