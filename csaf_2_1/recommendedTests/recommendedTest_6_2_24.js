@@ -1,4 +1,4 @@
-import { Ajv } from 'ajv'
+import { Ajv } from 'ajv/dist/jtd.js'
 import { cwecMap } from '../../lib/cwec.js'
 import {
   compareZonedDateTimes,
