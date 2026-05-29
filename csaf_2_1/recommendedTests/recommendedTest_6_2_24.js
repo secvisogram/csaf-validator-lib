@@ -1,6 +1,5 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv'
 import { cwecMap } from '../../lib/cwec.js'
-import { LocalDate, ZoneId } from '@js-joda/core'
 import {
   compareZonedDateTimes,
   localDateToTimeZonedDate,
