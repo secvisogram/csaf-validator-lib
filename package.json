@@ -14,6 +14,9 @@
   "repository": {
     "url": "https://github.com/secvisogram/csaf-validator-lib"
   },
+  "imports": {
+    "#*.js": "./*.js"
+  },
   "files": [
     "lib",
     "schemas",
