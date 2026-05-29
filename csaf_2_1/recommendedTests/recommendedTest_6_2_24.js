@@ -79,7 +79,7 @@ export async function recommendedTest_6_2_24(doc) {
       cwecArray.push([key, localDateToTimeZonedDate(date)])
     }
   }
-  /** Make sure the array is sorted ascending by date hence this is crucial later */
+  /** Make sure the array is sorted descending by date (newest first) hence this is crucial later */
   cwecArray.sort((a, b) => compareZonedDateTimes(b[1], a[1]))
 
   for (let i = 0; i < doc.vulnerabilities.length; ++i) {
@@ -89,6 +89,7 @@ export async function recommendedTest_6_2_24(doc) {
         const cwe = vulnerability.cwes.at(j)
         if (validateCWE(cwe)) {
           const idx = cwecArray.findIndex((row) => row[0] === cwe.version)
+          if (idx === -1) continue
           const zonedCweReleaseDate = cwecArray[idx][1]
           // Case 1: Check if the used cwe version was already published
           // at the current release date of the CSAF document
@@ -102,13 +103,14 @@ export async function recommendedTest_6_2_24(doc) {
             // Case 2: Check if a newer cwe version than the used one had already been published
             // at the current release date of the CSAF document
           } else {
-            const idx = cwecArray.findIndex((row) => row[0] === cwe.version)
-            for (let i = idx - 1; i >= 0; i--) {
-              const zonedCweReleaseDate = cwecArray[i][1]
+            for (let k = idx - 1; k >= 0; k--) {
+              const zonedCweReleaseDateNewer = cwecArray[k][1]
 
               if (
-                compareZonedDateTimes(currentReleaseDate, zonedCweReleaseDate) >
-                0
+                compareZonedDateTimes(
+                  currentReleaseDate,
+                  zonedCweReleaseDateNewer
+                ) > 0
               ) {
                 context.warnings.push({
                   instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
@@ -116,6 +118,7 @@ export async function recommendedTest_6_2_24(doc) {
                     `the used cwe version ${cwe.version} ` +
                     `was not the newest one available at release date ${currentReleaseDate}`,
                 })
+                break
               }
             }
           }
