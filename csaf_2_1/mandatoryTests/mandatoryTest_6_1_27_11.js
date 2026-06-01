@@ -19,6 +19,8 @@ const inputSchema = /** @type {const} */ ({
         },
       },
     },
+  },
+  optionalProperties: {
     vulnerabilities: {},
   },
 })
