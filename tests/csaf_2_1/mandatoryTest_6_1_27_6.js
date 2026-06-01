@@ -25,12 +25,25 @@ describe('mandatoryTest_6_1_27_6', function () {
     assert.equal(result.errors.length, 1)
   })
 
-  it('returns invalid when vulnerability has empty product_status array', function () {
+  it('returns valid when vulnerability has an empty product_status ', function () {
     const result = mandatoryTest_6_1_27_6({
       document: { category: 'csaf_security_advisory' },
-      vulnerabilities: [{ product_status: [] }],
+      vulnerabilities: [{ product_status: {} }],
     })
-    assert.equal(result.isValid, false)
-    assert.equal(result.errors.length, 1)
+    assert.equal(result.isValid, true)
+  })
+
+  it('returns valid when vulnerability has an not empty product_status ', function () {
+    const result = mandatoryTest_6_1_27_6({
+      document: { category: 'csaf_security_advisory' },
+      vulnerabilities: [
+        {
+          product_status: {
+            first_affected: [],
+          },
+        },
+      ],
+    })
+    assert.equal(result.isValid, true)
   })
 })
