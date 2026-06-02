@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 import { compareZonedDateTimes } from '../../lib/shared/dateHelper.js'
 
 const ajv = new Ajv()
@@ -59,12 +59,16 @@ const inputSchema = /** @type {const} */ ({
   },
 })
 
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
+
+/** @typedef {InputSchema['vulnerabilities'][number]} Vulnerability */
+
 const validateInput = ajv.compile(inputSchema)
 
 /**
  * This implements the mandatory test 6.1.49 of the CSAF 2.1 standard.
  *
- * @param {any} doc
+ * @param {unknown} doc
  */
 export function mandatoryTest_6_1_49(doc) {
   const ctx = {
@@ -92,7 +96,10 @@ export function mandatoryTest_6_1_49(doc) {
             /** @type {string} */ (a.date)
           )
         )[0]
-      doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
+
+      /** @type {Array<Vulnerability>} */
+      const vulnerabilities = doc.vulnerabilities
+      vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
         vulnerability.metrics?.forEach((metric, metricIndex) => {
           const ssvcTimestamp = metric.content?.ssvc_v1.timestamp
           if (ssvcTimestamp) {
