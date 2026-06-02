@@ -96,12 +96,16 @@ describe('mandatoryTest_6_1_47', function () {
 
     const result = mandatoryTest_6_1_47(doc)
 
-    // Current buggy behavior: two errors for same location
+    // Current behavior: two errors for same location with different messages
     expect(result.isValid).eq(false)
     expect(result.errors.length).eq(2)
 
     const path = '/vulnerabilities/0/metrics/0/content/ssvc_v2/target_ids/0'
     expect(result.errors[0].instancePath).eq(path)
+    expect(result.errors[0].message.startsWith('the ssvc id equals the ')).to.be
+      .true
     expect(result.errors[1].instancePath).eq(path)
+    expect(result.errors[1].message.startsWith('the ssvc id does neither ')).to
+      .be.true
   })
 })
