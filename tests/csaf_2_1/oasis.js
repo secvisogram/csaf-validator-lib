@@ -10,16 +10,12 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
  * Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
-  '6.1.8',
-  '6.1.9',
   '6.1.26',
-  '6.1.27.3',
   '6.1.27.4',
   '6.1.27.6',
   '6.1.27.11',
   '6.1.27.13',
   '6.1.37',
-  '6.1.46',
   '6.1.47',
   '6.1.48',
   '6.1.49',
@@ -46,7 +42,6 @@ const excluded = [
   '6.2.36',
   '6.2.37',
   '6.2.39.1',
-  '6.2.39.3',
   '6.2.39.5',
   '6.2.42',
   '6.2.44',
@@ -92,8 +87,10 @@ const excluded = [
  * Once the issues are resolved, these should be removed from this list and the tests should be re-enabled.
  */
 const skippedTests = new Set([
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-01-12.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
