@@ -83,14 +83,6 @@ const excluded = [
   '6.3.22',
 ]
 
-/**
- * This is a list that includes all implemented tests that are currently skipped due to known issues.
- * Once the issues are resolved, these should be removed from this list and the tests should be re-enabled.
- */
-const skippedTests = new Set([
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
-])
-
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
 
 /** @typedef {Map<string, DocumentTest>} TestMap */
@@ -146,7 +138,6 @@ for (const [group, t] of testMap) {
         for (const [type, testSpecs] of u) {
           describe(type, function () {
             for (const testSpec of testSpecs) {
-              if (skippedTests.has(testSpec.name)) continue
               if (excluded.includes(testId)) continue
 
               it(testSpec.name, async () => {
