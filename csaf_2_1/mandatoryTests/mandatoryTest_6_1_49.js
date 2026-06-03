@@ -60,10 +60,25 @@ const inputSchema = /** @type {const} */ ({
 })
 
 /** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
-
 /** @typedef {InputSchema['vulnerabilities'][number]} Vulnerability */
+/** @typedef {{ date?: string }} RevisionHistoryItem */
 
 const validateInput = ajv.compile(inputSchema)
+
+/**
+ * @param {Array<RevisionHistoryItem>} revisionHistory
+ * @returns {RevisionHistoryItem | undefined} */
+function getNewestRevisionHistoryEntry(revisionHistory) {
+  // sort the revision history (descending) and save the newest entry
+  return revisionHistory
+    .filter((item) => item.date !== undefined)
+    .sort((a, b) =>
+      compareZonedDateTimes(
+        /** @type {string} */ (b.date),
+        /** @type {string} */ (a.date)
+      )
+    )[0]
+}
 
 /**
  * This implements the mandatory test 6.1.49 of the CSAF 2.1 standard.
@@ -86,17 +101,9 @@ export function mandatoryTest_6_1_49(doc) {
     doc.document.tracking.status === 'interim'
   ) {
     const revisionHistory = doc.document.tracking.revision_history
-    if (revisionHistory) {
-      // sort the revision history (descending) and save the newest entry
-      const newestRevisionHistoryItem = revisionHistory
-        .filter((item) => item.date !== undefined)
-        .sort((a, b) =>
-          compareZonedDateTimes(
-            /** @type {string} */ (b.date),
-            /** @type {string} */ (a.date)
-          )
-        )[0]
-
+    const newestRevisionHistoryItem =
+      getNewestRevisionHistoryEntry(revisionHistory)
+    if (newestRevisionHistoryItem) {
       /** @type {Array<Vulnerability>} */
       const vulnerabilities = doc.vulnerabilities
       vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
