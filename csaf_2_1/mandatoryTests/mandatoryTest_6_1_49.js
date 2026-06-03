@@ -1,5 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import { compareZonedDateTimes } from '../../lib/shared/dateHelper.js'
+import { compareZonedDateTimes } from '../dateHelper.js'
 
 const ajv = new Ajv()
 
@@ -41,8 +41,8 @@ const inputSchema = /** @type {const} */ ({
               optionalProperties: {
                 content: {
                   additionalProperties: true,
-                  properties: {
-                    ssvc_v1: {
+                  optionalProperties: {
+                    ssvc_v2: {
                       additionalProperties: true,
                       optionalProperties: {
                         timestamp: { type: 'string' },
@@ -101,20 +101,20 @@ export function mandatoryTest_6_1_49(doc) {
       const vulnerabilities = doc.vulnerabilities
       vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
         vulnerability.metrics?.forEach((metric, metricIndex) => {
-          const ssvcTimestamp = metric.content?.ssvc_v1.timestamp
+          const ssvcTimestamp = metric.content?.ssvc_v2?.timestamp
           if (ssvcTimestamp) {
             // compare the ssvcTimestamp with the date of the newest item in the revision history
             if (
               compareZonedDateTimes(
                 ssvcTimestamp,
-                /** @type {string} */ (newestRevisionHistoryItem.date)
+                /** @type {string} */ (newestRevisionHistoryItem?.date)
               ) > 0
             ) {
               ctx.isValid = false
               ctx.errors.push({
-                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/timestamp`,
+                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/timestamp`,
                 message:
-                  `The document is in status ${doc.document.status} but the SSVC timestamp is newer ` +
+                  `The document is in status ${doc.document.tracking.status} but the SSVC timestamp is newer ` +
                   `than the date of newest item in the revision_history`,
               })
             }
