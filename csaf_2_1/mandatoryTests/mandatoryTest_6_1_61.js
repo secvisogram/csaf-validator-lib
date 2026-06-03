@@ -1,4 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
+import { containsMultipleUnescapedStars } from './shared/wildcardUtils.js'
 
 const ajv = new Ajv()
 
@@ -66,22 +67,6 @@ const validate = ajv.compile(inputSchema)
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
  */
-
-/**
- * Checks if the `stringToCheck` includes more than one unescaped `*` character. A `*` character
- * can be escaped by prefixing it with a backslash (`\`).
- *
- * @param {string} stringToCheck
- * @return {boolean}
- */
-export function containsMultipleUnescapedStars(stringToCheck) {
-  const regex = /\*/g
-  return (
-    (stringToCheck
-      .replace(/\\\*/g, '') // remove escaped '*'
-      .match(regex)?.length ?? 0) > 1 // check if there is more than 1 unescaped '*'
-  )
-}
 
 /**
  * Validates all given SKUs and
@@ -157,7 +142,7 @@ export function mandatoryTest_6_1_61(doc) {
    */
   function checkFullProductName(prefix, fullProductName) {
     const invalidNumberIndexes = checkSkus(
-      fullProductName.product_identification_helper?.skus
+      fullProductName?.product_identification_helper?.skus
     )
     invalidNumberIndexes.forEach((invalidNumberIndex) => {
       ctx.isValid = false

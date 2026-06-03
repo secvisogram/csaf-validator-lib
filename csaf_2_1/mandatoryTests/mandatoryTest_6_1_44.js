@@ -1,4 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
+import { containsMultipleUnescapedStars } from './shared/wildcardUtils.js'
 
 const ajv = new Ajv()
 
@@ -68,22 +69,6 @@ const validate = ajv.compile(inputSchema)
  */
 
 /**
- * Checks if the `stringToCheck` includes more than one unescaped `*` character. A `*` character
- * can be escaped by prefixing it with a backslash (`\`).
- *
- * @param {string} stringToCheck
- * @return {boolean}
- */
-export function containMultipleUnescapedStars(stringToCheck) {
-  const regex = /\*/g
-  return (
-    (stringToCheck
-      .replace(/\\\*/g, '') // remove escaped '*'
-      .match(regex)?.length ?? 0) > 1 // check if there is more than 1 unescaped '*'
-  )
-}
-
-/**
  * Validates all given serial numbers and
  * check whether they contain multiple unescaped stars
  *
@@ -96,7 +81,7 @@ export function checkSerialNumbers(serialNumbers) {
   if (serialNumbers) {
     for (let i = 0; i < serialNumbers.length; i++) {
       const serialNumber = serialNumbers[i]
-      if (containMultipleUnescapedStars(serialNumber)) {
+      if (containsMultipleUnescapedStars(serialNumber)) {
         invalidNumbers.push('' + i)
       }
     }
