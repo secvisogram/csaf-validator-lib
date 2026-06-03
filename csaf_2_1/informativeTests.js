@@ -12,4 +12,5 @@ export { informativeTest_6_3_2 } from './informativeTests/informativeTest_6_3_2.
 export { informativeTest_6_3_4 } from './informativeTests/informativeTest_6_3_4.js'
 export { informativeTest_6_3_5 } from './informativeTests/informativeTest_6_3_5.js'
 export { informativeTest_6_3_12 } from './informativeTests/informativeTest_6_3_12.js'
+export { informativeTest_6_3_16 } from './informativeTests/informativeTest_6_3_16.js'
 export { informativeTest_6_3_18 } from './informativeTests/informativeTest_6_3_18.js'
