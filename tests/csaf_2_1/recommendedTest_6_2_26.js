@@ -30,4 +30,24 @@ describe('recommendedTest_6_2_26', function () {
       1
     )
   })
+  it('skips CWEs without a usage property (version older than 4.11)', async function () {
+    assert.equal(
+      (
+        await recommendedTest_6_2_26({
+          vulnerabilities: [
+            {
+              cwes: [
+                {
+                  id: 'CWE-1004',
+                  name: "Sensitive Cookie Without 'HttpOnly' Flag",
+                  version: '4.11',
+                },
+              ],
+            },
+          ],
+        })
+      ).warnings.length,
+      0
+    )
+  })
 })
