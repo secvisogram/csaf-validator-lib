@@ -1,4 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
+import { isRegisteredSsvcNamespace } from '../shared/ssvcHelpers.js'
 
 const ajv = new Ajv()
 
@@ -8,17 +9,17 @@ const inputSchema = /** @type {const} */ ({
     vulnerabilities: {
       elements: {
         additionalProperties: true,
-        properties: {
+        optionalProperties: {
           metrics: {
             elements: {
               additionalProperties: true,
-              properties: {
+              optionalProperties: {
                 content: {
                   additionalProperties: true,
-                  properties: {
-                    ssvc_v1: {
+                  optionalProperties: {
+                    ssvc_v2: {
                       additionalProperties: true,
-                      properties: {
+                      optionalProperties: {
                         selections: {
                           elements: {
                             additionalProperties: true,
@@ -45,7 +46,7 @@ const inputSchema = /** @type {const} */ ({
 const validate = ajv.compile(inputSchema)
 
 /**
- * This implements the optional test 6.2.34 of the CSAF 2.1 standard.
+ * This implements the recommended test 6.2.34 of the CSAF 2.1 standard.
  *
  * @param {any} doc
  */
@@ -58,20 +59,15 @@ export function recommendedTest_6_2_34(doc) {
     return context
   }
 
-  /*
-   * The list of registered namespaces is according to:
-   * https://certcc.github.io/SSVC/data/schema/v1/Decision_Point-1-0-1.schema.json#/$defs/decision_point/properties/namespace
-   * */
-  const registeredSsvcNamespaces = ['ssvc', 'cvss']
-
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
-    vulnerability.metrics.forEach((metric, metricIndex) => {
-      const selections = metric.content.ssvc_v1.selections
+    vulnerability.metrics?.forEach((metric, metricIndex) => {
+      const selections = metric.content?.ssvc_v2?.selections
+      if (!selections) return
       selections.forEach((selection, selectionIndex) => {
-        if (!registeredSsvcNamespaces.includes(selection.namespace)) {
+        if (!isRegisteredSsvcNamespace(selection.namespace)) {
           context.warnings.push({
-            message: `The  used namespace "${selection.namespace}" is not a registered namespace`,
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}/namespace`,
+            message: `The used namespace "${selection.namespace}" is not a registered namespace`,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}/namespace`,
           })
         }
       })
