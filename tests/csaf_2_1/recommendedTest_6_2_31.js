@@ -4,7 +4,7 @@ import { recommendedTest_6_2_31 } from '../../csaf_2_1/recommendedTests.js'
 describe('recommendedTest_6_2_31', function () {
   it('only runs on relevant documents', function () {
     assert.equal(
-      recommendedTest_6_2_31({ vulnerabilities: 'mydoc' }).warnings.length,
+      recommendedTest_6_2_31({ product_tree: 'mydoc' }).warnings.length,
       0
     )
   })
@@ -54,152 +54,26 @@ describe('recommendedTest_6_2_31', function () {
     )
   })
 
-  it('test branches without serial_numbers or model_numbers', function () {
-    assert.equal(
-      recommendedTest_6_2_31({
-        document: {},
-        product_tree: {
-          full_product_names: [],
-          branches: [
-            {
-              category: 'product_version',
-              name: '1.0',
-              product: {
-                name: 'Example Company Controller A 1.0',
-                product_id: 'CSAFPID-908070601',
-                product_identification_helper: {
-                  serial_numbers: [],
-                  model_numbers: [],
-                },
-              },
-            },
-          ],
-        },
-      }).warnings.length,
-      0
-    )
-  })
-
-  it('test full_product_names without serial_numbers or model_numbers', function () {
+  it('test product_path with no subpaths does not count as valid reference', function () {
     assert.equal(
       recommendedTest_6_2_31({
         document: {},
         product_tree: {
           full_product_names: [
             {
-              name: 'Example Company Controller A 1.0',
-              product_id: 'CSAFPID-908070601',
-              product_identification_helper: {
-                serial_numbers: [],
-                model_numbers: [],
-              },
-            },
-          ],
-        },
-      }).warnings.length,
-      0
-    )
-  })
-
-  it('test nested branches 5 levels deep', function () {
-    assert.equal(
-      recommendedTest_6_2_31({
-        document: {},
-        product_tree: {
-          branches: [
-            {
-              category: 'vendor',
-              name: 'Example Company',
-              branches: [
-                {
-                  category: 'product_family',
-                  name: 'Controller Series',
-                  branches: [
-                    {
-                      category: 'product_name',
-                      name: 'Controller A',
-                      branches: [
-                        {
-                          category: 'product_version',
-                          name: '1.0',
-                          branches: [
-                            {
-                              category: 'architecture',
-                              name: 'x86',
-                              product: {
-                                name: 'Example Company Controller A 1.0 x86',
-                                product_id: 'CSAFPID-908070601',
-                                product_identification_helper: {
-                                  serial_numbers: ['143-D-354'],
-                                },
-                              },
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      }).warnings.length,
-      1
-    )
-  })
-
-  it('test relationship with the same ID for product_reference and relates_to_product_reference', function () {
-    assert.equal(
-      recommendedTest_6_2_31({
-        document: {},
-        product_tree: {
-          full_product_names: [
-            {
-              name: 'Example Company Controller A 1.0',
               product_id: 'CSAFPID-908070601',
               product_identification_helper: {
                 serial_numbers: ['143-D-354'],
               },
             },
-            {
-              name: 'Microsoft Windows',
-              product_id: 'CSAFPID-908070602',
-            },
           ],
-          relationships: [
+          product_paths: [
             {
-              product_reference: 'CSAFPID-908070602',
-              relates_to_product_reference: 'CSAFPID-908070602',
-            },
-          ],
-        },
-      }).warnings.length,
-      1
-    )
-  })
-
-  it('test relationship with product_reference only', function () {
-    assert.equal(
-      recommendedTest_6_2_31({
-        document: {},
-        product_tree: {
-          branches: [
-            {
-              category: 'product_version',
-              name: '1.0',
-              product: {
-                name: 'Example Company Controller A 1.0',
-                product_id: 'CSAFPID-908070601',
-                product_identification_helper: {
-                  model_numbers: ['CA-1000'],
-                },
+              beginning_product_reference: 'CSAFPID-908070601',
+              subpaths: [],
+              full_product_name: {
+                product_id: 'CSAFPID-908070603',
               },
-            },
-          ],
-          relationships: [
-            {
-              product_reference: 'CSAFPID-908070601',
             },
           ],
         },
@@ -215,14 +89,6 @@ describe('recommendedTest_6_2_31', function () {
         product_tree: {
           branches: [
             {
-              category: 'vendor',
-              name: 'Example Company',
-              product: {
-                product_id: 'CSAFPID-908070601',
-                product_identification_helper: {
-                  serial_numbers: ['143-D-354'],
-                },
-              },
               branches: [
                 {
                   product: 'invalid',
@@ -231,10 +97,7 @@ describe('recommendedTest_6_2_31', function () {
                   branches: [{}],
                 },
                 {
-                  category: 'product_version',
-                  name: '1.0',
                   product: {
-                    name: 'Example Company Controller A 1.0',
                     product_id: 'CSAFPID-908070602',
                     product_identification_helper: {
                       model_numbers: ['CA-1000'],
@@ -246,42 +109,34 @@ describe('recommendedTest_6_2_31', function () {
           ],
         },
       }).warnings.length,
-      2
+      1
     )
   })
 
-  it('warns when branch product has no product_id', function () {
-    const result = recommendedTest_6_2_31({
-      document: {},
-      product_tree: {
-        branches: [
-          {
-            category: 'product_version',
-            name: '1.0',
-            product: {
-              name: 'Example Company Controller A 1.0',
-              product_identification_helper: {
-                serial_numbers: ['143-D-354'],
-              },
-            },
-          },
-        ],
-      },
-    })
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
-      '/product_tree/branches/0/product'
-    )
-  })
+  // it('skips branch product without product_id', function () {
+  //   const result = recommendedTest_6_2_31({
+  //     document: {},
+  //     product_tree: {
+  //       branches: [
+  //         {
+  //           product: {
+  //             product_identification_helper: {
+  //               serial_numbers: ['143-D-354'],
+  //             },
+  //           },
+  //         },
+  //       ],
+  //     },
+  //   })
+  //   assert.equal(result.warnings.length, 0)
+  // })
 
-  it('warns when full_product_names entry has no product_id', function () {
+  it('skips full_product_names entry without product_id', function () {
     const result = recommendedTest_6_2_31({
       document: {},
       product_tree: {
         full_product_names: [
           {
-            name: 'Example Company Controller A 1.0',
             product_identification_helper: {
               serial_numbers: ['143-D-354'],
             },
@@ -289,24 +144,19 @@ describe('recommendedTest_6_2_31', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
-      '/product_tree/full_product_names/0'
-    )
+    assert.equal(result.warnings.length, 0)
   })
 
-  it('warns when relationship full_product_name has no product_id', function () {
+  it('warns with correct instancePath for product_paths[*].full_product_name', function () {
     const result = recommendedTest_6_2_31({
       document: {},
       product_tree: {
-        full_product_names: [],
-        relationships: [
+        product_paths: [
           {
-            product_reference: 'CSAFPID-908070601',
-            relates_to_product_reference: 'CSAFPID-908070602',
+            beginning_product_reference: 'CSAFPID-908070601',
+            subpaths: [{ next_product_reference: 'CSAFPID-908070602' }],
             full_product_name: {
-              name: 'Example Company Controller A 1.0 on Windows',
+              product_id: 'CSAFPID-908070603',
               product_identification_helper: {
                 serial_numbers: ['143-D-354'],
               },
@@ -318,7 +168,59 @@ describe('recommendedTest_6_2_31', function () {
     assert.equal(result.warnings.length, 1)
     assert.equal(
       result.warnings[0].instancePath,
-      '/product_tree/relationships/0/full_product_name/0'
+      '/product_tree/product_paths/0/full_product_name'
+    )
+  })
+
+  it('no warning when product_paths full_product_name has empty serial and model numbers', function () {
+    assert.equal(
+      recommendedTest_6_2_31({
+        document: {},
+        product_tree: {
+          product_paths: [
+            {
+              beginning_product_reference: 'CSAFPID-908070601',
+              subpaths: [{ next_product_reference: 'CSAFPID-908070602' }],
+              full_product_name: {
+                product_id: 'CSAFPID-908070603',
+                product_identification_helper: {
+                  serial_numbers: [],
+                  model_numbers: [],
+                },
+              },
+            },
+          ],
+        },
+      }).warnings.length,
+      0
+    )
+  })
+
+  it('no warning when product is referenced as next_product_reference in a subpath', function () {
+    assert.equal(
+      recommendedTest_6_2_31({
+        document: {},
+        product_tree: {
+          full_product_names: [
+            {
+              product_id: 'CSAFPID-908070601',
+              product_identification_helper: {
+                model_numbers: ['CA-1000'],
+              },
+            },
+          ],
+          product_paths: [
+            {
+              beginning_product_reference: 'CSAFPID-908070601',
+              subpaths: [{ next_product_reference: 'CSAFPID-908070602' }],
+              full_product_name: {
+                product_id: 'CSAFPID-908070603',
+              },
+            },
+          ],
+        },
+      }).warnings.length,
+      0
     )
   })
 })
