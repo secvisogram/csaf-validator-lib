@@ -1,2 +1,2 @@
 export * from './basic.js'
-export * from './optionalTests.js'
+export * from './recommendedTests.js'

@@ -1,6 +1,7 @@
+// https://docs.oasis-open.org/csaf/csaf/v2.1/schema/meta.json" from 06.05.2026 - branch editor-revision-2026-04-29
 export default {
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://docs.oasis-open.org/csaf/csaf/v2.1/csaf_json_schema.json',
+  $schema: 'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/meta.json',
+  $id: 'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/csaf.json',
   title: 'Common Security Advisory Framework',
   description:
     'Representation of security advisory information as a JSON document.',
@@ -65,6 +66,7 @@ export default {
             },
           },
         },
+        additionalProperties: false,
       },
     },
     branches_t: {
@@ -93,7 +95,6 @@ export default {
               'architecture',
               'host_name',
               'language',
-              'legacy',
               'patch_level',
               'platform',
               'product_family',
@@ -126,6 +127,18 @@ export default {
             $ref: '#/$defs/full_product_name_t',
           },
         },
+        additionalProperties: false,
+      },
+    },
+    extensions_t: {
+      title: 'List of extensions',
+      description:
+        'Contains a list of extension elements for the current context.',
+      type: 'array',
+      minItems: 1,
+      uniqueItems: true,
+      items: {
+        $ref: 'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-content.json',
       },
     },
     full_product_name_t: {
@@ -197,6 +210,7 @@ export default {
                             'Contains the name of the cryptographic hash algorithm used to calculate the value.',
                           type: 'string',
                           default: 'sha256',
+                          pattern: '^[0-9a-z][0-9a-z-]*$',
                           minLength: 1,
                           examples: [
                             'blake2b512',
@@ -209,9 +223,9 @@ export default {
                         value: {
                           title: 'Value of the cryptographic hash',
                           description:
-                            'Contains the cryptographic hash value in hexadecimal representation.',
+                            'Contains the cryptographic hash value in lowercase hexadecimal representation.',
                           type: 'string',
-                          pattern: '^[0-9a-fA-F]{32,}$',
+                          pattern: '^[0-9a-f]{32,}$',
                           minLength: 32,
                           examples: [
                             '37df33cb7464da5c7f077f4d56a32bc84987ec1d85b234537c1c1a4d4fc8d09dc29e2e762cb5203677bf849a2855a0283710f1f5fe1d6ce8d5ac85c645d0fcb3',
@@ -220,6 +234,7 @@ export default {
                           ],
                         },
                       },
+                      additionalProperties: false,
                     },
                   },
                   filename: {
@@ -231,36 +246,36 @@ export default {
                     examples: ['WINWORD.EXE', 'msotadddin.dll', 'sudoers.so'],
                   },
                 },
+                additionalProperties: false,
               },
             },
             model_numbers: {
               title: 'List of models',
-              description:
-                'Contains a list of full or abbreviated (partial) model numbers.',
+              description: 'Contains a list of model numbers.',
               type: 'array',
               minItems: 1,
               uniqueItems: true,
               items: {
                 title: 'Model number',
                 description:
-                  'Contains a full or abbreviated (partial) model number of the component to identify.',
+                  'Contains a model number of the component to identify - possibly with placeholders.',
                 type: 'string',
                 minLength: 1,
               },
             },
             purls: {
-              title: 'List of package URLs',
-              description: 'Contains a list of package URLs (purl).',
+              title: 'List of PURLs',
+              description: 'Contains a list of Package-URLs (PURL).',
               type: 'array',
               minItems: 1,
               uniqueItems: true,
               items: {
-                title: 'package URL representation',
+                title: 'Package-URL representation',
                 description:
-                  'The package URL (purl) attribute refers to a method for reliably identifying and locating software packages external to this specification.',
+                  'The Package-URL (PURL) attribute refers to a method for reliably identifying and locating software packages external to this specification.',
                 type: 'string',
                 format: 'uri',
-                pattern: '^pkg:[A-Za-z\\.\\-\\+][A-Za-z0-9\\.\\-\\+]*\\/.+',
+                pattern: '^pkg:[a-z][a-z0-9\\.\\-]*\\/.+',
                 minLength: 7,
               },
             },
@@ -279,29 +294,27 @@ export default {
             },
             serial_numbers: {
               title: 'List of serial numbers',
-              description:
-                'Contains a list of full or abbreviated (partial) serial numbers.',
+              description: 'Contains a list of serial numbers.',
               type: 'array',
               minItems: 1,
               uniqueItems: true,
               items: {
                 title: 'Serial number',
                 description:
-                  'Contains a full or abbreviated (partial) serial number of the component to identify.',
+                  'Contains a serial number of the component to identify - possibly with placeholders.',
                 type: 'string',
                 minLength: 1,
               },
             },
             skus: {
               title: 'List of stock keeping units',
-              description:
-                'Contains a list of full or abbreviated (partial) stock keeping units.',
+              description: 'Contains a list of stock keeping units.',
               type: 'array',
               minItems: 1,
               items: {
                 title: 'Stock keeping unit',
                 description:
-                  'Contains a full or abbreviated (partial) stock keeping unit (SKU) which is used in the ordering process to identify the component.',
+                  'Contains a stock keeping unit (SKU) which is used in the ordering process to identify the component - possibly with placeholders.',
                 type: 'string',
                 minLength: 1,
               },
@@ -333,11 +346,20 @@ export default {
                     format: 'uri',
                   },
                 },
+                additionalProperties: false,
               },
             },
           },
+          additionalProperties: false,
+        },
+        x_extensions: {
+          title: 'Product-level Extensions',
+          description:
+            'Contains a list of extensions valid at the full product name element level of the CSAF document and associated with this full product name element.',
+          $ref: '#/$defs/extensions_t',
         },
       },
+      additionalProperties: false,
     },
     lang_t: {
       title: 'Language type',
@@ -387,6 +409,12 @@ export default {
               'summary',
             ],
           },
+          group_ids: {
+            $ref: '#/$defs/product_groups_t',
+          },
+          product_ids: {
+            $ref: '#/$defs/products_t',
+          },
           text: {
             title: 'Note content',
             description:
@@ -408,6 +436,7 @@ export default {
             ],
           },
         },
+        additionalProperties: false,
       },
     },
     product_group_id_t: {
@@ -481,7 +510,37 @@ export default {
             format: 'uri',
           },
         },
+        additionalProperties: false,
       },
+    },
+    subpath_t: {
+      title: 'Subpath',
+      description:
+        'Contains the next node along the current path and its relationship to the previous node.',
+      type: 'object',
+      required: ['category', 'next_product_reference'],
+      properties: {
+        category: {
+          title: 'Relationship category',
+          description:
+            'Defines the category of relationship between the previous item and the referenced next product.',
+          type: 'string',
+          enum: [
+            'default_component_of',
+            'external_component_of',
+            'installed_on',
+            'installed_with',
+            'optional_component_of',
+          ],
+        },
+        next_product_reference: {
+          title: 'Next product reference',
+          description:
+            'Holds a Product ID that refers to the Full Product Name element, which is referenced as the second element of the relationship.',
+          $ref: '#/$defs/product_id_t',
+        },
+      },
+      additionalProperties: false,
     },
     version_t: {
       title: 'Version',
@@ -500,9 +559,7 @@ export default {
       description:
         'Contains the URL of the CSAF JSON schema which the document promises to be valid for.',
       type: 'string',
-      enum: [
-        'https://docs.oasis-open.org/csaf/csaf/v2.1/csaf_json_schema.json',
-      ],
+      enum: ['https://docs.oasis-open.org/csaf/csaf/v2.1/schema/csaf.json'],
       format: 'uri',
     },
     document: {
@@ -547,6 +604,7 @@ export default {
               examples: ['Critical', 'Important', 'Moderate'],
             },
           },
+          additionalProperties: false,
         },
         category: {
           title: 'Document category',
@@ -570,7 +628,7 @@ export default {
           enum: ['2.1'],
         },
         distribution: {
-          title: 'Rules for sharing document',
+          title: 'Rules for document sharing',
           description:
             'Describe any constraints on how this document might be shared.',
           type: 'object',
@@ -607,6 +665,7 @@ export default {
                   ],
                 },
               },
+              additionalProperties: false,
             },
             text: {
               title: 'Textual description',
@@ -647,14 +706,29 @@ export default {
                   ],
                 },
               },
+              additionalProperties: false,
             },
           },
+          additionalProperties: false,
         },
         lang: {
           title: 'Document language',
           description:
             'Identifies the language used by this document, corresponding to IETF BCP 47 / RFC 5646.',
           $ref: '#/$defs/lang_t',
+        },
+        license_expression: {
+          title: 'License expression',
+          description:
+            'Contains the SPDX license expression for the CSAF document.',
+          type: 'string',
+          minLength: 1,
+          examples: [
+            'CC-BY-4.0',
+            'LicenseRef-www.example.org-Example-CSAF-License-3.0+',
+            'LicenseRef-scancode-public-domain',
+            'MIT OR any-OSI',
+          ],
         },
         notes: {
           title: 'Document notes',
@@ -716,6 +790,7 @@ export default {
               examples: ['https://csaf.io', 'https://www.example.com'],
             },
           },
+          additionalProperties: false,
         },
         references: {
           title: 'Document references',
@@ -815,8 +890,10 @@ export default {
                       examples: ['0.6.0', '1.0.0-beta+exp.sha.a1c44f85', '2'],
                     },
                   },
+                  additionalProperties: false,
                 },
               },
+              additionalProperties: false,
             },
             id: {
               title: 'Unique identifier for the document',
@@ -833,7 +910,8 @@ export default {
             },
             initial_release_date: {
               title: 'Initial release date',
-              description: 'The date when this document was first published.',
+              description:
+                'The date when this document was first released to the specified target group.',
               type: 'string',
               format: 'date-time',
             },
@@ -875,6 +953,7 @@ export default {
                     examples: ['Initial version.'],
                   },
                 },
+                additionalProperties: false,
               },
             },
             status: {
@@ -887,8 +966,16 @@ export default {
               $ref: '#/$defs/version_t',
             },
           },
+          additionalProperties: false,
+        },
+        x_extensions: {
+          title: 'Document-level Extensions',
+          description:
+            'Contains a list of extensions valid at the document property level of the CSAF document and associated with this document metadata.',
+          $ref: '#/$defs/extensions_t',
         },
       },
+      additionalProperties: false,
     },
     product_tree: {
       title: 'Product tree',
@@ -947,57 +1034,50 @@ export default {
                 ],
               },
             },
+            additionalProperties: false,
           },
         },
-        relationships: {
-          title: 'List of relationships',
-          description: 'Contains a list of relationships.',
+        product_paths: {
+          title: 'List of product paths',
+          description: 'Contains a list of product paths.',
           type: 'array',
           minItems: 1,
           items: {
-            title: 'Relationship',
+            title: 'Product path',
             description:
-              'Establishes a link between two existing full_product_name_t elements, allowing the document producer to define a combination of two products that form a new full_product_name entry.',
+              'Establishes a path along existing full_product_name_t elements, allowing the document producer to define a path of multiple products that form a new full_product_name entry.',
             type: 'object',
             required: [
-              'category',
+              'beginning_product_reference',
               'full_product_name',
-              'product_reference',
-              'relates_to_product_reference',
+              'subpaths',
             ],
             properties: {
-              category: {
-                title: 'Relationship category',
+              beginning_product_reference: {
+                title: 'Beginning product reference',
                 description:
-                  'Defines the category of relationship for the referenced component.',
-                type: 'string',
-                enum: [
-                  'default_component_of',
-                  'external_component_of',
-                  'installed_on',
-                  'installed_with',
-                  'optional_component_of',
-                ],
+                  'Holds a Product ID that refers to the Full Product Name element, which is the beginning node of the product path.',
+                $ref: '#/$defs/product_id_t',
               },
               full_product_name: {
                 $ref: '#/$defs/full_product_name_t',
               },
-              product_reference: {
-                title: 'Product reference',
+              subpaths: {
+                title: 'List of product subpaths',
                 description:
-                  'Holds a Product ID that refers to the Full Product Name element, which is referenced as the first element of the relationship.',
-                $ref: '#/$defs/product_id_t',
-              },
-              relates_to_product_reference: {
-                title: 'Relates to product reference',
-                description:
-                  'Holds a Product ID that refers to the Full Product Name element, which is referenced as the second element of the relationship.',
-                $ref: '#/$defs/product_id_t',
+                  'Contains an ordered list of product subpaths, each one relating to the path defined by all previous elements up to the beginning node of the product path.',
+                type: 'array',
+                minItems: 1,
+                items: {
+                  $ref: '#/$defs/subpath_t',
+                },
               },
             },
+            additionalProperties: false,
           },
         },
       },
+      additionalProperties: false,
     },
     vulnerabilities: {
       title: 'Vulnerabilities',
@@ -1050,6 +1130,7 @@ export default {
                   description:
                     'Holds the full name of the weakness as given in the CWE specification.',
                   type: 'string',
+                  pattern: '^[^\\s\\-_\\.](.*[^\\s\\-_\\.])?$',
                   minLength: 1,
                   examples: [
                     'Cross-Site Request Forgery (CSRF)',
@@ -1062,12 +1143,19 @@ export default {
                   description:
                     'Holds the version string of the CWE specification this weakness was extracted from.',
                   type: 'string',
-                  minLength: 1,
                   pattern: '^[1-9]\\d*\\.([0-9]|([1-9]\\d+))(\\.\\d+)?$',
                   examples: ['1.0', '3.4.1', '4.0', '4.11', '4.12'],
                 },
               },
+              additionalProperties: false,
             },
+          },
+          disclosure_date: {
+            title: 'Disclosure date',
+            description:
+              'Holds the date and time the vulnerability was originally disclosed to the public.',
+            type: 'string',
+            format: 'date-time',
           },
           discovery_date: {
             title: 'Discovery date',
@@ -1075,6 +1163,45 @@ export default {
               'Holds the date and time the vulnerability was originally discovered.',
             type: 'string',
             format: 'date-time',
+          },
+          first_known_exploitation_dates: {
+            title: 'List of first known exploitation dates',
+            description:
+              'Contains a list of dates of first known exploitations.',
+            type: 'array',
+            minItems: 1,
+            uniqueItems: true,
+            items: {
+              title: 'First known exploitation date',
+              description:
+                'Contains information on when this vulnerability was first known to be exploited in the wild in the products specified.',
+              type: 'object',
+              minProperties: 3,
+              required: ['date', 'exploitation_date'],
+              properties: {
+                date: {
+                  title: 'Date of the information',
+                  description:
+                    'Contains the date when the information was last updated.',
+                  type: 'string',
+                  format: 'date-time',
+                },
+                exploitation_date: {
+                  title: 'Date of the exploitation',
+                  description:
+                    'Contains the date when the exploitation happened.',
+                  type: 'string',
+                  format: 'date-time',
+                },
+                group_ids: {
+                  $ref: '#/$defs/product_groups_t',
+                },
+                product_ids: {
+                  $ref: '#/$defs/products_t',
+                },
+              },
+              additionalProperties: false,
+            },
           },
           flags: {
             title: 'List of flags',
@@ -1115,6 +1242,7 @@ export default {
                   $ref: '#/$defs/products_t',
                 },
               },
+              additionalProperties: false,
             },
           },
           ids: {
@@ -1137,7 +1265,11 @@ export default {
                     'Indicates the name of the vulnerability tracking or numbering system.',
                   type: 'string',
                   minLength: 1,
-                  examples: ['Cisco Bug ID', 'GitHub Issue'],
+                  examples: [
+                    'Cisco Bug ID',
+                    'GitHub Issue',
+                    'https://github.com/oasis-tcs/csaf',
+                  ],
                 },
                 text: {
                   title: 'Text',
@@ -1145,9 +1277,10 @@ export default {
                     'Is unique label or tracking ID for the vulnerability (if such information exists).',
                   type: 'string',
                   minLength: 1,
-                  examples: ['CSCso66472', 'oasis-tcs/csaf#210'],
+                  examples: ['CSCso66472', 'oasis-tcs/csaf#210', '#1217'],
                 },
               },
+              additionalProperties: false,
             },
           },
           involvements: {
@@ -1163,12 +1296,22 @@ export default {
               type: 'object',
               required: ['party', 'status'],
               properties: {
+                contact: {
+                  title: 'Party contact information',
+                  description:
+                    'Contains the contact information of the party that was used in this state.',
+                  type: 'string',
+                  minLength: 1,
+                },
                 date: {
                   title: 'Date of involvement',
                   description:
                     'Holds the date and time of the involvement entry.',
                   type: 'string',
                   format: 'date-time',
+                },
+                group_ids: {
+                  $ref: '#/$defs/product_groups_t',
                 },
                 party: {
                   title: 'Party category',
@@ -1181,6 +1324,9 @@ export default {
                     'user',
                     'vendor',
                   ],
+                },
+                product_ids: {
+                  $ref: '#/$defs/products_t',
                 },
                 status: {
                   title: 'Party status',
@@ -1203,6 +1349,7 @@ export default {
                   minLength: 1,
                 },
               },
+              additionalProperties: false,
             },
           },
           metrics: {
@@ -1227,9 +1374,11 @@ export default {
                   minProperties: 1,
                   properties: {
                     cvss_v2: {
+                      title: 'CVSS v2',
                       $ref: 'https://www.first.org/cvss/cvss-v2.0.json',
                     },
                     cvss_v3: {
+                      title: 'CVSS v3',
                       oneOf: [
                         {
                           $ref: 'https://www.first.org/cvss/cvss-v3.0.json',
@@ -1240,9 +1389,58 @@ export default {
                       ],
                     },
                     cvss_v4: {
+                      title: 'CVSS v4',
                       $ref: 'https://www.first.org/cvss/cvss-v4.0.json',
                     },
+                    epss: {
+                      title: 'EPSS',
+                      description: 'Contains the EPSS data.',
+                      type: 'object',
+                      required: ['percentile', 'probability', 'timestamp'],
+                      properties: {
+                        percentile: {
+                          title: 'Percentile',
+                          description:
+                            'Contains the rank ordering of probabilities from highest to lowest.',
+                          type: 'string',
+                          pattern: '^(([0]\\.([0-9])+)|([1]\\.[0]+))$',
+                        },
+                        probability: {
+                          title: 'Probability',
+                          description:
+                            'Contains the likelihood that any exploitation activity for this Vulnerability is being observed in the 30 days following the given timestamp.',
+                          type: 'string',
+                          pattern: '^(([0]\\.([0-9])+)|([1]\\.[0]+))$',
+                        },
+                        timestamp: {
+                          title: 'EPSS timestamp',
+                          description:
+                            'Holds the date and time the EPSS value was recorded.',
+                          type: 'string',
+                          format: 'date-time',
+                        },
+                      },
+                      additionalProperties: false,
+                    },
+                    qualitative_severity_rating: {
+                      title: 'Qualitative Severity Rating',
+                      description:
+                        'Contains an assessment of the severity of the vulnerability regarding the products on a qualitative scale.',
+                      type: 'string',
+                      enum: ['critical', 'high', 'low', 'medium', 'none'],
+                    },
+                    ssvc_v2: {
+                      title: 'SSVC v2',
+                      $ref: 'https://certcc.github.io/SSVC/data/schema/v2/SelectionList_2_0_0.schema.json',
+                    },
+                    x_extensions: {
+                      title: 'Metrics-content-level Extensions',
+                      description:
+                        'Contains a list of extensions valid at the metrics-content-level of the CSAF document and associated with this metric element.',
+                      $ref: '#/$defs/extensions_t',
+                    },
                   },
+                  additionalProperties: false,
                 },
                 products: {
                   $ref: '#/$defs/products_t',
@@ -1255,6 +1453,7 @@ export default {
                   format: 'uri',
                 },
               },
+              additionalProperties: false,
             },
           },
           notes: {
@@ -1317,20 +1516,20 @@ export default {
                   'It is not known yet whether these versions are or are not affected by the vulnerability. However, it is still under investigation - the result will be provided in a later release of the document.',
                 $ref: '#/$defs/products_t',
               },
+              unknown: {
+                title: 'Unknown',
+                description:
+                  'It is not known whether these versions are or are not affected by the vulnerability. There is also no investigation and therefore the status might never be determined.',
+                $ref: '#/$defs/products_t',
+              },
             },
+            additionalProperties: false,
           },
           references: {
             title: 'Vulnerability references',
             description:
               'Holds a list of references associated with this vulnerability item.',
             $ref: '#/$defs/references_t',
-          },
-          release_date: {
-            title: 'Release date',
-            description:
-              'Holds the date and time the vulnerability was originally released into the wild.',
-            type: 'string',
-            format: 'date-time',
           },
           remediations: {
             title: 'List of remediations',
@@ -1395,7 +1594,7 @@ export default {
                 restart_required: {
                   title: 'Restart required by remediation',
                   description:
-                    'Provides information on category of restart is required by this remediation to become effective.',
+                    'Provides information on the category of restart required by this remediation to become effective.',
                   type: 'object',
                   required: ['category'],
                   properties: {
@@ -1424,6 +1623,7 @@ export default {
                       minLength: 1,
                     },
                   },
+                  additionalProperties: false,
                 },
                 url: {
                   title: 'URL to the remediation',
@@ -1433,6 +1633,7 @@ export default {
                   format: 'uri',
                 },
               },
+              additionalProperties: false,
             },
           },
           threats: {
@@ -1476,6 +1677,7 @@ export default {
                   $ref: '#/$defs/products_t',
                 },
               },
+              additionalProperties: false,
             },
           },
           title: {
@@ -1485,8 +1687,22 @@ export default {
             type: 'string',
             minLength: 1,
           },
+          x_extensions: {
+            title: 'Vulnerability-level Extensions',
+            description:
+              'Contains a list of extensions valid at the vulnerability item level of the CSAF document and associated with this vulnerability element.',
+            $ref: '#/$defs/extensions_t',
+          },
         },
+        additionalProperties: false,
       },
     },
+    x_extensions: {
+      title: 'Root-level Extensions',
+      description:
+        'Contains a list of extensions valid at the root-level of the CSAF document and associated with this CSAF document.',
+      $ref: '#/$defs/extensions_t',
+    },
   },
+  additionalProperties: false,
 }

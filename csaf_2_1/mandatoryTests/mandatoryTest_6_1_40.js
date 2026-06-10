@@ -1,10 +1,10 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 import {
   MAX_UUID,
   NIL_UUID,
   NO_SHARING_ALLOWED,
   PUBLIC,
-} from './sharingGroup.js'
+} from '../sharingGroup.js'
 
 const ajv = new Ajv()
 

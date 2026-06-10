@@ -1,0 +1,11 @@
+/.github
+/.gitlab-ci.yml
+
+/build
+/.nyc_output
+/coverage
+/.venv
+/csaf
+**/*.json
+!package.json
+/lib/shared/first
