@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
 
@@ -49,7 +49,7 @@ const validate = ajv.compile(inputSchema)
  *
  * @param {any} doc
  */
-export function optionalTest_6_2_34(doc) {
+export function recommendedTest_6_2_34(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
   const warnings = []
   const context = { warnings }

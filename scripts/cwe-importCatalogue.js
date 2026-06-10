@@ -14,8 +14,6 @@ import xml2js from 'xml2js'
 
 const fileNameRegex = /^cwec_v(?<version>.+)\.xml/
 
-const fileNameRegex = /^cwec_v(?<version>.+)\.xml/
-
 const [, , REGISTRY_FILE] = process.argv
 const fileNameMatch = fileNameRegex.exec(REGISTRY_FILE)
 if (!fileNameMatch) throw new Error('Failed to parse filename')
