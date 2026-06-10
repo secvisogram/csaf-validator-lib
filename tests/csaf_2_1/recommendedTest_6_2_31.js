@@ -113,24 +113,6 @@ describe('recommendedTest_6_2_31', function () {
     )
   })
 
-  // it('skips branch product without product_id', function () {
-  //   const result = recommendedTest_6_2_31({
-  //     document: {},
-  //     product_tree: {
-  //       branches: [
-  //         {
-  //           product: {
-  //             product_identification_helper: {
-  //               serial_numbers: ['143-D-354'],
-  //             },
-  //           },
-  //         },
-  //       ],
-  //     },
-  //   })
-  //   assert.equal(result.warnings.length, 0)
-  // })
-
   it('skips full_product_names entry without product_id', function () {
     const result = recommendedTest_6_2_31({
       document: {},

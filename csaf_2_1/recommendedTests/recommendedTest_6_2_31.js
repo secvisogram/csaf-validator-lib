@@ -58,7 +58,7 @@ const branchSchema = /** @type {const} */ ({
 
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
-  properties: {
+  optionalProperties: {
     product_tree: {
       additionalProperties: true,
       optionalProperties: {
@@ -137,16 +137,14 @@ export function recommendedTest_6_2_31(doc) {
  * @param {FullProductName[]} full_product_names
  * @param {ProductPath[]} productPaths
  * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx
- * @param {string} [basePath='/product_tree/full_product_names'] - The base JSON path for warnings
  */
-function checkFullProductNames(
-  full_product_names,
-  productPaths,
-  ctx,
-  basePath = '/product_tree/full_product_names'
-) {
+function checkFullProductNames(full_product_names, productPaths, ctx) {
   full_product_names.forEach((fullProductName, index) => {
-    if (!fullProductName?.product_identification_helper || !fullProductName.product_id) return
+    if (
+      !fullProductName?.product_identification_helper ||
+      !fullProductName.product_id
+    )
+      return
     const { serial_numbers, model_numbers } =
       fullProductName.product_identification_helper
 
@@ -155,7 +153,7 @@ function checkFullProductNames(
       !checkProductPath(productPaths, fullProductName.product_id)
     ) {
       ctx.warnings.push({
-        instancePath: `${basePath}/${index}`,
+        instancePath: `/product_tree/full_product_names/${index}`,
         message:
           'missing product path: product with serial number or model number should be referenced in a product path.',
       })
