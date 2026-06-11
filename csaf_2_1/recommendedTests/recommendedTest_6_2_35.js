@@ -1,4 +1,5 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
+import { isUnregisteredNamespace } from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
 
@@ -32,7 +33,7 @@ const inputSchema = /** @type {const} */ ({
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
-                    ssvc_v1: {
+                    ssvc_v2: {
                       additionalProperties: true,
                       optionalProperties: {
                         selections: {
@@ -74,22 +75,20 @@ export function recommendedTest_6_2_35(doc) {
     return context
   }
 
-  /*
-   * According to https://certcc.github.io/SSVC/data/schema/v1/Decision_Point-1-0-1.schema.json#/$defs/decision_point/properties/namespace
-   * a private namespace starts with "x_"
-   * */
-
   if (doc.document.distribution.tlp.label !== 'CLEAR') {
     return context
   }
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
-      const selections = metric.content?.ssvc_v1?.selections || []
+      const selections = metric.content?.ssvc_v2?.selections || []
       selections.forEach((selection, selectionIndex) => {
-        if (selection.namespace?.startsWith('x_')) {
+        if (
+          selection?.namespace &&
+          isUnregisteredNamespace(selection.namespace)
+        ) {
           context.warnings.push({
             message: `The namespace "${selection.namespace}" is a private namespace`,
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}/namespace`,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}/namespace`,
           })
         }
       })

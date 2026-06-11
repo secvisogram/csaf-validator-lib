@@ -23,7 +23,7 @@ describe('recommendedTest_6_2_35', function () {
             metrics: [
               {
                 content: {
-                  ssvc_v1: {}, // should be ignored
+                  ssvc_v2: {}, // should be ignored
                 },
               },
             ],
@@ -32,10 +32,10 @@ describe('recommendedTest_6_2_35', function () {
             metrics: [
               {
                 content: {
-                  ssvc_v1: {
+                  ssvc_v2: {
                     selections: [
                       {
-                        namespace: 'x_custom',
+                        namespace: 'x_com.example#custom',
                       },
                     ],
                   },
