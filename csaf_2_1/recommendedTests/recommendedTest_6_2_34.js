@@ -1,5 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import { isRegisteredSsvcNamespace } from '../shared/ssvcHelpers.js'
+import { isRegisteredSsvcNamespace } from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
 
