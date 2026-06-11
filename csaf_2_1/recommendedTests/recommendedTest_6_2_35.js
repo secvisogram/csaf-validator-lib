@@ -1,5 +1,8 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import { isUnregisteredNamespace } from '../shared/ssvcNamespaces.js'
+import {
+  isSpecialPurposeSsvcNamespace,
+  isUnregisteredNamespace,
+} from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
 
@@ -82,13 +85,17 @@ export function recommendedTest_6_2_35(doc) {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
       const selections = metric.content?.ssvc_v2?.selections || []
       selections.forEach((selection, selectionIndex) => {
-        if (
-          selection?.namespace &&
-          isUnregisteredNamespace(selection.namespace)
-        ) {
+        if (!selection?.namespace) return
+        const instancePath = `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}/namespace`
+        if (isSpecialPurposeSsvcNamespace(selection.namespace)) {
           context.warnings.push({
-            message: `The namespace "${selection.namespace}" is a private namespace`,
-            instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}/namespace`,
+            message: `The namespace "${selection.namespace}" is reserved for special purpose (documentation/testing) and must not be used in production`,
+            instancePath,
+          })
+        } else if (isUnregisteredNamespace(selection.namespace)) {
+          context.warnings.push({
+            message: `The namespace "${selection.namespace}" is an unregistered namespace`,
+            instancePath,
           })
         }
       })
