@@ -16,11 +16,11 @@ describe('mandatoryTest_6_1_27_4', function () {
     )
   })
 
-  it('returns valid for documents with product_tree with relevant category', function () {
+  it('returns valid for documents with empty product_tree with relevant category', function () {
     assert.equal(
       mandatoryTest_6_1_27_4({
         document: { category: 'csaf_deprecated_security_advisory' },
-        product_tree: [{}],
+        product_tree: {},
       }).isValid,
       true
     )
