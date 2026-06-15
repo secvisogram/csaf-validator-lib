@@ -57,7 +57,7 @@ export function mandatoryTest_6_1_27_6(doc) {
         isValid = false
         errors.push({
           instancePath: `/vulnerabilities/${vulnerabilityIndex}`,
-          message: 'needs a `product status` attribute',
+          message: 'needs a `product_status` attribute',
         })
       }
     })
