@@ -89,6 +89,13 @@ describe('recommendedTest_6_2_39_1', function () {
                         product_id: 'CSAFPID-0001',
                       },
                     },
+                    {
+                      category: 'product_version_range',
+                      name: '<5.0.0',
+                      product: {
+                        product_id: 'CSAFPID-0002',
+                      },
+                    },
                   ],
                 },
               ],
@@ -97,22 +104,24 @@ describe('recommendedTest_6_2_39_1', function () {
         },
         vulnerabilities: [
           {
-            product_status: { known_affected: ['CSAFPID-0001'] },
+            product_status: {
+              known_affected: ['CSAFPID-0001', 'CSAFPID-0002'],
+            },
             remediations: [
               {
                 category: 'no_fix_planned',
-                product_ids: ['CSAFPID-0001'],
+                product_ids: ['CSAFPID-0001', 'CSAFPID-0002'],
               },
               {
                 category: 'vendor_fix',
-                product_ids: ['CSAFPID-0001'],
+                product_ids: ['CSAFPID-0001', 'CSAFPID-0002'],
               },
             ],
           },
         ],
       })
     )
-    assert.equal(result.warnings.length, 1)
+    assert.equal(result.warnings.length, 2)
   })
 
   it('does not warns when branch failing to validateBranch', function () {
@@ -143,6 +152,51 @@ describe('recommendedTest_6_2_39_1', function () {
               {
                 category: 'vendor_fix',
                 product_ids: ['CSAFPID-0001'],
+              },
+            ],
+          },
+        ],
+      })
+    )
+    assert.equal(result.warnings.length, 0)
+  })
+
+  it('does not warn when skip indicator is given via group_ids', function () {
+    const result = recommendedTest_6_2_39_1(
+      makeDoc({
+        product_tree: {
+          product_groups: [
+            {
+              group_id: 'CSAFGID-0001',
+              product_ids: ['CSAFPID-0001', 'CSAFPID-0002'],
+            },
+          ],
+        },
+        vulnerabilities: [
+          {
+            product_status: { known_affected: ['CSAFPID-0001'] },
+            remediations: [
+              {
+                category: 'no_fix_planned',
+                group_ids: ['CSAFGID-0001'],
+              },
+            ],
+          },
+        ],
+      })
+    )
+    assert.equal(result.warnings.length, 0)
+  })
+
+  it('does not warn when remediation without product_ids and group_ids applies implicitly', function () {
+    const result = recommendedTest_6_2_39_1(
+      makeDoc({
+        vulnerabilities: [
+          {
+            product_status: { known_affected: ['CSAFPID-0001'] },
+            remediations: [
+              {
+                category: 'fix_planned',
               },
             ],
           },

@@ -42,6 +42,7 @@ const vulnerabilitySchema = /** @type {const} */ ({
           category: { type: 'string' },
         },
         optionalProperties: {
+          group_ids: { elements: { type: 'string' } },
           product_ids: { elements: { type: 'string' } },
         },
       },
@@ -71,6 +72,15 @@ const inputSchema = /** @type {const} */ ({
       optionalProperties: {
         branches: {
           elements: branchSchema,
+        },
+        product_groups: {
+          elements: {
+            additionalProperties: true,
+            properties: {
+              group_id: { type: 'string' },
+              product_ids: { elements: { type: 'string' } },
+            },
+          },
         },
       },
     },
@@ -112,6 +122,18 @@ export function recommendedTest_6_2_39_1(doc) {
     return ctx
   }
 
+  /** @type {Map<string, { branchCategory: string; name: string; productLine: string }>} */
+  const productBranchMap = new Map()
+  for (const branch of doc.product_tree?.branches ?? []) {
+    collectProductBranch(branch, productBranchMap, [])
+  }
+
+  /** @type {Map<string, Set<string>>} */
+  const productGroupMap = new Map()
+  for (const group of doc.product_tree?.product_groups ?? []) {
+    productGroupMap.set(group.group_id, new Set(group.product_ids))
+  }
+
   /** @type Vulnerability[] */
   const vulnerabilities = doc.vulnerabilities ?? []
 
@@ -127,42 +149,59 @@ export function recommendedTest_6_2_39_1(doc) {
 
     if (affectedProductIds.length === 0) return
 
-    const hasAnyFixed =
-      (productStatus.fixed?.length ?? 0) > 0 ||
-      (productStatus.first_fixed?.length ?? 0) > 0
+    const fixedProductIds = [
+      ...(productStatus.fixed ?? []),
+      ...(productStatus.first_fixed ?? []),
+    ]
+    // We only care about fixed products that are actually listed in the branch tree,
+    // because if no branch info is available we fall back to "any fixed product exists" which is a more lenient check.
+    /** @type {Set<string>} */
+    const fixedProductLines = new Set()
+    for (const fixedId of fixedProductIds) {
+      const entry = productBranchMap.get(fixedId)
+      if (entry !== undefined) {
+        fixedProductLines.add(entry.productLine)
+      }
+    }
 
     affectedProductIds.forEach((productId) => {
-      if (hasAnyFixed) return
+      const affectedEntry = productBranchMap.get(productId)
 
-      // Remediations that explicitly reference this product via product_ids
-      const productRemediations = remediations.filter((remediation) =>
-        remediation.product_ids?.includes(productId)
+      const fixedVersionExists =
+        affectedEntry !== undefined
+          ? fixedProductLines.has(affectedEntry.productLine)
+          : fixedProductIds.length > 0
+
+      if (fixedVersionExists) return
+
+      // Collect all remediations that apply to the affected product, either directly via product_ids or indirectly via group_ids.
+      // If no product_ids or group_ids are given, the remediation applies to all products.
+      const productRemediations = remediations.filter((remediation) => {
+        if (remediation.product_ids?.includes(productId)) return true
+
+        const matchesGroup = remediation.group_ids?.some((gid) =>
+          productGroupMap.get(gid)?.has(productId)
+        )
+        if (matchesGroup) return true
+
+        return !remediation.product_ids && !remediation.group_ids
+      })
+
+      const hasSkipIndicator = productRemediations.some((remediation) =>
+        SKIP_CATEGORIES.has(remediation.category)
       )
-
-      const hasSkipIndicator = productRemediations.some((r) =>
-        SKIP_CATEGORIES.has(r.category)
-      )
-
-      /** @type {Map<string, { branchCategory: string; name: string }>} */
-      const productBranchMap = new Map()
-      for (const branch of doc.product_tree?.branches ?? []) {
-        collectProductBranchInfo(branch, productBranchMap)
-      }
 
       if (hasSkipIndicator) {
         // Anti-skip: vendor_fix AND the affected product is a strict-'<' range
-        // → "a version might exist" → MUST NOT skip
+        // "a version might exist" MUST NOT skip
         const hasVendorFix = productRemediations.some(
           (remediation) => remediation.category === 'vendor_fix'
         )
-        const productBranch = productBranchMap.get(productId)
         const hasStrictRange =
-          productBranch?.branchCategory === 'product_version_range' &&
-          hasLessThanComparator(productBranch.name)
+          affectedEntry?.branchCategory === 'product_version_range' &&
+          hasLessThanComparator(affectedEntry.name)
 
-        const skipWarning = hasVendorFix && hasStrictRange
-
-        if (!skipWarning) return
+        if (!(hasVendorFix && hasStrictRange)) return
       }
 
       ctx.warnings.push({
@@ -185,23 +224,25 @@ export function recommendedTest_6_2_39_1(doc) {
  * @returns {boolean}
  */
 function hasLessThanComparator(name) {
-  const constraintPart = name.includes('/')
-    ? name.split('/').slice(1).join('/')
+  const versionPart = name.includes('/')
+    ? name.slice(name.indexOf('/') + 1)
     : name
-  const constraints = constraintPart.split('|')
-  const lastConstraint = constraints[constraints.length - 1].trim()
+  const lastConstraint = versionPart.split('|').at(-1)?.trim() ?? ''
   return lastConstraint.startsWith('<') && !lastConstraint.startsWith('<=')
 }
 
 /**
  * Recursively walks a branch and populates the map with the immediate branch
  * category and name for every leaf product (i.e. the branch that carries the
- * `product` object).
+ * `product` object). The productLine is constructed as the concatenation of
+ * all parent branches with category and name, separated by "|". This allows
+ * to check if a fixed product is in the same product line as the affected product.
  *
  * @param {Branch} branch
- * @param {Map<string, { branchCategory: string; name: string }>} map
+ * @param {Map<string, { branchCategory: string; name: string; productLine: string }>} map
+ * @param {Array<{category: string; name: string}>} productLine
  */
-function collectProductBranchInfo(branch, map) {
+function collectProductBranch(branch, map, productLine) {
   if (
     branch.product?.product_id &&
     branch.category &&
@@ -210,12 +251,17 @@ function collectProductBranchInfo(branch, map) {
     map.set(branch.product.product_id, {
       branchCategory: branch.category,
       name: branch.name,
+      productLine: productLine.map((a) => `${a.category}:${a.name}`).join('|'),
     })
   }
   if (Array.isArray(branch.branches)) {
+    const nextProductLine =
+      branch.category !== undefined && branch.name !== undefined
+        ? [...productLine, { category: branch.category, name: branch.name }]
+        : productLine
     for (const child of branch.branches) {
       if (!validateBranch(child)) continue
-      collectProductBranchInfo(child, map)
+      collectProductBranch(child, map, nextProductLine)
     }
   }
 }
