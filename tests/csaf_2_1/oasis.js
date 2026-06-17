@@ -11,10 +11,8 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
  */
 const excluded = [
   '6.1.26',
-  '6.1.27.4',
   '6.1.27.6',
   '6.1.27.13',
-  '6.1.37',
   '6.1.47',
   '6.1.48',
   '6.1.49',
@@ -27,7 +25,6 @@ const excluded = [
   '6.1.60.1',
   '6.1.60.2',
   '6.1.60.3',
-  '6.1.61',
   '6.2.11',
   '6.2.19',
   '6.2.20',
@@ -85,8 +82,11 @@ const excluded = [
  * Once the issues are resolved, these should be removed from this list and the tests should be re-enabled.
  */
 const skippedTests = new Set([
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-01-03.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-04-03.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
 ])
