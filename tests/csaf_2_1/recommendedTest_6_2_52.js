@@ -126,18 +126,10 @@ describe('recommendedTest_6_2_52', function () {
     assert.equal(result.warnings.length, 0)
   })
 
-  it('does not warn for any of the 26 spec-listed algorithms', function () {
-    const specAlgorithms = [
+  it('does not warn for secure spec-listed algorithms', function () {
+    const secureAlgorithms = [
       'blake2b512',
       'blake2s256',
-      'md4',
-      'md5',
-      'md5-sha1',
-      'mdc2',
-      'ripemd',
-      'ripemd160',
-      'rmd160',
-      'sha1',
       'sha224',
       'sha256',
       'sha3-224',
@@ -151,11 +143,8 @@ describe('recommendedTest_6_2_52', function () {
       'shake128',
       'shake256',
       'sm3',
-      'ssl3-md5',
-      'ssl3-sha1',
-      'whirlpool',
     ]
-    for (const algorithm of specAlgorithms) {
+    for (const algorithm of secureAlgorithms) {
       const result = recommendedTest_6_2_52({
         product_tree: {
           full_product_names: [
@@ -172,7 +161,48 @@ describe('recommendedTest_6_2_52', function () {
       assert.equal(
         result.warnings.length,
         0,
-        `expected no warning for spec algorithm '${algorithm}'`
+        `expected no warning for secure algorithm '${algorithm}'`
+      )
+    }
+  })
+
+  it('warns for insecure but spec-listed algorithms with distinct message', function () {
+    const insecureAlgorithms = [
+      'md4',
+      'md5',
+      'md5-sha1',
+      'mdc2',
+      'ripemd',
+      'ripemd160',
+      'rmd160',
+      'sha1',
+      'ssl3-md5',
+      'ssl3-sha1',
+      'whirlpool',
+    ]
+    for (const algorithm of insecureAlgorithms) {
+      const result = recommendedTest_6_2_52({
+        product_tree: {
+          full_product_names: [
+            productWithFileHashes('product.exe', [
+              {
+                algorithm,
+                value:
+                  '026a37919b182ef7c63791e82c9645e2f897a3f0b73c7a6028c7febf62e93838',
+              },
+            ]),
+          ],
+        },
+      })
+      assert.equal(
+        result.warnings.length,
+        1,
+        `expected 1 warning for insecure algorithm '${algorithm}'`
+      )
+      assert.match(
+        result.warnings[0].message,
+        /secure/,
+        `expected 'secure' in warning message for '${algorithm}'`
       )
     }
   })

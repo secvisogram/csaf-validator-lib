@@ -124,6 +124,33 @@ const ALGORITHMS_IN_SPEC = new Set([
 ])
 
 /**
+ * Subset of ALGORITHMS_IN_SPEC considered cryptographically secure,
+ * based on the OpenSSL 3.x provider classification:
+ * - Algorithms requiring the legacy provider (md4, mdc2, ripemd*, whirlpool)
+ *   are excluded.
+ * - Algorithms in the default provider but cryptographically broken or
+ *   deprecated (md5, md5-sha1, sha1, ssl3-md5, ssl3-sha1) are excluded.
+ * - All remaining default-provider algorithms are considered secure.
+ */
+const SECURE_ALGORITHMS = new Set([
+  'blake2b512',
+  'blake2s256',
+  'sha224',
+  'sha256',
+  'sha3-224',
+  'sha3-256',
+  'sha3-384',
+  'sha3-512',
+  'sha384',
+  'sha512',
+  'sha512-224',
+  'sha512-256',
+  'shake128',
+  'shake256',
+  'sm3',
+])
+
+/**
  * This implements the recommended test 6.2.52 of the CSAF 2.1 standard.
  *
  * @param {unknown} doc
@@ -215,7 +242,14 @@ export function recommendedTest_6_2_52(doc) {
       const algorithm = fileHash.algorithm
       const instancePath = `${hashPrefix}/file_hashes/${fileHashIndex}/algorithm`
 
-      if (!ALGORITHMS_IN_SPEC.has(algorithm)) {
+      if (ALGORITHMS_IN_SPEC.has(algorithm)) {
+        if (!SECURE_ALGORITHMS.has(algorithm)) {
+          ctx.warnings.push({
+            instancePath,
+            message: `the hash algorithm '${algorithm}' is listed in section 3.1.4.3.2 but is not considered a secure cryptographic hash algorithm; a secure algorithm SHOULD be preferred`,
+          })
+        }
+      } else {
         ctx.warnings.push({
           instancePath,
           message: `the hash algorithm '${algorithm}' is not listed in section 3.1.4.3.2`,
