@@ -352,7 +352,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.50.2
 - Recommended Test 6.2.50.3
 - Recommended Test 6.2.51
-- Recommended Test 6.2.52
 - Recommended Test 6.2.53
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
@@ -503,6 +502,7 @@ export const recommendedTest_6_2_41: DocumentTest
 export const recommendedTest_6_2_43: DocumentTest
 export const recommendedTest_6_2_47: DocumentTest
 export const recommendedTest_6_2_48: DocumentTest
+export const recommendedTest_6_2_52: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
