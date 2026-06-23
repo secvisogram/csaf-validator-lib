@@ -122,8 +122,15 @@ export function recommendedTest_6_2_42(doc) {
  * @param {string} basePath
  * @param {BranchPathEntry[]} categorizedStrings
  * @param {Array<{ instancePath: string; message: string }>} warnings
+ * @param {boolean} partialPath
  */
-function checkBranch(branch, basePath, categorizedStrings, warnings) {
+function checkBranch(
+  branch,
+  basePath,
+  categorizedStrings,
+  warnings,
+  partialPath = false
+) {
   if (!validateBranch(branch)) return
 
   const { category, name } = branch
@@ -131,6 +138,7 @@ function checkBranch(branch, basePath, categorizedStrings, warnings) {
     category && name
       ? [...categorizedStrings, { category, name }]
       : categorizedStrings
+  const currentPartialPath = partialPath || !category || !name
 
   const pih /** @type {ProductIdentificationHelper} */ =
     branch.product?.product_identification_helper
@@ -138,7 +146,13 @@ function checkBranch(branch, basePath, categorizedStrings, warnings) {
     const pihPath = `${basePath}/product/product_identification_helper`
 
     if (typeof pih.cpe === 'string') {
-      checkCpe(pih.cpe, currentCategorizedStrings, `${pihPath}/cpe`, warnings)
+      checkCpe(
+        pih.cpe,
+        currentCategorizedStrings,
+        `${pihPath}/cpe`,
+        warnings,
+        currentPartialPath
+      )
     }
 
     pih.purls?.forEach((purlStr, purlIndex) => {
@@ -158,7 +172,8 @@ function checkBranch(branch, basePath, categorizedStrings, warnings) {
       childBranch,
       `${basePath}/branches/${childIndex}`,
       currentCategorizedStrings,
-      warnings
+      warnings,
+      currentPartialPath
     )
   })
 }
@@ -168,8 +183,15 @@ function checkBranch(branch, basePath, categorizedStrings, warnings) {
  * @param {BranchPathEntry[]} categorizedStrings
  * @param {string} instancePath
  * @param {Array<{ instancePath: string; message: string }>} warnings
+ * @param {boolean} partialPath
  */
-function checkCpe(cpe, categorizedStrings, instancePath, warnings) {
+function checkCpe(
+  cpe,
+  categorizedStrings,
+  instancePath,
+  warnings,
+  partialPath = false
+) {
   if (!cpe.startsWith('cpe:2.3:')) return
 
   const parts = cpe.split(':')
@@ -209,23 +231,28 @@ function checkCpe(cpe, categorizedStrings, instancePath, warnings) {
     }
   }
 
-  for (const [indexStr, categories] of Object.entries(
-    CPE_INDEX_TO_CATEGORIES
-  )) {
-    const index = Number(indexStr)
-    const cpeValue = parts[index]
+  const hasUnmappedCategory = categorizedStrings.some(
+    (b) => CATEGORY_TO_CPE_INDEX[b.category] === undefined
+  )
+  if (!partialPath && !hasUnmappedCategory) {
+    for (const [indexStr, categories] of Object.entries(
+      CPE_INDEX_TO_CATEGORIES
+    )) {
+      const index = Number(indexStr)
+      const cpeValue = parts[index]
 
-    if (!isCpeNotSet(cpeValue)) {
-      const hasCorrespondingBranch = categories.some((cat) =>
-        presentCategories.has(cat)
-      )
-      if (!hasCorrespondingBranch) {
-        warnings.push({
-          instancePath,
-          message:
-            `CPE has extra information at index ${index} ("${cpeValue}") with no corresponding branch ` +
-            `category (${categories.join(' / ')})`,
-        })
+      if (!isCpeNotSet(cpeValue)) {
+        const hasCorrespondingBranch = categories.some((cat) =>
+          presentCategories.has(cat)
+        )
+        if (!hasCorrespondingBranch) {
+          warnings.push({
+            instancePath,
+            message:
+              `CPE has extra information at index ${index} ("${cpeValue}") with no corresponding branch ` +
+              `category (${categories.join(' / ')})`,
+          })
+        }
       }
     }
   }

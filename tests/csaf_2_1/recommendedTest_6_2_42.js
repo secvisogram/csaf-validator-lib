@@ -167,7 +167,7 @@ describe('recommendedTest_6_2_42', function () {
       recommendedTest_6_2_42(
         docWithBranches({ purls: ['pkg:generic/example/product_a@2.2.*'] })
       ).warnings.length,
-      2
+      1
     )
   })
 
@@ -189,7 +189,7 @@ describe('recommendedTest_6_2_42', function () {
           cpe: 'cpe:2.3:a:example:product_a:2.2.*:*:*:*:*:*:*:*',
         })
       ).warnings.length,
-      2
+      1
     )
   })
 
