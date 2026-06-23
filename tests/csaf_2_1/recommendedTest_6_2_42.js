@@ -109,7 +109,7 @@ describe('recommendedTest_6_2_42', function () {
                     product_id: 'CSAFPID-0002',
                     name: 'My Family 2.2.0',
                     product_identification_helper: {
-                      cpe: 'cpe:2.3:a:example:product_a:2.2.0:*:*:*:*:*:*:*',
+                      cpe: 'cpe:2.3:a:*:*:2.2.0:*:*:*:*:*:*:*',
                     },
                   },
                 },

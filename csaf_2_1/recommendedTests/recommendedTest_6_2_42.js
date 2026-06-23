@@ -231,10 +231,7 @@ function checkCpe(
     }
   }
 
-  const hasUnmappedCategory = categorizedStrings.some(
-    (b) => CATEGORY_TO_CPE_INDEX[b.category] === undefined
-  )
-  if (!partialPath && !hasUnmappedCategory) {
+  if (!partialPath) {
     for (const [indexStr, categories] of Object.entries(
       CPE_INDEX_TO_CATEGORIES
     )) {
@@ -246,11 +243,13 @@ function checkCpe(
           presentCategories.has(cat)
         )
         if (!hasCorrespondingBranch) {
+          const categoryHint =
+            categories.length > 0 ? ` (${categories.join(' / ')})` : ''
           warnings.push({
             instancePath,
             message:
               `CPE has extra information at index ${index} ("${cpeValue}") with no corresponding branch ` +
-              `category (${categories.join(' / ')})`,
+              `category${categoryHint}`,
           })
         }
       }
