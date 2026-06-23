@@ -23,11 +23,11 @@ jobs:
         # (next comment).
         #
 
-        node-version: [20.x, 22.x]
+        node-version: [22.x, 24.x]
 
     steps:
     - name: Download workflow artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v6
       with:
         name: test-results-${{ matrix.node-version }}
         run-id: ${{ github.event.workflow_run.id }}
@@ -51,7 +51,7 @@ jobs:
       # Make sure, to update this when changing the matrix above.
       #
 
-      if: ${{ matrix.node-version == '22.x' }}
+      if: ${{ matrix.node-version == '24.x' }}
       uses: Nef10/lcov-reporter-action@v0.4.0
       with:
         pr-number: ${{ env.PR_NUMBER }}
