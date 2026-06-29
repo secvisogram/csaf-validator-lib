@@ -52,7 +52,7 @@ jobs:
       #
 
       if: ${{ matrix.node-version == '24.x' }}
-      uses: Nef10/lcov-reporter-action@v0.4.0
+      uses: Nef10/lcov-reporter-action@v0.6.1
       with:
         pr-number: ${{ env.PR_NUMBER }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
