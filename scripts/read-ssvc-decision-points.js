@@ -1,35 +1,29 @@
-/*
-Script to read all SSVC decision points from github and create a json File with all defined decision points
+/**
+ * Script to read all SSVC decision points from github and create a json File with all defined decision points
  */
 
 import fs from 'node:fs'
+import { registeredSsvcNamespace } from '../csaf_2_1/shared/ssvcNamespaces.js'
 
-const SSVC_DECISION_POINT_URL =
-  'https://api.github.com/repos/CERTCC/SSVC/contents/data/json/decision_points?ref=main'
+const SSVC_DECISION_POINTS_PATH = 'data/json/decision_points'
+const SSVC_TREE_URL = `https://api.github.com/repos/CERTCC/SSVC/git/trees/main?recursive=1`
+const SSVC_RAW_BASE_URL = `https://raw.githubusercontent.com/CERTCC/SSVC/main`
 const OUTPUT_FILE = '../lib/ssvc/ssvc_decision_points.js'
 
-// adapt this list if the list of registered namespaces gets extended
-const CURRENT_DECISION_POINTS = ['ssvc', 'cvss']
+// Maps namespace names (from ssvcNamespaces.js) to their folder names in the SSVC repo.
+const NAMESPACE_TO_FOLDER = /** @type {Record<string,string>} */ ({
+  nist: 'nist_800_30',
+})
 
-const GITHUB_TOKEN = ''
-
-/**
- * @typedef {object} GithubResponse
- * @property {string} name
- * @property {string} path
- * @property {string} sha
- * @property {number} size
- * @property {string} url
- * @property {string} html_url
- * @property {string} git_url
- * @property {string} download_url
- * @property {string} type
- */
+// Filter out reserved namespaces
+const CURRENT_DECISION_POINTS = registeredSsvcNamespace.map(
+  (ns) => NAMESPACE_TO_FOLDER[ns] ?? ns
+)
 
 /**
  * @typedef {object} DecisionPoint
  * @property {string} name
- * @property {string} description
+ * @property {string} definition
  * @property {string} namespace
  * @property {string} version
  * @property {string} schemaVersion
@@ -38,73 +32,65 @@ const GITHUB_TOKEN = ''
  */
 
 /**
- * @typedef {object} DecisionPointInfo
- * @property {string} name
- * @property {string} namespace
- * @property {string} version
- * @property {string} key
- */
-
-/**
- * Read Json from given URL
+ * Read JSON from a URL
  * @param {string | URL | Request} dataUrl
- * @param {string} githubToken
  */
-async function readJson(dataUrl, githubToken) {
-  /** @type {any} */
-  const headers = { Accept: 'application/vnd.github.v3+json' }
-  if (GITHUB_TOKEN) {
-    headers['Authorization'] = `Bearer ${githubToken}`
-  }
-  const response = await fetch(dataUrl, { headers })
+async function readJson(dataUrl) {
+  const response = await fetch(dataUrl)
   if (!response.ok) {
-    throw new Error(`Response status: ${response.status}`)
+    throw new Error(`Response status: ${response.status} for ${dataUrl}`)
   }
-
-  return await response.json()
+  return response.json()
 }
 
 /**
- * Read decision points from github and write them to a JSON file
- * @param {string} githubToken
+ * Read decision points from github using the Git Trees API (single API call)
+ * and download each file via raw.githubusercontent.com (no token required).
  */
-async function readDecisionPoints(githubToken) {
-  /** @type {Array<GithubResponse>} */
-  const decisionPointNamespaces = await readJson(
-    SSVC_DECISION_POINT_URL,
-    githubToken
+async function readDecisionPoints() {
+  const tree = await readJson(SSVC_TREE_URL)
+  const jsonFiles = tree.tree.filter(
+    (/** @type {{path: string, type: string}} */ entry) =>
+      entry.type === 'blob' &&
+      entry.path.startsWith(SSVC_DECISION_POINTS_PATH + '/') &&
+      entry.path.endsWith('.json') &&
+      CURRENT_DECISION_POINTS.some((ns) =>
+        entry.path.startsWith(`${SSVC_DECISION_POINTS_PATH}/${ns}/`)
+      )
   )
+
   const result = []
-  for (const currentNamespace of decisionPointNamespaces) {
-    if (CURRENT_DECISION_POINTS.includes(currentNamespace.name)) {
-      const data = await readJson(currentNamespace.url, githubToken)
-      /** @type {Array<DecisionPointInfo>} */
-      for (const item of data) {
-        if (item.name.endsWith('.json')) {
-          /** @type {DecisionPoint} */
-          const decisionPoint = await readJson(item.download_url, githubToken)
-          result.push({
-            name: decisionPoint.name,
-            namespace: decisionPoint.namespace,
-            version: decisionPoint.version,
-            key: decisionPoint.key,
-            values: decisionPoint.values,
-          })
-        }
-      }
-    }
+  for (const file of jsonFiles) {
+    /** @type {DecisionPoint} */
+    const decisionPoint = await readJson(`${SSVC_RAW_BASE_URL}/${file.path}`)
+    result.push({
+      name: decisionPoint.name,
+      namespace: decisionPoint.namespace,
+      version: decisionPoint.version,
+      key: decisionPoint.key,
+      values: decisionPoint.values,
+    })
   }
 
   return result
 }
 
-readDecisionPoints(GITHUB_TOKEN).then((points) => {
-  console.log(points)
+readDecisionPoints().then((points) => {
+  points.sort((a, b) => {
+    const nsCompare = (a.namespace ?? '').localeCompare(b.namespace ?? '')
+    if (nsCompare !== 0) return nsCompare
+    const keyCompare = (a.key ?? '').localeCompare(b.key ?? '')
+    if (keyCompare !== 0) return keyCompare
+    return (a.version ?? '').localeCompare(b.version ?? '')
+  })
+  console.log(`Loaded ${points.length} decision points.`)
   const pointsObject = { decisionPoints: points }
-  const pointsJson = 'export default ' + JSON.stringify(pointsObject)
+  const pointsJson = 'export default ' + JSON.stringify(pointsObject, null, 2)
   fs.writeFile(OUTPUT_FILE, pointsJson, (err) => {
     if (err) {
       console.log(err)
+    } else {
+      console.log(`Written to ${OUTPUT_FILE}`)
     }
   })
 })

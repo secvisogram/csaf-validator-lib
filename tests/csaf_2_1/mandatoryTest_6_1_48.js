@@ -10,14 +10,18 @@ const failingInputSchemaTestWithEmptyVulnerability6_1_48 = {
       metrics: [
         {
           content: {
-            ssvc_v1: {
+            ssvc_v2: {
               id: 'CVE-1900-0001',
               schemaVersion: '1-0-1',
               selections: [
                 {
+                  key: 'MI',
                   name: 'Mission Impact',
                   namespace: 'ssvc',
-                  values: ['None', 'Degraded'],
+                  values: [
+                    { key: 'N', name: 'None' },
+                    { key: 'D', name: 'Degraded' },
+                  ],
                   version: '1.0.0',
                 },
               ],

@@ -1,5 +1,9 @@
 import { Ajv } from 'ajv/dist/jtd.js'
 import ssvcDecisionPoints from '../../lib/ssvc/ssvc_decision_points.js'
+import {
+  getSsvcBaseNamespace,
+  isRegisteredSsvcNamespace,
+} from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
 
@@ -23,7 +27,7 @@ const inputSchema = /** @type {const} */ ({
                 content: {
                   additionalProperties: true,
                   optionalProperties: {
-                    ssvc_v1: {
+                    ssvc_v2: {
                       additionalProperties: true,
                       optionalProperties: {
                         id: { type: 'string' },
@@ -33,10 +37,17 @@ const inputSchema = /** @type {const} */ ({
                           elements: {
                             additionalProperties: true,
                             optionalProperties: {
+                              key: { type: 'string' },
                               name: { type: 'string' },
                               namespace: { type: 'string' },
                               values: {
-                                elements: { type: 'string' },
+                                elements: {
+                                  additionalProperties: true,
+                                  optionalProperties: {
+                                    key: { type: 'string' },
+                                    name: { type: 'string' },
+                                  },
+                                },
                               },
                               version: { type: 'string' },
                             },
@@ -60,22 +71,26 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 
 /**
- * @param {string | undefined} name
+ * @param {string | undefined} key
  * @param {string | undefined} namespace
  * @param {string | undefined} version
  */
-function decisionPointHash(name, namespace, version) {
+function decisionPointHash(key, namespace, version) {
   return JSON.stringify({
-    name: name ?? '',
+    key: key ?? '',
     namespace: namespace ?? '',
     version: version ?? '',
   })
 }
 
-/** @type {Map<string,{ name: string; namespace: string; version: string; key?: string; values: { key: string; name: string; description: string; }[]; }>} */
+/** @type {Map<string,{ name: string; namespace: string; version: string; key?: string; values: { key: string; name: string; definition: string; }[]; }>} */
 const decisionPointMap = new Map(
   ssvcDecisionPoints.decisionPoints.map((obj) => [
-    decisionPointHash(obj.name, obj.namespace, obj.version),
+    decisionPointHash(
+      obj.key,
+      getSsvcBaseNamespace(obj.namespace),
+      obj.version
+    ),
     obj,
   ])
 )
@@ -96,34 +111,30 @@ export function mandatoryTest_6_1_48(doc) {
     return ctx
   }
 
-  const registeredSsvcNamespaces = ['ssvc', 'cvss']
-
   /** @type {Array<Vulnerability>} */
   const vulnerabilities = doc.vulnerabilities
   vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
-      const selectionsWithRegisteredNamespace =
-        metric.content?.ssvc_v1?.selections?.filter(
-          (s) =>
-            s.namespace !== undefined &&
-            registeredSsvcNamespaces.includes(s.namespace)
-        )
-      selectionsWithRegisteredNamespace?.forEach(
+      metric.content?.ssvc_v2?.selections?.forEach(
         (selection, selectionIndex) => {
+          if (
+            selection.namespace === undefined ||
+            !isRegisteredSsvcNamespace(selection.namespace)
+          ) {
+            return
+          }
+
+          const baseNamespace = getSsvcBaseNamespace(selection.namespace)
           // check if a decision point with these properties exists
           const selectedDecisionPnt = decisionPointMap.get(
-            decisionPointHash(
-              selection.name,
-              selection.namespace,
-              selection.version
-            )
+            decisionPointHash(selection.key, baseNamespace, selection.version)
           )
 
           if (!selectedDecisionPnt) {
             ctx.isValid = false
             ctx.errors.push({
-              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
-              message: `there exists no decision point with name ${selection.name} and version ${selection.version} in the namespace ${selection.namespace}`,
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}`,
+              message: `there exists no decision point with key ${selection.key} and version ${selection.version} in the namespace ${selection.namespace}`,
             })
           } else {
             if (
@@ -135,7 +146,7 @@ export function mandatoryTest_6_1_48(doc) {
             ) {
               ctx.isValid = false
               ctx.errors.push({
-                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v1/selections/${selectionIndex}`,
+                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}`,
                 message: `this decision point contains invalid values or its values are not in order`,
               })
             }
@@ -153,28 +164,28 @@ export function mandatoryTest_6_1_48(doc) {
  * according to the specification.
  * If values are missing, this is not an issue.
  *
- * @param {{ key: string; name: string; description: string; }[]} decisionPointValues the valid elements of the values array of the respective decision point
+ * @param {{ key: string; name: string; definition: string; }[]} decisionPointValues the valid elements of the values array of the respective decision point
  *                                   and their order according to the SSVC specification
- * @param {string[]} usedValues the actual used values of the decision point
+ * @param {{ key?: string; name?: string; }[]} usedValues the actual used values of the decision point
  */
 function areValuesValidAndinOrder(decisionPointValues, usedValues) {
-  const specifiedValues = decisionPointValues.map((value) => value.name)
+  const specifiedValues = decisionPointValues.map((value) => value.key)
   //check if there is an invalid value used
   for (let i = 0; i < usedValues.length; i++) {
-    const element = usedValues[i]
-    if (!specifiedValues.includes(element)) {
+    const element = usedValues[i].key
+    if (element === undefined || !specifiedValues.includes(element)) {
       return false
     }
   }
 
   // check for the correct order
   for (let valueIndex = 0; valueIndex < usedValues.length; valueIndex++) {
-    const value = usedValues[valueIndex]
+    const value = usedValues[valueIndex].key ?? ''
     if (valueIndex === 0) {
       continue
     }
     const specifiedIndexCurrentElement = specifiedValues.indexOf(value)
-    const previousValue = usedValues[valueIndex - 1]
+    const previousValue = usedValues[valueIndex - 1].key ?? ''
     const specifiedIndexPreviousElement = specifiedValues.indexOf(previousValue)
 
     if (specifiedIndexCurrentElement < specifiedIndexPreviousElement) {
