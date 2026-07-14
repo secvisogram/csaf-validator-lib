@@ -3,7 +3,7 @@
  */
 
 import fs from 'node:fs'
-import { registeredSsvcNamespace } from '../csaf_2_1/shared/ssvcNamespaces.js'
+import { registeredSsvcNamespaces } from '../csaf_2_1/shared/ssvcNamespaces.js'
 
 const SSVC_DECISION_POINTS_PATH = 'data/json/decision_points'
 const SSVC_TREE_URL = `https://api.github.com/repos/CERTCC/SSVC/git/trees/main?recursive=1`
@@ -16,7 +16,7 @@ const NAMESPACE_TO_FOLDER = /** @type {Record<string,string>} */ ({
 })
 
 // Filter out reserved namespaces
-const CURRENT_DECISION_POINTS = registeredSsvcNamespace.map(
+const CURRENT_DECISION_POINTS = registeredSsvcNamespaces.map(
   (ns) => NAMESPACE_TO_FOLDER[ns] ?? ns
 )
 

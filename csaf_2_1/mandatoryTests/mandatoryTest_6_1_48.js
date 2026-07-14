@@ -3,6 +3,7 @@ import ssvcDecisionPoints from '../../lib/ssvc/ssvc_decision_points.js'
 import {
   getSsvcBaseNamespace,
   isRegisteredSsvcNamespace,
+  isInvalidNamespace,
 } from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
@@ -117,10 +118,20 @@ export function mandatoryTest_6_1_48(doc) {
     vulnerability.metrics?.forEach((metric, metricIndex) => {
       metric.content?.ssvc_v2?.selections?.forEach(
         (selection, selectionIndex) => {
-          if (
-            selection.namespace === undefined ||
-            !isRegisteredSsvcNamespace(selection.namespace)
-          ) {
+          if (selection.namespace === undefined) {
+            return
+          }
+
+          if (isInvalidNamespace(selection.namespace)) {
+            ctx.isValid = false
+            ctx.errors.push({
+              instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}`,
+              message: `invalid namespace ${selection.namespace} used in selection`,
+            })
+            return
+          }
+
+          if (!isRegisteredSsvcNamespace(selection.namespace)) {
             return
           }
 

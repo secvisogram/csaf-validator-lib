@@ -7,29 +7,24 @@
  * Registered Namespace specification (SSVC-RNS):
  * https://certcc.github.io/SSVC/reference/code/namespaces/#registered-namespace
  */
-export const registeredSsvcNamespace = ['ssvc', 'cvss', 'cisa', 'basic', 'nist']
-
+export const registeredSsvcNamespaces = [
+  'ssvc',
+  'cvss',
+  'cisa',
+  'basic',
+  'nist',
+]
 /**
- * All namespace strings reserved by the SSVC project (SSVC-RNS):
+ * Namespace strings that must never be used at all, regardless of context (SSVC-RNS):
  * https://certcc.github.io/SSVC/reference/code/namespaces/#base-namespace
  *
- * - `example` / `x_example` — for documentation; no fixed decision-point catalogue.
- * - `test` / `x_test` — for testing; no fixed decision-point catalogue.
  * - `invalid` / `x_invalid` — must not be used at all; always an error.
  */
-export const reservedNamespace = [
-  'example',
-  'x_example',
-  'test',
-  'x_test',
-  'invalid',
-  'x_invalid',
-]
+export const invalidNamespace = ['invalid', 'x_invalid']
 
 /**
  * Extracts the base namespace from a full SSVC namespace string.
  * Strips everything after the first '#' or '/'.
- *
  * @param {string} namespace
  * @returns {string}
  */
@@ -46,29 +41,26 @@ export function getSsvcBaseNamespace(namespace) {
 
 /**
  * Returns true if the namespace belongs to a registered SSVC base namespace.
- *
  * @param {string} namespace - full namespace string
  * @returns {boolean}
  */
 export function isRegisteredSsvcNamespace(namespace) {
   const base = getSsvcBaseNamespace(namespace)
   if (base.startsWith('x_')) return false
-  return registeredSsvcNamespace.includes(base)
+  return registeredSsvcNamespaces.includes(base)
 }
 
 /**
- * Returns true if `namespace` uses one of the given reserved base namespace strings.
- *
+ * Returns true if `namespace` uses one of the invalid base namespace strings.
  * @param {string} namespace - full namespace string
- * @param {string[]} reservedNamespaces
  * @returns {boolean}
  */
-export function usesReservedNamespace(namespace, reservedNamespaces) {
+export function isInvalidNamespace(namespace) {
   const preExtension = namespace.split('/')[0]
-  return reservedNamespaces.some(
-    (reserved) =>
-      preExtension === reserved ||
-      preExtension.startsWith(`${reserved}.`) ||
-      preExtension.startsWith(`${reserved}#`)
+  return invalidNamespace.some(
+    (invalid) =>
+      preExtension === invalid ||
+      preExtension.startsWith(`${invalid}.`) ||
+      preExtension.startsWith(`${invalid}#`)
   )
 }
