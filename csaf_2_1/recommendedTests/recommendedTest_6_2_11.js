@@ -1,6 +1,14 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
+
+const referenceSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    category: { type: 'string' },
+    url: { type: 'string' },
+  },
+})
 
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
@@ -9,13 +17,7 @@ const inputSchema = /** @type {const} */ ({
       additionalProperties: true,
       properties: {
         references: {
-          elements: {
-            additionalProperties: true,
-            optionalProperties: {
-              category: { type: 'string' },
-              url: { type: 'string' },
-            },
-          },
+          elements: referenceSchema,
         },
         tracking: {
           additionalProperties: true,
@@ -30,8 +32,12 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 
 /**
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof referenceSchema>} Reference
+ */
+
+/**
  * Test for the optional test 6.2.11
- * @param {any} doc
+ * @param {unknown} doc
  */
 export function recommendedTest_6_2_11(doc) {
   const ctx = {
@@ -50,6 +56,7 @@ export function recommendedTest_6_2_11(doc) {
 
   const filename = transformTrackingIdToFilename(trackingId)
 
+  /** @type {Array<Reference & { index: number }>} */
   const selfReferences =
     doc.document.references
       ?.map((reference, index) => ({ ...reference, index }))
