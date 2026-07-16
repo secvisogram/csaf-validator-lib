@@ -5,6 +5,8 @@ import cvss_v3_0 from '../schemas/cvss-v3.0.js'
 import cvss_v3_1 from '../schemas/cvss-v3.1.js'
 import cvss_v4_0_0 from './csafAjv/cvss-v4.0.0.js'
 import extension_content from './csafAjv/extension-content.js'
+import extension_documentation_11 from './csafAjv/extension-documentation-11.js'
+import extension_documentation_12 from './csafAjv/extension-documentation-12.js'
 import content_schema from './csafAjv/content_schema.js'
 import csaf_meta from './csafAjv/csaf_meta.js'
 import cvss_meta from './csafAjv/cvss_meta.js'
@@ -26,7 +28,7 @@ csafAjv.addSchema(cvss_v3_1, 'https://www.first.org/cvss/cvss-v3.1.json')
 csafAjv.addSchema(cvss_meta, 'https://www.first.org/cvss/meta.json')
 csafAjv.addSchema(
   content_schema,
-  'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metaschema.json#/$defs/content_schema_t'
+  'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metaschema.json'
 )
 csafAjv.addSchema(
   meta_format_assertion,
@@ -40,6 +42,14 @@ csafAjv.addSchema(cvss_v4_0_0, 'https://www.first.org/cvss/cvss-v4.0.json')
 csafAjv.addSchema(
   extension_content,
   'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-content.json'
+)
+csafAjv.addSchema(
+  extension_documentation_11,
+  'https://raw.githubusercontent.com/oasis-tcs/csaf/refs/heads/master/csaf_2.1/extension/data/valid/documentation-11/documentation-11-content_1.0.0.json'
+)
+csafAjv.addSchema(
+  extension_documentation_12,
+  'https://raw.githubusercontent.com/oasis-tcs/csaf/refs/heads/master/csaf_2.1/extension/data/valid/documentation-12/documentation-12-content_1.0.0.json'
 )
 csafAjv.addSchema(
   selectionList_2_0_0Schema,
