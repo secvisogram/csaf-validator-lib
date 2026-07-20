@@ -318,12 +318,10 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.50
 - Mandatory Test 6.1.54
 - Mandatory Test 6.1.55
-- Mandatory Test 6.1.57
 - Mandatory Test 6.1.59
 - Mandatory Test 6.1.60.1
 - Mandatory Test 6.1.60.2
 - Mandatory Test 6.1.60.3
-- Mandatory Test 6.1.61
 
 **Recommended Tests**
 
@@ -462,7 +460,9 @@ export const mandatoryTest_6_1_47: DocumentTest
 export const mandatoryTest_6_1_51: DocumentTest
 export const mandatoryTest_6_1_52: DocumentTest
 export const mandatoryTest_6_1_53: DocumentTest
+export const mandatoryTest_6_1_57: DocumentTest
 export const mandatoryTest_6_1_58: DocumentTest
+export const mandatoryTest_6_1_61: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -617,7 +617,5 @@ For the complete list of dependencies please take a look at [package.json](https
 - [packageurl-js](https://github.com/package-url/packageurl-js)
 - [semver](https://github.com/npm/node-semver)
 - [undici](https://undici.nodejs.org)
-- [@js-joda/core](https://js-joda.github.io/js-joda/)
-- [@js-joda/timezone](https://js-joda.github.io/js-joda/)
 
 [(back to top)](#bsi-csaf-validator-lib)
