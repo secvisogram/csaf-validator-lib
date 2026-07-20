@@ -3,7 +3,7 @@ import { cwecMap } from '../../lib/cwec.js'
 import {
   compareZonedDateTimes,
   localDateToTimeZonedDate,
-} from '../../lib/shared/dateHelper.js'
+} from '../dateHelper.js'
 
 const ajv = new Ajv()
 
