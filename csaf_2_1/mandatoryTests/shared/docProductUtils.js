@@ -30,11 +30,20 @@ const productPathEntrySchema = /** @type {const} */ ({
   },
 })
 
+const productGroupSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    group_id: { type: 'string' },
+    summary: { type: 'string' },
+  },
+})
+
 const productTreeSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
     full_product_names: { elements: fullProductNameSchema },
     product_paths: { elements: productPathEntrySchema },
+    product_groups: { elements: productGroupSchema },
     branches: { elements: branchSchema },
   },
 })
@@ -51,12 +60,14 @@ const inputSchema = /** @type {const} */ ({
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productPathEntrySchema>} ProductPathEntry
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productGroupSchema>} ProductGroup
  */
 
 const validateDoc = ajv.compile(inputSchema)
 
 /**
- * This method collects definitions of product ids and corresponding names and instancePaths in the given document and returns a result object.
+ * This method collects definitions of product ids and corresponding names and
+ * instancePaths in the given document and returns a result object.
  * @param {InputSchema} doc
  * @returns {{id: string, name: string, instancePath: string}[]}
  */
@@ -103,6 +114,46 @@ export const collectProductIdsFromFullProductPath = (doc) => {
   }
 
   return entries
+}
+
+/**
+ * This method collects definitions of group ids and corresponding names and
+ * instancePaths in the given document and returns a result object.
+ * @param {InputSchema} doc
+ * @returns {{id: string, name: string, instancePath: string}[]}
+ */
+export const collectGroupIdsFromProductTree = (doc) => {
+  const entries =
+    /** @type {{id: string, name: string, instancePath: string}[]} */ ([])
+
+  if (!validateDoc(doc)) {
+    return entries
+  }
+
+  doc.product_tree?.product_groups?.forEach(
+    (productGroup, productGroupIndex) => {
+      if (productGroup.group_id) {
+        entries.push({
+          id: productGroup.group_id,
+          name: productGroup.summary ?? '',
+          instancePath: `/product_tree/product_groups/${productGroupIndex}/group_id`,
+        })
+      }
+    }
+  )
+
+  return entries
+}
+
+/**
+ * Filters a list of references down to those that have no matching definition.
+ * A reference is considered unresolved if no entry in `entries` shares the same `id`.
+ * @param {{id: string}[]} entries
+ * @param {{id: string, instancePath: string}[]} refs
+ * @returns {{id: string, instancePath: string}[]}
+ */
+export const findMissingDefinitions = (entries, refs) => {
+  return refs.filter((ref) => !entries.some((e) => e.id === ref.id))
 }
 
 /**
