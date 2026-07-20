@@ -33,14 +33,20 @@ export async function mandatoryTest_6_1_60_2(doc) {
           : undefined
 
       if (typeof schemaUrl !== 'string') return
-      const validateDeclaredSchema = csafAjv.getSchema(schemaUrl)
 
+      let validateDeclaredSchema = csafAjv.getSchema(schemaUrl)
       if (typeof validateDeclaredSchema !== 'function') {
-        ctx.warnings.push({
-          instancePath,
-          message: `declared CSAF Extension Schema "${schemaUrl}" is not supported and could not be validated`,
-        })
-        return
+        try {
+          validateDeclaredSchema = await csafAjv.compileAsync({
+            $ref: schemaUrl,
+          })
+        } catch {
+          ctx.warnings.push({
+            instancePath,
+            message: `declared CSAF Extension Schema "${schemaUrl}" is not supported and could not be validated`,
+          })
+          return
+        }
       }
 
       if (!validateDeclaredSchema(value)) {
