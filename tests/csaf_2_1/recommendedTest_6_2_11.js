@@ -60,21 +60,21 @@ describe('recommendedTest_6_2_11', function () {
     )
   })
 
-  it('skips empty reference', function () {
-    assert.equal(
-      recommendedTest_6_2_11({
-        document: {
-          references: [
-            {},
-            {
-              category: 'self',
-              url: 'https://example.com/security/data/csaf/2024/oasis_csaf_tc-csaf_2.1-2024-6-2-11-01_1.json',
-            },
-          ],
-          tracking: { id: 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-11-01' },
-        },
-      }).warnings.length,
-      1
-    )
+  it('warns with the correct index after filtering out non-self references', function () {
+    const result = recommendedTest_6_2_11({
+      document: {
+        references: [
+          {},
+          {
+            category: 'self',
+            url: 'https://example.com/security/data/csaf/2024/oasis_csaf_tc-csaf_2.1-2024-6-2-11-01_1.json',
+          },
+        ],
+        tracking: { id: 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-11-01' },
+      },
+    })
+
+    assert.equal(result.warnings.length, 1)
+    assert.equal(result.warnings[0].instancePath, '/document/references/1/url')
   })
 })
