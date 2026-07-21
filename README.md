@@ -617,7 +617,5 @@ For the complete list of dependencies please take a look at [package.json](https
 - [packageurl-js](https://github.com/package-url/packageurl-js)
 - [semver](https://github.com/npm/node-semver)
 - [undici](https://undici.nodejs.org)
-- [@js-joda/core](https://js-joda.github.io/js-joda/)
-- [@js-joda/timezone](https://js-joda.github.io/js-joda/)
 
 [(back to top)](#bsi-csaf-validator-lib)
