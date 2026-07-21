@@ -12,7 +12,6 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
 const excluded = [
   '6.1.26',
   '6.1.27.13',
-  '6.1.47',
   '6.1.48',
   '6.1.49',
   '6.1.50',
