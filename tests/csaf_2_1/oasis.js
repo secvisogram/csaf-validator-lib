@@ -66,15 +66,45 @@ const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-01.json',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
+/** @typedef {import('../../lib/shared/types.js').TestResult} TestResult */
 
 /** @typedef {Map<string, DocumentTest>} TestMap */
 
 /**
  * @typedef {object} TestCases
  * @property {TestCase[]} tests
+ */
+
+/**
+ * @typedef {object} CsafTestResult
+ * @property {string} $schema
+ * @property {boolean} overall_valid
+ * @property {PrimaryResult} primary_result
+ * @property {string} resultschema_version
+ * @property {SecondaryResult[]} secondary_results
+ */
+
+/**
+ * @typedef {object} PrimaryResult
+ * @property {string} id
+ * @property {boolean} passed
+ */
+
+/**
+ * @typedef {object} SecondaryResult
+ * @property {string} id
+ * @property {boolean} passed
+ * @property {ResultError[]} [errors]
+ */
+
+/**
+ * @typedef {object} ResultError
+ * @property {string} instance_path
+ * @property {string} message
  */
 
 /**
@@ -88,6 +118,7 @@ const skippedTests = new Set([
 /**
  * @typedef {object} TestSpec
  * @property {string} name
+ * @property {string} result
  * @property {boolean} valid
  */
 
@@ -123,6 +154,64 @@ const testDataModules = import.meta.glob(
 )
 
 const testMap = parseTestCases()
+
+/**
+ *
+ * @param {SecondaryResult[]} secondaryResults
+ * @param {string} group
+ * @param doc {any} CSAF document to check
+ * @return {Promise<Map<string, TestResult>>}
+ */
+async function executeSecondLevelTests(secondaryResults, group, doc) {
+  let testId2secondaryExecutionResult = new Map()
+  if (secondaryResults) {
+    const secondaryResultIds = secondaryResults.map((result) => result.id)
+    for (const secondaryResultId of secondaryResultIds) {
+      const secondaryTest = tests
+        .get(group)
+        ?.get(`${group}Test_${secondaryResultId.replace(/\./g, '_')}`)
+      if (secondaryTest) {
+        const resultSecondaryTestResult = await secondaryTest(doc)
+        testId2secondaryExecutionResult.set(
+          secondaryResultId,
+          resultSecondaryTestResult
+        )
+      } else {
+        assert.fail(`Secondary test not implemented {${secondaryResultId}}`)
+      }
+    }
+  }
+  return testId2secondaryExecutionResult
+}
+/**
+ * Validate the defined test result against the execution results
+ * @param {CsafTestResult} csafTestResult
+ * @param {TestResult} primaryExecutionResult
+ * @param {Map<string, TestResult>} testId2secondaryExecutionResult
+ */
+
+function validateTestResults(
+  csafTestResult,
+  primaryExecutionResult,
+  testId2secondaryExecutionResult
+) {
+  assert.equal(
+    primaryExecutionResult.isValid,
+    csafTestResult.primary_result.passed
+  )
+  if (csafTestResult.secondary_results) {
+    for (const secondaryResult of csafTestResult.secondary_results) {
+      const executionResult = testId2secondaryExecutionResult.get(
+        secondaryResult.id
+      )
+      if (executionResult) {
+        assert.equal(executionResult.isValid, secondaryResult.passed)
+      } else {
+        assert.fail('No executionResult found')
+      }
+    }
+  }
+}
 
 for (const [group, t] of testMap) {
   describe(group, function () {
@@ -166,18 +255,52 @@ for (const [group, t] of testMap) {
                   `${testDataDir}${testSpec.name}`
                 ]()
 
-                const result = await test(doc)
+                /** @type {CsafTestResult | null} */
+                let csafTestResult = null
+                if (testSpec.result) {
+                  csafTestResult = JSON.parse(
+                    readFileSync(
+                      new URL(testSpec.result, testDataBaseUrl),
+                      'utf-8'
+                    )
+                  )
+                }
 
                 if (group === 'mandatory') {
                   expect(result.isValid).to.equal(testSpec.valid)
                   expect(
                     Boolean(result.errors?.length),
+                /** @type {TestResult} */
+                let primaryExecutionResult = await test(doc)
+                if (csafTestResult) {
+                  let testId2secondaryExecutionResult =
+                    await executeSecondLevelTests(
+                      csafTestResult.secondary_results,
+                      group,
+                      doc
+                    )
+                  validateTestResults(
+                    csafTestResult,
+                    primaryExecutionResult,
+                    testId2secondaryExecutionResult
+                  )
+                } else if (group === 'mandatory') {
+                  assert.equal(primaryExecutionResult.isValid, testSpec.valid)
+                  assert.equal(
+                    Boolean(primaryExecutionResult.errors?.length),
+                    type === 'failures',
                     type === 'failures'
                       ? 'should have errors'
                       : `should not have errors, but had ${result.errors?.length}`
                   ).to.equal(type === 'failures')
+                      : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
+                  )
                 } else {
                   expect(result.isValid === undefined).to.equal(testSpec.valid)
+                  assert.equal(
+                    primaryExecutionResult.isValid === undefined,
+                    testSpec.valid
+                  )
 
                   if (group === 'recommended') {
                     expect(
