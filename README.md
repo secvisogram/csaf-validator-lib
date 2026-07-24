@@ -368,7 +368,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
 - Informative Test 6.3.20
-- Informative Test 6.3.21.1
 - Informative Test 6.3.21.2
 - Informative Test 6.3.21.4
 - Informative Test 6.3.21.5
@@ -522,6 +521,7 @@ export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
+export const informativeTest_6_3_21_1: DocumentTest
 export const informativeTest_6_3_21_3: DocumentTest
 ```
 
