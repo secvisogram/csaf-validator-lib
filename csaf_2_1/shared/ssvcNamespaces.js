@@ -12,6 +12,8 @@ export const registeredSsvcNamespaces = [
   'cvss',
   'cisa',
   'basic',
+  'example',
+  'test',
   'nist',
 ]
 /**
