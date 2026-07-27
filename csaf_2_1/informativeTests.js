@@ -1,6 +1,5 @@
 export {
   informativeTest_6_3_3,
-  informativeTest_6_3_5,
   informativeTest_6_3_6,
   informativeTest_6_3_7,
   informativeTest_6_3_8,
