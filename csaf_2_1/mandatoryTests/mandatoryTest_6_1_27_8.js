@@ -33,6 +33,9 @@ const inputSchema = /** @type {const} */ ({
               },
             },
           },
+          product_status: {
+            values: { elements: { type: 'string' } },
+          },
         },
       },
     },
@@ -44,7 +47,7 @@ const inputSchema = /** @type {const} */ ({
         product_groups: {
           elements: {
             additionalProperties: true,
-            optionalProperties: {
+            properties: {
               group_id: { type: 'string' },
               product_ids: { elements: { type: 'string' } },
             },
@@ -68,12 +71,18 @@ const validate = ajv.compile(inputSchema)
  * @param {unknown} doc
  */
 export function mandatoryTest_6_1_27_8(doc) {
-  /** @type {Array<{ message: string; instancePath: string }>} */
-  const errors = []
-  let isValid = true
+  /*
+    The `ctx` variable holds the state that is accumulated during the test ran and is
+    finally returned by the function.
+   */
+  const ctx = {
+    errors:
+      /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
+    isValid: true,
+  }
 
   if (!validate(doc) || doc.document.category !== 'csaf_vex') {
-    return { errors, isValid }
+    return ctx
   }
 
   /** @type {Map<string, Set<string>>} */
@@ -82,64 +91,58 @@ export function mandatoryTest_6_1_27_8(doc) {
   const productGroups = doc.product_tree?.product_groups
   if (Array.isArray(productGroups)) {
     for (const group of productGroups) {
-      if (
-        typeof group.group_id === 'string' &&
-        Array.isArray(group.product_ids)
-      ) {
-        groupProductMap.set(group.group_id, new Set(group.product_ids))
-      }
+      groupProductMap.set(group.group_id, new Set(group.product_ids))
     }
   }
 
   /** @type {Vulnerability[]} */
   const vulnerabilities = doc.vulnerabilities
-  if (Array.isArray(vulnerabilities)) {
-    vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
-      if (['ids', 'cve'].every((p) => vulnerability[p] === undefined)) {
-        isValid = false
-        errors.push({
-          instancePath: `/vulnerabilities/${vulnerabilityIndex}`,
-          message:
-            'Neither a CVE nor a general vulnerability id (ids) is given for this vulnerability.',
-        })
-        return
-      }
-
-      if (vulnerability.cve !== undefined) return
-
-      if (!Array.isArray(vulnerability.ids)) return
-
-      const allScoped = vulnerability.ids.every(
-        (id) =>
-          (Array.isArray(id.product_ids) && id.product_ids.length > 0) ||
-          (Array.isArray(id.group_ids) && id.group_ids.length > 0)
+  vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
+    if (
+      ['ids', 'cve'].every(
+        (propertyName) => vulnerability[propertyName] === undefined
       )
-      if (!allScoped) return
+    ) {
+      ctx.isValid = false
+      ctx.errors.push({
+        instancePath: `/vulnerabilities/${vulnerabilityIndex}`,
+        message:
+          'Neither a CVE nor a general vulnerability id (ids) is given for this vulnerability.',
+      })
+      return
+    }
 
-      const coveredProducts = getAllCoveredProducts(
-        vulnerability.ids,
-        groupProductMap
-      )
+    if (vulnerability.cve !== undefined) return
 
-      const productStatus =
-        /** @type {Record<string, unknown> | null | undefined} */ (
-          vulnerability.product_status
-        )
-      if (productStatus == null || typeof productStatus !== 'object') return
+    if (!Array.isArray(vulnerability.ids)) return
 
-      const hadErrors = checkProductStatus(
-        productStatus,
-        coveredProducts,
-        vulnerabilityIndex,
-        errors
-      )
-      if (hadErrors) {
-        isValid = false
-      }
-    })
-  }
+    const allScoped = vulnerability.ids.every(
+      (id) =>
+        (Array.isArray(id.product_ids) && id.product_ids.length > 0) ||
+        (Array.isArray(id.group_ids) && id.group_ids.length > 0)
+    )
+    if (!allScoped) return
 
-  return { errors, isValid }
+    const coveredProducts = getAllCoveredProducts(
+      vulnerability.ids,
+      groupProductMap
+    )
+
+    const productStatus = vulnerability.product_status
+    if (productStatus === undefined) return
+
+    const productStatusErrors = checkProductStatus(
+      productStatus,
+      coveredProducts,
+      vulnerabilityIndex
+    )
+    if (productStatusErrors.length > 0) {
+      ctx.isValid = false
+      ctx.errors.push(...productStatusErrors)
+    }
+  })
+
+  return ctx
 }
 
 /**
@@ -173,26 +176,22 @@ function getAllCoveredProducts(ids, groupProductMap) {
 
 /**
  * Checks that every product referenced in product_status is covered.
- * Returns true if any uncovered products were found.
- * @param {Record<string, unknown>} productStatus
+ * Returns the errors found for uncovered products.
+ * @param {Record<string, string[]>} productStatus
  * @param {Set<string>} coveredProducts
  * @param {number} vulnerabilityIndex
- * @param {Array<{ message: string; instancePath: string }>} errors
- * @returns {boolean}
+ * @returns {Array<{ message: string; instancePath: string }>}
  */
 function checkProductStatus(
   productStatus,
   coveredProducts,
-  vulnerabilityIndex,
-  errors
+  vulnerabilityIndex
 ) {
-  let hadErrors = false
+  /** @type {Array<{ message: string; instancePath: string }>} */
+  const errors = []
   for (const [statusKey, productIds] of Object.entries(productStatus)) {
-    if (!Array.isArray(productIds)) continue
     productIds.forEach((productId, productIdIndex) => {
-      if (typeof productId !== 'string') return
       if (!coveredProducts.has(productId)) {
-        hadErrors = true
         errors.push({
           instancePath: `/vulnerabilities/${vulnerabilityIndex}/product_status/${statusKey}/${productIdIndex}`,
           message:
@@ -202,5 +201,5 @@ function checkProductStatus(
       }
     })
   }
-  return hadErrors
+  return errors
 }
