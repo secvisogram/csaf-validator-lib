@@ -76,7 +76,7 @@ const validateInput = ajv.compile(inputSchema)
  * @param {string | undefined} namespace
  * @param {string | undefined} version
  */
-function decisionPointHash(key, namespace, version) {
+function decisionPointIdentifier(key, namespace, version) {
   return JSON.stringify({
     key: key ?? '',
     namespace: namespace ?? '',
@@ -87,7 +87,7 @@ function decisionPointHash(key, namespace, version) {
 /** @type {Map<string,{ name: string; namespace: string; version: string; key?: string; values: { key: string; name: string; definition: string; }[]; }>} */
 const decisionPointMap = new Map(
   ssvcDecisionPoints.decisionPoints.map((obj) => [
-    decisionPointHash(
+    decisionPointIdentifier(
       obj.key,
       getSsvcBaseNamespace(obj.namespace),
       obj.version
@@ -138,7 +138,11 @@ export function mandatoryTest_6_1_48(doc) {
           const baseNamespace = getSsvcBaseNamespace(selection.namespace)
           // check if a decision point with these properties exists
           const selectedDecisionPnt = decisionPointMap.get(
-            decisionPointHash(selection.key, baseNamespace, selection.version)
+            decisionPointIdentifier(
+              selection.key,
+              baseNamespace,
+              selection.version
+            )
           )
 
           if (!selectedDecisionPnt) {
@@ -148,17 +152,19 @@ export function mandatoryTest_6_1_48(doc) {
               message: `there exists no decision point with key ${selection.key} and version ${selection.version} in the namespace ${selection.namespace}`,
             })
           } else {
-            if (
-              selection.values &&
-              !areValuesValidAndinOrder(
-                selectedDecisionPnt.values,
-                selection.values
-              )
+            if (!areValuesValid(selectedDecisionPnt.values, selection.values)) {
+              ctx.isValid = false
+              ctx.errors.push({
+                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}`,
+                message: `this decision point contains invalid values`,
+              })
+            } else if (
+              !areValuesInOrder(selectedDecisionPnt.values, selection.values)
             ) {
               ctx.isValid = false
               ctx.errors.push({
                 instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}`,
-                message: `this decision point contains invalid values or its values are not in order`,
+                message: `this decision point values are not in order`,
               })
             }
           }
@@ -177,31 +183,51 @@ export function mandatoryTest_6_1_48(doc) {
  *
  * @param {{ key: string; name: string; definition: string; }[]} decisionPointValues the valid elements of the values array of the respective decision point
  *                                   and their order according to the SSVC specification
- * @param {{ key?: string; name?: string; }[]} usedValues the actual used values of the decision point
+ * @param {{ key?: string; name?: string; }[] | undefined} usedValues the actual used values of the decision point
  */
-function areValuesValidAndinOrder(decisionPointValues, usedValues) {
-  const specifiedValues = decisionPointValues.map((value) => value.key)
-  //check if there is an invalid value used
-  for (let i = 0; i < usedValues.length; i++) {
-    const element = usedValues[i].key
-    if (element === undefined || !specifiedValues.includes(element)) {
-      return false
+function areValuesInOrder(decisionPointValues, usedValues) {
+  if (usedValues) {
+    const specifiedValues = decisionPointValues.map((value) => value.key)
+
+    // check for the correct order
+    for (let valueIndex = 0; valueIndex < usedValues.length; valueIndex++) {
+      const value = usedValues[valueIndex].key ?? ''
+      if (valueIndex === 0) {
+        continue
+      }
+      const specifiedIndexCurrentElement = specifiedValues.indexOf(value)
+      const previousValue = usedValues[valueIndex - 1].key ?? ''
+      const specifiedIndexPreviousElement =
+        specifiedValues.indexOf(previousValue)
+
+      if (specifiedIndexCurrentElement < specifiedIndexPreviousElement) {
+        return false
+      }
+    }
+  }
+  return true
+}
+
+/**
+ * Check if the elements in the values array of the decision point are valid
+ * according to the specification.
+ * If values are missing, this is not an issue.
+ *
+ * @param {{ key: string; name: string; definition: string; }[]} decisionPointValues the valid elements of the values array of the respective decision point
+ *                                   and their order according to the SSVC specification
+ * @param {{ key?: string; name?: string; }[] | undefined } usedValues the actual used values of the decision point
+ */
+function areValuesValid(decisionPointValues, usedValues) {
+  if (usedValues) {
+    const specifiedValues = decisionPointValues.map((value) => value.key)
+    //check if there is an invalid value used
+    for (let i = 0; i < usedValues.length; i++) {
+      const element = usedValues[i].key
+      if (element === undefined || !specifiedValues.includes(element)) {
+        return false
+      }
     }
   }
 
-  // check for the correct order
-  for (let valueIndex = 0; valueIndex < usedValues.length; valueIndex++) {
-    const value = usedValues[valueIndex].key ?? ''
-    if (valueIndex === 0) {
-      continue
-    }
-    const specifiedIndexCurrentElement = specifiedValues.indexOf(value)
-    const previousValue = usedValues[valueIndex - 1].key ?? ''
-    const specifiedIndexPreviousElement = specifiedValues.indexOf(previousValue)
-
-    if (specifiedIndexCurrentElement < specifiedIndexPreviousElement) {
-      return false
-    }
-  }
   return true
 }
