@@ -10,31 +10,17 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
  * Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
-  '6.1.8',
-  '6.1.9',
-  '6.1.27.3',
-  '6.1.27.4',
-  '6.1.27.6',
-  '6.1.27.11',
   '6.1.27.13',
-  '6.1.37',
-  '6.1.46',
-  '6.1.47',
   '6.1.48',
-  '6.1.49',
   '6.1.50',
   '6.1.53',
   '6.1.54',
   '6.1.55',
   '6.1.56',
-  '6.1.57',
-  '6.1.58',
   '6.1.59',
   '6.1.60.1',
   '6.1.60.2',
   '6.1.60.3',
-  '6.1.61',
-  '6.2.11',
   '6.2.19',
   '6.2.20',
   '6.2.24',
@@ -47,8 +33,6 @@ const excluded = [
   '6.2.36',
   '6.2.37',
   '6.2.39.1',
-  '6.2.39.3',
-  '6.2.39.4',
   '6.2.39.5',
   '6.2.42',
   '6.2.44',
@@ -60,7 +44,6 @@ const excluded = [
   '6.2.50.3',
   '6.2.51',
   '6.2.52',
-  '6.2.53',
   '6.2.54.1',
   '6.2.54.2',
   '6.2.54.3',
@@ -77,7 +60,6 @@ const excluded = [
   '6.3.19.4',
   '6.3.19.5',
   '6.3.20',
-  '6.3.21.1',
   '6.3.21.2',
   '6.3.21.3',
   '6.3.21.4',
@@ -94,8 +76,13 @@ const excluded = [
  * Once the issues are resolved, these should be removed from this list and the tests should be re-enabled.
  */
 const skippedTests = new Set([
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-01-12.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-14-32.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */

@@ -1,4 +1,5 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
+import { containsMultipleUnescapedStars } from './shared/wildcardUtils.js'
 
 const ajv = new Ajv()
 
@@ -73,19 +74,9 @@ const inputSchema = /** @type {const} */ ({
 const validate = ajv.compile(inputSchema)
 
 /**
- * @typedef {import('ajv/dist/core').JTDDataType<typeof branchSchema>} Branch
- * @typedef {import('ajv/dist/core').JTDDataType<typeof fullProductNameSchema>} FullProductName
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
  */
-
-/**
- *
- * @param {string} stringToCheck
- * @return {boolean}
- */
-export function containMultipleUnescapedStars(stringToCheck) {
-  const regex = /\*/g
-  return (stringToCheck.replace(/\\\*/g, '').match(regex)?.length ?? 0) > 1
-}
 
 /**
  * Validates all given model numbers and
@@ -100,7 +91,7 @@ export function checkModelNumbers(modelNumbers) {
   if (modelNumbers) {
     for (let i = 0; i < modelNumbers.length; i++) {
       const modelNumber = modelNumbers[i]
-      if (containMultipleUnescapedStars(modelNumber)) {
+      if (containsMultipleUnescapedStars(modelNumber)) {
         invalidNumbers.push(i)
       }
     }
