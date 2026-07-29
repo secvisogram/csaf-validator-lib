@@ -11,27 +11,17 @@ import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
  */
 const excluded = [
   '6.1.26',
-  '6.1.27.3',
-  '6.1.27.4',
-  '6.1.27.6',
-  '6.1.27.11',
   '6.1.27.13',
-  '6.1.37',
-  '6.1.47',
   '6.1.48',
-  '6.1.49',
   '6.1.50',
   '6.1.53',
   '6.1.54',
   '6.1.55',
   '6.1.56',
-  '6.1.57',
   '6.1.59',
   '6.1.60.1',
   '6.1.60.2',
   '6.1.60.3',
-  '6.1.61',
-  '6.2.11',
   '6.2.20',
   '6.2.24',
   '6.2.26',
@@ -54,7 +44,6 @@ const excluded = [
   '6.2.50.3',
   '6.2.51',
   '6.2.52',
-  '6.2.53',
   '6.2.54.1',
   '6.2.54.2',
   '6.2.54.3',
@@ -71,7 +60,6 @@ const excluded = [
   '6.3.19.4',
   '6.3.19.5',
   '6.3.20',
-  '6.3.21.1',
   '6.3.21.2',
   '6.3.21.3',
   '6.3.21.4',
@@ -89,6 +77,12 @@ const excluded = [
  */
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-14-32.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */

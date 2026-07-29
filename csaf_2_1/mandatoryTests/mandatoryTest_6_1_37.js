@@ -1,5 +1,6 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import csafAjv from '../csafAjv.js'
+import { walkPath } from '../../lib/walkPaths.js'
+import { validateTimestamp } from '../dateHelper.js'
 
 const ajv = new Ajv()
 
@@ -44,6 +45,15 @@ const inputSchema = /** @type {const} */ ({
         optionalProperties: {
           disclosure_date: { type: 'string' },
           discovery_date: { type: 'string' },
+          first_known_exploitation_dates: {
+            elements: {
+              additionalProperties: true,
+              optionalProperties: {
+                date: { type: 'string' },
+                exploitation_date: { type: 'string' },
+              },
+            },
+          },
           flags: {
             elements: {
               additionalProperties: true,
@@ -57,6 +67,30 @@ const inputSchema = /** @type {const} */ ({
               additionalProperties: true,
               optionalProperties: {
                 date: { type: 'string' },
+              },
+            },
+          },
+          metrics: {
+            elements: {
+              additionalProperties: true,
+              optionalProperties: {
+                content: {
+                  additionalProperties: true,
+                  optionalProperties: {
+                    epss: {
+                      additionalProperties: true,
+                      optionalProperties: {
+                        timestamp: { type: 'string' },
+                      },
+                    },
+                    ssvc_v2: {
+                      additionalProperties: true,
+                      optionalProperties: {
+                        timestamp: { type: 'string' },
+                      },
+                    },
+                  },
+                },
               },
             },
           },
@@ -85,57 +119,11 @@ const inputSchema = /** @type {const} */ ({
 const validate = ajv.compile(inputSchema)
 
 /**
- * This regex validates a date against RFC 3339 section 5.6.
- * See: https://datatracker.ietf.org/doc/html/rfc3339#section-5.6
- */
-export const dateRegex =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
-
-/**
- * A json schema date validation function.
- *
- * @type {import('ajv').ValidateFunction<string>}
- */
-const dateFn = csafAjv.compile({ type: 'string', format: 'date-time' })
-
-/**
- * Validates the given date against RFC 3339 section 5.6.
- *
- * @param {string} date The date to validate
- */
-export const isValidDate = (date) => {
-  /*
-    Here we first match against the date regex to catch format errors that
-    ajv-formats does not catch (yet). Particularly if the 'T' separator is missing
-    between the date and the time ajv does not recognize that.
-   */
-  if (!dateRegex.exec(date)) {
-    return {
-      isValid: /** @type {const} */ (false),
-      error: /** @type {const} */ ('INVALID_FORMAT'),
-    }
-  }
-
-  /*
-    After the format check ajv is utilized to check the date semantically
-    (including leap seconds).
-   */
-  if (!dateFn(date)) {
-    return {
-      isValid: /** @type {const} */ (false),
-      error: /** @type {const} */ ('INVALID_DATE'),
-    }
-  }
-
-  return { isValid: /** @type {const} */ (true), error: null }
-}
-
-/**
  * This implements the mandatory test 6.1.37 of the CSAF 2.1 standard.
  *
- * @param {any} doc
+ * @param {unknown} doc
  */
-export function mandatoryTest_6_1_37(doc) {
+export async function mandatoryTest_6_1_37(doc) {
   /*
     The `ctx` variable holds the state that is accumulated during the test ran and is
     finally returned by the function.
@@ -158,7 +146,7 @@ export function mandatoryTest_6_1_37(doc) {
   const validateDate = (date, path) => {
     if (date === undefined) return
 
-    const result = isValidDate(date)
+    const result = validateTimestamp(date)
     if (!result.isValid) {
       ctx.errors.push({
         instancePath: path,
@@ -171,48 +159,28 @@ export function mandatoryTest_6_1_37(doc) {
     }
   }
 
-  validateDate(
-    doc.document?.tracking?.generator?.date,
-    '/document/tracking/generator/date'
-  )
-  validateDate(
-    doc.document?.tracking?.initial_release_date,
-    '/document/tracking/initial_release_date'
-  )
-  validateDate(
-    doc.document?.tracking?.current_release_date,
-    '/document/tracking/current_release_date'
-  )
-
-  doc.document?.tracking?.revision_history?.forEach((history, index) => {
-    validateDate(
-      history.date,
-      `/document/tracking/revision_history/${index}/date`
-    )
-  })
-
-  doc.vulnerabilities?.forEach((vulnerabiltiy, vulnerabilityIndex) => {
-    const prefix = `/vulnerabilities/${vulnerabilityIndex}`
-
-    validateDate(vulnerabiltiy.disclosure_date, `${prefix}/disclosure_date`)
-    validateDate(vulnerabiltiy.discovery_date, `${prefix}/discovery_date`)
-
-    vulnerabiltiy.flags?.forEach((flag, index) => {
-      validateDate(flag.date, `${prefix}/flags/${index}/date`)
+  for (const path of [
+    '/document/tracking/current_release_date',
+    '/document/tracking/generator/date',
+    '/document/tracking/initial_release_date',
+    '/document/tracking/revision_history[]/date',
+    '/vulnerabilities[]/disclosure_date',
+    '/vulnerabilities[]/discovery_date',
+    '/vulnerabilities[]/first_known_exploitation_dates[]/date',
+    '/vulnerabilities[]/first_known_exploitation_dates[]/exploitation_date',
+    '/vulnerabilities[]/flags[]/date',
+    '/vulnerabilities[]/involvements[]/date',
+    '/vulnerabilities[]/metrics[]/content/epss/timestamp',
+    '/vulnerabilities[]/metrics[]/content/ssvc_v2/timestamp',
+    '/vulnerabilities[]/remediations[]/date',
+    '/vulnerabilities[]/threats[]/date',
+  ]) {
+    await walkPath(doc, path, async (instancePath, value) => {
+      if (typeof value === 'string') {
+        validateDate(value, instancePath)
+      }
     })
-
-    vulnerabiltiy.involvements?.forEach((involvement, index) => {
-      validateDate(involvement.date, `${prefix}/involvements/${index}/date`)
-    })
-
-    vulnerabiltiy.remediations?.forEach((remediation, index) => {
-      validateDate(remediation.date, `${prefix}/remediations/${index}/date`)
-    })
-
-    vulnerabiltiy.threats?.forEach((threat, index) => {
-      validateDate(threat.date, `${prefix}/threats/${index}/date`)
-    })
-  })
+  }
 
   return ctx
 }
