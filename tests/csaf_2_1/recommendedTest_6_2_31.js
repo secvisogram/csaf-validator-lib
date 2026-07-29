@@ -178,7 +178,7 @@ describe('recommendedTest_6_2_31', function () {
     )
   })
 
-  it('no warning when product is referenced as next_product_reference in a subpath', function () {
+  it('no warning when product is referenced as beginning_product_reference', function () {
     assert.equal(
       recommendedTest_6_2_31({
         document: {},
