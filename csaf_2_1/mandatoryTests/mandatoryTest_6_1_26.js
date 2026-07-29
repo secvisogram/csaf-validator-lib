@@ -24,7 +24,7 @@ const inputSchema = /** @type {const} */ ({
 
 const validateInput = jtdAjv.compile(inputSchema)
 
-const allowedCategoryNames = [
+const allowedCategoryValues = [
   'csaf_base',
   'csaf_security_incident_response',
   'csaf_informational_advisory',
@@ -35,17 +35,23 @@ const allowedCategoryNames = [
   'csaf_superseded',
 ]
 
-// lowercase category names with without the prefix csaf_ and removed dash, whitespace, and underscore characters
-// without csaf_base
-const prohibitedCategoriesWithoutPrefix = [
-  'securityincidentresponse',
-  'informationaladvisory',
-  'securityadvisory',
-  'vex',
-  'deprecatedsecurityadvisory',
-  'withdrawn',
-  'superseded',
-]
+// dash-like (e.g. em dash, en dash, hyphen-minus) and connector-punctuation (e.g. underscore) characters, plus
+// whitespace, independent of their graphical variants, per the spec's normalization rule
+const SEPARATOR_PATTERN = /[\p{Pd}\p{Pc}\s]+/gu
+
+const normalize = (/** @type {string} */ value) =>
+  value.replace(SEPARATOR_PATTERN, '').toLowerCase()
+
+const otherProfileValues = allowedCategoryValues.filter(
+  (value) => value !== 'csaf_base'
+)
+
+// normalized name (without the csaf_ prefix) and value (with the csaf_ prefix) of every profile other than CSAF
+// Base, used to detect a document category colliding with either form (e.g. "vex" or "csafvex" for "csaf_vex")
+const prohibitedNormalizedCategories = otherProfileValues.flatMap((value) => [
+  normalize(value),
+  normalize(value.replace(/^csaf_/, '')),
+])
 
 /**
  * It MUST be tested that the document category is not equal to the (case-insensitive) name (without the prefix csaf_)
@@ -67,8 +73,8 @@ export function mandatoryTest_6_1_26(doc) {
   /** @type {string} */
   const category = doc.document.category
 
-  // Skip test for the allowedCategoryNames in /document/category:
-  if (allowedCategoryNames.includes(category)) {
+  // Skip test for the allowedCategoryValues in /document/category:
+  if (allowedCategoryValues.includes(category)) {
     return ctx
   }
 
@@ -83,13 +89,8 @@ export function mandatoryTest_6_1_26(doc) {
     return ctx
   }
 
-  // Fail on name case-insensitive similarity
-  if (
-    prohibitedCategoriesWithoutPrefix.includes(
-      //remove occurrences of dash, whitespace, and underscore characters
-      category.replace(/[_-\s]+/g, '').toLowerCase()
-    )
-  ) {
+  // Fail on case-insensitive similarity to the name or value of another profile
+  if (prohibitedNormalizedCategories.includes(normalize(category))) {
     ctx.isValid = false
     ctx.errors.push({
       instancePath: '/document/category',

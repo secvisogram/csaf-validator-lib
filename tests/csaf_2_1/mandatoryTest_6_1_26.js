@@ -15,4 +15,15 @@ describe('mandatoryTest_6_1_26', function () {
       false
     )
   })
+  it('detects a prohibited value when separated by a unicode em dash', function () {
+    const result = mandatoryTest_6_1_26({
+      document: {
+        category: 'Deprecated—Security—Advisory',
+      },
+    })
+    assert.equal(result.isValid, false)
+    assert.deepEqual(result.errors, [
+      { instancePath: '/document/category', message: 'value prohibited' },
+    ])
+  })
 })
