@@ -1,16 +1,10 @@
-import { createRequire } from 'module'
 import { Ajv } from 'ajv/dist/jtd.js'
+import { entries } from '../../rvisc.js'
 
 const ajv = new Ajv()
-const require = createRequire(import.meta.url)
-const registry =
-  /** @type {{ entries: Array<{ system_name: string; text_pattern: string }> }} */ (
-    // @ts-ignore — registry.json lives in the excluded csaf/ subtree
-    require('../../csaf/registry/id/registry.json')
-  )
 
 /** @type {Array<{ system_name: string; text_pattern: RegExp }>} */
-const registeredIdSystems = registry.entries.map(
+const registeredIdSystems = entries.map(
   (/** @type {{ system_name: string; text_pattern: string }} */ entry) => ({
     system_name: entry.system_name,
     text_pattern: new RegExp(entry.text_pattern),

@@ -5,7 +5,7 @@ describe('recommendedTest_6_2_53', function () {
   it('only runs on relevant documents', function () {
     assert.equal(recommendedTest_6_2_53({}).warnings.length, 0)
   })
-  //
+
   it('does not warn when ids are absent', function () {
     assert.equal(
       recommendedTest_6_2_53({ vulnerabilities: [{}] }).warnings.length,
