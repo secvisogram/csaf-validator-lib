@@ -46,18 +46,18 @@ const validate = ajv.compile(inputSchema)
 /** @typedef {InputSchema['vulnerabilities'][number]} Vulnerability */
 
 /**
- * For each item in vulnerabilities[].ids[] that has a registered system_name,
- * it is tested that the text matches the text_pattern from the RVISC registry.
+ * This implements the recommended test 6.2.53 of the CSAF 2.1 standard.
  *
  * @param {unknown} doc
  */
 export function recommendedTest_6_2_53(doc) {
-  /** @type {Array<{ message: string; instancePath: string }>} */
-  const warnings = []
-  const context = { warnings }
+  const ctx = {
+    warnings:
+      /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
+  }
 
   if (!validate(doc)) {
-    return context
+    return ctx
   }
 
   /** @type {Array<Vulnerability>} */
@@ -73,7 +73,7 @@ export function recommendedTest_6_2_53(doc) {
       if (!registeredSystem) return
 
       if (!registeredSystem.text_pattern.test(id.text)) {
-        warnings.push({
+        ctx.warnings.push({
           instancePath: `/vulnerabilities/${vulnIndex}/ids/${idIndex}/text`,
           message: `the text does not match the text_pattern of the registered ID system "${id.system_name}"`,
         })
@@ -81,5 +81,5 @@ export function recommendedTest_6_2_53(doc) {
     })
   })
 
-  return context
+  return ctx
 }
