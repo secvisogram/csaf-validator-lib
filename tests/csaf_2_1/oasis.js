@@ -70,41 +70,12 @@ const skippedTests = new Set([
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
-/** @typedef {import('../../lib/shared/types.js').TestResult} TestResult */
 
 /** @typedef {Map<string, DocumentTest>} TestMap */
 
 /**
  * @typedef {object} TestCases
  * @property {TestCase[]} tests
- */
-
-/**
- * @typedef {object} CsafTestResult
- * @property {string} $schema
- * @property {boolean} overall_valid
- * @property {PrimaryResult} primary_result
- * @property {string} resultschema_version
- * @property {SecondaryResult[]} secondary_results
- */
-
-/**
- * @typedef {object} PrimaryResult
- * @property {string} id
- * @property {boolean} passed
- */
-
-/**
- * @typedef {object} SecondaryResult
- * @property {string} id
- * @property {boolean} passed
- * @property {ResultError[]} [errors]
- */
-
-/**
- * @typedef {object} ResultError
- * @property {string} instance_path
- * @property {string} message
  */
 
 /**
@@ -118,9 +89,11 @@ const skippedTests = new Set([
 /**
  * @typedef {object} TestSpec
  * @property {string} name
- * @property {string} result
- * @property {boolean} valid
+ * @property {boolean} valid // The valid field indicates whether the document is valid against all basic tests
  */
+
+const TYPE_FAILURES = 'failures'
+const TYPE_VALID = 'valid' //The entry in the array indicates that the test case is valid against the corresponding test.
 
 const tests = new Map([
   [
@@ -155,64 +128,6 @@ const testDataModules = import.meta.glob(
 
 const testMap = parseTestCases()
 
-/**
- *
- * @param {SecondaryResult[]} secondaryResults
- * @param {string} group
- * @param doc {any} CSAF document to check
- * @return {Promise<Map<string, TestResult>>}
- */
-async function executeSecondLevelTests(secondaryResults, group, doc) {
-  let testId2secondaryExecutionResult = new Map()
-  if (secondaryResults) {
-    const secondaryResultIds = secondaryResults.map((result) => result.id)
-    for (const secondaryResultId of secondaryResultIds) {
-      const secondaryTest = tests
-        .get(group)
-        ?.get(`${group}Test_${secondaryResultId.replace(/\./g, '_')}`)
-      if (secondaryTest) {
-        const resultSecondaryTestResult = await secondaryTest(doc)
-        testId2secondaryExecutionResult.set(
-          secondaryResultId,
-          resultSecondaryTestResult
-        )
-      } else {
-        assert.fail(`Secondary test not implemented {${secondaryResultId}}`)
-      }
-    }
-  }
-  return testId2secondaryExecutionResult
-}
-/**
- * Validate the defined test result against the execution results
- * @param {CsafTestResult} csafTestResult
- * @param {TestResult} primaryExecutionResult
- * @param {Map<string, TestResult>} testId2secondaryExecutionResult
- */
-
-function validateTestResults(
-  csafTestResult,
-  primaryExecutionResult,
-  testId2secondaryExecutionResult
-) {
-  assert.equal(
-    primaryExecutionResult.isValid,
-    csafTestResult.primary_result.passed
-  )
-  if (csafTestResult.secondary_results) {
-    for (const secondaryResult of csafTestResult.secondary_results) {
-      const executionResult = testId2secondaryExecutionResult.get(
-        secondaryResult.id
-      )
-      if (executionResult) {
-        assert.equal(executionResult.isValid, secondaryResult.passed)
-      } else {
-        assert.fail('No executionResult found')
-      }
-    }
-  }
-}
-
 for (const [group, t] of testMap) {
   describe(group, function () {
     for (const [testId, u] of t) {
@@ -242,7 +157,7 @@ for (const [group, t] of testMap) {
           describe(type, function () {
             for (const testSpec of filteredTestSpecs) {
               it(testSpec.name, async () => {
-                const test = tests
+                const testToExecute = tests
                   .get(group)
                   ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
 
@@ -265,13 +180,13 @@ for (const [group, t] of testMap) {
                     )
                   )
                 }
-
+                /** @type {TestResult} */
+                let primaryExecutionResult = await test(doc)
                 if (group === 'mandatory') {
                   expect(result.isValid).to.equal(testSpec.valid)
                   expect(
                     Boolean(result.errors?.length),
                 /** @type {TestResult} */
-                let primaryExecutionResult = await test(doc)
                 if (csafTestResult) {
                   let testId2secondaryExecutionResult =
                     await executeSecondLevelTests(
@@ -288,31 +203,26 @@ for (const [group, t] of testMap) {
                   assert.equal(primaryExecutionResult.isValid, testSpec.valid)
                   assert.equal(
                     Boolean(primaryExecutionResult.errors?.length),
-                    type === 'failures',
-                    type === 'failures'
+                    type === TYPE_FAILURES,
+                    type === TYPE_FAILURES
                       ? 'should have errors'
-                      : `should not have errors, but had ${result.errors?.length}`
-                  ).to.equal(type === 'failures')
                       : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
                   )
                 } else {
-                  expect(result.isValid === undefined).to.equal(testSpec.valid)
-                  assert.equal(
-                    primaryExecutionResult.isValid === undefined,
-                    testSpec.valid
-                  )
+                  expect(primaryExecutionResult.isValid === undefined).to.equal(testSpec.valid)
+
 
                   if (group === 'recommended') {
                     expect(
                       Boolean(result.warnings?.length),
-                      type === 'failures'
+                      type === TYPE_FAILURES
                         ? 'should have warnings'
                         : `should not have warnings, but had ${result.warnings?.length}`
-                    ).to.equal(type === 'failures')
+                    ).to.equal(type === TYPE_FAILURES)
                   } else if (group === 'informative') {
                     expect(
                       Boolean(result.infos?.length),
-                      type === 'failures'
+                      type === TYPE_FAILURES
                         ? 'should have infos'
                         : `should not have infos, but had ${result.infos?.length}`
                     ).to.equal(type === 'failures')
@@ -347,8 +257,8 @@ function parseTestCases() {
       new Map(testData.get(test.group)).set(
         test.id,
         new Map(testData.get(test.group)?.get(test.id))
-          .set('valid', valids)
-          .set('failures', failures)
+          .set(TYPE_VALID, valids)
+          .set(TYPE_FAILURES, failures)
       )
     )
   }
