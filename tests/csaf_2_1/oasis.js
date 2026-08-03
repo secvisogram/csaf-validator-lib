@@ -81,11 +81,8 @@ const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
-  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-11.json',
-  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-12.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
-  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-01.json',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
