@@ -134,7 +134,6 @@ export function recommendedTest_6_2_39_1(doc) {
     productGroupMap.set(group.group_id, new Set(group.product_ids))
   }
 
-  /** @type Vulnerability[] */
   const vulnerabilities = doc.vulnerabilities ?? []
 
   vulnerabilities.forEach((vulnerability, vulnIndex) => {
