@@ -35,7 +35,7 @@ export async function recommendedTest_6_2_49(doc) {
     '/product_tree/branches[*]',
     async (instancePath, value) => {
       if (!validateBranch(value)) return
-      const branch = /** @type {{ category?: string; name?: string }} */ (value)
+      const branch = value
 
       if (
         branch.category !== 'product_version_range' ||
