@@ -88,7 +88,7 @@ const skippedTests = new Set([
 /**
  * @typedef {object} TestSpec
  * @property {string} name
- * @property {boolean} valid // The valid field indicates whether the document is valid against all basic tests
+ * @property {boolean} valid - The valid field indicates whether the document is valid against all basic tests
  */
 
 const TYPE_FAILURES = 'failures'
