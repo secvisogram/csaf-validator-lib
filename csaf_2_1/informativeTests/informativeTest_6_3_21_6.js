@@ -17,7 +17,7 @@ export async function informativeTest_6_3_21_6(doc) {
       ctx.infos.push({
         instancePath,
         message:
-          'The element "x_extensions" exists in a path that starts with "$.product_tree.product_paths".',
+          'The element "x_extensions" exists in the list of product paths.',
       })
     }
   )
