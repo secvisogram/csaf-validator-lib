@@ -10,10 +10,10 @@ export async function informativeTest_6_3_21_3(doc) {
     infos: /** @type {Array<{ message: string; instancePath: string }>} */ ([]),
   }
 
-  await walkPath(doc, '/document/x_extensions[]', async (instancePath) => {
+  await walkPath(doc, '/document/x_extensions', async (instancePath) => {
     ctx.infos.push({
       instancePath,
-      message: `The element "$.document.x_extensions" exist.`,
+      message: `The element "$.document.x_extensions" exists.`,
     })
   })
 
