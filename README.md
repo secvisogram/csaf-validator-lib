@@ -350,9 +350,9 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.50.3
 - Recommended Test 6.2.51
 - Recommended Test 6.2.52
+- Recommended Test 6.2.53
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
-- Recommended Test 6.2.54.3
 - Recommended Test 6.2.54.4
 
 **Informative Tests**
@@ -368,13 +368,11 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
 - Informative Test 6.3.20
-- Informative Test 6.3.21.1
 - Informative Test 6.3.21.2
 - Informative Test 6.3.21.3
 - Informative Test 6.3.21.5
 - Informative Test 6.3.21.6
 - Informative Test 6.3.21.7
-- Informative Test 6.3.21.8
 - Informative Test 6.3.21.9
 - Informative Test 6.3.22
 
@@ -501,7 +499,7 @@ export const recommendedTest_6_2_41: DocumentTest
 export const recommendedTest_6_2_43: DocumentTest
 export const recommendedTest_6_2_47: DocumentTest
 export const recommendedTest_6_2_48: DocumentTest
-export const recommendedTest_6_2_53: DocumentTest
+export const recommendedTest_6_2_54_3: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -522,7 +520,9 @@ export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
+export const informativeTest_6_3_21_1: DocumentTest
 export const informativeTest_6_3_21_4: DocumentTest
+export const informativeTest_6_3_21_8: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
