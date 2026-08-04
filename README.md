@@ -313,9 +313,7 @@ The following tests are not yet implemented and therefore missing:
 
 - Mandatory Test 6.1.26
 - Mandatory Test 6.1.27.13
-- Mandatory Test 6.1.47
 - Mandatory Test 6.1.48
-- Mandatory Test 6.1.49
 - Mandatory Test 6.1.50
 - Mandatory Test 6.1.54
 - Mandatory Test 6.1.55
@@ -326,13 +324,11 @@ The following tests are not yet implemented and therefore missing:
 
 **Recommended Tests**
 
-- Recommended Test 6.2.11
 - Recommended Test 6.2.19
 - Recommended Test 6.2.20
 - Recommended Test 6.2.24
 - Recommended Test 6.2.26
 - Recommended Test 6.2.31
-- Recommended Test 6.2.32
 - Recommended Test 6.2.33
 - Recommended Test 6.2.34
 - Recommended Test 6.2.35
@@ -355,32 +351,28 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.53
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
-- Recommended Test 6.2.54.3
 - Recommended Test 6.2.54.4
 
 **Informative Tests**
 
-- Informative Test 6.2.13
-- Informative Test 6.2.14
-- Informative Test 6.2.15
-- Informative Test 6.2.16
-- Informative Test 6.2.17
-- Informative Test 6.2.19.1
-- Informative Test 6.2.19.2
-- Informative Test 6.2.19.3
-- Informative Test 6.2.19.4
-- Informative Test 6.2.19.5
-- Informative Test 6.2.20
-- Informative Test 6.2.21.1
-- Informative Test 6.2.21.2
-- Informative Test 6.2.21.3
-- Informative Test 6.2.21.4
-- Informative Test 6.2.21.5
-- Informative Test 6.2.21.6
-- Informative Test 6.2.21.7
-- Informative Test 6.2.21.8
-- Informative Test 6.2.21.9
-- Informative Test 6.2.22
+- Informative Test 6.3.13
+- Informative Test 6.3.14
+- Informative Test 6.3.15
+- Informative Test 6.3.16
+- Informative Test 6.3.17
+- Informative Test 6.3.19.1
+- Informative Test 6.3.19.2
+- Informative Test 6.3.19.3
+- Informative Test 6.3.19.4
+- Informative Test 6.3.19.5
+- Informative Test 6.3.20
+- Informative Test 6.3.21.2
+- Informative Test 6.3.21.3
+- Informative Test 6.3.21.5
+- Informative Test 6.3.21.6
+- Informative Test 6.3.21.7
+- Informative Test 6.3.21.9
+- Informative Test 6.3.22
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -456,6 +448,8 @@ export const mandatoryTest_6_1_43: DocumentTest
 export const mandatoryTest_6_1_44: DocumentTest
 export const mandatoryTest_6_1_45: DocumentTest
 export const mandatoryTest_6_1_46: DocumentTest
+export const mandatoryTest_6_1_47: DocumentTest
+export const mandatoryTest_6_1_49: DocumentTest
 export const mandatoryTest_6_1_51: DocumentTest
 export const mandatoryTest_6_1_52: DocumentTest
 export const mandatoryTest_6_1_53: DocumentTest
@@ -479,6 +473,7 @@ export const recommendedTest_6_2_7: DocumentTest
 export const recommendedTest_6_2_8: DocumentTest
 export const recommendedTest_6_2_9: DocumentTest
 export const recommendedTest_6_2_10: DocumentTest
+export const recommendedTest_6_2_11: DocumentTest
 export const recommendedTest_6_2_12: DocumentTest
 export const recommendedTest_6_2_13: DocumentTest
 export const recommendedTest_6_2_14: DocumentTest
@@ -494,6 +489,7 @@ export const recommendedTest_6_2_27: DocumentTest
 export const recommendedTest_6_2_28: DocumentTest
 export const recommendedTest_6_2_29: DocumentTest
 export const recommendedTest_6_2_30: DocumentTest
+export const recommendedTest_6_2_32: DocumentTest
 export const recommendedTest_6_2_36: DocumentTest
 export const recommendedTest_6_2_39_2: DocumentTest
 export const recommendedTest_6_2_39_3: DocumentTest
@@ -503,6 +499,7 @@ export const recommendedTest_6_2_41: DocumentTest
 export const recommendedTest_6_2_43: DocumentTest
 export const recommendedTest_6_2_47: DocumentTest
 export const recommendedTest_6_2_48: DocumentTest
+export const recommendedTest_6_2_54_3: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -523,6 +520,9 @@ export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
+export const informativeTest_6_3_21_1: DocumentTest
+export const informativeTest_6_3_21_4: DocumentTest
+export const informativeTest_6_3_21_8: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
