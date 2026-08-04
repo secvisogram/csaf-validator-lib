@@ -54,7 +54,9 @@ export async function mandatoryTest_6_1_60_2(doc) {
         validateDeclaredSchema.errors?.forEach((err) => {
           ctx.errors.push({
             instancePath: `${instancePath}${err.instancePath}`,
-            message: err.message ?? 'invalid extension content',
+            message:
+              err.message ??
+              'invalid according to declared CSAF Extension Schema',
           })
         })
       }

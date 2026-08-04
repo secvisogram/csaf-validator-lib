@@ -1,6 +1,5 @@
 import addFormats from 'ajv-formats'
 import { Ajv2020 } from 'ajv/dist/2020.js'
-import { request } from 'undici'
 import cvss_v2_0 from '../schemas/cvss-v2.0.js'
 import cvss_v3_0 from '../schemas/cvss-v3.0.js'
 import cvss_v3_1 from '../schemas/cvss-v3.1.js'
@@ -57,18 +56,16 @@ async function loadSchema(uri) {
       )
     }
 
-    const res = await request(uri, {
+    const res = await fetch(uri, {
       method: 'GET',
       headers: { Accept: 'application/json' },
     })
-    if (res.statusCode < 200 || 400 <= res.statusCode) {
+    if (!res.ok) {
       throw new Error(
-        `Cannot load schema "${uri}": received HTTP status ${res.statusCode}`
+        `Cannot load schema "${uri}": received HTTP status ${res.status}`
       )
     }
-    return /** @type {Promise<import('ajv').AnySchemaObject>} */ (
-      res.body.json()
-    )
+    return /** @type {Promise<import('ajv').AnySchemaObject>} */ (res.json())
   })()
 
   remoteSchemaCache.set(uri, promise)
