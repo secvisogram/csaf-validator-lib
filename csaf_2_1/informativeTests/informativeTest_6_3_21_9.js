@@ -13,7 +13,7 @@ export async function informativeTest_6_3_21_9(doc) {
   await walkPath(doc, '/x_extensions', async (instancePath) => {
     ctx.infos.push({
       instancePath,
-      message: 'The element "$.x_extensions" exists.',
+      message: 'The element "$.x_extensions" exists at the root level',
     })
   })
 
