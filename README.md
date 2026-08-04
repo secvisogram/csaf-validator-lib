@@ -329,7 +329,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.24
 - Recommended Test 6.2.26
 - Recommended Test 6.2.31
-- Recommended Test 6.2.32
 - Recommended Test 6.2.33
 - Recommended Test 6.2.34
 - Recommended Test 6.2.35
@@ -370,7 +369,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.20
 - Informative Test 6.3.21.2
 - Informative Test 6.3.21.3
-- Informative Test 6.3.21.4
 - Informative Test 6.3.21.5
 - Informative Test 6.3.21.7
 - Informative Test 6.3.21.9
@@ -491,6 +489,7 @@ export const recommendedTest_6_2_27: DocumentTest
 export const recommendedTest_6_2_28: DocumentTest
 export const recommendedTest_6_2_29: DocumentTest
 export const recommendedTest_6_2_30: DocumentTest
+export const recommendedTest_6_2_32: DocumentTest
 export const recommendedTest_6_2_39_2: DocumentTest
 export const recommendedTest_6_2_39_3: DocumentTest
 export const recommendedTest_6_2_39_4: DocumentTest
@@ -521,6 +520,7 @@ export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 export const informativeTest_6_3_21_1: DocumentTest
+export const informativeTest_6_3_21_4: DocumentTest
 export const informativeTest_6_3_21_6: DocumentTest
 export const informativeTest_6_3_21_8: DocumentTest
 ```
