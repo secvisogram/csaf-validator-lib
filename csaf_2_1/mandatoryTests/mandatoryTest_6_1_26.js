@@ -35,19 +35,19 @@ const allowedCategoryValues = [
   'csaf_superseded',
 ]
 
-// dash-like (e.g. em dash, en dash, hyphen-minus) and connector-punctuation (e.g. underscore) characters, plus
-// whitespace, independent of their graphical variants, per the spec's normalization rule
-const SEPARATOR_PATTERN = /[\p{Pd}\p{Pc}\s]+/gu
+// Pattern for Unicode Dash-like, connector, and whitespace characters.
+// The combining low line (U+0332) is listed explicitly because its category \p{Mn} would also match unrelated
+// characters.
+const SEPARATOR_PATTERN = /[\p{Dash}\p{Pc}\u0332\s]+/gu
 
-const normalize = (/** @type {string} */ value) =>
+export const normalize = (/** @type {string} */ value) =>
   value.replace(SEPARATOR_PATTERN, '').toLowerCase()
 
 const otherProfileValues = allowedCategoryValues.filter(
   (value) => value !== 'csaf_base'
 )
 
-// normalized name (without the csaf_ prefix) and value (with the csaf_ prefix) of every profile other than CSAF
-// Base, used to detect a document category colliding with either form (e.g. "vex" or "csafvex" for "csaf_vex")
+// normalized name (without csaf_ prefix) and value (with csaf_ prefix) of every profile other than CSAF Base
 const prohibitedNormalizedCategories = otherProfileValues.flatMap((value) => [
   normalize(value),
   normalize(value.replace(/^csaf_/, '')),
@@ -73,7 +73,6 @@ export function mandatoryTest_6_1_26(doc) {
   /** @type {string} */
   const category = doc.document.category
 
-  // Skip test for the allowedCategoryValues in /document/category:
   if (allowedCategoryValues.includes(category)) {
     return ctx
   }
@@ -89,7 +88,6 @@ export function mandatoryTest_6_1_26(doc) {
     return ctx
   }
 
-  // Fail on case-insensitive similarity to the name or value of another profile
   if (prohibitedNormalizedCategories.includes(normalize(category))) {
     ctx.isValid = false
     ctx.errors.push({
