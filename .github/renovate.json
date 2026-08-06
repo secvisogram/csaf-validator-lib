@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["group:allNonMajor", ":automergeDisabled"],
+  "baseBranches": ["main", "development"],
+  "rebaseWhen": "conflicted",
+  "labels": ["dependencies"],
+  "platformAutomerge": false,
+  "automergeStrategy": "merge-commit",
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 1,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "all (non-major) dependencies",
+      "groupSlug": "all-non-major",
+      "matchCurrentValue": "!/^v?0\\./",
+      "matchPackageNames": ["*"]
+    }
+  ]
+}
