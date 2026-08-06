@@ -1,7 +1,7 @@
 import cvss2js from 'cvss2js'
 import { getEnvironmentalScoreFromVectorString } from '../../lib/shared/cvss2.js'
 import { cvss30 as CVSS30, cvss31 as CVSS31 } from '../../lib/shared/first.js'
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 import { calculateCvss4_0_Score } from '../../lib/shared/cvss4.js'
 
 const ajv = new Ajv()
@@ -49,10 +49,6 @@ const inputSchema = /** @type {const} */ ({
                         version: { type: 'string' },
                         baseScore: { type: 'float64' },
                         baseSeverity: { type: 'string' },
-                        threatScore: { type: 'float64' },
-                        threatSeverity: { type: 'string' },
-                        environmentalScore: { type: 'float64' },
-                        environmentalSeverity: { type: 'string' },
                       },
                     },
                   },
@@ -65,6 +61,14 @@ const inputSchema = /** @type {const} */ ({
     },
   },
 })
+
+/** @typedef {import('ajv/dist/jtd.js').JTDDataType<typeof inputSchema>} InputSchema */
+
+/** @typedef {InputSchema['vulnerabilities'][number]} Vulnerability */
+
+/** @typedef {NonNullable<Vulnerability['metrics']>[number]} Metric */
+
+/** @typedef {NonNullable<Metric['content']>} MetricContent */
 
 const validateInput = ajv.compile(inputSchema)
 
@@ -134,7 +138,7 @@ function safelyParseCVSSV2Vector(vectorString) {
 }
 
 /**
- * @param {any} metric
+ * @param {Metric} metric
  * @return {string[]}
  */
 function calculateCvss2(metric) {
@@ -179,7 +183,7 @@ function calculateCvss2(metric) {
 }
 
 /**
- * @param {any} metric
+ * @param {Metric} metric
  * @return {string[]}
  */
 function calculateCvss3(metric) {
@@ -252,7 +256,7 @@ function calculateCvss3(metric) {
 }
 
 /**
- * @param {any} metric
+ * @param {Metric} metric
  * @return {string[]}
  */
 function calculateCvss4(metric) {
@@ -264,21 +268,20 @@ function calculateCvss4(metric) {
     metric.content?.cvss_v4 &&
     typeof metric.content.cvss_v4.vectorString === 'string'
   ) {
-    const scores = calculateCvss4_0_Score(metric.content.cvss_v4.vectorString)
-    scores.forEach((score) => {
-      const expectedScore = metric.content.cvss_v4[score.scoreJsonName]
-      const expectedSeverity = metric.content.cvss_v4[score.severityJsonName]
-      if (typeof expectedScore === 'number' && score.score !== expectedScore) {
-        failedMetrics.push(score.scoreJsonName)
-      }
+    const score = calculateCvss4_0_Score(metric.content.cvss_v4.vectorString)
 
-      if (
-        typeof expectedSeverity === 'string' &&
-        score.severity.toUpperCase() !== expectedSeverity.toUpperCase()
-      ) {
-        failedMetrics.push(score.severityJsonName)
-      }
-    })
+    const expectedScore = metric.content?.cvss_v4.baseScore
+    if (typeof expectedScore === 'number' && score.score !== expectedScore) {
+      failedMetrics.push('baseScore')
+    }
+
+    const expectedSeverity = metric.content?.cvss_v4.baseSeverity
+    if (
+      typeof expectedSeverity === 'string' &&
+      score.severity.toUpperCase() !== expectedSeverity.toUpperCase()
+    ) {
+      failedMetrics.push('baseSeverity')
+    }
   }
   return failedMetrics
 }

@@ -1,9 +1,7 @@
 import assert from 'node:assert/strict'
 
-import {
-  mandatoryTest_6_1_43,
-  containMultipleUnescapedStars,
-} from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_43.js'
+import { mandatoryTest_6_1_43 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_43.js'
+import { containsMultipleUnescapedStars } from '../../csaf_2_1/mandatoryTests/shared/wildcardUtils.js'
 
 describe('mandatoryTest_6_1_43', function () {
   it('only runs on relevant documents', function () {
@@ -43,8 +41,91 @@ describe('mandatoryTest_6_1_43', function () {
 
     testCases.forEach((testCase) => {
       it(`${testCase[0]} -> ${testCase[1]}`, () => {
-        assert.equal(containMultipleUnescapedStars(testCase[0]), testCase[1])
+        assert.equal(containsMultipleUnescapedStars(testCase[0]), testCase[1])
       })
     })
+  })
+
+  it('validates branches and skips invalid ones', function () {
+    assert.equal(
+      mandatoryTest_6_1_43({
+        product_tree: {
+          branches: [
+            {
+              product: {
+                product_identification_helper: {
+                  model_numbers: ['*P\\*\\*?\\*'],
+                },
+              },
+              branches: [
+                {
+                  product: 'invalid',
+                },
+                {
+                  branches: [{}],
+                },
+              ],
+            },
+          ],
+        },
+      }).isValid,
+      true
+    )
+  })
+
+  it('validates product_paths and skips invalid ones', function () {
+    assert.equal(
+      mandatoryTest_6_1_43({
+        product_tree: {
+          product_paths: [
+            {
+              full_product_name: {
+                model_numbers: ['*P\\*\\*?\\*'],
+              },
+            },
+            {},
+          ],
+        },
+      }).isValid,
+      true
+    )
+  })
+
+  it('detects invalid model numbers in branches', function () {
+    assert.equal(
+      mandatoryTest_6_1_43({
+        product_tree: {
+          branches: [
+            {
+              product: {
+                product_identification_helper: {
+                  model_numbers: ['P*A*'],
+                },
+              },
+            },
+          ],
+        },
+      }).isValid,
+      false
+    )
+  })
+
+  it('detects invalid model numbers in product_paths', function () {
+    assert.equal(
+      mandatoryTest_6_1_43({
+        product_tree: {
+          product_paths: [
+            {
+              full_product_name: {
+                product_identification_helper: {
+                  model_numbers: ['P*A*'],
+                },
+              },
+            },
+          ],
+        },
+      }).isValid,
+      false
+    )
   })
 })
