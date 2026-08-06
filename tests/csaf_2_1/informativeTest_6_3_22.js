@@ -1,4 +1,3 @@
-import assert from 'node:assert/strict'
 import { informativeTest_6_3_22 } from '../../csaf_2_1/informativeTests.js'
 
 describe('informativeTest_6_3_22 (CSAF 2.1)', function () {

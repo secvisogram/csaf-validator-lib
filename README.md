@@ -589,7 +589,7 @@ export const weaknesses: Array<{ id: string; name: string }>
 
 ## Testing
 
-Tests are implemented using [mocha](https://mochajs.org/). The minimal supported Node.js version is **20**. They can be run using the following command:
+Tests are implemented using [vitest](https://vitest.dev/). The minimal supported Node.js version is **22**. They can be run using the following command:
 
 ```sh
 npm test
