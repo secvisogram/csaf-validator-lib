@@ -31,7 +31,7 @@ const productPathSchema = /** @type {const} */ ({
 
 /*
   This is the jtd schema that needs to match the input document so that the
-  helper is activated. If this schema doesn't match it normally means that the
+  test is activated. If this schema doesn't match it normally means that the
   input document does not validate against the csaf json schema or optional
   fields that are inspected here are not present.
  */
