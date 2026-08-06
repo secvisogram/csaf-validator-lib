@@ -12,7 +12,7 @@ import meta_format_assertion from './csafAjv/meta-format-assertion.js'
 import draft_07_schema from './csafAjv/draft-07-schema.js'
 import selectionList_2_0_0Schema from './csafAjv/SelectionList_2_0_0.schema.js'
 
-import { timestampRegex, validateTimestamp } from './dateHelper.js'
+import { validateTimestamp } from './dateHelper.js'
 
 const csafAjv = new Ajv2020({ strict: false, allErrors: true })
 addFormats.default(csafAjv)
@@ -49,7 +49,7 @@ csafAjv.addSchema(
 csafAjv.addFormat('date-time', {
   type: 'string',
   validate: (v) => {
-    return timestampRegex.test(v) && validateTimestamp(v)
+    return validateTimestamp(v).isValid
   },
 })
 
