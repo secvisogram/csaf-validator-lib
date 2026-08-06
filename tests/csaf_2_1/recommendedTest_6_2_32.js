@@ -1,17 +1,15 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_32 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_32', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_32({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_32({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('skips product_tree when it is not an object', function () {
     const result = recommendedTest_6_2_32({ product_tree: 'not-an-object' })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('skips product_paths when full_product_name is not an object', function () {
@@ -28,7 +26,7 @@ describe('recommendedTest_6_2_32', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('skips branches whose product field is not an object', function () {
@@ -41,7 +39,7 @@ describe('recommendedTest_6_2_32', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('warns when x_generic_uri objects are equal but key order differs', function () {
@@ -75,7 +73,7 @@ describe('recommendedTest_6_2_32', function () {
         ],
       },
     }
-    assert.equal(recommendedTest_6_2_32(doc).warnings.length, 1)
+    expect(recommendedTest_6_2_32(doc).warnings.length).to.equal(1)
   })
 
   it('warns when file_hashes objects are equal for different products', function () {
@@ -109,6 +107,6 @@ describe('recommendedTest_6_2_32', function () {
         ],
       },
     }
-    assert.equal(recommendedTest_6_2_32(doc).warnings.length, 1)
+    expect(recommendedTest_6_2_32(doc).warnings.length).to.equal(1)
   })
 })

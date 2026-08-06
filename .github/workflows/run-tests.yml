@@ -42,6 +42,22 @@ jobs:
         with:
           name: test-results-${{ matrix.node-version }}
           path: |
-            test-results.json
+            test-results.xml
             coverage
             pr_number
+
+  test-browser:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+        env:
+          NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
