@@ -1,9 +1,7 @@
 import assert from 'node:assert/strict'
 
-import {
-  mandatoryTest_6_1_43,
-  containMultipleUnescapedStars,
-} from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_43.js'
+import { mandatoryTest_6_1_43 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_43.js'
+import { containsMultipleUnescapedStars } from '../../csaf_2_1/mandatoryTests/shared/wildcardUtils.js'
 
 describe('mandatoryTest_6_1_43', function () {
   it('only runs on relevant documents', function () {
@@ -43,7 +41,7 @@ describe('mandatoryTest_6_1_43', function () {
 
     testCases.forEach((testCase) => {
       it(`${testCase[0]} -> ${testCase[1]}`, () => {
-        assert.equal(containMultipleUnescapedStars(testCase[0]), testCase[1])
+        assert.equal(containsMultipleUnescapedStars(testCase[0]), testCase[1])
       })
     })
   })
