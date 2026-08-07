@@ -74,7 +74,6 @@ const excluded = [
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-14-32.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
@@ -101,8 +100,11 @@ const skippedTests = new Set([
 /**
  * @typedef {object} TestSpec
  * @property {string} name
- * @property {boolean} valid
+ * @property {boolean} valid - The valid field indicates whether the document is valid against all basic tests
  */
+
+const TYPE_FAILURES = 'failures'
+const TYPE_VALID = 'valid' //The entry in the array indicates that the test case is valid against the corresponding test.
 
 const tests = new Map([
   [
@@ -140,24 +142,25 @@ for (const [group, t] of testMap) {
               if (excluded.includes(testId)) continue
 
               it(testSpec.name, async () => {
-                const test = tests
+                const testToExecute = tests
                   .get(group)
                   ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
 
-                assert(test, 'test does not exist')
+                assert(testToExecute, 'test does not exist')
 
                 const doc = JSON.parse(
                   readFileSync(new URL(testSpec.name, testDataBaseUrl), 'utf-8')
                 )
 
-                const result = await test(doc)
+                const result = await testToExecute(doc)
 
                 if (group === 'mandatory') {
-                  assert.equal(result.isValid, testSpec.valid)
+                  const validForCurrentTest = type === TYPE_VALID
+                  assert.equal(result.isValid, validForCurrentTest)
                   assert.equal(
                     Boolean(result.errors?.length),
-                    type === 'failures',
-                    type === 'failures'
+                    type === TYPE_FAILURES,
+                    type === TYPE_FAILURES
                       ? 'should have errors'
                       : `should not have errors, but had ${result.errors?.length}`
                   )
@@ -167,16 +170,16 @@ for (const [group, t] of testMap) {
                   if (group === 'recommended') {
                     assert.equal(
                       Boolean(result.warnings?.length),
-                      type === 'failures',
-                      type === 'failures'
+                      type === TYPE_FAILURES,
+                      type === TYPE_FAILURES
                         ? 'should have warnings'
                         : `should not have warnings, but had ${result.warnings?.length}`
                     )
                   } else if (group === 'informative') {
                     assert.equal(
                       Boolean(result.infos?.length),
-                      type === 'failures',
-                      type === 'failures'
+                      type === TYPE_FAILURES,
+                      type === TYPE_FAILURES
                         ? 'should have infos'
                         : `should not have infos, but had ${result.infos?.length}`
                     )
@@ -211,8 +214,8 @@ function parseTestCases() {
       new Map(testData.get(test.group)).set(
         test.id,
         new Map(testData.get(test.group)?.get(test.id))
-          .set('valid', valids)
-          .set('failures', failures)
+          .set(TYPE_VALID, valids)
+          .set(TYPE_FAILURES, failures)
       )
     )
   }
