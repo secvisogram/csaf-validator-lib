@@ -140,7 +140,7 @@
     "@types/semver": "^7.5.0",
     "@types/xml2js": "^0.4.11",
     "@vitest/browser-playwright": "^4.1.10",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-istanbul": "^4.1.10",
     "playwright": "^1.62.1",
     "prettier": "^2.8.1",
     "typescript": "^6.0.3",

@@ -46,8 +46,16 @@ export default defineConfig({
       },
     ],
     coverage: {
-      provider: 'v8',
-      include: ['**/*.js'],
+      // `istanbul` (not `v8`) so re-export-only barrels (`export * from
+      // '...'`) and pure-data modules (vendored JSON schemas, CWE/BCP-47
+      // tables) - which have no statements to instrument - are silently
+      // omitted from the report, instead of showing as false 0% the way
+      // Vitest's v8 AST coverage remapping reports them.
+      provider: 'istanbul',
+      // No `include` here: Vitest then only reports files that were
+      // actually imported during the test run (matching the old
+      // mocha/nyc behavior), instead of listing every matching file
+      // (including untouched ones) as `include` would.
       exclude: ['tests/**', 'build/**', 'csaf/**', 'scripts/**'],
     },
   },
