@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { readFileSync } from 'node:fs'
 import assert from 'node:assert/strict'
+import { getGlobalDispatcher, MockAgent, setGlobalDispatcher } from 'undici'
 import * as informative from '../../csaf_2_1/informativeTests.js'
 import * as recommended from '../../csaf_2_1/recommendedTests.js'
 import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
@@ -19,7 +20,6 @@ const excluded = [
   '6.1.55',
   '6.1.59',
   '6.1.60.1',
-  '6.1.60.2',
   '6.1.60.3',
   '6.2.19',
   '6.2.20',
@@ -120,6 +120,42 @@ const testDataBaseUrl = new URL(
   import.meta.url
 )
 
+const extensionDataBaseUrl = new URL(
+  '../../csaf/csaf_2.1/test/extension/data/valid/',
+  import.meta.url
+)
+
+/**
+ * Mocks GitHub raw-content requests for extension schemas so that tests
+ * exercising csafAjv's dynamic `loadSchema` mechanism stay hermetic (no real
+ * network access).
+ *
+ * @returns {MockAgent}
+ */
+function extensionSchemaMockAgent() {
+  const mockAgent = new MockAgent()
+  mockAgent.disableNetConnect()
+
+  const pool = mockAgent.get('https://raw.githubusercontent.com')
+  for (const name of ['documentation-11', 'documentation-12']) {
+    const content = readFileSync(
+      new URL(`${name}/${name}-content_1.0.0.json`, extensionDataBaseUrl),
+      'utf-8'
+    )
+    pool
+      .intercept({
+        method: 'GET',
+        path: `/oasis-tcs/csaf/refs/heads/master/csaf_2.1/extension/data/valid/${name}/${name}-content_1.0.0.json`,
+      })
+      .reply(200, content, {
+        headers: { 'content-type': 'application/json' },
+      })
+      .persist()
+  }
+
+  return mockAgent
+}
+
 const testCases = /** @type {TestCases} */ (
   JSON.parse(
     await readFile(new URL('testcases.json', testDataBaseUrl), 'utf-8')
@@ -132,6 +168,17 @@ for (const [group, t] of testMap) {
   describe(group, function () {
     for (const [testId, u] of t) {
       describe(testId, function () {
+        const mockedTestIds = new Set(['6.1.60.2'])
+        if (mockedTestIds.has(testId)) {
+          const globalDispatcher = getGlobalDispatcher()
+          before(function () {
+            setGlobalDispatcher(extensionSchemaMockAgent())
+          })
+          after(function () {
+            setGlobalDispatcher(globalDispatcher)
+          })
+        }
+
         for (const [type, testSpecs] of u) {
           describe(type, function () {
             for (const testSpec of testSpecs) {
