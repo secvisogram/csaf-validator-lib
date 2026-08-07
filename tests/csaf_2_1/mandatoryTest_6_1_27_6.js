@@ -1,19 +1,17 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_27_6 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_27_6.js'
 
 describe('mandatoryTest_6_1_27_6', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_27_6({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_27_6({ document: 'mydoc' }).isValid).to.equal(true)
   })
 
   it('returns valid for documents with irrelevant category', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_27_6({
         document: { category: 'csaf_base' },
         vulnerabilities: [{}],
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('returns invalid when vulnerability has no product_status', function () {
@@ -21,8 +19,8 @@ describe('mandatoryTest_6_1_27_6', function () {
       document: { category: 'csaf_security_advisory' },
       vulnerabilities: [{}],
     })
-    assert.equal(result.isValid, false)
-    assert.equal(result.errors.length, 1)
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.equal(1)
   })
 
   it('returns valid when vulnerability has an empty product_status ', function () {
@@ -30,7 +28,7 @@ describe('mandatoryTest_6_1_27_6', function () {
       document: { category: 'csaf_security_advisory' },
       vulnerabilities: [{ product_status: {} }],
     })
-    assert.equal(result.isValid, true)
+    expect(result.isValid).to.equal(true)
   })
 
   it('returns valid when vulnerability has an not empty product_status ', function () {
@@ -44,6 +42,6 @@ describe('mandatoryTest_6_1_27_6', function () {
         },
       ],
     })
-    assert.equal(result.isValid, true)
+    expect(result.isValid).to.equal(true)
   })
 })
