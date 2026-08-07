@@ -47,8 +47,55 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      include: ['**/*.js'],
-      exclude: ['tests/**', 'build/**', 'csaf/**', 'scripts/**'],
+      // No `include` here: Vitest then only reports files that were
+      // actually imported during the test run (matching the old
+      // mocha/nyc behavior), instead of listing every matching file
+      // (including untouched ones) as `include` would.
+      exclude: [
+        'tests/**',
+        'build/**',
+        'csaf/**',
+        'scripts/**',
+        // Pure re-export "barrel" files (only `export ... from '...'`
+        // statements, no logic of their own). Neither v8 nor istanbul can
+        // attach a statement counter to bare re-export syntax, so these
+        // always report 0/0 statements - present as an empty entry (v8) or
+        // omitted entirely (istanbul). Excluding them keeps the report free
+        // of these meaningless empty/0% entries; the real logic they
+        // re-export is still fully measured at its original location.
+        'basic.js',
+        'extended.js',
+        'full.js',
+        'mandatoryTests.js',
+        'optionalTests.js',
+        'informativeTests.js',
+        'schemaTests.js',
+        'hunspell.js',
+        'strip.js',
+        'validate.js',
+        'lib/mandatoryTests.js',
+        'lib/optionalTests.js',
+        'lib/informativeTests.js',
+        'lib/schemaTests.js',
+        'lib/shared/csafHelpers.js',
+        'csaf_2_1/basic.js',
+        'csaf_2_1/extended.js',
+        'csaf_2_1/full.js',
+        'csaf_2_1/mandatoryTests.js',
+        'csaf_2_1/recommendedTests.js',
+        'csaf_2_1/informativeTests.js',
+        'csaf_2_1/schemaTests.js',
+        // Vendored/generated pure-data modules (JSON schemas, CWE/BCP-47
+        // tables, translation strings) authored as `export default {...}`
+        // literals with no other logic. Same 0/0-statement issue as above.
+        'schemas/**',
+        'lib/cwec/**',
+        'lib/shared/cwec.js',
+        'lib/shared/bcpLanguageTagChecker/**',
+        'lib/language_specific_translation/**',
+        'csaf_2_1/csafAjv/**',
+        '**/schemaTests/**/schema.js',
+      ],
     },
   },
 })
