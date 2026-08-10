@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { writeFile, readFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import prettier from 'prettier'
 
 /**
@@ -21,9 +21,9 @@ const json = JSON.parse(await readFile(REGISTRY_FILE, 'utf-8'))
 await writeFile(
   OUTPUT_FILE,
   prettier.format(
-    `const rvisc = (${JSON.stringify(
-      json
-    )})\n\nexport default rvisc\n\nexport const entries = rvisc.entries`,
+    `// This file is generated from ${REGISTRY_FILE} by scripts/rvisc-importRegistry.js.
+            // Do not edit by hand.\n\nconst rvisc = (${JSON.stringify(json)})\n
+            export default rvisc\n\nexport const entries = rvisc.entries`,
     {
       ...(await prettier.resolveConfig(OUTPUT_FILE)),
       filepath: OUTPUT_FILE,

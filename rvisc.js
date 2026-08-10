@@ -1,3 +1,6 @@
+// This file is generated from csaf/registry/id/registry.json by scripts/rvisc-importRegistry.js.
+// Do not edit by hand.
+
 const rvisc = {
   $schema:
     'https://raw.githubusercontent.com/oasis-tcs/csaf/master/registry/id/schema/registry.schema.json',
