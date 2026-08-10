@@ -67,7 +67,8 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 
 /**
- * This implements the optional test 6.2.36 of the CSAF 2.1 standard.
+ * This implements the recommended test 6.2.36 of the CSAF 2.1 standard.
+ *
  * @param {any} doc
  */
 export function recommendedTest_6_2_36(doc) {
