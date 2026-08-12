@@ -1,17 +1,16 @@
-import assert from 'node:assert'
 import { informativeTest_6_3_8 } from '../../csaf_2_1/informativeTests/informativeTest_6_3_8.js'
 
 describe('informativeTest_6_3_8', function () {
   it('only runs on relevant documents', async function () {
     const result = await informativeTest_6_3_8({ document: 'mydoc' })
-    assert.equal(result.infos.length, 0)
+    expect(result.infos.length).to.equal(0)
   })
 
   it('skips documents without a resolvable language tag', async function () {
     const result = await informativeTest_6_3_8({
       document: { lang: 'not-a-valid-tag!!' },
     })
-    assert.equal(result.infos.length, 0)
+    expect(result.infos.length).to.equal(0)
   })
 
   it('skips document/category when it is a known profile category', async function () {
@@ -26,7 +25,7 @@ describe('informativeTest_6_3_8', function () {
         hunspell: async () => 'Hunspell v1\n\n# ignored 0',
       }
     )
-    assert.equal(result.infos.length, 0)
+    expect(result.infos.length).to.equal(0)
   })
 
   it('checks document/category when it is not a known profile category and reports misspellings without suggestions', async function () {
@@ -41,9 +40,9 @@ describe('informativeTest_6_3_8', function () {
         hunspell: async () => 'Hunspell v1\n\n# custm 0',
       }
     )
-    assert.equal(result.infos.length, 1)
-    assert.equal(result.infos[0].instancePath, '/document/category')
-    assert.match(result.infos[0].message, /custm/)
+    expect(result.infos.length).to.equal(1)
+    expect(result.infos[0].instancePath).to.equal('/document/category')
+    expect(result.infos[0].message).to.match(/custm/)
   })
 
   it('reports misspelled words that have suggestions', async function () {
@@ -58,9 +57,29 @@ describe('informativeTest_6_3_8', function () {
         hunspell: async () => 'Hunspell v1\n\n& custm 1 0: custom',
       }
     )
-    assert.equal(result.infos.length, 1)
-    assert.equal(result.infos[0].instancePath, '/document/category')
-    assert.match(result.infos[0].message, /custm/)
+    expect(result.infos.length).to.equal(1)
+    expect(result.infos[0].instancePath).to.equal('/document/category')
+    expect(result.infos[0].message).to.match(/custm/)
+  })
+
+  it('skips non-string values when walking text fields', async function () {
+    let calls = 0
+    const result = await informativeTest_6_3_8(
+      {
+        document: {
+          lang: 'en',
+          title: 12345,
+        },
+      },
+      {
+        hunspell: async () => {
+          calls++
+          return 'Hunspell v1\n\n'
+        },
+      }
+    )
+    expect(calls).to.equal(1)
+    expect(result.infos.length).to.equal(0)
   })
 
   it('builds the dictionary name from language and region subtags', async function () {
@@ -80,40 +99,25 @@ describe('informativeTest_6_3_8', function () {
         },
       }
     )
-    assert.ok(dictionaries.length > 0)
-    assert.ok(dictionaries.every((d) => d === 'en_US'))
+    expect(dictionaries.length).to.be.greaterThan(0)
+    expect(dictionaries.every((d) => d === 'en_US')).to.be.true
   })
 
-  it('throws when a hunspell suggestion line cannot be parsed', async function () {
-    await assert.rejects(
-      informativeTest_6_3_8(
-        {
-          document: {
-            lang: 'en',
-            category: 'my_custom_category',
-          },
+  it('reports an info message when a hunspell suggestion line cannot be parsed', async function () {
+    const result = await informativeTest_6_3_8(
+      {
+        document: {
+          lang: 'en',
+          category: 'my_custom_category',
         },
-        {
-          hunspell: async () => 'Hunspell v1\n\n& ',
-        }
-      ),
-      /Error while parsing hunspell output/
+      },
+      {
+        hunspell: async () => 'Hunspell v1\n\n& ',
+      }
     )
-  })
-
-  it('throws when a hunspell miss line cannot be parsed', async function () {
-    await assert.rejects(
-      informativeTest_6_3_8(
-        {
-          document: {
-            lang: 'en',
-            category: 'my_custom_category',
-          },
-        },
-        {
-          hunspell: async () => 'Hunspell v1\n\n# ',
-        }
-      ),
+    expect(result.infos.length).to.equal(1)
+    expect(result.infos[0].instancePath).to.equal('/document/category')
+    expect(result.infos[0].message).to.match(
       /Error while parsing hunspell output/
     )
   })
@@ -125,8 +129,8 @@ describe('informativeTest_6_3_8', function () {
         title: 'Some title text',
       },
     })
-    assert.equal(result.infos.length, 1)
-    assert.equal(result.infos[0].instancePath, '/document/lang')
-    assert.equal(result.infos[0].message, 'language "zz" is not supported')
+    expect(result.infos.length).to.equal(1)
+    expect(result.infos[0].instancePath).to.equal('/document/lang')
+    expect(result.infos[0].message).to.equal('language "zz" is not supported')
   })
 })

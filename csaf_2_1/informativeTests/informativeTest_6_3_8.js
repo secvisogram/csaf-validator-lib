@@ -1,7 +1,7 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import { execFile } from 'node:child_process'
 import bcp47 from 'bcp47'
 import { walkPath } from '../../lib/walkPaths.js'
+import runHunspell from '../../hunspell/runHunspell.js'
 
 const ajv = new Ajv()
 
@@ -37,6 +37,8 @@ const HUNSPELL_SUGGESTION_RE = /^& (\S+)/
 const HUNSPELL_MISS_RE = /^# (\S+)/
 
 /**
+ * Informative test 6.3.8: Check for spelling mistakes in text fields.
+ *
  * @param {any} doc
  * @param {object} [params]
  * @param {typeof runHunspell} params.hunspell
@@ -130,6 +132,13 @@ export async function informativeTest_6_3_8(
       dictionary,
       hunspell: params.hunspell,
     })
+    if (result.parseError) {
+      ctx.infos.push({
+        instancePath,
+        message: 'Error while parsing hunspell output',
+      })
+      return
+    }
     if (!result.ok) {
       ctx.infos.push({
         instancePath,
@@ -154,35 +163,16 @@ async function spellCheckString({ text, dictionary, hunspell }) {
   /** @type {string} */
   const result = await hunspell({ dictionary, input: text })
   const lines = result.split('\n').slice(1)
-  const errors = lines
-    .filter((l) => l.startsWith('# ') || l.startsWith('& '))
-    .map((l) => {
-      if (l.startsWith('& ')) {
-        const regexR = HUNSPELL_SUGGESTION_RE.exec(l)
-        if (!regexR) throw new Error('Error while parsing hunspell output')
-        return { word: regexR[1] }
-      } else {
-        const regexR = HUNSPELL_MISS_RE.exec(l)
-        if (!regexR) throw new Error('Error while parsing hunspell output')
-        return { word: regexR[1] }
-      }
-    })
-  return { mistakes: errors, ok: !errors.length }
-}
-
-/**
- * Spell-check a string using hunspell and return the raw output.
- * @param {object} params
- * @param {string} params.dictionary
- * @param {string} params.input
- * @returns
- */
-async function runHunspell({ dictionary, input }) {
-  return await new Promise((resolve, reject) => {
-    const child = execFile('hunspell', ['-d', dictionary], (err, stdout) => {
-      if (err) return reject(err)
-      resolve(stdout)
-    })
-    child.stdin?.end(input)
-  })
+  const errors = []
+  for (const l of lines) {
+    if (!l.startsWith('# ') && !l.startsWith('& ')) continue
+    const regexR = l.startsWith('& ')
+      ? HUNSPELL_SUGGESTION_RE.exec(l)
+      : HUNSPELL_MISS_RE.exec(l)
+    if (!regexR) {
+      return { mistakes: [], ok: false, parseError: true }
+    }
+    errors.push({ word: regexR[1] })
+  }
+  return { mistakes: errors, ok: !errors.length, parseError: false }
 }
