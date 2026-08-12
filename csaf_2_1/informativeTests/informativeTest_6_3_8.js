@@ -1,7 +1,7 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import { execFile } from 'node:child_process'
 import bcp47 from 'bcp47'
 import { walkPath } from '../../lib/walkPaths.js'
+import runHunspell from '../../hunspell/runHunspell.js'
 
 const ajv = new Ajv()
 
@@ -175,21 +175,4 @@ async function spellCheckString({ text, dictionary, hunspell }) {
     errors.push({ word: regexR[1] })
   }
   return { mistakes: errors, ok: !errors.length, parseError: false }
-}
-
-/**
- * Spell-check a string using hunspell and return the raw output.
- * @param {object} params
- * @param {string} params.dictionary
- * @param {string} params.input
- * @returns
- */
-async function runHunspell({ dictionary, input }) {
-  return await new Promise((resolve, reject) => {
-    const child = execFile('hunspell', ['-d', dictionary], (err, stdout) => {
-      if (err) return reject(err)
-      resolve(stdout)
-    })
-    child.stdin?.end(input)
-  })
 }
