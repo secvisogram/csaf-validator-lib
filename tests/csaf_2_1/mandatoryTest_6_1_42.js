@@ -1,6 +1,3 @@
-import assert from 'node:assert/strict'
-import { expect } from 'chai'
-
 import {
   mandatoryTest_6_1_42,
   checkPurls,
@@ -8,11 +5,13 @@ import {
 
 describe('mandatoryTest_6_1_42', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_42({ product_tree: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_42({ product_tree: 'mydoc' }).isValid).to.equal(
+      true
+    )
   })
 
   it('validates product_paths and skips invalid ones', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_42({
         product_tree: {
           product_paths: [
@@ -26,9 +25,8 @@ describe('mandatoryTest_6_1_42', function () {
             {},
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('test checkPurls', function () {
