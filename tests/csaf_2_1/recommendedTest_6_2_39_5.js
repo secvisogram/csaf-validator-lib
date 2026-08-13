@@ -1,4 +1,3 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_39_5 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_39_5.js'
 
 describe('recommendedTest_6_2_39_5', function () {
