@@ -1,13 +1,11 @@
-import assert from 'node:assert/strict'
 import { recommendedTest_6_2_52 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_52.js'
 import { productWithFileHashes } from './shared/csafDocHelper.js'
 
 describe('recommendedTest_6_2_52', function () {
   it('returns early with no warnings when product_tree is not an object', function () {
-    assert.equal(
-      recommendedTest_6_2_52({ product_tree: 'string' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_52({ product_tree: 'string' }).warnings.length
+    ).to.equal(0)
   })
 
   it('warns for unsupported algorithm in product_tree.branches product hashes', function () {
@@ -22,12 +20,11 @@ describe('recommendedTest_6_2_52', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/algorithm'
     )
-    assert.match(result.warnings[0].message, /md9000/)
+    expect(result.warnings[0].message).to.match(/md9000/)
   })
 
   it('warns for unsupported algorithm in product_tree.product_paths full_product_name', function () {
@@ -42,12 +39,11 @@ describe('recommendedTest_6_2_52', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/product_paths/0/full_product_name/product_identification_helper/hashes/0/file_hashes/0/algorithm'
     )
-    assert.match(result.warnings[0].message, /unknown-algo/)
+    expect(result.warnings[0].message).to.match(/unknown-algo/)
   })
 
   it('does not warn for product_paths entry without full_product_name', function () {
@@ -56,7 +52,7 @@ describe('recommendedTest_6_2_52', function () {
         product_paths: [{}],
       },
     })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('warns for unsupported algorithm in branch product hashes', function () {
@@ -71,9 +67,8 @@ describe('recommendedTest_6_2_52', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/algorithm'
     )
   })
@@ -94,12 +89,33 @@ describe('recommendedTest_6_2_52', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/branches/0/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/algorithm'
     )
-    assert.match(result.warnings[0].message, /not-in-spec/)
+    expect(result.warnings[0].message).to.match(/not-in-spec/)
+  })
+
+  it('skips recursion into a child branch that fails schema validation', function () {
+    const result = recommendedTest_6_2_52({
+      product_tree: {
+        branches: [
+          {
+            product: productWithFileHashes('parent.exe', [
+              { algorithm: 'md9000' },
+            ]),
+            // Not a valid branch object (must be an object matching
+            // branchSchema), so validateBranch() returns false and this
+            // entry must be skipped without recursing into it.
+            branches: ['not-an-object'],
+          },
+        ],
+      },
+    })
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
+      '/product_tree/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/algorithm'
+    )
   })
 
   it('does not warn when file_hashes is absent (line 212 guard)', function () {
@@ -114,7 +130,7 @@ describe('recommendedTest_6_2_52', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('does not warn when algorithm is undefined', function () {
@@ -123,7 +139,7 @@ describe('recommendedTest_6_2_52', function () {
         full_product_names: [productWithFileHashes('product.exe', [{}])],
       },
     })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('does not warn for secure spec-listed algorithms', function () {
@@ -158,8 +174,7 @@ describe('recommendedTest_6_2_52', function () {
           ],
         },
       })
-      assert.equal(
-        result.warnings.length,
+      expect(result.warnings.length).to.deep.equal(
         0,
         `expected no warning for secure algorithm '${algorithm}'`
       )
@@ -194,13 +209,11 @@ describe('recommendedTest_6_2_52', function () {
           ],
         },
       })
-      assert.equal(
-        result.warnings.length,
+      expect(result.warnings.length).to.deep.equal(
         1,
         `expected 1 warning for insecure algorithm '${algorithm}'`
       )
-      assert.match(
-        result.warnings[0].message,
+      expect(result.warnings[0].message).to.match(
         /secure/,
         `expected 'secure' in warning message for '${algorithm}'`
       )
