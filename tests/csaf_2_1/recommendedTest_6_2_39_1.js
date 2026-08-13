@@ -1,4 +1,3 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_39_1 } from '../../csaf_2_1/recommendedTests.js'
 
 /**
@@ -16,22 +15,21 @@ function makeDoc({ vulnerabilities = [], product_tree = undefined } = {}) {
 
 describe('recommendedTest_6_2_39_1', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_39_1({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_39_1({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('returns no warnings when there are no vulnerabilities', function () {
     const result = recommendedTest_6_2_39_1({
       document: { category: 'csaf_security_advisory' },
     })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('returns no warnings when a vulnerability has no product_status', function () {
     const result = recommendedTest_6_2_39_1(makeDoc({ vulnerabilities: [{}] }))
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('does not warn when product_status.first_fixed is populated', function () {
@@ -47,7 +45,7 @@ describe('recommendedTest_6_2_39_1', function () {
         ],
       })
     )
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('does not warn when productBranch is undefined -> anti-skip cannot fire -> skip wins', function () {
@@ -70,7 +68,7 @@ describe('recommendedTest_6_2_39_1', function () {
         ],
       })
     )
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('warns when anti-skip condition is met', function () {
@@ -121,7 +119,7 @@ describe('recommendedTest_6_2_39_1', function () {
         ],
       })
     )
-    assert.equal(result.warnings.length, 2)
+    expect(result.warnings.length).to.equal(2)
   })
 
   it('does not warns when branch failing to validateBranch', function () {
@@ -158,7 +156,7 @@ describe('recommendedTest_6_2_39_1', function () {
         ],
       })
     )
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('does not warn when skip indicator is given via group_ids', function () {
@@ -185,7 +183,7 @@ describe('recommendedTest_6_2_39_1', function () {
         ],
       })
     )
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('does not warn when remediation without product_ids and group_ids applies implicitly', function () {
@@ -203,6 +201,6 @@ describe('recommendedTest_6_2_39_1', function () {
         ],
       })
     )
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 })
