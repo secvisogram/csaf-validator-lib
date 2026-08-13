@@ -313,27 +313,21 @@ The following tests are not yet implemented and therefore missing:
 
 - Mandatory Test 6.1.26
 - Mandatory Test 6.1.27.13
-- Mandatory Test 6.1.47
 - Mandatory Test 6.1.48
-- Mandatory Test 6.1.49
 - Mandatory Test 6.1.50
 - Mandatory Test 6.1.54
 - Mandatory Test 6.1.55
-- Mandatory Test 6.1.57
 - Mandatory Test 6.1.59
 - Mandatory Test 6.1.60.1
 - Mandatory Test 6.1.60.2
 - Mandatory Test 6.1.60.3
-- Mandatory Test 6.1.61
 
 **Recommended Tests**
 
-- Recommended Test 6.2.11
 - Recommended Test 6.2.19
 - Recommended Test 6.2.24
 - Recommended Test 6.2.26
 - Recommended Test 6.2.31
-- Recommended Test 6.2.32
 - Recommended Test 6.2.33
 - Recommended Test 6.2.34
 - Recommended Test 6.2.35
@@ -341,9 +335,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.37
 - Recommended Test 6.2.38
 - Recommended Test 6.2.39.1
-- Recommended Test 6.2.39.3
-- Recommended Test 6.2.39.4
-- Recommended Test 6.2.39.5
 - Recommended Test 6.2.42
 - Recommended Test 6.2.44
 - Recommended Test 6.2.45
@@ -357,32 +348,24 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.53
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
-- Recommended Test 6.2.54.3
 - Recommended Test 6.2.54.4
 
 **Informative Tests**
 
-- Informative Test 6.2.13
-- Informative Test 6.2.14
-- Informative Test 6.2.15
-- Informative Test 6.2.16
-- Informative Test 6.2.17
-- Informative Test 6.2.19.1
-- Informative Test 6.2.19.2
-- Informative Test 6.2.19.3
-- Informative Test 6.2.19.4
-- Informative Test 6.2.19.5
-- Informative Test 6.2.20
-- Informative Test 6.2.21.1
-- Informative Test 6.2.21.2
-- Informative Test 6.2.21.3
-- Informative Test 6.2.21.4
-- Informative Test 6.2.21.5
-- Informative Test 6.2.21.6
-- Informative Test 6.2.21.7
-- Informative Test 6.2.21.8
-- Informative Test 6.2.21.9
-- Informative Test 6.2.22
+- Informative Test 6.3.13
+- Informative Test 6.3.14
+- Informative Test 6.3.15
+- Informative Test 6.3.16
+- Informative Test 6.3.17
+- Informative Test 6.3.19.1
+- Informative Test 6.3.19.2
+- Informative Test 6.3.19.3
+- Informative Test 6.3.19.4
+- Informative Test 6.3.19.5
+- Informative Test 6.3.20
+- Informative Test 6.3.21.2
+- Informative Test 6.3.21.7
+- Informative Test 6.3.21.9
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -458,10 +441,15 @@ export const mandatoryTest_6_1_43: DocumentTest
 export const mandatoryTest_6_1_44: DocumentTest
 export const mandatoryTest_6_1_45: DocumentTest
 export const mandatoryTest_6_1_46: DocumentTest
+export const mandatoryTest_6_1_47: DocumentTest
+export const mandatoryTest_6_1_49: DocumentTest
 export const mandatoryTest_6_1_51: DocumentTest
 export const mandatoryTest_6_1_52: DocumentTest
 export const mandatoryTest_6_1_53: DocumentTest
+export const mandatoryTest_6_1_56: DocumentTest
+export const mandatoryTest_6_1_57: DocumentTest
 export const mandatoryTest_6_1_58: DocumentTest
+export const mandatoryTest_6_1_61: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -479,6 +467,7 @@ export const recommendedTest_6_2_7: DocumentTest
 export const recommendedTest_6_2_8: DocumentTest
 export const recommendedTest_6_2_9: DocumentTest
 export const recommendedTest_6_2_10: DocumentTest
+export const recommendedTest_6_2_11: DocumentTest
 export const recommendedTest_6_2_12: DocumentTest
 export const recommendedTest_6_2_13: DocumentTest
 export const recommendedTest_6_2_14: DocumentTest
@@ -495,14 +484,17 @@ export const recommendedTest_6_2_27: DocumentTest
 export const recommendedTest_6_2_28: DocumentTest
 export const recommendedTest_6_2_29: DocumentTest
 export const recommendedTest_6_2_30: DocumentTest
+export const recommendedTest_6_2_32: DocumentTest
 export const recommendedTest_6_2_39_2: DocumentTest
 export const recommendedTest_6_2_39_3: DocumentTest
 export const recommendedTest_6_2_39_4: DocumentTest
+export const recommendedTest_6_2_39_5: DocumentTest
 export const recommendedTest_6_2_40: DocumentTest
 export const recommendedTest_6_2_41: DocumentTest
 export const recommendedTest_6_2_43: DocumentTest
 export const recommendedTest_6_2_47: DocumentTest
 export const recommendedTest_6_2_48: DocumentTest
+export const recommendedTest_6_2_54_3: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -523,6 +515,13 @@ export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
+export const informativeTest_6_3_21_1: DocumentTest
+export const informativeTest_6_3_21_3: DocumentTest
+export const informativeTest_6_3_21_4: DocumentTest
+export const informativeTest_6_3_21_5: DocumentTest
+export const informativeTest_6_3_21_6: DocumentTest
+export const informativeTest_6_3_21_8: DocumentTest
+export const informativeTest_6_3_22: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -590,7 +589,7 @@ export const weaknesses: Array<{ id: string; name: string }>
 
 ## Testing
 
-Tests are implemented using [mocha](https://mochajs.org/). The minimal supported Node.js version is **20**. They can be run using the following command:
+Tests are implemented using [vitest](https://vitest.dev/). The minimal supported Node.js version is **22**. They can be run using the following command:
 
 ```sh
 npm test
@@ -617,7 +616,5 @@ For the complete list of dependencies please take a look at [package.json](https
 - [packageurl-js](https://github.com/package-url/packageurl-js)
 - [semver](https://github.com/npm/node-semver)
 - [undici](https://undici.nodejs.org)
-- [@js-joda/core](https://js-joda.github.io/js-joda/)
-- [@js-joda/timezone](https://js-joda.github.io/js-joda/)
 
 [(back to top)](#bsi-csaf-validator-lib)

@@ -1,124 +1,40 @@
-import { Ajv } from 'ajv/dist/jtd.js'
+import { walkPath } from '../../lib/walkPaths.js'
 import { collectProductIdsFromFullProductPath } from './shared/docProductUtils.js'
 
-const ajv = new Ajv()
-
-const productIdsSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    product_ids: { elements: { type: 'string' } },
-  },
-})
-
-const productStatusSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    first_affected: { elements: { type: 'string' } },
-    first_fixed: { elements: { type: 'string' } },
-    fixed: { elements: { type: 'string' } },
-    known_affected: { elements: { type: 'string' } },
-    known_not_affected: { elements: { type: 'string' } },
-    last_affected: { elements: { type: 'string' } },
-    recommended: { elements: { type: 'string' } },
-    under_investigation: { elements: { type: 'string' } },
-    unknown: { elements: { type: 'string' } },
-  },
-})
-
-const metricSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    products: { elements: { type: 'string' } },
-  },
-})
-
-const vulnerabilitySchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    flags: { elements: productIdsSchema },
-    first_known_exploitation_dates: { elements: productIdsSchema },
-    involvements: { elements: productIdsSchema },
-    metrics: { elements: metricSchema },
-    notes: { elements: productIdsSchema },
-    product_status: productStatusSchema,
-    remediations: { elements: productIdsSchema },
-    threats: { elements: productIdsSchema },
-  },
-})
-
-const subpathSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    next_product_reference: { type: 'string' },
-  },
-})
-
-const fullProductNameRefSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    product_id: { type: 'string' },
-  },
-})
-
-const productPathSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    beginning_product_reference: { type: 'string' },
-    full_product_name: fullProductNameRefSchema,
-    subpaths: { elements: subpathSchema },
-  },
-})
-
-const productGroupSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    product_ids: { elements: { type: 'string' } },
-  },
-})
-
-const productTreeSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    product_groups: { elements: productGroupSchema },
-    product_paths: { elements: productPathSchema },
-  },
-})
-
-/*
-  This is the jtd schema that needs to match the input document so that the
-  test is activated. If this schema doesn't match it normally means that the input
-  document does not validate against the csaf json schema or optional fields that
-  the test checks are not present.
- */
-const inputSchema = /** @type {const} */ ({
-  additionalProperties: true,
-  optionalProperties: {
-    document: {
-      additionalProperties: true,
-      optionalProperties: {
-        notes: { elements: productIdsSchema },
-      },
-    },
-    product_tree: productTreeSchema,
-    vulnerabilities: { elements: vulnerabilitySchema },
-  },
-})
-
-const validateInput = ajv.compile(inputSchema)
-
 /**
- * @typedef {import('ajv/dist/core.js').JTDDataType<typeof vulnerabilitySchema>} Vulnerability
- * @typedef {import('ajv/dist/core.js').JTDDataType<typeof inputSchema>} InputSchema
- * @typedef {import('ajv/dist/core.js').JTDDataType<typeof metricSchema>} MetricSchema
- * @typedef {{id: string, instancePath: string}} ProductIdRef
+ * All paths in a CSAF 2.1 document that may contain references to product IDs.
+ * @type {string[]}
  */
+const PRODUCT_ID_REF_PATHS = [
+  '/document/notes[]/product_ids[]',
+  '/product_tree/product_groups[]/product_ids[]',
+  '/product_tree/product_paths[]/beginning_product_reference',
+  '/product_tree/product_paths[]/subpaths[]/next_product_reference',
+  '/vulnerabilities[]/product_status/first_affected[]',
+  '/vulnerabilities[]/product_status/first_fixed[]',
+  '/vulnerabilities[]/product_status/fixed[]',
+  '/vulnerabilities[]/product_status/known_affected[]',
+  '/vulnerabilities[]/product_status/known_not_affected[]',
+  '/vulnerabilities[]/product_status/last_affected[]',
+  '/vulnerabilities[]/product_status/recommended[]',
+  '/vulnerabilities[]/product_status/under_investigation[]',
+  '/vulnerabilities[]/product_status/unknown[]',
+  '/vulnerabilities[]/remediations[]/product_ids[]',
+  '/vulnerabilities[]/metrics[]/products[]',
+  '/vulnerabilities[]/threats[]/product_ids[]',
+  '/vulnerabilities[]/flags[]/product_ids[]',
+  '/vulnerabilities[]/first_known_exploitation_dates[]/product_ids[]',
+  '/vulnerabilities[]/ids[]/product_ids[]',
+  '/vulnerabilities[]/involvements[]/product_ids[]',
+  '/vulnerabilities[]/notes[]/product_ids[]',
+]
 
 /**
  * This implements the mandatory test 6.1.1 of the CSAF 2.1 standard.
  *
  * @param {unknown} doc
  */
-export function mandatoryTest_6_1_1(doc) {
+export async function mandatoryTest_6_1_1(doc) {
   /*
     The `ctx` variable holds the state that is accumulated during the test ran and is
     finally returned by the function.
@@ -129,336 +45,23 @@ export function mandatoryTest_6_1_1(doc) {
     isValid: true,
   }
 
-  if (!validateInput(doc)) {
-    return ctx
-  }
-
-  const productIds = collectProductIdsFromFullProductPath(doc)
-  const productIdRefs = collectProductIdRefs(doc)
-  const missingProductDefinitions = findMissingDefinitions(
-    productIds,
-    productIdRefs
+  const definedIds = new Set(
+    collectProductIdsFromFullProductPath(/** @type {any} */ (doc)).map(
+      (p) => p.id
+    )
   )
-  if (missingProductDefinitions.length > 0) {
-    ctx.isValid = false
-    missingProductDefinitions.forEach((missingProductDefinition) => {
-      ctx.errors.push({
-        message: 'definition of product id missing',
-        instancePath: missingProductDefinition.instancePath,
-      })
+
+  for (const path of PRODUCT_ID_REF_PATHS) {
+    await walkPath(doc, path, async (instancePath, value) => {
+      if (typeof value === 'string' && !definedIds.has(value)) {
+        ctx.isValid = false
+        ctx.errors.push({
+          instancePath,
+          message: 'definition of product id missing',
+        })
+      }
     })
   }
+
   return ctx
-}
-
-/**
- * This method collects references to product ids and corresponding instancePaths in the given document and returns a result object.
- * @param {InputSchema} doc
- * @returns {ProductIdRef[]}
- */
-function collectProductIdRefs(doc) {
-  const entries = /** @type {ProductIdRef[]} */ ([])
-  doc.document?.notes?.forEach((documentNote, documentNoteIndex) => {
-    const productIds = documentNote.product_ids
-    productIds?.forEach((productId, productIdIndex) => {
-      entries.push({
-        id: productId,
-        instancePath: `/document/notes/${documentNoteIndex}/product_ids/${productIdIndex}`,
-      })
-    })
-  })
-
-  const productGroups = doc.product_tree?.product_groups
-  if (productGroups) {
-    productGroups?.forEach((productGroup, productGroupIndex) => {
-      const productIds = productGroup.product_ids
-      productIds?.forEach((productId, productIdIndex) => {
-        entries.push({
-          id: productId,
-          instancePath: `/product_tree/product_groups/${productGroupIndex}/product_ids/${productIdIndex}`,
-        })
-      })
-    })
-  }
-
-  const productPaths = doc.product_tree?.product_paths
-  if (productPaths) {
-    productPaths?.forEach((productPath, productPathIndex) => {
-      const beginningProductRef = productPath.beginning_product_reference
-      if (beginningProductRef) {
-        entries.push({
-          id: beginningProductRef,
-          instancePath: `/product_tree/product_paths/${productPathIndex}/beginning_product_reference`,
-        })
-      }
-      const subpaths = productPath.subpaths
-      if (subpaths) {
-        subpaths?.forEach((subpath, subpathIndex) => {
-          const nextProductRef = subpath.next_product_reference
-          if (nextProductRef) {
-            entries.push({
-              id: nextProductRef,
-              instancePath: `/product_tree/product_paths/${productPathIndex}/subpaths/${subpathIndex}/next_product_reference`,
-            })
-          }
-        })
-      }
-    })
-  }
-
-  const vulnerabilities = doc.vulnerabilities
-  if (vulnerabilities) {
-    vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
-      collectRefsInProductStatus(
-        `/vulnerabilities/${vulnerabilityIndex}/product_status`,
-        vulnerability,
-        entries
-      )
-      collectProductRefsInRemediations(
-        `/vulnerabilities/${vulnerabilityIndex}/remediations`,
-        vulnerability,
-        entries
-      )
-      collectRefsInMetrics(
-        `/vulnerabilities/${vulnerabilityIndex}/metrics`,
-        vulnerability,
-        entries
-      )
-      collectProductRefsInThreats(
-        `/vulnerabilities/${vulnerabilityIndex}/threats`,
-        vulnerability,
-        entries
-      )
-      collectProductRefsInFlags(
-        `/vulnerabilities/${vulnerabilityIndex}/flags`,
-        vulnerability,
-        entries
-      )
-      collectProductRefsInFirstKnownExploitationDates(
-        `/vulnerabilities/${vulnerabilityIndex}/first_known_exploitation_dates`,
-        vulnerability,
-        entries
-      )
-      collectProductRefsInInvolvements(
-        `/vulnerabilities/${vulnerabilityIndex}/involvements`,
-        vulnerability,
-        entries
-      )
-      collectProductRefsInNotes(
-        `/vulnerabilities/${vulnerabilityIndex}/notes`,
-        vulnerability,
-        entries
-      )
-    })
-  }
-
-  return entries
-}
-
-/**
- * @param {string} instancePath
- * @param {Vulnerability} vulnerability
- * @param {ProductIdRef[]} entries
- */
-const collectRefsInProductStatus = (instancePath, vulnerability, entries) => {
-  findRefsInProductStatus(
-    vulnerability.product_status?.first_affected,
-    `${instancePath}/first_affected`,
-    entries
-  )
-  findRefsInProductStatus(
-    vulnerability.product_status?.first_fixed,
-    `${instancePath}/first_fixed`,
-    entries
-  )
-  findRefsInProductStatus(
-    vulnerability.product_status?.fixed,
-    `${instancePath}/fixed`,
-    entries
-  )
-  findRefsInProductStatus(
-    vulnerability.product_status?.known_affected,
-    `${instancePath}/known_affected`,
-    entries
-  )
-  findRefsInProductStatus(
-    vulnerability.product_status?.known_not_affected,
-    `${instancePath}/known_not_affected`,
-    entries
-  )
-  findRefsInProductStatus(
-    vulnerability.product_status?.last_affected,
-    `${instancePath}/last_affected`,
-    entries
-  )
-  findRefsInProductStatus(
-    vulnerability.product_status?.recommended,
-    `${instancePath}/recommended`,
-    entries
-  )
-  findRefsInProductStatus(
-    vulnerability.product_status?.under_investigation,
-    `${instancePath}/under_investigation`,
-    entries
-  )
-  findRefsInProductStatus(
-    vulnerability.product_status?.unknown,
-    `${instancePath}/unknown`,
-    entries
-  )
-}
-
-/**
- * @param {string[] | undefined} refs
- * @param {string} instancePath
- * @param {ProductIdRef[]} entries
- */
-const findRefsInProductStatus = (refs, instancePath, entries) => {
-  refs?.forEach((ref, refIndex) => {
-    entries.push({
-      id: ref,
-      instancePath: `${instancePath}/${refIndex}`,
-    })
-  })
-}
-
-/**
- * @param {string} instancePath
- * @param {Vulnerability} vulnerability
- * @param {ProductIdRef[]} entries
- */
-const collectProductRefsInThreats = (instancePath, vulnerability, entries) => {
-  vulnerability.threats?.forEach((threat, threatIndex) => {
-    const productIds = threat.product_ids
-    productIds?.forEach((productId, productIdIndex) => {
-      entries.push({
-        id: productId,
-        instancePath: `${instancePath}/${threatIndex}/product_ids/${productIdIndex}`,
-      })
-    })
-  })
-}
-
-/**
- * @param {string} instancePath
- * @param {Vulnerability} vulnerability
- * @param {ProductIdRef[]} entries
- */
-const collectRefsInMetrics = (instancePath, vulnerability, entries) => {
-  vulnerability.metrics?.forEach((metric, metricIndex) => {
-    const products = metric.products
-    products?.forEach((productId, productIdIndex) => {
-      entries.push({
-        id: productId,
-        instancePath: `${instancePath}/${metricIndex}/products/${productIdIndex}`,
-      })
-    })
-  })
-}
-
-/**
- * @param {string} instancePath
- * @param {Vulnerability} vulnerability
- * @param {ProductIdRef[]} entries
- */
-const collectProductRefsInRemediations = (
-  instancePath,
-  vulnerability,
-  entries
-) => {
-  vulnerability.remediations?.forEach((remediation, remediationIndex) => {
-    const productIds = remediation.product_ids
-    productIds?.forEach((productId, productIdIndex) => {
-      entries.push({
-        id: productId,
-        instancePath: `${instancePath}/${remediationIndex}/product_ids/${productIdIndex}`,
-      })
-    })
-  })
-}
-
-/**
- * @param {string} instancePath
- * @param {Vulnerability} vulnerability
- * @param {ProductIdRef[]} entries
- */
-const collectProductRefsInFlags = (instancePath, vulnerability, entries) => {
-  vulnerability.flags?.forEach((flag, flagIndex) => {
-    const productIds = flag.product_ids
-    productIds?.forEach((productId, productIdIndex) => {
-      entries.push({
-        id: productId,
-        instancePath: `${instancePath}/${flagIndex}/product_ids/${productIdIndex}`,
-      })
-    })
-  })
-}
-
-/**
- * @param {string} instancePath
- * @param {Vulnerability} vulnerability
- * @param {ProductIdRef[]} entries
- */
-const collectProductRefsInFirstKnownExploitationDates = (
-  instancePath,
-  vulnerability,
-  entries
-) => {
-  vulnerability.first_known_exploitation_dates?.forEach(
-    (firstKnownExploitationDate, firstKnownExploitationDateIndex) => {
-      const productIds = firstKnownExploitationDate.product_ids
-      productIds?.forEach((productId, productIdIndex) => {
-        entries.push({
-          id: productId,
-          instancePath: `${instancePath}/${firstKnownExploitationDateIndex}/product_ids/${productIdIndex}`,
-        })
-      })
-    }
-  )
-}
-
-/**
- * @param {string} instancePath
- * @param {Vulnerability} vulnerability
- * @param {ProductIdRef[]} entries
- */
-const collectProductRefsInInvolvements = (
-  instancePath,
-  vulnerability,
-  entries
-) => {
-  vulnerability.involvements?.forEach((involvement, involvementIndex) => {
-    const productIds = involvement.product_ids
-    productIds?.forEach((productId, productIdIndex) => {
-      entries.push({
-        id: productId,
-        instancePath: `${instancePath}/${involvementIndex}/product_ids/${productIdIndex}`,
-      })
-    })
-  })
-}
-
-/**
- * @param {string} instancePath
- * @param {Vulnerability} vulnerability
- * @param {ProductIdRef[]} entries
- */
-const collectProductRefsInNotes = (instancePath, vulnerability, entries) => {
-  vulnerability.notes?.forEach((note, noteIndex) => {
-    const productIds = note.product_ids
-    productIds?.forEach((productId, productIdIndex) => {
-      entries.push({
-        id: productId,
-        instancePath: `${instancePath}/${noteIndex}/product_ids/${productIdIndex}`,
-      })
-    })
-  })
-}
-
-/**
- * @param {{id: string}[]} entries
- * @param {{id: string, instancePath: string}[]} refs
- */
-const findMissingDefinitions = (entries, refs) => {
-  return refs.filter((ref) => !entries.some((e) => e.id === ref.id))
 }

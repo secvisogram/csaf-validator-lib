@@ -1,13 +1,11 @@
-import assert from 'node:assert/strict'
-
-import {
-  mandatoryTest_6_1_43,
-  containMultipleUnescapedStars,
-} from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_43.js'
+import { mandatoryTest_6_1_43 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_43.js'
+import { containsMultipleUnescapedStars } from '../../csaf_2_1/mandatoryTests/shared/wildcardUtils.js'
 
 describe('mandatoryTest_6_1_43', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_43({ product_tree: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_43({ product_tree: 'mydoc' }).isValid).to.equal(
+      true
+    )
   })
 
   describe('containMultipleUnescapedStars', function () {
@@ -43,13 +41,15 @@ describe('mandatoryTest_6_1_43', function () {
 
     testCases.forEach((testCase) => {
       it(`${testCase[0]} -> ${testCase[1]}`, () => {
-        assert.equal(containMultipleUnescapedStars(testCase[0]), testCase[1])
+        expect(containsMultipleUnescapedStars(testCase[0])).to.equal(
+          testCase[1]
+        )
       })
     })
   })
 
   it('validates branches and skips invalid ones', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_43({
         product_tree: {
           branches: [
@@ -70,13 +70,12 @@ describe('mandatoryTest_6_1_43', function () {
             },
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('validates product_paths and skips invalid ones', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_43({
         product_tree: {
           product_paths: [
@@ -88,13 +87,12 @@ describe('mandatoryTest_6_1_43', function () {
             {},
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('detects invalid model numbers in branches', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_43({
         product_tree: {
           branches: [
@@ -107,13 +105,12 @@ describe('mandatoryTest_6_1_43', function () {
             },
           ],
         },
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 
   it('detects invalid model numbers in product_paths', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_43({
         product_tree: {
           product_paths: [
@@ -126,8 +123,7 @@ describe('mandatoryTest_6_1_43', function () {
             },
           ],
         },
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 })
