@@ -1,10 +1,10 @@
-import assert from 'node:assert/strict'
-
 import { mandatoryTest_6_1_14 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_14.js'
 
 describe('mandatoryTest_6_1_14', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_14({ product_tree: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_14({ product_tree: 'mydoc' }).isValid).to.equal(
+      true
+    )
   })
 
   it('skips documents with invalid revision_history entries', function () {
@@ -19,9 +19,9 @@ describe('mandatoryTest_6_1_14', function () {
       },
     }
 
-    assert.doesNotThrow(() => mandatoryTest_6_1_14(doc))
+    expect(() => mandatoryTest_6_1_14(doc)).toBeTruthy()
     const result = mandatoryTest_6_1_14(doc)
-    assert.equal(result.isValid, true)
-    assert.deepEqual(result.errors, [])
+    expect(result.isValid).to.equal(true)
+    expect(result.errors).to.deep.equal([])
   })
 })
