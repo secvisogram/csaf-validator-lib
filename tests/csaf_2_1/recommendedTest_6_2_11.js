@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_11 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_11', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_11({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_11({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('skips documents with empty tracking id', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_11({
         document: {
           references: [
@@ -21,13 +19,12 @@ describe('recommendedTest_6_2_11', function () {
           ],
           tracking: { id: '' },
         },
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('skips reference without self references', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_11({
         document: {
           references: [
@@ -38,13 +35,12 @@ describe('recommendedTest_6_2_11', function () {
           ],
           tracking: { id: 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-11-01' },
         },
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('should warn when self reference has empty url', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_11({
         document: {
           references: [
@@ -55,9 +51,8 @@ describe('recommendedTest_6_2_11', function () {
           ],
           tracking: { id: 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-11-01' },
         },
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
 
   it('warns with the correct index after filtering out non-self references', function () {
@@ -74,7 +69,9 @@ describe('recommendedTest_6_2_11', function () {
       },
     })
 
-    assert.equal(result.warnings.length, 1)
-    assert.equal(result.warnings[0].instancePath, '/document/references/1/url')
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
+      '/document/references/1/url'
+    )
   })
 })

@@ -1,10 +1,8 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_49 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_49.js'
-import { expect } from 'chai'
 
 describe('mandatoryTest_6_1_49', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_49({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_49({ document: 'mydoc' }).isValid).to.equal(true)
   })
 
   it('test input schema with empty json object in vulnerabilities', async function () {

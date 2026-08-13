@@ -1,10 +1,10 @@
-import assert from 'node:assert/strict'
-
 import { mandatoryTest_6_1_25 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_25.js'
 
 describe('mandatoryTest_6_1_25', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_25({ product_tree: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_25({ product_tree: 'mydoc' }).isValid).to.equal(
+      true
+    )
   })
 
   it('detects duplicate hash algorithms in product_paths', function () {
@@ -31,7 +31,7 @@ describe('mandatoryTest_6_1_25', function () {
         ],
       },
     })
-    assert.equal(result.isValid, false)
+    expect(result.isValid).to.equal(false)
   })
 
   it('detects duplicate hash algorithms in nested branches', function () {
@@ -60,11 +60,11 @@ describe('mandatoryTest_6_1_25', function () {
         ],
       },
     })
-    assert.equal(result.isValid, false)
+    expect(result.isValid).to.equal(false)
   })
 
   it('passes when file_hashes is not an array', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_25({
         product_tree: {
           full_product_names: [
@@ -80,9 +80,8 @@ describe('mandatoryTest_6_1_25', function () {
             },
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('skips file_hashes entries without an algorithm', function () {
@@ -102,6 +101,6 @@ describe('mandatoryTest_6_1_25', function () {
         ],
       },
     })
-    assert.equal(result.isValid, true)
+    expect(result.isValid).to.equal(true)
   })
 })
