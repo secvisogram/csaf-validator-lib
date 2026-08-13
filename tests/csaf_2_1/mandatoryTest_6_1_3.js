@@ -1,9 +1,8 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_3 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_3.js'
 
 describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_3({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_3({ document: 'mydoc' }).isValid).to.equal(true)
   })
 
   it('returns valid when product_paths is not an array', function () {
@@ -13,8 +12,8 @@ describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
         product_paths: 'not_an_array',
       },
     })
-    assert.equal(doc.isValid, true)
-    assert.equal(doc.errors.length, 0)
+    expect(doc.isValid).to.equal(true)
+    expect(doc.errors.length).to.equal(0)
   })
 
   it('detects a circular definition across product paths', function () {
@@ -51,10 +50,9 @@ describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
       },
     })
 
-    assert.equal(doc.isValid, false)
-    assert.equal(doc.errors.length, 1)
-    assert.equal(
-      doc.errors[0].instancePath,
+    expect(doc.isValid).to.equal(false)
+    expect(doc.errors.length).to.equal(1)
+    expect(doc.errors[0].instancePath).to.equal(
       '/product_tree/product_paths/1/full_product_name/product_id'
     )
   })
@@ -82,8 +80,8 @@ describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
         ],
       },
     })
-    assert.equal(doc.isValid, true)
-    assert.equal(doc.errors.length, 0)
+    expect(doc.isValid).to.equal(true)
+    expect(doc.errors.length).to.equal(0)
   })
 
   it('returns valid when two paths share a common dependency', function () {
@@ -103,8 +101,8 @@ describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
         ],
       },
     })
-    assert.equal(doc.isValid, true)
-    assert.equal(doc.errors.length, 0)
+    expect(doc.isValid).to.equal(true)
+    expect(doc.errors.length).to.equal(0)
   })
 
   it('does not report duplicate edges as circular (same target in beginning_product_reference and subpath)', function () {
@@ -124,7 +122,7 @@ describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
         ],
       },
     })
-    assert.equal(doc.isValid, true)
-    assert.equal(doc.errors.length, 0)
+    expect(doc.isValid).to.equal(true)
+    expect(doc.errors.length).to.equal(0)
   })
 })
