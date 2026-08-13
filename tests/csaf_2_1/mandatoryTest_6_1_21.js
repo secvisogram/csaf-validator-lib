@@ -1,5 +1,3 @@
-import assert from 'node:assert/strict'
-
 import { mandatoryTest_6_1_21 } from '../../csaf_2_1/mandatoryTests.js'
 
 describe('mandatoryTest_6_1_21', function () {
@@ -24,7 +22,7 @@ describe('mandatoryTest_6_1_21', function () {
         },
       },
     })
-    assert.equal(result.isValid, true)
-    assert.equal(result.errors.length, 0)
+    expect(result.isValid).to.equal(true)
+    expect(result.errors.length).to.equal(0)
   })
 })
