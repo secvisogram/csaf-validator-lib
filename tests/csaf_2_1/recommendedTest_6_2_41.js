@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_41 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_41', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_41({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_41({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('skips status draft', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_41({
         document: {
           tracking: {
@@ -19,13 +17,12 @@ describe('recommendedTest_6_2_41', function () {
           },
         },
         vulnerabilities: [],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('skips empty revision_history object', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_41({
         document: {
           tracking: {
@@ -36,13 +33,12 @@ describe('recommendedTest_6_2_41', function () {
           },
         },
         vulnerabilities: [],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('Skips vulnerabilities without metrics object', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_41({
         document: {
           tracking: {
@@ -51,13 +47,12 @@ describe('recommendedTest_6_2_41', function () {
           },
         },
         vulnerabilities: [{}],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('skips empty epss object', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_41({
         document: {
           tracking: {
@@ -83,8 +78,7 @@ describe('recommendedTest_6_2_41', function () {
             ],
           },
         ],
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
 })
