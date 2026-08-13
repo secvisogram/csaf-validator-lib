@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import { walkPath } from '../lib/walkPaths.js'
 
 /**
