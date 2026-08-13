@@ -1,4 +1,3 @@
-import assert from 'node:assert/strict'
 import csafAjv from '../../csaf_2_1/csafAjv.js'
 
 describe('mandatoryTest_6_1_60_1', function () {
@@ -19,6 +18,6 @@ describe('mandatoryTest_6_1_60_1', function () {
       csafAjv.getSchema = originalGetSchema
     }
 
-    assert.deepEqual(result, { errors: [], isValid: true })
+    expect(result).to.deep.equal({ errors: [], isValid: true })
   })
 })
