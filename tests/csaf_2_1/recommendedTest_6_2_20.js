@@ -1,14 +1,12 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_20 } from '../../csaf_2_1/recommendedTests.js'
 
 const SCHEMA_URL = 'https://example.com/my-extension/schema/1.0.0.json'
 
 describe('recommendedTest_6_2_20', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_20({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_20({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('returns no warning when $schema is not a string (root x_extensions)', function () {
@@ -16,7 +14,7 @@ describe('recommendedTest_6_2_20', function () {
       x_extensions: [{ category: { type: 'string' } }],
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('warns for x_extensions at root level', function () {
@@ -24,8 +22,8 @@ describe('recommendedTest_6_2_20', function () {
       x_extensions: [{ $schema: SCHEMA_URL }],
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(result.warnings[0].instancePath, '/x_extensions/0/$schema')
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal('/x_extensions/0/$schema')
   })
 
   it('warns for x_extensions in document', function () {
@@ -35,9 +33,8 @@ describe('recommendedTest_6_2_20', function () {
       },
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/document/x_extensions/0/$schema'
     )
   })
@@ -49,9 +46,8 @@ describe('recommendedTest_6_2_20', function () {
       },
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/full_product_names/0/x_extensions/0/$schema'
     )
   })
@@ -63,9 +59,8 @@ describe('recommendedTest_6_2_20', function () {
       },
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/branches/0/product/x_extensions/0/$schema'
     )
   })
@@ -83,9 +78,8 @@ describe('recommendedTest_6_2_20', function () {
       },
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/branches/0/branches/0/product/x_extensions/0/$schema'
     )
   })
@@ -99,9 +93,8 @@ describe('recommendedTest_6_2_20', function () {
       },
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/product_paths/0/full_product_name/x_extensions/0/$schema'
     )
   })
@@ -111,9 +104,8 @@ describe('recommendedTest_6_2_20', function () {
       vulnerabilities: [{ x_extensions: [{ $schema: SCHEMA_URL }] }],
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/vulnerabilities/0/x_extensions/0/$schema'
     )
   })
@@ -127,9 +119,8 @@ describe('recommendedTest_6_2_20', function () {
       ],
     }
     const result = recommendedTest_6_2_20(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/vulnerabilities/0/metrics/0/content/x_extensions/0/$schema'
     )
   })
