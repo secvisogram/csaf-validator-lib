@@ -1,4 +1,3 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_60_2 } from '../../csaf_2_1/mandatoryTests.js'
 
 describe('mandatoryTest_6_1_60_2', function () {
@@ -14,12 +13,11 @@ describe('mandatoryTest_6_1_60_2', function () {
       ],
     })
 
-    assert.equal(result.isValid, true)
-    assert.equal(result.errors.length, 0)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(result.warnings[0].instancePath, '/x_extensions/0')
-    assert.match(
-      result.warnings[0].message,
+    expect(result.isValid).to.equal(true)
+    expect(result.errors.length).to.equal(0)
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal('/x_extensions/0')
+    expect(result.warnings[0].message).to.match(
       /https:\/\/example\.com\/csaf\/extension\/unknown_1\.0\.0\.json/
     )
   })
@@ -29,8 +27,8 @@ describe('mandatoryTest_6_1_60_2', function () {
       x_extensions: [{ category: 'supplementary', content: {} }],
     })
 
-    assert.equal(result.isValid, true)
-    assert.equal(result.errors.length, 0)
-    assert.equal(result.warnings.length, 0)
+    expect(result.isValid).to.equal(true)
+    expect(result.errors.length).to.equal(0)
+    expect(result.warnings.length).to.equal(0)
   })
 })

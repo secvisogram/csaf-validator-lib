@@ -1,7 +1,3 @@
-import { readFile } from 'node:fs/promises'
-import { readFileSync } from 'node:fs'
-import assert from 'node:assert/strict'
-import { getGlobalDispatcher, MockAgent, setGlobalDispatcher } from 'undici'
 import * as informative from '../../csaf_2_1/informativeTests.js'
 import * as recommended from '../../csaf_2_1/recommendedTests.js'
 import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
@@ -119,37 +115,6 @@ const tests = new Map([
 // keys into `testDataModules`.
 const testDataDir = '../../csaf/csaf_2.1/test/validator/data/'
 
-/**
- * Mocks GitHub raw-content requests for extension schemas so that tests
- * exercising csafAjv's dynamic `loadSchema` mechanism stay hermetic (no real
- * network access).
- *
- * @returns {MockAgent}
- */
-function extensionSchemaMockAgent() {
-  const mockAgent = new MockAgent()
-  mockAgent.disableNetConnect()
-
-  const pool = mockAgent.get('https://raw.githubusercontent.com')
-  for (const name of ['documentation-11', 'documentation-12']) {
-    const content = readFileSync(
-        new URL(`${name}/${name}-content_1.0.0.json`, extensionDataBaseUrl),
-        'utf-8'
-    )
-    pool
-        .intercept({
-          method: 'GET',
-          path: `/oasis-tcs/csaf/refs/heads/master/csaf_2.1/extension/data/valid/${name}/${name}-content_1.0.0.json`,
-        })
-        .reply(200, content, {
-          headers: { 'content-type': 'application/json' },
-        })
-        .persist()
-  }
-
-  return mockAgent
-}
-
 const testCasesModules = import.meta.glob(
   '../../csaf/csaf_2.1/test/validator/data/testcases.json',
   { eager: true, import: 'default' }
@@ -175,23 +140,38 @@ for (const [group, t] of testMap) {
       // CLI - not available in the Vitest browser project.
       // informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
       // lib/informativeTests/shared/testURL.js); a real browser sandbox can't
-      // make arbitrary cross-origin requests without CORS. Therefore we skip
-      // the tests here.
+      // make arbitrary cross-origin requests without CORS.
+      // mandatoryTest_6_1_60_2 needs undici's MockAgent (Node-only) for
+      // the GitHub schema fetches. Skip all of these in the browser project.
       const isSkipped =
         isBrowserRuntime &&
-        group === 'informative' &&
-        ['6.3.6', '6.3.7', '6.3.8'].includes(testId)
+        ((group === 'informative' &&
+          ['6.3.6', '6.3.7', '6.3.8'].includes(testId)) ||
+          (group === 'mandatory' && testId === '6.1.60.2'))
 
       if (isSkipped) continue
 
       describe(testId, function () {
         const mockedTestIds = new Set(['6.1.60.2'])
         if (mockedTestIds.has(testId)) {
-          const globalDispatcher = getGlobalDispatcher()
-          before(function () {
-            setGlobalDispatcher(extensionSchemaMockAgent())
+          // Dynamic (not static) import: `undici` has no browser build, and a
+          // static top-level import breaks Vite's browser-project bundling
+          // even though this branch is unreachable there (see `isSkipped`
+          // above, which excludes 6.1.60.2 from the browser project).
+          /** @type {import('undici').Dispatcher} */
+          let globalDispatcher
+          beforeAll(async function () {
+            const { getGlobalDispatcher, setGlobalDispatcher } = await import(
+              'undici'
+            )
+            const { extensionSchemaMockAgent } = await import(
+              '../shared/extensionSchemaMockAgent.js'
+            )
+            globalDispatcher = getGlobalDispatcher()
+            setGlobalDispatcher(await extensionSchemaMockAgent())
           })
-          after(function () {
+          afterAll(async function () {
+            const { setGlobalDispatcher } = await import('undici')
             setGlobalDispatcher(globalDispatcher)
           })
         }
