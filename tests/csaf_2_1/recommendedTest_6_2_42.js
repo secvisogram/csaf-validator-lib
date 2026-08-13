@@ -190,6 +190,23 @@ describe('recommendedTest_6_2_42', function () {
     ).toBe(0)
   })
 
+  it('warns without a category hint when the CPE index has no corresponding branch category', function () {
+    expect(
+      recommendedTest_6_2_42(
+        docWithBranches({
+          cpe: 'cpe:2.3:a:example:product_a:2.2.0:*:SP1:*:*:*:*:*',
+        })
+      ).warnings
+    ).toEqual([
+      {
+        instancePath:
+          '/product_tree/branches/0/branches/0/branches/0/product/product_identification_helper/cpe',
+        message:
+          'CPE has extra information at index 7 ("SP1") with no corresponding branch category',
+      },
+    ])
+  })
+
   it('skips invalid child branches that do not pass schema validation', function () {
     expect(
       recommendedTest_6_2_42({
