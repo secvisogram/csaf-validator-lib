@@ -1,14 +1,14 @@
-import assert from 'node:assert/strict'
-
 import { mandatoryTest_6_1_61 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_61.js'
 
 describe('mandatoryTest_6_1_61', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_61({ product_tree: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_61({ product_tree: 'mydoc' }).isValid).to.equal(
+      true
+    )
   })
 
   it('validates branches and skips invalid ones', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_61({
         product_tree: {
           branches: [
@@ -29,13 +29,12 @@ describe('mandatoryTest_6_1_61', function () {
             },
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('validates product_paths and skips invalid ones', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_61({
         product_tree: {
           product_paths: [
@@ -47,13 +46,12 @@ describe('mandatoryTest_6_1_61', function () {
             {},
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('detects invalid SKUs in branches', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_61({
         product_tree: {
           branches: [
@@ -66,13 +64,12 @@ describe('mandatoryTest_6_1_61', function () {
             },
           ],
         },
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 
   it('detects invalid SKUs in product_paths', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_61({
         product_tree: {
           product_paths: [
@@ -85,8 +82,7 @@ describe('mandatoryTest_6_1_61', function () {
             },
           ],
         },
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 })
