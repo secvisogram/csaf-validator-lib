@@ -1,12 +1,10 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_19 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_19', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_19({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_19({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('warns when cvss_v2 base metrics are missing', function () {
@@ -29,7 +27,7 @@ describe('recommendedTest_6_2_19', function () {
         },
       ],
     })
-    assert.equal(result.warnings.length, 1)
+    expect(result.warnings.length).to.equal(1)
   })
 
   it('warns when cvss_v3 vector is invalid', function () {
@@ -54,7 +52,7 @@ describe('recommendedTest_6_2_19', function () {
       ],
     })
     // calculatedValue === null → checkCVSS returns true → warning is issued
-    assert.equal(result.warnings.length, 1)
+    expect(result.warnings.length).to.equal(1)
   })
 
   it('warns when cvss_v2 vectorString is undefined (missing)', function () {
@@ -78,7 +76,7 @@ describe('recommendedTest_6_2_19', function () {
       ],
     })
     // calculatedValue === null → checkCVSS gibt true → Warning
-    assert.equal(result.warnings.length, 1)
+    expect(result.warnings.length).to.equal(1)
   })
 
   it('does not warn when cvss_v3 environmental score is 0', function () {
@@ -102,6 +100,6 @@ describe('recommendedTest_6_2_19', function () {
         },
       ],
     })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 })
