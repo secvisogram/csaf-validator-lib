@@ -1,4 +1,3 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_42 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_42.js'
 
 /**
@@ -38,18 +37,17 @@ function docWithBranches(productIdentificationHelper) {
 
 describe('recommendedTest_6_2_42', function () {
   it('returns no warnings for an empty document', function () {
-    assert.equal(recommendedTest_6_2_42({}).warnings.length, 0)
+    expect(recommendedTest_6_2_42({}).warnings.length).toBe(0)
   })
 
   it('returns no warnings when input fails schema validation (lines 107-108)', function () {
-    assert.equal(
-      recommendedTest_6_2_42({ product_tree: 'invalid' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_42({ product_tree: 'invalid' }).warnings.length
+    ).toBe(0)
   })
 
   it('skips branches without category and name', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42({
         product_tree: {
           branches: [
@@ -70,31 +68,28 @@ describe('recommendedTest_6_2_42', function () {
             },
           ],
         },
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).toBe(0)
   })
 
   it('skips CPE that does not start with "cpe:2.3:"', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42(
         docWithBranches({ cpe: 'cpe:/a:example:product_a:2.2.0' })
-      ).warnings.length,
-      0
-    )
+      ).warnings.length
+    ).toBe(0)
   })
 
   it('skips CPE that does not contain 13 colon-separated parts', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42(
         docWithBranches({ cpe: 'cpe:2.3:a:example:product_a' })
-      ).warnings.length,
-      0
-    )
+      ).warnings.length
+    ).toBe(0)
   })
 
   it('skips branch categories that have no CPE index mapping', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42({
         product_tree: {
           branches: [
@@ -117,13 +112,12 @@ describe('recommendedTest_6_2_42', function () {
             },
           ],
         },
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).toBe(0)
   })
 
   it('skips branch categories that have no PURL component mapping', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42({
         product_tree: {
           branches: [
@@ -146,64 +140,58 @@ describe('recommendedTest_6_2_42', function () {
             },
           ],
         },
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).toBe(0)
   })
 
   it('warns when CPE version does not match branch version', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42(
         docWithBranches({
           cpe: 'cpe:2.3:a:example:product_a:9.9.9:*:*:*:*:*:*:*',
         })
-      ).warnings.length,
-      1
-    )
+      ).warnings.length
+    ).toBe(1)
   })
 
   it('warns when PURL component contains a wildcard but branch name does not', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42(
         docWithBranches({ purls: ['pkg:generic/example/product_a@2.2.*'] })
-      ).warnings.length,
-      1
-    )
+      ).warnings.length
+    ).toBe(1)
   })
 
   it('warns when CPE counterpart for branch category is not set', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42(
         docWithBranches({
           cpe: 'cpe:2.3:a:example:product_a:*:*:*:*:*:*:*:*',
         })
-      ).warnings.length,
-      1
-    )
+      ).warnings.length
+    ).toBe(1)
   })
 
   it('warns when CPE counterpart contains a wildcard but branch name does not', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42(
         docWithBranches({
           cpe: 'cpe:2.3:a:example:product_a:2.2.*:*:*:*:*:*:*:*',
         })
-      ).warnings.length,
-      1
-    )
+      ).warnings.length
+    ).toBe(1)
   })
 
   it('returns no warnings for an invalid PURL string', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42(
         docWithBranches({ purls: ['this-is-not-a-valid-purl'] })
-      ).warnings.length,
-      0
-    )
+      ).warnings.length
+    ).toBe(0)
   })
 
   it('skips invalid child branches that do not pass schema validation', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_42({
         product_tree: {
           branches: [
@@ -214,8 +202,7 @@ describe('recommendedTest_6_2_42', function () {
             },
           ],
         },
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).toBe(0)
   })
 })
