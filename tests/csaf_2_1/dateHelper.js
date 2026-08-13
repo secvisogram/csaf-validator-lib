@@ -1,4 +1,3 @@
-import assert from 'node:assert/strict'
 import { validateTimestamp } from '../../csaf_2_1/dateHelper.js'
 
 describe('csaf_2_1/dateHelper', function () {
@@ -78,7 +77,7 @@ describe('csaf_2_1/dateHelper', function () {
 
     testCases.forEach((testCase) => {
       it(`${testCase[0]} -> ${testCase[1]}`, () => {
-        assert.deepEqual(validateTimestamp(testCase[0]), testCase[1])
+        expect(validateTimestamp(testCase[0])).to.deep.equal(testCase[1])
       })
     })
   })
