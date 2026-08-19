@@ -29,7 +29,7 @@ export async function mandatoryTest_6_1_60_2(doc) {
     await walkPath(doc, path, async (instancePath, value) => {
       const schemaUrl =
         value && typeof value === 'object' && '$schema' in value
-          ? /** @type {{ $schema: unknown }} */ (value).$schema
+          ? value.$schema
           : undefined
 
       if (typeof schemaUrl !== 'string') return
