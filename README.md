@@ -365,7 +365,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.20
 - Informative Test 6.3.21.2
 - Informative Test 6.3.21.7
-- Informative Test 6.3.21.9
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -521,6 +520,7 @@ export const informativeTest_6_3_21_4: DocumentTest
 export const informativeTest_6_3_21_5: DocumentTest
 export const informativeTest_6_3_21_6: DocumentTest
 export const informativeTest_6_3_21_8: DocumentTest
+export const informativeTest_6_3_21_9: DocumentTest
 export const informativeTest_6_3_22: DocumentTest
 ```
 
