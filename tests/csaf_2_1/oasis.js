@@ -17,7 +17,6 @@ const excluded = [
   '6.1.55',
   '6.1.59',
   '6.1.60.1',
-  '6.1.60.2',
   '6.1.60.3',
   '6.2.19',
   '6.2.20',
@@ -139,16 +138,42 @@ for (const [group, t] of testMap) {
       // CLI - not available in the Vitest browser project.
       // informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
       // lib/informativeTests/shared/testURL.js); a real browser sandbox can't
-      // make arbitrary cross-origin requests without CORS. Therefore we skip
-      // the tests here.
+      // make arbitrary cross-origin requests without CORS.
+      // mandatoryTest_6_1_60_2 needs undici's MockAgent (Node-only) for
+      // the GitHub schema fetches. Skip all of these in the browser project.
       const isSkipped =
         isBrowserRuntime &&
-        group === 'informative' &&
-        ['6.3.6', '6.3.7', '6.3.8'].includes(testId)
+        ((group === 'informative' &&
+          ['6.3.6', '6.3.7', '6.3.8'].includes(testId)) ||
+          (group === 'mandatory' && testId === '6.1.60.2'))
 
       if (isSkipped) continue
 
       describe(testId, function () {
+        const mockedTestIds = new Set(['6.1.60.2'])
+        if (mockedTestIds.has(testId)) {
+          // Dynamic (not static) import: `undici` has no browser build, and a
+          // static top-level import breaks Vite's browser-project bundling
+          // even though this branch is unreachable there (see `isSkipped`
+          // above, which excludes 6.1.60.2 from the browser project).
+          /** @type {import('undici').Dispatcher} */
+          let globalDispatcher
+          beforeAll(async function () {
+            const { getGlobalDispatcher, setGlobalDispatcher } = await import(
+              'undici'
+            )
+            const { extensionSchemaMockAgent } = await import(
+              '../shared/extensionSchemaMockAgent.js'
+            )
+            globalDispatcher = getGlobalDispatcher()
+            setGlobalDispatcher(await extensionSchemaMockAgent())
+          })
+          afterAll(async function () {
+            const { setGlobalDispatcher } = await import('undici')
+            setGlobalDispatcher(globalDispatcher)
+          })
+        }
+
         for (const [type, testSpecs] of u) {
           const filteredTestSpecs = testSpecs.filter(
             (testSpec) => !skippedTests.has(testSpec.name)

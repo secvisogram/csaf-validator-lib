@@ -14,7 +14,67 @@ import selectionList_2_0_0Schema from './csafAjv/SelectionList_2_0_0.schema.js'
 
 import { validateTimestamp } from './dateHelper.js'
 
-const csafAjv = new Ajv2020({ strict: false, allErrors: true })
+/**
+ * Cache of in-flight/loaded remote schemas, keyed by URI, so that a schema
+ * referenced multiple times (e.g. by several `x_extensions` in the same
+ * document) is only fetched once per process.
+ *
+ * @type {Map<string, Promise<import('ajv').AnySchemaObject>>}
+ */
+const remoteSchemaCache = new Map()
+
+/**
+ * Loader used by ajv to resolve `$ref`s that point to schemas which are not
+ * already registered via `addSchema` above (e.g. CSAF extension schemas
+ * declared via a document's own `$schema` property).
+ *
+ * SECURITY NOTE: `uri` can originate directly from the document being
+ * validated (attacker-controlled). Restricting the protocol to `https:`
+ * blocks the obvious SSRF vectors (`file:`, plaintext `http:`), but not
+ * requests to internal hosts reachable via `https:`. Further hardening
+ * (request timeout, response size limit, redirect handling) is not
+ * implemented yet and should be added for security-sensitive/production
+ * environments.
+ *
+ * @param {string} uri
+ * @returns {Promise<import('ajv').AnySchemaObject>}
+ */
+async function loadSchema(uri) {
+  const cached = remoteSchemaCache.get(uri)
+  if (cached) return cached
+
+  const promise = (async () => {
+    let parsed
+    try {
+      parsed = new URL(uri)
+    } catch {
+      throw new Error(`Cannot load schema "${uri}": not a valid URL`)
+    }
+    if (parsed.protocol !== 'https:') {
+      throw new Error(
+        `Cannot load schema "${uri}": only "https:" URLs may be loaded, got "${parsed.protocol}"`
+      )
+    }
+
+    const res = await fetch(uri, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    })
+    if (!res.ok) {
+      throw new Error(
+        `Cannot load schema "${uri}": received HTTP status ${res.status}`
+      )
+    }
+    return /** @type {Promise<import('ajv').AnySchemaObject>} */ (res.json())
+  })()
+
+  remoteSchemaCache.set(uri, promise)
+  // Don't keep failed lookups cached - allow a retry on the next call.
+  promise.catch(() => remoteSchemaCache.delete(uri))
+  return promise
+}
+
+const csafAjv = new Ajv2020({ strict: false, allErrors: true, loadSchema })
 addFormats.default(csafAjv)
 csafAjv.addMetaSchema(
   draft_07_schema,
@@ -26,7 +86,7 @@ csafAjv.addSchema(cvss_v3_1, 'https://www.first.org/cvss/cvss-v3.1.json')
 csafAjv.addSchema(cvss_meta, 'https://www.first.org/cvss/meta.json')
 csafAjv.addSchema(
   content_schema,
-  'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metaschema.json#/$defs/content_schema_t'
+  'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metaschema.json'
 )
 csafAjv.addSchema(
   meta_format_assertion,
