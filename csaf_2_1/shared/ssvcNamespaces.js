@@ -54,6 +54,5 @@ export function isRegisteredSsvcNamespace(namespace) {
  * @returns {boolean}
  */
 export function hasSsvcNamespaceExtension(namespace) {
-    return namespace.includes('/')
+  return namespace.includes('/')
 }
-
