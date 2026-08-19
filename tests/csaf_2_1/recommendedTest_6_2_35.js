@@ -1,15 +1,13 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_35 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_35', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_35({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_35({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
   it('skips empty objects', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_35({
         document: {
           distribution: {
@@ -44,13 +42,12 @@ describe('recommendedTest_6_2_35', function () {
             ],
           },
         ],
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
 
   it('skips selections without a namespace', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_35({
         document: {
           distribution: { tlp: { label: 'CLEAR' } },
@@ -68,13 +65,12 @@ describe('recommendedTest_6_2_35', function () {
             ],
           },
         ],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('warns for special purpose namespaces', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_35({
         document: {
           distribution: { tlp: { label: 'CLEAR' } },
@@ -95,9 +91,8 @@ describe('recommendedTest_6_2_35', function () {
             ],
           },
         ],
-      }).warnings.length,
-      2
-    )
+      }).warnings.length
+    ).to.equal(2)
   })
 
   it('warns for unregistered namespaces that look like special purpose (x_example.something)', function () {
@@ -122,13 +117,13 @@ describe('recommendedTest_6_2_35', function () {
         },
       ],
     })
-    assert.equal(result.warnings.length, 2)
-    assert.ok(
+    expect(result.warnings.length).to.equal(2)
+    expect(
       result.warnings.every((w) =>
         w.message.includes('unregistered namespace')
       ),
       'expected "unregistered namespace" message for x_example.something and x_test.org forms'
-    )
+    ).to.be.ok
   })
 
   it('warns for single-label unregistered namespace without dot (x_somedomain#fragment)', function () {
@@ -150,11 +145,11 @@ describe('recommendedTest_6_2_35', function () {
         },
       ],
     })
-    assert.equal(result.warnings.length, 1)
-    assert.ok(
+    expect(result.warnings.length).to.equal(1)
+    expect(
       result.warnings[0].message.includes('unregistered namespace'),
       'expected "unregistered namespace" message for x_somedomain#fragment'
-    )
+    ).to.be.ok
   })
 
   it('warns for fragment-free unregistered namespace (x_com.example)', function () {
@@ -176,10 +171,10 @@ describe('recommendedTest_6_2_35', function () {
         },
       ],
     })
-    assert.equal(result.warnings.length, 1)
-    assert.ok(
+    expect(result.warnings.length).to.equal(1)
+    expect(
       result.warnings[0].message.includes('unregistered namespace'),
       'expected "unregistered namespace" message for x_com.example (no fragment)'
-    )
+    ).to.be.ok
   })
 })
