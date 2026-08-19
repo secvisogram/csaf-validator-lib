@@ -1,5 +1,4 @@
 import { isCanonicalUrl } from '../lib/shared/urlHelper.js'
-import { expect } from 'chai'
 
 describe('test url helper', function () {
   it('test isCanonicalUrl', function () {
