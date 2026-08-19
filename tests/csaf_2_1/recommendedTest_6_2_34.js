@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_34 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_34', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_34({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_34({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('skips metric entries without selections', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_34({
         vulnerabilities: [
           {
@@ -23,8 +21,7 @@ describe('recommendedTest_6_2_34', function () {
             ],
           },
         ],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 })
