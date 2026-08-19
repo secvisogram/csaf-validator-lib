@@ -41,9 +41,9 @@ jobs:
       id: test-report
       with:
         artifact: test-results-${{ matrix.node-version }}
-        name: Mocha Tests (node v${{ matrix.node-version }})
-        path: test-results.json
-        reporter: mocha-json
+        name: Vitest Tests (node v${{ matrix.node-version }})
+        path: test-results.xml
+        reporter: jest-junit
     - name: c8 coverage report
 
       #

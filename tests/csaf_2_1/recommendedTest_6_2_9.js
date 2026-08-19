@@ -1,4 +1,3 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_9 } from '../../csaf_2_1/recommendedTests.js'
 
 /** Helper: build a hash entry with the given algorithms */
@@ -11,10 +10,9 @@ function makeHash(/** @type {string[]} */ algorithms) {
 
 describe('recommendedTest_6_2_9', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_9({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_9({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('warns when sha1 is the only algorithm in branches', function () {
@@ -53,9 +51,8 @@ describe('recommendedTest_6_2_9', function () {
       },
     }
     const result = recommendedTest_6_2_9(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/branches/0/branches/1/product/product_identification_helper/hashes/0/file_hashes'
     )
   })
@@ -86,9 +83,8 @@ describe('recommendedTest_6_2_9', function () {
       },
     }
     const result = recommendedTest_6_2_9(doc)
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/product_paths/1/full_product_name/product_identification_helper/hashes/0/file_hashes'
     )
   })
