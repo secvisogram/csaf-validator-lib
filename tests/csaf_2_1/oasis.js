@@ -64,8 +64,6 @@ const excluded = [
  * Once the issues are resolved, these should be removed from this list and the tests should be re-enabled.
  */
 const skippedTests = new Set([
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-14-32.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
