@@ -1,6 +1,4 @@
-import assert from 'node:assert'
 import { informativeTest_6_3_12 } from '../../csaf_2_1/informativeTests.js'
-import { expect } from 'chai'
 
 const failingTestWithNotConsideredObject = {
   product_tree: {
@@ -33,7 +31,9 @@ const failingTestWithNotConsideredObject = {
 
 describe('informativeTest_6_3_12', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(informativeTest_6_3_12({ document: 'mydoc' }).infos.length, 0)
+    expect(informativeTest_6_3_12({ document: 'mydoc' }).infos.length).to.equal(
+      0
+    )
   })
 
   it('test input schema with not considered json object in vulnerabilities', async function () {

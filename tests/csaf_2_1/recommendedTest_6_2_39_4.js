@@ -1,11 +1,9 @@
 import { recommendedTest_6_2_39_4 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_39_4.js'
-import { expect } from 'chai'
-import assert from 'node:assert'
 import { getTranslationInDocumentLang } from '../../lib/shared/languageSpecificTranslation.js'
 
 describe('recommendedTest_6_2_39_4', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(recommendedTest_6_2_39_4({}).warnings.length, 0)
+    expect(recommendedTest_6_2_39_4({}).warnings.length).to.equal(0)
   })
 
   it('only runs on valid category', function () {
@@ -13,8 +11,8 @@ describe('recommendedTest_6_2_39_4', function () {
       document: { category: '123', license_expression: 'MIT' },
     })
 
-    assert.equal(result.warnings.length, 0)
-    assert.equal(result.infos.length, 0)
+    expect(result.warnings.length).to.equal(0)
+    expect(result.infos.length).to.equal(0)
   })
 
   it('only runs on valid language', function () {
@@ -25,8 +23,8 @@ describe('recommendedTest_6_2_39_4', function () {
         license_expression: 'MIT',
       },
     })
-    assert.equal(result.warnings.length, 0)
-    assert.equal(result.infos.length, 1)
+    expect(result.warnings.length).to.equal(0)
+    expect(result.infos.length).to.equal(1)
   })
 
   it('check get superseding_document in document lang', function () {

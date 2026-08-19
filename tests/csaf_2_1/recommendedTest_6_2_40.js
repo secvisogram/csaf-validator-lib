@@ -1,12 +1,11 @@
-import assert from 'node:assert/strict'
 import { recommendedTest_6_2_40 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_40.js'
 
 describe('recommendedTest_6_2_40', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(recommendedTest_6_2_40({}).warnings.length, 0)
+    expect(recommendedTest_6_2_40({}).warnings.length).to.equal(0)
   })
   it('skips empty objects', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_40({
         document: {
           notes: [
@@ -18,12 +17,11 @@ describe('recommendedTest_6_2_40', function () {
             {}, // skip this empty object
           ],
         },
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
   it('no language specific translation', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_40({
         document: {
           lang: '123456789',
@@ -36,8 +34,7 @@ describe('recommendedTest_6_2_40', function () {
             },
           ],
         },
-      }).infos.length,
-      1
-    )
+      }).infos.length
+    ).to.equal(1)
   })
 })
