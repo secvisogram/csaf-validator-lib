@@ -25,4 +25,164 @@ describe('mandatoryTest_6_1_21', function () {
     expect(result.isValid).to.equal(true)
     expect(result.errors.length).to.equal(0)
   })
+
+  it('passes an incomplete revision history (2, 3, 4)', function () {
+    // Does not start with version 1
+    const result = mandatoryTest_6_1_21({
+      document: {
+        tracking: {
+          revision_history: [
+            {
+              date: '2026-03-09T11:00:00.000Z',
+              number: '2.0.0',
+              summary: '2.0.0',
+            },
+            {
+              date: '2026-03-12T11:00:00.000Z',
+              number: '3.0.0',
+              summary: '3.0.0',
+            },
+            {
+              date: '2026-03-13T11:00:00.000Z',
+              number: '4.0.0',
+              summary: '4.0.0',
+            },
+          ],
+        },
+      },
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.equal(1)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: `/document/tracking/revision_history`,
+        message: `revision history does not start with a version of 0 or 1 when sorted by date`,
+      },
+    ])
+  })
+
+  it('passes an incomplete revision history (1, 3, 4, 5, 6, 7)', function () {
+    // Case 1 from issue: https://github.com/secvisogram/secvisogram/issues/772
+    const result = mandatoryTest_6_1_21({
+      document: {
+        tracking: {
+          revision_history: [
+            {
+              date: '2026-03-09T11:00:00.000Z',
+              number: '1.0.0',
+              summary: '1.0.0',
+            },
+            {
+              date: '2026-03-11T11:00:00.000Z',
+              number: '3.0.0',
+              summary: '3.0.0',
+            },
+            {
+              date: '2026-03-12T11:00:00.000Z',
+              number: '4.0.0',
+              summary: '4.0.0',
+            },
+            {
+              date: '2026-03-13T11:00:00.000Z',
+              number: '5.0.0',
+              summary: '5.0.0',
+            },
+            {
+              date: '2026-03-14T11:00:00.000Z',
+              number: '6.0.0',
+              summary: '6.0.0',
+            },
+            {
+              date: '2026-03-15T11:00:00.000Z',
+              number: '7.0.0',
+              summary: '7.0.0',
+            },
+          ],
+        },
+      },
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.equal(1)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: `/document/tracking/revision_history`,
+        message: `major version 2 was omitted`,
+      },
+    ])
+  })
+
+  it('passes an incomplete revision history (1, 3, 5, 7)', function () {
+    // Case 2 from issue: https://github.com/secvisogram/secvisogram/issues/772
+    const result = mandatoryTest_6_1_21({
+      document: {
+        tracking: {
+          revision_history: [
+            {
+              date: '2026-03-09T11:00:00.000Z',
+              number: '1.0.0',
+              summary: '1.0.0',
+            },
+            {
+              date: '2026-03-11T11:00:00.000Z',
+              number: '3.0.0',
+              summary: '3.0.0',
+            },
+            {
+              date: '2026-03-13T11:00:00.000Z',
+              number: '5.0.0',
+              summary: '5.0.0',
+            },
+            {
+              date: '2026-03-15T11:00:00.000Z',
+              number: '7.0.0',
+              summary: '7.0.0',
+            },
+          ],
+        },
+      },
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.equal(1)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: `/document/tracking/revision_history`,
+        message: `major version 2 was omitted`,
+      },
+    ])
+  })
+
+  it('passes an incomplete revision history (1, 2, 5)', function () {
+    // Gap with two missing revisions (3 & 4)
+    const result = mandatoryTest_6_1_21({
+      document: {
+        tracking: {
+          revision_history: [
+            {
+              date: '2026-03-09T11:00:00.000Z',
+              number: '1.0.0',
+              summary: '1.0.0',
+            },
+            {
+              date: '2026-03-10T11:00:00.000Z',
+              number: '2.0.0',
+              summary: '2.0.0',
+            },
+            {
+              date: '2026-03-13T11:00:00.000Z',
+              number: '5.0.0',
+              summary: '5.0.0',
+            },
+          ],
+        },
+      },
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.equal(1)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: `/document/tracking/revision_history`,
+        message: `major version 3 was omitted`,
+      },
+    ])
+  })
 })
