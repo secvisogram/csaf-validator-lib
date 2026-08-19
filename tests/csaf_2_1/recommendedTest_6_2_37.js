@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_37 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_37', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_37({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_37({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('does not warn when content has no ssvc_v2 property', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_37({
         vulnerabilities: [
           {
@@ -21,13 +19,12 @@ describe('recommendedTest_6_2_37', function () {
             ],
           },
         ],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('does not warn when ssvc_v2 has no selections property', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_37({
         vulnerabilities: [
           {
@@ -42,8 +39,7 @@ describe('recommendedTest_6_2_37', function () {
             ],
           },
         ],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 })
