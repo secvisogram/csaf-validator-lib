@@ -38,6 +38,7 @@
     "mandatoryTests.js",
     "optionalTests.js",
     "README.md",
+    "rvisc.js",
     "schemaTests.js",
     "strip.js",
     "validate.js",
@@ -104,6 +105,10 @@
     "./lib/shared/cwec.js": {
       "types": "./build/lib/shared/cwec.d.ts",
       "import": "./lib/shared/cwec.js"
+    },
+    "./rvisc.js": {
+      "types": "./build/rvisc.d.ts",
+      "import": "./rvisc.js"
     },
     "./lib/shared/cvss2.js": {
       "types": "./build/lib/shared/cvss2.d.ts",
