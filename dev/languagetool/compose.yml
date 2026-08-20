@@ -1,0 +1,5 @@
+services:
+  languagetool:
+    image: collabora/languagetool
+    ports:
+      - 8010:8010
