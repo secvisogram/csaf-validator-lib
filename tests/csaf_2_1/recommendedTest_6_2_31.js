@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_31 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_31', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_31({ product_tree: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_31({ product_tree: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('test input schema without branches', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_31({
         document: {},
         product_tree: {
@@ -24,13 +22,12 @@ describe('recommendedTest_6_2_31', function () {
             },
           ],
         },
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
 
   it('test input schema without full_product_names', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_31({
         document: {},
         product_tree: {
@@ -49,13 +46,12 @@ describe('recommendedTest_6_2_31', function () {
             },
           ],
         },
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
 
   it('test product_path with no subpaths does not count as valid reference', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_31({
         document: {},
         product_tree: {
@@ -77,13 +73,12 @@ describe('recommendedTest_6_2_31', function () {
             },
           ],
         },
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
 
   it('skips invalid branches and processes valid ones', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_31({
         document: {},
         product_tree: {
@@ -108,9 +103,8 @@ describe('recommendedTest_6_2_31', function () {
             },
           ],
         },
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
 
   it('skips full_product_names entry without product_id', function () {
@@ -126,7 +120,7 @@ describe('recommendedTest_6_2_31', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 0)
+    expect(result.warnings.length).to.equal(0)
   })
 
   it('warns with correct instancePath for product_paths[*].full_product_name', function () {
@@ -147,15 +141,14 @@ describe('recommendedTest_6_2_31', function () {
         ],
       },
     })
-    assert.equal(result.warnings.length, 1)
-    assert.equal(
-      result.warnings[0].instancePath,
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/product_paths/0/full_product_name'
     )
   })
 
   it('no warning when product_paths full_product_name has empty serial and model numbers', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_31({
         document: {},
         product_tree: {
@@ -173,13 +166,12 @@ describe('recommendedTest_6_2_31', function () {
             },
           ],
         },
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('no warning when product is referenced as beginning_product_reference', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_31({
         document: {},
         product_tree: {
@@ -201,8 +193,7 @@ describe('recommendedTest_6_2_31', function () {
             },
           ],
         },
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 })
