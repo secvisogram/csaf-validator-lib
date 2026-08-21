@@ -25,6 +25,7 @@ export default {
   title: 'JSON Schema for Common Vulnerability Scoring System version 3.1',
   $id: 'https://www.first.org/cvss/cvss-v3.1.json?20190610',
   type: 'object',
+  additionalProperties: false,
   $defs: {
     attackVectorType: {
       type: 'string',
