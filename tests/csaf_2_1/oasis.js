@@ -62,7 +62,6 @@ const excluded = [
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-14-32.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
@@ -70,7 +69,7 @@ const skippedTests = new Set([
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
-
+/** @typedef {import('../../lib/shared/types.js').TestResult} TestResult */
 /** @typedef {Map<string, DocumentTest>} TestMap */
 
 /**
@@ -89,8 +88,11 @@ const skippedTests = new Set([
 /**
  * @typedef {object} TestSpec
  * @property {string} name
- * @property {boolean} valid
+ * @property {boolean} valid - The valid field indicates whether the document is valid against all basic tests
  */
+
+const TYPE_FAILURES = 'failures'
+const TYPE_VALID = 'valid' //The entry in the array indicates that the test case is valid against the corresponding test.
 
 const tests = new Map([
   [
@@ -154,11 +156,11 @@ for (const [group, t] of testMap) {
           describe(type, function () {
             for (const testSpec of filteredTestSpecs) {
               it(testSpec.name, async () => {
-                const test = tests
+                const testToExecute = tests
                   .get(group)
                   ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
 
-                if (!test)
+                if (!testToExecute)
                   throw new Error(
                     `no matching test found for group=${group}, ${testId}`
                   )
@@ -167,32 +169,37 @@ for (const [group, t] of testMap) {
                   `${testDataDir}${testSpec.name}`
                 ]()
 
-                const result = await test(doc)
-
+                /** @type {TestResult} */
+                let primaryExecutionResult = await testToExecute(doc)
                 if (group === 'mandatory') {
-                  expect(result.isValid).to.equal(testSpec.valid)
+                  const validForCurrentTest = type === TYPE_VALID
+                  expect(primaryExecutionResult.isValid).to.equal(
+                    validForCurrentTest
+                  )
                   expect(
-                    Boolean(result.errors?.length),
-                    type === 'failures'
+                    Boolean(primaryExecutionResult.errors?.length),
+                    type === TYPE_FAILURES
                       ? 'should have errors'
-                      : `should not have errors, but had ${result.errors?.length}`
-                  ).to.equal(type === 'failures')
+                      : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
+                  ).to.equal(type === TYPE_FAILURES)
                 } else {
-                  expect(result.isValid === undefined).to.equal(testSpec.valid)
+                  expect(primaryExecutionResult.isValid === undefined).to.equal(
+                    testSpec.valid
+                  )
 
                   if (group === 'recommended') {
                     expect(
-                      Boolean(result.warnings?.length),
-                      type === 'failures'
+                      Boolean(primaryExecutionResult.warnings?.length),
+                      type === TYPE_FAILURES
                         ? 'should have warnings'
-                        : `should not have warnings, but had ${result.warnings?.length}`
-                    ).to.equal(type === 'failures')
+                        : `should not have warnings, but had ${primaryExecutionResult.warnings?.length}`
+                    ).to.equal(type === TYPE_FAILURES)
                   } else if (group === 'informative') {
                     expect(
-                      Boolean(result.infos?.length),
-                      type === 'failures'
+                      Boolean(primaryExecutionResult.infos?.length),
+                      type === TYPE_FAILURES
                         ? 'should have infos'
-                        : `should not have infos, but had ${result.infos?.length}`
+                        : `should not have infos, but had ${primaryExecutionResult.infos?.length}`
                     ).to.equal(type === 'failures')
                   }
                 }
@@ -225,8 +232,8 @@ function parseTestCases() {
       new Map(testData.get(test.group)).set(
         test.id,
         new Map(testData.get(test.group)?.get(test.id))
-          .set('valid', valids)
-          .set('failures', failures)
+          .set(TYPE_VALID, valids)
+          .set(TYPE_FAILURES, failures)
       )
     )
   }
