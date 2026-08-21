@@ -59,20 +59,8 @@ const validateInput = ajv.compile(inputSchema)
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
  * @typedef {NonNullable<FullProductName['product_identification_helper']>} ProductIdentificationHelper
- * @typedef {{ category: string; name: string }} BranchPathEntry
+ * @typedef {{ category: string; name: string }} CategorizedBranchName
  */
-
-/** @type {Record<string, number>} */
-const CATEGORY_TO_CPE_INDEX = {
-  vendor: 3,
-  product_name: 4,
-  product_version: 5,
-  patch_level: 6,
-  service_pack: 6,
-  language: 8,
-  platform: 10,
-  architecture: 11,
-}
 
 /** @type {Record<number, string[]>} */
 const CPE_INDEX_TO_CATEGORIES = {
@@ -88,12 +76,22 @@ const CPE_INDEX_TO_CATEGORIES = {
   12: [], // index 12 = other: no CSAF branch category corresponds to this CPE component
 }
 
-/** @type {Record<string, string>} */
+/** @type {Record<string, number>} */
+const CATEGORY_TO_CPE_INDEX = Object.fromEntries(
+  Object.entries(CPE_INDEX_TO_CATEGORIES).flatMap(([indexStr, categories]) =>
+    categories.map((category) => [category, Number(indexStr)])
+  )
+)
+
+/** @type {Record<string, keyof PackageURL>} */
 const CATEGORY_TO_PURL_COMPONENT = {
   vendor: 'namespace',
   product_name: 'name',
   product_version: 'version',
 }
+
+// CPE 2.3 formatted string always consists of exactly 13 colon-separated parts.
+const CPE_2_3_PART_COUNT = 13
 
 /**
  * This implements the recommended test 6.2.42 of the CSAF 2.1 standard.
@@ -118,49 +116,50 @@ export function recommendedTest_6_2_42(doc) {
 }
 
 /**
- * @param {Branch} branch
- * @param {string} basePath
- * @param {BranchPathEntry[]} categorizedStrings
- * @param {Array<{ instancePath: string; message: string }>} warnings
- * @param {boolean} partialPath
+ * @param {Branch} branch - The branch to check
+ * @param {string} basePath - The base path in the document for the current branch
+ * @param {CategorizedBranchName[]} categorizedBranchNames - The path of categories and names leading to the current branch
+ * @param {Array<{ instancePath: string; message: string }>} warnings - The array to collect warnings
+ * @param {boolean} hasMissingCategoryOrName - Is the current path incomplete (i.e., missing category or name)
  */
 function checkBranch(
   branch,
   basePath,
-  categorizedStrings,
+  categorizedBranchNames,
   warnings,
-  partialPath = false
+  hasMissingCategoryOrName = false
 ) {
   if (!validateBranch(branch)) return
 
   const { category, name } = branch
-  const currentCategorizedStrings =
+  const currentCategorizedBranchName =
     category && name
-      ? [...categorizedStrings, { category, name }]
-      : categorizedStrings
-  const currentPartialPath = partialPath || !category || !name
+      ? [...categorizedBranchNames, { category, name }]
+      : categorizedBranchNames
+  const currentHasMissingCategoryOrName =
+    hasMissingCategoryOrName || !category || !name
 
-  const pih /** @type {ProductIdentificationHelper} */ =
+  const productIdentificationHelper /** @type {ProductIdentificationHelper} */ =
     branch.product?.product_identification_helper
-  if (pih) {
-    const pihPath = `${basePath}/product/product_identification_helper`
+  if (productIdentificationHelper) {
+    const productIdentificationHelperPath = `${basePath}/product/product_identification_helper`
 
-    if (typeof pih.cpe === 'string') {
+    if (typeof productIdentificationHelper.cpe === 'string') {
       checkCpe(
-        pih.cpe,
-        currentCategorizedStrings,
-        `${pihPath}/cpe`,
+        productIdentificationHelper.cpe,
+        currentCategorizedBranchName,
+        `${productIdentificationHelperPath}/cpe`,
         warnings,
-        currentPartialPath
+        currentHasMissingCategoryOrName
       )
     }
 
-    pih.purls?.forEach((purlStr, purlIndex) => {
+    productIdentificationHelper.purls?.forEach((purlStr, purlIndex) => {
       if (typeof purlStr === 'string') {
         checkPurl(
           purlStr,
-          currentCategorizedStrings,
-          `${pihPath}/purls/${purlIndex}`,
+          currentCategorizedBranchName,
+          `${productIdentificationHelperPath}/purls/${purlIndex}`,
           warnings
         )
       }
@@ -171,35 +170,39 @@ function checkBranch(
     checkBranch(
       childBranch,
       `${basePath}/branches/${childIndex}`,
-      currentCategorizedStrings,
+      currentCategorizedBranchName,
       warnings,
-      currentPartialPath
+      currentHasMissingCategoryOrName
     )
   })
 }
 
 /**
- * @param {string} cpe
- * @param {BranchPathEntry[]} categorizedStrings
- * @param {string} instancePath
- * @param {Array<{ instancePath: string; message: string }>} warnings
- * @param {boolean} partialPath
+ * @param {string} cpe - The CPE string to check
+ * @param {CategorizedBranchName[]} categorizedBranchNames - The path of categories and names leading to the current branch
+ * @param {string} instancePath - The path in the document for the current CPE
+ * @param {Array<{ instancePath: string; message: string }>} warnings - The array to collect warnings
+ * @param {boolean} hasMissingCategoryOrName - Is the current path incomplete (i.e., missing category or name)
  */
 function checkCpe(
   cpe,
-  categorizedStrings,
+  categorizedBranchNames,
   instancePath,
   warnings,
-  partialPath = false
+  hasMissingCategoryOrName = false
 ) {
   if (!cpe.startsWith('cpe:2.3:')) return
 
   const parts = cpe.split(':')
-  if (parts.length !== 13) return
+  if (parts.length !== CPE_2_3_PART_COUNT) return
 
-  const presentCategories = new Set(categorizedStrings.map((b) => b.category))
+  const presentCategories = new Set(
+    categorizedBranchNames.map(
+      (categorizedBranchName) => categorizedBranchName.category
+    )
+  )
 
-  for (const { category, name } of categorizedStrings) {
+  for (const { category, name } of categorizedBranchNames) {
     const cpeIndex = CATEGORY_TO_CPE_INDEX[category]
     if (cpeIndex === undefined) continue
 
@@ -231,7 +234,7 @@ function checkCpe(
     }
   }
 
-  if (!partialPath) {
+  if (!hasMissingCategoryOrName) {
     for (const [indexStr, categories] of Object.entries(
       CPE_INDEX_TO_CATEGORIES
     )) {
@@ -239,8 +242,8 @@ function checkCpe(
       const cpeValue = parts[index]
 
       if (!isCpeNotSet(cpeValue)) {
-        const hasCorrespondingBranch = categories.some((cat) =>
-          presentCategories.has(cat)
+        const hasCorrespondingBranch = categories.some((category) =>
+          presentCategories.has(category)
         )
         if (!hasCorrespondingBranch) {
           const categoryHint =
@@ -258,12 +261,12 @@ function checkCpe(
 }
 
 /**
- * @param {string} purlStr
- * @param {BranchPathEntry[]} categorizedStrings
- * @param {string} instancePath
- * @param {Array<{ instancePath: string; message: string }>} warnings
+ * @param {string} purlStr - The PURL string to check
+ * @param {CategorizedBranchName[]} categorizedBranchNames - The path of categories and names leading to the current branch
+ * @param {string} instancePath - The path in the document for the current PURL
+ * @param {Array<{ instancePath: string; message: string }>} warnings - The array to collect warnings
  */
-function checkPurl(purlStr, categorizedStrings, instancePath, warnings) {
+function checkPurl(purlStr, categorizedBranchNames, instancePath, warnings) {
   let purl
   try {
     purl = PackageURL.fromString(purlStr)
@@ -271,12 +274,12 @@ function checkPurl(purlStr, categorizedStrings, instancePath, warnings) {
     return
   }
 
-  for (const { category, name } of categorizedStrings) {
+  for (const { category, name } of categorizedBranchNames) {
     const purlComponent = CATEGORY_TO_PURL_COMPONENT[category]
     if (!purlComponent) continue
 
     const purlValue = /** @type {string | null | undefined} */ (
-      purl[/** @type {keyof PackageURL} */ (purlComponent)]
+      purl[purlComponent]
     )
 
     if (!purlValue) {
