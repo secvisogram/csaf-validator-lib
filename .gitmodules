@@ -1,3 +1,9 @@
 [submodule "csaf"]
 	path = csaf
 	url = https://github.com/oasis-tcs/csaf.git
+[submodule "license-list-data"]
+	path = license-list-data
+	url = https://github.com/spdx/license-list-data.git
+[submodule "scancode-licensedb"]
+	path = scancode-licensedb
+	url = https://github.com/aboutcode-org/scancode-licensedb.git
