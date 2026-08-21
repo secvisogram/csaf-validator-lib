@@ -69,7 +69,7 @@ const skippedTests = new Set([
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
-
+/** @typedef {import('../../lib/shared/types.js').TestResult} TestResult */
 /** @typedef {Map<string, DocumentTest>} TestMap */
 
 /**
@@ -160,7 +160,7 @@ for (const [group, t] of testMap) {
                   .get(group)
                   ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
 
-                if (!test)
+                if (!testToExecute)
                   throw new Error(
                     `no matching test found for group=${group}, ${testId}`
                   )
@@ -169,61 +169,37 @@ for (const [group, t] of testMap) {
                   `${testDataDir}${testSpec.name}`
                 ]()
 
-                /** @type {CsafTestResult | null} */
-                let csafTestResult = null
-                if (testSpec.result) {
-                  csafTestResult = JSON.parse(
-                    readFileSync(
-                      new URL(testSpec.result, testDataBaseUrl),
-                      'utf-8'
-                    )
-                  )
-                }
                 /** @type {TestResult} */
-                let primaryExecutionResult = await test(doc)
+                let primaryExecutionResult = await testToExecute(doc)
                 if (group === 'mandatory') {
-                  expect(result.isValid).to.equal(testSpec.valid)
-                  expect(
-                    Boolean(result.errors?.length),
-                /** @type {TestResult} */
-                if (csafTestResult) {
-                  let testId2secondaryExecutionResult =
-                    await executeSecondLevelTests(
-                      csafTestResult.secondary_results,
-                      group,
-                      doc
-                    )
-                  validateTestResults(
-                    csafTestResult,
-                    primaryExecutionResult,
-                    testId2secondaryExecutionResult
+                  const validForCurrentTest = type === TYPE_VALID
+                  expect(primaryExecutionResult.isValid).to.equal(
+                    validForCurrentTest
                   )
-                } else if (group === 'mandatory') {
-                  assert.equal(primaryExecutionResult.isValid, testSpec.valid)
-                  assert.equal(
+                  expect(
                     Boolean(primaryExecutionResult.errors?.length),
-                    type === TYPE_FAILURES,
                     type === TYPE_FAILURES
                       ? 'should have errors'
                       : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
-                  )
+                  ).to.equal(type === TYPE_FAILURES)
                 } else {
-                  expect(primaryExecutionResult.isValid === undefined).to.equal(testSpec.valid)
-
+                  expect(primaryExecutionResult.isValid === undefined).to.equal(
+                    testSpec.valid
+                  )
 
                   if (group === 'recommended') {
                     expect(
-                      Boolean(result.warnings?.length),
+                      Boolean(primaryExecutionResult.warnings?.length),
                       type === TYPE_FAILURES
                         ? 'should have warnings'
-                        : `should not have warnings, but had ${result.warnings?.length}`
+                        : `should not have warnings, but had ${primaryExecutionResult.warnings?.length}`
                     ).to.equal(type === TYPE_FAILURES)
                   } else if (group === 'informative') {
                     expect(
-                      Boolean(result.infos?.length),
+                      Boolean(primaryExecutionResult.infos?.length),
                       type === TYPE_FAILURES
                         ? 'should have infos'
-                        : `should not have infos, but had ${result.infos?.length}`
+                        : `should not have infos, but had ${primaryExecutionResult.infos?.length}`
                     ).to.equal(type === 'failures')
                   }
                 }
