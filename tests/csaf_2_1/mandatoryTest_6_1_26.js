@@ -1,4 +1,3 @@
-import assert from 'node:assert/strict'
 import {
   mandatoryTest_6_1_26,
   normalize,
@@ -6,17 +5,16 @@ import {
 
 describe('mandatoryTest_6_1_26', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_26({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_26({ document: 'mydoc' }).isValid).toBe(true)
   })
   it('check use of reserved prefix csaf_ except if the value is csaf_base', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_26({
         document: {
           category: 'csaf_invalid',
         },
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).toBe(false)
   })
   it('check all separators defined in the spec ', function () {
     const emDash = '\u2014'
@@ -35,8 +33,7 @@ describe('mandatoryTest_6_1_26', function () {
         `hyphen${hyphen}hyphenMinus${hyphenMinus}nonBreakingHyphen${nonBreakingHyphen}lowLine${lowLine}` +
         `combiningLowLine${combiningLowLine}fullwidthLowLine${fullwidthLowLine}`
     )
-    assert.equal(
-      result,
+    expect(result).toBe(
       'emdashendashfiguredashhorizontalbarhyphenhyphenminusnonbreakinghyphenlowlinecombininglowlinefullwidthlowline'
     )
   })
