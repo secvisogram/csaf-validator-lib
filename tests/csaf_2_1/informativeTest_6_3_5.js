@@ -1,9 +1,10 @@
-import assert from 'node:assert'
 import { informativeTest_6_3_5 } from '../../csaf_2_1/informativeTests.js'
 
 describe('informativeTest_6_3_5', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(informativeTest_6_3_5({ document: 'mydoc' }).infos.length, 0)
+    expect(informativeTest_6_3_5({ document: 'mydoc' }).infos.length).to.equal(
+      0
+    )
   })
 
   it('skip invalid hash value', function () {
@@ -24,7 +25,7 @@ describe('informativeTest_6_3_5', function () {
         ],
       },
     })
-    assert.equal(result.infos.length, 0)
+    expect(result.infos.length).to.equal(0)
   })
 
   it('detects short hash in product_paths', function () {
@@ -53,9 +54,8 @@ describe('informativeTest_6_3_5', function () {
         ],
       },
     })
-    assert.equal(result.infos.length, 1)
-    assert.equal(
-      result.infos[0].instancePath,
+    expect(result.infos.length).to.equal(1)
+    expect(result.infos[0].instancePath).to.equal(
       '/product_tree/product_paths/0/full_product_name/product_identification_helper/hashes/0/file_hashes/0/value'
     )
   })
@@ -88,9 +88,8 @@ describe('informativeTest_6_3_5', function () {
         ],
       },
     })
-    assert.equal(result.infos.length, 1)
-    assert.equal(
-      result.infos[0].instancePath,
+    expect(result.infos.length).to.equal(1)
+    expect(result.infos[0].instancePath).to.equal(
       '/product_tree/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/value'
     )
   })

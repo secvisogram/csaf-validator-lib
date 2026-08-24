@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import { walkPath } from '../lib/walkPaths.js'
 
 /**
@@ -139,6 +138,16 @@ describe('walkPath', function () {
     it('returns empty array when [] target is not an array', async function () {
       const results = await collect({ items: 'not-an-array' }, '/items[]')
       expect(results).to.deep.equal([])
+    })
+
+    it('does not throw and skips primitive elements when the path continues into them', async function () {
+      const results = await collect(
+        { branches: [42, null, { name: 'valid' }] },
+        '/branches[*]/name'
+      )
+      expect(results).to.deep.equal([
+        { instancePath: '/branches/2/name', value: 'valid' },
+      ])
     })
   })
 })
