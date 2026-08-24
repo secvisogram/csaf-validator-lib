@@ -170,7 +170,7 @@ for (const [group, t] of testMap) {
                 ]()
 
                 /** @type {TestResult} */
-                let primaryExecutionResult = await testToExecute(doc)
+                const primaryExecutionResult = await testToExecute(doc)
                 if (group === 'mandatory') {
                   const validForCurrentTest = type === TYPE_VALID
                   expect(primaryExecutionResult.isValid).to.equal(
@@ -200,7 +200,7 @@ for (const [group, t] of testMap) {
                       type === TYPE_FAILURES
                         ? 'should have infos'
                         : `should not have infos, but had ${primaryExecutionResult.infos?.length}`
-                    ).to.equal(type === 'failures')
+                    ).to.equal(type === TYPE_FAILURES)
                   }
                 }
               })

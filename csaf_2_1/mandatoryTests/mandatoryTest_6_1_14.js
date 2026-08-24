@@ -48,7 +48,9 @@ const validate = ajv.compile(inputSchema)
  */
 const toComparableSemver = (number) => {
   if (valid(number)) return number
-  return /^\d+$/.test(number) ? `${number}.0.0` : null
+  if (!/^\d+$/.test(number)) return null
+  const normalized = `${number.replace(/^0+(?=\d)/, '')}.0.0`
+  return valid(normalized) ? normalized : null
 }
 
 /**
