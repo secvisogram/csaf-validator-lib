@@ -1,0 +1,25 @@
+import { mandatoryTest_6_1_27_4 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_27_4.js'
+
+describe('mandatoryTest_6_1_27_4', function () {
+  it('only runs on relevant documents', function () {
+    expect(mandatoryTest_6_1_27_4({ document: 'mydoc' }).isValid).to.equal(true)
+  })
+
+  it('returns invalid for documents without product_tree with relevant category', function () {
+    expect(
+      mandatoryTest_6_1_27_4({
+        document: { category: 'csaf_deprecated_security_advisory' },
+        vulnerabilities: [{}],
+      }).isValid
+    ).to.equal(false)
+  })
+
+  it('returns valid for documents with empty product_tree with relevant category', function () {
+    expect(
+      mandatoryTest_6_1_27_4({
+        document: { category: 'csaf_deprecated_security_advisory' },
+        product_tree: {},
+      }).isValid
+    ).to.equal(true)
+  })
+})
