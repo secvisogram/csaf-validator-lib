@@ -22,6 +22,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 24.x
+      - run: sudo apt-get install hunspell
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
