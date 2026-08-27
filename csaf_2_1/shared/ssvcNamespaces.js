@@ -1,6 +1,10 @@
 /**
- * Registered SSVC base namespaces according to the SSVC Registered Namespace
- * specification (SSVC-RNS):
+ * SSVC Namespace Specification: https://certcc.github.io/SSVC/reference/code/namespaces/
+ */
+
+/**
+ * Registered SSVC base namespaces for production use, according to the SSVC
+ * Registered Namespace specification (SSVC-RNS):
  * https://certcc.github.io/SSVC/reference/code/namespaces/#registered-namespace
  */
 export const registeredSsvcNamespaces = [
@@ -15,7 +19,7 @@ export const registeredSsvcNamespaces = [
 
 /**
  * Extracts the base namespace from a full SSVC namespace string.
- *
+ * Strips everything after the first '#' or '/'.
  * @param {string} namespace
  * @returns {string}
  */
@@ -32,7 +36,6 @@ export function getSsvcBaseNamespace(namespace) {
 
 /**
  * Returns true if the namespace belongs to a registered SSVC base namespace.
- *
  * @param {string} namespace - full namespace string
  * @returns {boolean}
  */
