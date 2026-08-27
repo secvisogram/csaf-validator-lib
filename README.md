@@ -311,7 +311,6 @@ The following tests are not yet implemented and therefore missing:
 
 **Mandatory Tests**
 
-- Mandatory Test 6.1.26
 - Mandatory Test 6.1.27.13
 - Mandatory Test 6.1.48
 - Mandatory Test 6.1.50
@@ -328,12 +327,10 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.24
 - Recommended Test 6.2.26
 - Recommended Test 6.2.31
-- Recommended Test 6.2.33
 - Recommended Test 6.2.34
 - Recommended Test 6.2.35
 - Recommended Test 6.2.38
 - Recommended Test 6.2.39.1
-- Recommended Test 6.2.42
 - Recommended Test 6.2.44
 - Recommended Test 6.2.45
 - Recommended Test 6.2.46
@@ -341,8 +338,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.50.2
 - Recommended Test 6.2.50.3
 - Recommended Test 6.2.51
-- Recommended Test 6.2.52
-- Recommended Test 6.2.53
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
 - Recommended Test 6.2.54.4
@@ -359,7 +354,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.3
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
-- Informative Test 6.3.20
 - Informative Test 6.3.21.2
 - Informative Test 6.3.21.7
 
@@ -400,6 +394,7 @@ export const mandatoryTest_6_1_22: DocumentTest
 export const mandatoryTest_6_1_23: DocumentTest
 export const mandatoryTest_6_1_24: DocumentTest
 export const mandatoryTest_6_1_25: DocumentTest
+export const mandatoryTest_6_1_26: DocumentTest
 export const mandatoryTest_6_1_27_1: DocumentTest
 export const mandatoryTest_6_1_27_2: DocumentTest
 export const mandatoryTest_6_1_27_3: DocumentTest
@@ -481,6 +476,7 @@ export const recommendedTest_6_2_28: DocumentTest
 export const recommendedTest_6_2_29: DocumentTest
 export const recommendedTest_6_2_30: DocumentTest
 export const recommendedTest_6_2_32: DocumentTest
+export const recommendedTest_6_2_33: DocumentTest
 export const recommendedTest_6_2_36: DocumentTest
 export const recommendedTest_6_2_37: DocumentTest
 export const recommendedTest_6_2_39_2: DocumentTest
@@ -489,10 +485,13 @@ export const recommendedTest_6_2_39_4: DocumentTest
 export const recommendedTest_6_2_39_5: DocumentTest
 export const recommendedTest_6_2_40: DocumentTest
 export const recommendedTest_6_2_41: DocumentTest
+export const recommendedTest_6_2_42: DocumentTest
 export const recommendedTest_6_2_43: DocumentTest
 export const recommendedTest_6_2_47: DocumentTest
 export const recommendedTest_6_2_48: DocumentTest
 export const recommendedTest_6_2_49: DocumentTest
+export const recommendedTest_6_2_52: DocumentTest
+export const recommendedTest_6_2_53: DocumentTest
 export const recommendedTest_6_2_54_3: DocumentTest
 ```
 
@@ -514,6 +513,7 @@ export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
+export const informativeTest_6_3_20: DocumentTest
 export const informativeTest_6_3_21_1: DocumentTest
 export const informativeTest_6_3_21_3: DocumentTest
 export const informativeTest_6_3_21_4: DocumentTest
