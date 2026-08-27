@@ -1,51 +1,20 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
+import { isRegisteredSsvcNamespace } from '#csaf_2_1/shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
-
-/** from https://github.com/CERTCC/SSVC/blob/main/src/ssvc/namespaces.py */
-const REGISTERED_NAMESPACES = [
-  'ssvc',
-  'cvss',
-  'cisa',
-  'basic',
-  'example',
-  'test',
-]
-
-/**
- * @typedef {object} Selection
- * @property {string} [name]
- * @property {string} [namespace]
- * @property {string} [version]
- */
-
-/**
- * @typedef {object} Ssvc2
- * @property {Array<Selection>} [selections]
- */
-
-/**
- * @typedef {object} MetricContent
- * @property {Ssvc2} [ssvc_v2]
- */
-
-/**
- * @typedef {object} Metric
- * @property {MetricContent} [content]
- */
 
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
   properties: {
     document: {
       additionalProperties: true,
-      properties: {
+      optionalProperties: {
         distribution: {
           additionalProperties: true,
-          properties: {
+          optionalProperties: {
             tlp: {
               additionalProperties: true,
-              properties: {
+              optionalProperties: {
                 label: { type: 'string' },
               },
             },
@@ -71,9 +40,7 @@ const inputSchema = /** @type {const} */ ({
                           elements: {
                             additionalProperties: true,
                             optionalProperties: {
-                              name: { type: 'string' },
                               namespace: { type: 'string' },
-                              version: { type: 'string' },
                             },
                           },
                         },
@@ -93,18 +60,13 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 
 /**
- * @param {string | undefined } namespace
- */
-function isRegisteredNamespace(namespace) {
-  return namespace ? REGISTERED_NAMESPACES.includes(namespace) : false
-}
-
-/**
- * For each SSVC decision point given under `selections`, it MUST be tested that the base `namespace` is not an unregistered one
- * if the document is not labeled `TLP:CLEAR`.
- * Namespaces reserved for special purpose MUST be treated as per their definition.
+ * This implements the informative test 6.3.14 of the CSAF 2.1 standard.
+ *
+ * For each decision point, it SHALL be tested that the namespace is not an
+ * unregistered one if the document is not labeled TLP:CLEAR.
+ *
  * @param {unknown} doc
- * @returns
+ * @returns {{ infos: Array<{ message: string; instancePath: string }> }}
  */
 export function informativeTest_6_3_14(doc) {
   const ctx = {
@@ -115,22 +77,22 @@ export function informativeTest_6_3_14(doc) {
     return ctx
   }
 
+  if (doc.document?.distribution?.tlp?.label === 'CLEAR') {
+    return ctx
+  }
+
   const vulnerabilities = doc.vulnerabilities
 
   vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
-    /** @type {Array<Metric> | undefined} */
-    const metrics = vulnerability.metrics
-    metrics?.forEach((metric, metricIndex) => {
-      const selections = metric?.content?.ssvc_v2?.selections
-      selections?.forEach((selection, selectionIndex) => {
-        if (
-          !isRegisteredNamespace(selection.namespace) &&
-          doc.document.distribution.tlp.label !== 'TLP:CLEAR'
-        ) {
+    vulnerability.metrics?.forEach((metric, metricIndex) => {
+      const selections = metric.content?.ssvc_v2?.selections
+      if (!selections) return
+      selections.forEach((selection, selectionIndex) => {
+        if (!selection.namespace) return
+        if (!isRegisteredSsvcNamespace(selection.namespace)) {
           ctx.infos.push({
             instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}/namespace`,
-            message:
-              'namespace is not an unregistered one document is not labeled TLP:CLEAR',
+            message: `SSVC decision point namespace "${selection.namespace}" is unregistered and the document is not labeled TLP:CLEAR`,
           })
         }
       })
