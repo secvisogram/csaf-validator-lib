@@ -79,6 +79,5 @@ export function isInvalidNamespace(namespace) {
  * @returns {boolean}
  */
 export function hasSsvcNamespaceExtension(namespace) {
-    return namespace.includes('/')
+  return namespace.includes('/')
 }
-

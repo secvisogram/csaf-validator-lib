@@ -1,6 +1,4 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_48 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_48.js'
-import { expect } from 'chai'
 
 const selectionWithoutNamespace6_1_48 = {
   vulnerabilities: [
@@ -69,7 +67,7 @@ const failingInputSchemaTestWithEmptyVulnerability6_1_48 = {
 
 describe('mandatoryTest_6_1_48', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_48({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_48({ document: 'mydoc' }).isValid).to.be.true
   })
   it('test input schema with empty json object in vulnerabilities', async function () {
     const result = mandatoryTest_6_1_48(
