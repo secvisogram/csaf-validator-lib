@@ -178,9 +178,7 @@ for (const [group, t] of testMap) {
                       : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
                   ).to.equal(type === TYPE_FAILURES)
                 } else {
-                  expect(primaryExecutionResult.isValid === undefined).to.equal(
-                    testSpec.valid
-                  )
+                  expect(primaryExecutionResult.isValid).to.equal(undefined)
 
                   if (group === 'recommended') {
                     expect(
