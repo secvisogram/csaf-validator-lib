@@ -25,4 +25,39 @@ describe('mandatoryTest_6_1_21', function () {
     expect(result.isValid).to.equal(true)
     expect(result.errors.length).to.equal(0)
   })
+
+  it('passes an incomplete revision history (1, 2, 5)', function () {
+    // Gap with two missing revisions (3 & 4)
+    const result = mandatoryTest_6_1_21({
+      document: {
+        tracking: {
+          revision_history: [
+            {
+              date: '2026-03-09T11:00:00.000Z',
+              number: '1.0.0',
+              summary: '1.0.0',
+            },
+            {
+              date: '2026-03-10T11:00:00.000Z',
+              number: '2.0.0',
+              summary: '2.0.0',
+            },
+            {
+              date: '2026-03-13T11:00:00.000Z',
+              number: '5.0.0',
+              summary: '5.0.0',
+            },
+          ],
+        },
+      },
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.equal(1)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: `/document/tracking/revision_history`,
+        message: `major version 3 was omitted`,
+      },
+    ])
+  })
 })
