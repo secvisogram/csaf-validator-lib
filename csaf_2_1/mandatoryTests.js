@@ -8,7 +8,6 @@ export {
   mandatoryTest_6_1_18,
   mandatoryTest_6_1_19,
   mandatoryTest_6_1_20,
-  mandatoryTest_6_1_21,
   mandatoryTest_6_1_22,
   mandatoryTest_6_1_23,
   mandatoryTest_6_1_24,
@@ -37,6 +36,7 @@ export { mandatoryTest_6_1_10 } from './mandatoryTests/mandatoryTest_6_1_10.js'
 export { mandatoryTest_6_1_11 } from './mandatoryTests/mandatoryTest_6_1_11.js'
 export { mandatoryTest_6_1_13 } from './mandatoryTests/mandatoryTest_6_1_13.js'
 export { mandatoryTest_6_1_14 } from './mandatoryTests/mandatoryTest_6_1_14.js'
+export { mandatoryTest_6_1_21 } from './mandatoryTests/mandatoryTest_6_1_21.js'
 export { mandatoryTest_6_1_26 } from './mandatoryTests/mandatoryTest_6_1_26.js'
 export { mandatoryTest_6_1_27_3 } from './mandatoryTests/mandatoryTest_6_1_27_3.js'
 export { mandatoryTest_6_1_27_4 } from './mandatoryTests/mandatoryTest_6_1_27_4.js'
