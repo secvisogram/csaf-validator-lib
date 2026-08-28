@@ -8,6 +8,7 @@ on:
     types: [created]
 
 permissions:
+  id-token: write
   contents: read
   actions: read
 
@@ -15,23 +16,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v6
         with:
-          node-version: 20
+          submodules: recursive
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24.x
+      - run: sudo apt-get install hunspell
       - run: npm ci
+      - run: npx playwright install --with-deps chromium
       - run: npm test
 
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24.x
           registry-url: https://registry.npmjs.org/
+      - run: npm i -g npm@11
       - run: npm ci
       - run: npm publish
-        env:
-          NPM_TOKEN: ${{secrets.npm_token}}

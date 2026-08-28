@@ -1,74 +1,69 @@
-import { readFile } from 'node:fs/promises'
-import { readFileSync } from 'node:fs'
-import assert from 'node:assert/strict'
 import * as informative from '../../csaf_2_1/informativeTests.js'
 import * as recommended from '../../csaf_2_1/recommendedTests.js'
 import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
+import isBrowserRuntime from '../shared/isBrowserRuntime.js'
 
-/*
-  This is a list that includes all test numbers that are not yet implemented.
-  Once all tests are implemented for CSAF 2.1 this should be deleted.
+/**
+ * This is a list that includes all test numbers that are not yet implemented.
+ * Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
-  '6.1.8',
-  '6.1.9',
-  '6.1.26',
-  '6.1.27.3',
-  '6.1.27.4',
-  '6.1.27.6',
-  '6.1.27.11',
   '6.1.27.13',
-  '6.1.27.18',
-  '6.1.37',
-  '6.1.42',
-  '6.1.44',
-  '6.1.46',
-  '6.1.47',
   '6.1.48',
-  '6.1.49',
   '6.1.50',
-  '6.1.51',
   '6.1.53',
   '6.1.54',
   '6.1.55',
-  '6.1.56',
-  '6.2.11',
-  '6.2.19',
+  '6.1.59',
+  '6.1.60.2',
+  '6.1.60.3',
   '6.2.20',
-  '6.2.21',
   '6.2.24',
-  '6.2.25',
   '6.2.26',
-  '6.2.30',
   '6.2.31',
-  '6.2.32',
-  '6.2.33',
   '6.2.34',
   '6.2.35',
-  '6.2.36',
   '6.2.37',
   '6.2.39.1',
-  '6.2.39.2',
-  '6.2.39.3',
-  '6.2.39.4',
-  '6.2.40',
-  '6.2.41',
-  '6.2.42',
-  '6.2.43',
   '6.2.44',
   '6.2.45',
   '6.2.46',
-  '6.2.47',
+  '6.2.50.1',
+  '6.2.50.2',
+  '6.2.50.3',
+  '6.2.51',
+  '6.2.54.1',
+  '6.2.54.2',
+  '6.2.54.4',
   '6.3.12',
   '6.3.13',
   '6.3.14',
   '6.3.16',
   '6.3.17',
-  '6.3.18',
+  '6.3.19.1',
+  '6.3.19.2',
+  '6.3.19.3',
+  '6.3.19.4',
+  '6.3.19.5',
+  '6.3.21.2',
+  '6.3.21.7',
 ]
 
-/** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
+/**
+ * This is a list that includes all implemented tests that are currently skipped due to known issues.
+ * Once the issues are resolved, these should be removed from this list and the tests should be re-enabled.
+ */
+const skippedTests = new Set([
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
+])
 
+/** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
+/** @typedef {import('../../lib/shared/types.js').TestResult} TestResult */
 /** @typedef {Map<string, DocumentTest>} TestMap */
 
 /**
@@ -87,8 +82,11 @@ const excluded = [
 /**
  * @typedef {object} TestSpec
  * @property {string} name
- * @property {boolean} valid
+ * @property {boolean} valid - The valid field indicates whether the document is valid against all basic tests
  */
+
+const TYPE_FAILURES = 'failures'
+const TYPE_VALID = 'valid' //The entry in the array indicates that the test case is valid against the corresponding test.
 
 const tests = new Map([
   [
@@ -102,15 +100,23 @@ const tests = new Map([
   ['mandatory', /** @type {TestMap} */ (new Map(Object.entries(mandatory)))],
 ])
 
-const testDataBaseUrl = new URL(
-  '../../csaf/csaf_2.1/test/validator/data/',
-  import.meta.url
-)
+// `import.meta.glob` patterns must be static string literals, so the shared
+// `../../csaf/csaf_2.1/test/validator/data/` prefix can't be a variable there - it's
+// duplicated as a literal below and as the `testDataDir` string used to build lookup
+// keys into `testDataModules`.
+const testDataDir = '../../csaf/csaf_2.1/test/validator/data/'
 
-const testCases = /** @type {TestCases} */ (
-  JSON.parse(
-    await readFile(new URL('testcases.json', testDataBaseUrl), 'utf-8')
-  )
+const testCasesModules = import.meta.glob(
+  '../../csaf/csaf_2.1/test/validator/data/testcases.json',
+  { eager: true, import: 'default' }
+)
+const testCases = /** @type {TestCases} */ (Object.values(testCasesModules)[0])
+
+// Lazy (non-eager): resolves fixtures on demand instead of bundling the whole ~4MB
+// OASIS fixture corpus upfront.
+const testDataModules = import.meta.glob(
+  '../../csaf/csaf_2.1/test/validator/data/**/*.json',
+  { import: 'default' }
 )
 
 const testMap = parseTestCases()
@@ -118,53 +124,77 @@ const testMap = parseTestCases()
 for (const [group, t] of testMap) {
   describe(group, function () {
     for (const [testId, u] of t) {
+      if (excluded.includes(testId)) continue
+
+      // informativeTest_6_3_8 (the only OASIS informative test reached here
+      // without a hunspell mock override) shells out to the real `hunspell`
+      // CLI - not available in the Vitest browser project.
+      // informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
+      // lib/informativeTests/shared/testURL.js); a real browser sandbox can't
+      // make arbitrary cross-origin requests without CORS. Therefore we skip
+      // the tests here.
+      const isSkipped =
+        isBrowserRuntime &&
+        group === 'informative' &&
+        ['6.3.6', '6.3.7', '6.3.8'].includes(testId)
+
+      if (isSkipped) continue
+
       describe(testId, function () {
         for (const [type, testSpecs] of u) {
-          describe(type, function () {
-            for (const testSpec of testSpecs) {
-              if (excluded.includes(testId)) continue
+          const filteredTestSpecs = testSpecs.filter(
+            (testSpec) => !skippedTests.has(testSpec.name)
+          )
+          if (filteredTestSpecs.length === 0) continue
 
+          describe(type, function () {
+            for (const testSpec of filteredTestSpecs) {
               it(testSpec.name, async () => {
-                const test = tests
+                const testToExecute = tests
                   .get(group)
                   ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
 
-                assert(test, 'test does not exist')
-
-                const doc = JSON.parse(
-                  readFileSync(new URL(testSpec.name, testDataBaseUrl), 'utf-8')
-                )
-
-                const result = await test(doc)
-
-                if (group === 'mandatory') {
-                  assert.equal(result.isValid, testSpec.valid)
-                  assert.equal(
-                    Boolean(result.errors?.length),
-                    type === 'failures',
-                    type === 'failures'
-                      ? 'should have errors'
-                      : `should not have errors, but had ${result.errors?.length}`
+                if (!testToExecute)
+                  throw new Error(
+                    `no matching test found for group=${group}, ${testId}`
                   )
+
+                const doc = await testDataModules[
+                  `${testDataDir}${testSpec.name}`
+                ]()
+
+                /** @type {TestResult} */
+                const primaryExecutionResult = await testToExecute(doc)
+                if (group === 'mandatory') {
+                  const validForCurrentTest = type === TYPE_VALID
+                  expect(primaryExecutionResult.isValid).to.equal(
+                    validForCurrentTest
+                  )
+                  expect(
+                    Boolean(primaryExecutionResult.errors?.length),
+                    type === TYPE_FAILURES
+                      ? 'should have errors'
+                      : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
+                  ).to.equal(type === TYPE_FAILURES)
                 } else {
-                  assert.equal(result.isValid === undefined, testSpec.valid)
+                  expect(primaryExecutionResult.isValid === undefined).to.equal(
+                    testSpec.valid
+                  )
 
                   if (group === 'recommended') {
-                    assert.equal(
-                      Boolean(result.warnings?.length),
-                      type === 'failures',
-                      type === 'failures'
+                    expect(
+                      Boolean(primaryExecutionResult.warnings?.length),
+                      type === TYPE_FAILURES
                         ? 'should have warnings'
-                        : `should not have warnings, but had ${result.warnings?.length}`
-                    )
+                        : `should not have warnings, but had ${primaryExecutionResult.warnings?.length}`
+                    ).to.equal(type === TYPE_FAILURES)
                   } else if (group === 'informative') {
-                    assert.equal(
-                      Boolean(result.infos?.length),
-                      type === 'failures',
-                      type === 'failures'
+                    expect(
+                      Boolean(primaryExecutionResult.infos?.length),
+                      type === TYPE_FAILURES
                         ? 'should have infos'
-                        : `should not have infos, but had ${result.infos?.length}`
-                    )
+                        : `should not have infos, but had ${primaryExecutionResult.infos?.length}`
+                    ).to.equal(type === TYPE_FAILURES)
                   }
                 }
               })
@@ -196,8 +226,8 @@ function parseTestCases() {
       new Map(testData.get(test.group)).set(
         test.id,
         new Map(testData.get(test.group)?.get(test.id))
-          .set('valid', valids)
-          .set('failures', failures)
+          .set(TYPE_VALID, valids)
+          .set(TYPE_FAILURES, failures)
       )
     )
   }

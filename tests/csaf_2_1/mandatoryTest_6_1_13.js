@@ -1,13 +1,14 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_13 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_13.js'
 
 describe('mandatoryTest_6_1_13', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_13({ product_tree: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_13({ product_tree: 'mydoc' }).isValid).to.equal(
+      true
+    )
   })
 
   it('skips invalid full product names', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_13({
         product_tree: {
           full_product_names: [
@@ -16,13 +17,12 @@ describe('mandatoryTest_6_1_13', function () {
             },
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('validates branches and skips invalid ones', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_13({
         product_tree: {
           branches: [
@@ -45,16 +45,15 @@ describe('mandatoryTest_6_1_13', function () {
             },
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
-  it('validates relationships and skips invalid ones', function () {
-    assert.equal(
+  it('validates product_paths and skips invalid ones', function () {
+    expect(
       mandatoryTest_6_1_13({
         product_tree: {
-          relationships: [
+          product_paths: [
             {
               full_product_name: {
                 purls: [
@@ -65,8 +64,7 @@ describe('mandatoryTest_6_1_13', function () {
             {},
           ],
         },
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 })
