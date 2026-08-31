@@ -78,6 +78,9 @@ You can also include this library as a subtree in your repository.
 
 - For test 6.3.8 an installation of hunspell as well as all languages that
   you want to spell check is required.
+- For test 6.3.16 a running LanguageTool server is required.
+  See [Running LanguageTool for informative test 6.3.16](#running-languagetool-for-informative-test-6316) for more
+  information.
 
 ### Managing Hunspell languages
 

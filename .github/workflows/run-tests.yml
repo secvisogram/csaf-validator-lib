@@ -31,8 +31,8 @@ jobs:
         uses: ifaxity/wait-on-action@v1
         with:
           delay: 1
-          timeout: 30000
-          resource: tcp:localhost:8010
+          timeout: 120000
+          resource: http://localhost:8010/v2/languages
       - run: npm ci
       - run: npm run test-report
         env:

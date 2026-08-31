@@ -62,6 +62,15 @@ const skippedTests = new Set([
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
 ])
 
+/**
+ * Increase Vitest timeout for LanguageTool test
+ * Grammar checks against a local languagetool server in informativeTest_6_3_16
+ * can be slow under CI/parallel test load, causing sporadic `Test timed out` failures
+ * unrelated to the actual validation logic.
+ */
+const NETWORK_DEPENDENT_TEST_IDS = new Set(['6.3.16'])
+const NETWORK_TEST_TIMEOUT = 10000
+
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
 /** @typedef {import('../../lib/shared/types.js').TestResult} TestResult */
 /** @typedef {Map<string, DocumentTest>} TestMap */
@@ -158,17 +167,20 @@ for (const [group, t] of testMap) {
     for (const [testId, u] of t) {
       if (excluded.includes(testId)) continue
 
-      // informativeTest_6_3_8 (the only OASIS informative test reached here
+      // - informativeTest_6_3_8 (the only OASIS informative test reached here
       // without a hunspell mock override) shells out to the real `hunspell`
       // CLI - not available in the Vitest browser project.
-      // informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
+      // - informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
       // lib/informativeTests/shared/testURL.js); a real browser sandbox can't
       // make arbitrary cross-origin requests without CORS. Therefore we skip
       // the tests here.
+      // - informativeTest_6_3_16 requires a running languagetool server
+      // (http://localhost:8010, see dev/languagetool/compose.yml) which is
+      // not started for the browser test project - skip it here too.
       const isSkipped =
         isBrowserRuntime &&
         group === 'informative' &&
-        ['6.3.6', '6.3.7', '6.3.8'].includes(testId)
+        ['6.3.6', '6.3.7', '6.3.8', '6.3.16'].includes(testId)
 
       if (isSkipped) continue
 
@@ -181,63 +193,72 @@ for (const [group, t] of testMap) {
 
           describe(type, function () {
             for (const testSpec of filteredTestSpecs) {
-              it(testSpec.name, async () => {
-                const testToExecute = tests
-                  .get(group)
-                  ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
+              it(
+                testSpec.name,
+                async () => {
+                  const testToExecute = tests
+                    .get(group)
+                    ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
 
-                if (!testToExecute)
-                  throw new Error(
-                    `no matching test found for group=${group}, ${testId}`
-                  )
+                  if (!testToExecute)
+                    throw new Error(
+                      `no matching test found for group=${group}, ${testId}`
+                    )
 
-                const doc = await testDataModules[
-                  `${testDataDir}${testSpec.name}`
-                ]()
+                  const doc = await testDataModules[
+                    `${testDataDir}${testSpec.name}`
+                  ]()
 
-                /** @type {TestResult} */
-                const primaryExecutionResult = await testToExecute(doc)
-
-                /** @type {CsafTestResult | null} */
-                let csafTestResult = null
-                if (testSpec.result) {
-                  csafTestResult = /** @type {CsafTestResult} */ (
-                    await testDataModules[`${testDataDir}${testSpec.result}`]()
-                  )
-                  if (csafTestResult) {
-                    checkResultMessages(primaryExecutionResult, csafTestResult)
+                  /** @type {TestResult} */
+                  const primaryExecutionResult = await testToExecute(doc)
+                  /** @type {CsafTestResult | null} */
+                  let csafTestResult = null
+                  if (testSpec.result) {
+                    csafTestResult = /** @type {CsafTestResult} */ (
+                      await testDataModules[
+                        `${testDataDir}${testSpec.result}`
+                      ]()
+                    )
+                    if (csafTestResult) {
+                      checkResultMessages(
+                        primaryExecutionResult,
+                        csafTestResult
+                      )
+                    }
                   }
-                }
-
-                if (group === 'mandatory') {
-                  const validForCurrentTest = type === TYPE_VALID
-                  expect(primaryExecutionResult.isValid).to.equal(
-                    validForCurrentTest
-                  )
-                  expect(
-                    Boolean(primaryExecutionResult.errors?.length),
-                    type === TYPE_FAILURES
-                      ? 'should have errors'
-                      : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
-                  ).to.equal(type === TYPE_FAILURES)
-                } else {
-                  if (group === 'recommended') {
+                  if (group === 'mandatory') {
+                    const validForCurrentTest = type === TYPE_VALID
+                    expect(primaryExecutionResult.isValid).to.equal(
+                      validForCurrentTest
+                    )
                     expect(
-                      Boolean(primaryExecutionResult.warnings?.length),
+                      Boolean(primaryExecutionResult.errors?.length),
                       type === TYPE_FAILURES
-                        ? 'should have warnings'
-                        : `should not have warnings, but had ${primaryExecutionResult.warnings?.length}`
+                        ? 'should have errors'
+                        : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
                     ).to.equal(type === TYPE_FAILURES)
-                  } else if (group === 'informative') {
-                    expect(
-                      Boolean(primaryExecutionResult.infos?.length),
-                      type === TYPE_FAILURES
-                        ? 'should have infos'
-                        : `should not have infos, but had ${primaryExecutionResult.infos?.length}`
-                    ).to.equal(type === TYPE_FAILURES)
+                  } else {
+                    if (group === 'recommended') {
+                      expect(
+                        Boolean(primaryExecutionResult.warnings?.length),
+                        type === TYPE_FAILURES
+                          ? 'should have warnings'
+                          : `should not have warnings, but had ${primaryExecutionResult.warnings?.length}`
+                      ).to.equal(type === TYPE_FAILURES)
+                    } else if (group === 'informative') {
+                      expect(
+                        Boolean(primaryExecutionResult.infos?.length),
+                        type === TYPE_FAILURES
+                          ? 'should have infos'
+                          : `should not have infos, but had ${primaryExecutionResult.infos?.length}`
+                      ).to.equal(type === TYPE_FAILURES)
+                    }
                   }
-                }
-              })
+                },
+                NETWORK_DEPENDENT_TEST_IDS.has(testId)
+                  ? NETWORK_TEST_TIMEOUT
+                  : undefined
+              )
             }
           })
         }
