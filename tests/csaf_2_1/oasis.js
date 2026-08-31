@@ -8,6 +8,7 @@ import isBrowserRuntime from '../shared/isBrowserRuntime.js'
  * Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
+  '6.1.21',
   '6.1.27.13',
   '6.1.48',
   '6.1.50',
@@ -59,6 +60,7 @@ const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
@@ -79,8 +81,40 @@ const skippedTests = new Set([
  */
 
 /**
+ * @typedef {object} PrimaryResult
+ * @property {string} id
+ * @property {boolean} passed
+ * @property {ResultError[] | undefined} [errors]
+ * @property {ResultError[] | undefined} [warnings]
+ * @property {ResultError[] | undefined} [infos]
+ */
+
+/**
+ * @typedef {object} SecondaryResult
+ * @property {string} id
+ * @property {boolean} passed
+ * @property {ResultError[]} [errors]
+ */
+
+/**
+ * @typedef {object} ResultError
+ * @property {string} instance_path
+ * @property {string} message
+ */
+
+/**
+ * @typedef {object} CsafTestResult s. https://raw.githubusercontent.com/oasis-tcs/csaf/master/csaf_2.1/test/validator/testresult_json_schema.json
+ * @property {string} $schema
+ * @property {boolean} overall_valid
+ * @property {PrimaryResult} primary_result
+ * @property {string} resultschema_version
+ * @property {SecondaryResult[]} secondary_results
+ */
+
+/**
  * @typedef {object} TestSpec
  * @property {string} name
+ * @property {string} result
  * @property {boolean} valid - The valid field indicates whether the document is valid against all basic tests
  */
 
@@ -164,6 +198,18 @@ for (const [group, t] of testMap) {
 
                 /** @type {TestResult} */
                 const primaryExecutionResult = await testToExecute(doc)
+
+                /** @type {CsafTestResult | null} */
+                let csafTestResult = null
+                if (testSpec.result) {
+                  csafTestResult = /** @type {CsafTestResult} */ (
+                    await testDataModules[`${testDataDir}${testSpec.result}`]()
+                  )
+                  if (csafTestResult) {
+                    checkResultMessages(primaryExecutionResult, csafTestResult)
+                  }
+                }
+
                 if (group === 'mandatory') {
                   const validForCurrentTest = type === TYPE_VALID
                   expect(primaryExecutionResult.isValid).to.equal(
@@ -228,4 +274,77 @@ function parseTestCases() {
   }
 
   return testData
+}
+
+/**
+ * Compares errors, warnings, and infos from `primaryExecutionResult` against
+ * those declared in the OASIS `csafTestResult` JSON file, independently per
+ * severity bucket.  Each bucket is sorted by `instancePath` and then by
+ * `message` before comparison so that ordering differences do not cause false
+ * failures.
+ *
+ * @param {TestResult} primaryExecutionResult
+ * @param {CsafTestResult} csafTestResult
+ */
+function checkResultMessages(primaryExecutionResult, csafTestResult) {
+  checkMessages(
+    primaryExecutionResult.errors,
+    csafTestResult.primary_result.errors,
+    'errors'
+  )
+  checkMessages(
+    primaryExecutionResult.warnings,
+    csafTestResult.primary_result.warnings,
+    'warnings'
+  )
+  checkMessages(
+    primaryExecutionResult.infos,
+    csafTestResult.primary_result.infos,
+    'infos'
+  )
+}
+
+/**
+ * Compares one severity bucket (errors, warnings, or infos) from the actual
+ * execution result against the expected entries in the OASIS result file.
+ * The OASIS result file uses snake_case `instance_path`; this is normalised to
+ * camelCase so the two sides can be compared directly.
+ * Both sides are sorted by `instancePath` then `message` before comparison.
+ *
+ * @param {Array<{instancePath: string, message: string}> | undefined} actual
+ * @param {ResultError[] | undefined} expected
+ * @param {string} label
+ */
+function checkMessages(actual, expected, label) {
+  if (!expected?.length) return
+
+  const actualSorted = (actual ?? [])
+    .map((e) => ({ instancePath: e.instancePath, message: e.message }))
+    .sort(byInstancePathThenMessage)
+
+  const expectedSorted = expected
+    .map((e) => ({ instancePath: e.instance_path, message: e.message }))
+    .sort(byInstancePathThenMessage)
+
+  for (let i = 0; i < expectedSorted.length; i++) {
+    expect(
+      actualSorted[i]?.instancePath,
+      `${label}[${i}].instancePath`
+    ).to.equal(expectedSorted[i].instancePath)
+    expect(actualSorted[i]?.message, `${label}[${i}].message`).to.equal(
+      expectedSorted[i].message
+    )
+  }
+}
+
+/**
+ * Comparator used to sort message entries: primary key is `instancePath`,
+ * secondary key is `message`.
+ *
+ * @param {{ instancePath: string; message: string }} a
+ * @param {{ instancePath: string; message: string }} b
+ */
+function byInstancePathThenMessage(a, b) {
+  const pathCmp = a.instancePath.localeCompare(b.instancePath)
+  return pathCmp !== 0 ? pathCmp : a.message.localeCompare(b.message)
 }
