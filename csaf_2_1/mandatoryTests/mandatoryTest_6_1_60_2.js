@@ -1,5 +1,6 @@
 import { walkPath } from '../../lib/walkPaths.js'
 import csafAjv from '../csafAjv.js'
+import { classifyExtensionSchema } from '../csafAjv/extensionSchemas/index.js'
 
 const X_EXTENSIONS_PATHS /** @type {string[]} */ = [
   '/document/x_extensions[]',
@@ -34,19 +35,19 @@ export async function mandatoryTest_6_1_60_2(doc) {
 
       if (typeof schemaUrl !== 'string') return
 
-      let validateDeclaredSchema = csafAjv.getSchema(schemaUrl)
+      // Only schemas explicitly registered on csafAjv (the allow list, see
+      // csafAjv/extensionSchemas/index.js) are ever used to validate a
+      // declared CSAF Extension Schema - schemas are never loaded from the
+      // network at runtime (see CSAF 2.1 spec chapter 8).
+      const validateDeclaredSchema = csafAjv.getSchema(schemaUrl)
       if (typeof validateDeclaredSchema !== 'function') {
-        try {
-          validateDeclaredSchema = await csafAjv.compileAsync({
-            $ref: schemaUrl,
-          })
-        } catch {
-          ctx.warnings.push({
-            instancePath,
-            message: `declared CSAF Extension Schema "${schemaUrl}" is not supported and could not be validated`,
-          })
-          return
-        }
+        ctx.warnings.push({
+          instancePath,
+          message: `declared CSAF Extension Schema "${schemaUrl}" (class: ${classifyExtensionSchema(
+            schemaUrl
+          )}) is not supported and could not be validated`,
+        })
+        return
       }
 
       if (!validateDeclaredSchema(value)) {
