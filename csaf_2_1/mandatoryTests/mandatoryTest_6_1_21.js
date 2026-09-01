@@ -1,10 +1,10 @@
-import { compareZonedDateTimes } from '../shared/dateHelper.js'
-import * as docUtils from './shared/docUtils.js'
+import { compareZonedDateTimes } from '../../lib/shared/dateHelper.js'
+import * as docUtils from '../../lib/mandatoryTests/shared/docUtils.js'
 
 /**
  * @param {unknown} doc
  */
-export default function mandatoryTest_6_1_21(doc) {
+export function mandatoryTest_6_1_21(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
   const errors = []
   let isValid = true
