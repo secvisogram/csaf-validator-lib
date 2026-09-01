@@ -1,3 +1,9 @@
+/*
+  Peggy grammar for SPDX license expressions (e.g. "MIT OR (Apache-2.0 WITH
+  LLVM-exception)"), covering simple/LicenseRef/AdditionRef ids, WITH
+  exceptions, and AND/OR compound expressions with parenthesized grouping.
+ */
+
 license_expression = _ c:compound_expression _ { return c }
 
 _ = [ \t\r\n]*
