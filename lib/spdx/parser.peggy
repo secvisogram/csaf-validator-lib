@@ -2,6 +2,8 @@ license_expression = _ c:compound_expression _ { return c }
 
 _ = [ \t\r\n]*
 
+S = [ \t\r\n]+
+
 idstring = [a-zA-Z0-9-.]+
 
 license_id = idstring
@@ -43,7 +45,7 @@ simple_expression = license_ref / (license_id "+" / license_id) {
 
 addition_expression = (addition_ref / license_exception_id)
 
-with_expression = s:simple_expression w:(_ ("WITH" / "with") _ value:addition_expression {
+with_expression = s:simple_expression w:(S ("WITH" / "with") S value:addition_expression {
   return value
 })? {
   return {
@@ -55,14 +57,14 @@ with_expression = s:simple_expression w:(_ ("WITH" / "with") _ value:addition_ex
 
 primary_expression = ("(" _ c:compound_expression _ ")" { return c }) / with_expression
 
-and_expression = head:primary_expression tail:(_ ("AND" / "and") _ right:primary_expression { return right })* {
+and_expression = head:primary_expression tail:(S ("AND" / "and") S right:primary_expression { return right })* {
   return tail.reduce(
     (left, right) => ({ type: 'AND_EXPRESSION', left, right }),
     head
   )
 }
 
-compound_expression = head:and_expression tail:(_ ("OR" / "or") _ right:and_expression { return right })* {
+compound_expression = head:and_expression tail:(S ("OR" / "or") S right:and_expression { return right })* {
   return tail.reduce(
     (left, right) => ({ type: 'OR_EXPRESSION', left, right }),
     head

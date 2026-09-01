@@ -1,4 +1,4 @@
-import { parse } from '#lib/spdx/parser.js'
+import { parse } from '#lib/spdx/spdx.js'
 
 describe('spdx/parse()', () => {
   it('can parse', () => {
@@ -289,5 +289,20 @@ describe('spdx/parse()', () => {
         value: 'thing',
       },
     })
+  })
+
+  it('requires white space on both sides of `WITH`', () => {
+    expect(() => parse('MIT WITHClasspath-exception-2.0')).to.throw(SyntaxError)
+  })
+
+  it('requires white space on both sides of `AND/OR`', () => {
+    expect(() => parse('MIT ANDClasspath-exception-2.0')).to.throw(SyntaxError)
+    expect(() => parse('MIT ORClasspath-exception-2.0')).to.throw(SyntaxError)
+  })
+
+  it('requires white space and/or parentheses on both sides of `AND`', () => {
+    // Missing separator on either side must be rejected
+    expect(() => parse('(MIT)ANDBSD-3-Clause')).to.throw(SyntaxError)
+    expect(() => parse('MITAND(BSD-3-Clause)')).to.throw(SyntaxError)
   })
 })
