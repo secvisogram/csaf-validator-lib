@@ -26,8 +26,8 @@ type License = {
 /**
  * An expression that contains a license and an optional exception (`with`).
  */
-type WithExpression = {
-  type: 'WITH_EXPRESSION'
+type SimpleExpression = {
+  type: 'SIMPLE_EXPRESSION'
   value: License | LicenseRef
   with: AdditionRef | { type: 'EXCEPTION'; value: string } | null
 }
@@ -43,7 +43,7 @@ type CompoundExpression =
       left: CompoundExpression
       right: CompoundExpression
     }
-  | WithExpression
+  | SimpleExpression
 
 export type ParseResult = CompoundExpression
 

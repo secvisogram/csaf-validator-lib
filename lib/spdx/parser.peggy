@@ -16,28 +16,28 @@ license_id = idstring
 
 license_exception_id = idstring { return { type: 'EXCEPTION', value: text() } }
 
-document_ref = (keyword:"DocumentRef"i "-" id:idstring _ ":" _ {
+document_ref = (keyword:"DocumentRef"i "-" id:$idstring _ ":" _ {
   return {
     type: 'DOCUMENT_REF',
     keyword,
-    value: id.join('')
+    value: id
   }
 })
 
-license_ref = prefix:document_ref? keyword:"LicenseRef"i "-" id:idstring {
+license_ref = prefix:document_ref? keyword:"LicenseRef"i "-" id:$idstring {
   return {
     type: 'LICENSE_REF',
     keyword,
-    value: id.join(''),
+    value: id,
     prefix
   }
 }
 
-addition_ref = prefix:document_ref? keyword:"AdditionRef"i "-" id:idstring {
+addition_ref = prefix:document_ref? keyword:"AdditionRef"i "-" id:$idstring {
   return {
     type: 'ADDITION_REF',
     keyword,
-    value: id.join(''),
+    value: id,
     prefix
   }
 }
@@ -55,7 +55,7 @@ with_expression = s:simple_expression w:(S ("WITH" / "with") S value:addition_ex
   return value
 })? {
   return {
-    type: 'WITH_EXPRESSION',
+    type: 'SIMPLE_EXPRESSION',
     value: s,
     with: w
   }

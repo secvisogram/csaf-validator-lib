@@ -69,7 +69,7 @@ export function mandatoryTest_6_1_54(doc) {
    * @param {import('#lib/spdx/spdx.js').ParseResult} parsedExpression - The parsed license expression
    */
   const check = (parsedExpression) => {
-    if (parsedExpression.type === 'WITH_EXPRESSION') {
+    if (parsedExpression.type === 'SIMPLE_EXPRESSION') {
       const { value, with: withClause } = parsedExpression
       if (value.type === 'LICENSE_REF') {
         if (value.keyword !== 'LicenseRef') {

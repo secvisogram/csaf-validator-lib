@@ -14,7 +14,7 @@ describe('spdx/parse()', () => {
         left: {
           left: {
             left: {
-              type: 'WITH_EXPRESSION',
+              type: 'SIMPLE_EXPRESSION',
               value: {
                 type: 'LICENSE',
                 value: 'GPL-2.0',
@@ -22,7 +22,7 @@ describe('spdx/parse()', () => {
               with: null,
             },
             right: {
-              type: 'WITH_EXPRESSION',
+              type: 'SIMPLE_EXPRESSION',
               value: {
                 type: 'LICENSE',
                 value: 'MIT',
@@ -32,7 +32,7 @@ describe('spdx/parse()', () => {
             type: 'AND_EXPRESSION',
           },
           right: {
-            type: 'WITH_EXPRESSION',
+            type: 'SIMPLE_EXPRESSION',
             value: {
               type: 'LICENSE',
               value: 'FOO',
@@ -51,7 +51,7 @@ describe('spdx/parse()', () => {
           type: 'OR_EXPRESSION',
         },
         right: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'GPL-1.0',
@@ -64,7 +64,7 @@ describe('spdx/parse()', () => {
         type: 'OR_EXPRESSION',
       },
       right: {
-        type: 'WITH_EXPRESSION',
+        type: 'SIMPLE_EXPRESSION',
         value: {
           keyword: 'LicenseRef',
           prefix: null,
@@ -91,7 +91,7 @@ describe('spdx/parse()', () => {
         (GPL-2.0)
       `)
     ).to.deep.equal({
-      type: 'WITH_EXPRESSION',
+      type: 'SIMPLE_EXPRESSION',
       value: { type: 'LICENSE', value: 'GPL-2.0' },
       with: null,
     })
@@ -103,7 +103,7 @@ describe('spdx/parse()', () => {
         (GPL-2.0 WITH Foo)
       `)
     ).to.deep.equal({
-      type: 'WITH_EXPRESSION',
+      type: 'SIMPLE_EXPRESSION',
       value: { type: 'LICENSE', value: 'GPL-2.0' },
       with: {
         type: 'EXCEPTION',
@@ -120,7 +120,7 @@ describe('spdx/parse()', () => {
     expect(
       parse('DocumentRef-spdx-tool-1.2 : LicenseRef-MIT-Style-2')
     ).to.deep.equal({
-      type: 'WITH_EXPRESSION',
+      type: 'SIMPLE_EXPRESSION',
       value: {
         keyword: 'LicenseRef',
         prefix: {
@@ -144,7 +144,7 @@ describe('spdx/parse()', () => {
     expect(parse('MIT AND BSD-3-Clause AND CC-BY-4.0')).to.deep.equal({
       left: {
         left: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'MIT',
@@ -152,7 +152,7 @@ describe('spdx/parse()', () => {
           with: null,
         },
         right: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'BSD-3-Clause',
@@ -162,7 +162,7 @@ describe('spdx/parse()', () => {
         type: 'AND_EXPRESSION',
       },
       right: {
-        type: 'WITH_EXPRESSION',
+        type: 'SIMPLE_EXPRESSION',
         value: {
           type: 'LICENSE',
           value: 'CC-BY-4.0',
@@ -179,7 +179,7 @@ describe('spdx/parse()', () => {
     ).to.deep.equal({
       left: {
         left: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'MIT',
@@ -187,7 +187,7 @@ describe('spdx/parse()', () => {
           with: null,
         },
         right: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'BSD-3-Clause',
@@ -201,7 +201,7 @@ describe('spdx/parse()', () => {
       },
       right: {
         left: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'CC-BY-4.0',
@@ -209,7 +209,7 @@ describe('spdx/parse()', () => {
           with: null,
         },
         right: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'Apache-2.0',
@@ -231,7 +231,7 @@ describe('spdx/parse()', () => {
     const result = {
       left: {
         left: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'MIT',
@@ -239,7 +239,7 @@ describe('spdx/parse()', () => {
           with: null,
         },
         right: {
-          type: 'WITH_EXPRESSION',
+          type: 'SIMPLE_EXPRESSION',
           value: {
             type: 'LICENSE',
             value: 'BSD-3-Clause',
@@ -249,7 +249,7 @@ describe('spdx/parse()', () => {
         type: 'AND_EXPRESSION',
       },
       right: {
-        type: 'WITH_EXPRESSION',
+        type: 'SIMPLE_EXPRESSION',
         value: {
           type: 'LICENSE',
           value: 'GPL-2.0',
@@ -271,7 +271,7 @@ describe('spdx/parse()', () => {
     expect(
       parse('liceNserEf-foo WITH documentref-asd:additionReF-thing')
     ).to.deep.equal({
-      type: 'WITH_EXPRESSION',
+      type: 'SIMPLE_EXPRESSION',
       value: {
         keyword: 'liceNserEf',
         prefix: null,
