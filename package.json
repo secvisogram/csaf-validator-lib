@@ -5,6 +5,7 @@
   "scripts": {
     "pretest": "tsc -b .",
     "prepublishOnly": "tsc -b .",
+    "prepare": "peggy --format es lib/spdx/parser.peggy",
     "test": "prettier --check . && vitest run",
     "test:node": "vitest run --project node",
     "test:browser": "vitest run --project browser",
@@ -16,8 +17,12 @@
   "repository": {
     "url": "https://github.com/secvisogram/csaf-validator-lib"
   },
+  "imports": {
+    "#*.js": "./*.js"
+  },
   "files": [
-    "lib",
+    "lib/**/*.js",
+    "lib/**/*.d.ts",
     "schemas",
     "build/*.d.ts",
     "build/lib",
@@ -35,6 +40,7 @@
     "mandatoryTests.js",
     "optionalTests.js",
     "README.md",
+    "rvisc.js",
     "schemaTests.js",
     "strip.js",
     "validate.js",
@@ -102,6 +108,10 @@
       "types": "./build/lib/shared/cwec.d.ts",
       "import": "./lib/shared/cwec.js"
     },
+    "./rvisc.js": {
+      "types": "./build/rvisc.d.ts",
+      "import": "./rvisc.js"
+    },
     "./lib/shared/cvss2.js": {
       "types": "./build/lib/shared/cvss2.d.ts",
       "import": "./lib/shared/cvss2.js"
@@ -141,11 +151,12 @@
     "@types/xml2js": "^0.4.11",
     "@vitest/browser-playwright": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10",
+    "peggy": "^5.1.0",
     "playwright": "^1.62.1",
     "prettier": "^2.8.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10",
     "xml2js": "^0.5.0"
   },
-  "version": "2.1.2"
+  "version": "2.1.4"
 }
