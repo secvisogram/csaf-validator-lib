@@ -42,11 +42,11 @@ const cweSchema = /** @type {const} */ ({
 const validateCWE = ajv.compile(cweSchema)
 
 /**
- * This implements the recommended test 6.2.25 of the CSAF 2.1 standard.
+ * This implements the recommended test 6.2.26 of the CSAF 2.1 standard.
  *
  * @param {any} doc
  */
-export async function recommendedTest_6_2_25(doc) {
+export async function recommendedTest_6_2_26(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
   const warnings = []
   const context = { warnings }
@@ -66,19 +66,13 @@ export async function recommendedTest_6_2_25(doc) {
             const entry = (await cwec()).default.weaknesses.find(
               (w) => w.id === cwe.id
             )
-            //NOTE: the usage property is not available in cwe version 4.11 and older
-            if (
-              entry?.usage === 'Discouraged' ||
-              entry?.usage === 'Prohibited'
-            ) {
-              const message =
-                entry.usage === 'Discouraged'
-                  ? 'the usage of the weakness with the given id is discouraged'
-                  : 'the usage of the weakness with the given id is prohibited'
 
+            //NOTE: the usage property is not available in cwe version 4.11 and older.
+            if (entry?.usage === 'Allowed-with-Review') {
               context.warnings.push({
                 instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
-                message: message,
+                message:
+                  'the usage of the weakness with the given id is only allowed with review',
               })
             }
           }
