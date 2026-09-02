@@ -15,7 +15,6 @@ const excluded = [
   '6.1.53',
   '6.1.55',
   '6.1.59',
-  '6.1.60.2',
   '6.1.60.3',
   '6.2.20',
   '6.2.24',
@@ -163,8 +162,7 @@ for (const [group, t] of testMap) {
       // CLI - not available in the Vitest browser project.
       // informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
       // lib/informativeTests/shared/testURL.js); a real browser sandbox can't
-      // make arbitrary cross-origin requests without CORS. Therefore we skip
-      // the tests here.
+      // make arbitrary cross-origin requests without CORS.
       const isSkipped =
         isBrowserRuntime &&
         group === 'informative' &&
