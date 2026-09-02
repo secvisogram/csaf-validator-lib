@@ -112,8 +112,63 @@ describe('spdx/parse()', () => {
     })
   })
 
+  it('parses redundant nested parentheses', () => {
+    expect(parse('((MIT))')).to.deep.equal({
+      type: 'SIMPLE_EXPRESSION',
+      value: { type: 'LICENSE', value: 'MIT' },
+      with: null,
+    })
+  })
+
+  it('lets parentheses override the default AND/OR precedence', () => {
+    expect(parse('(MIT OR BSD-3-Clause) AND Apache-2.0')).to.deep.equal({
+      type: 'AND_EXPRESSION',
+      left: {
+        type: 'OR_EXPRESSION',
+        left: {
+          type: 'SIMPLE_EXPRESSION',
+          value: { type: 'LICENSE', value: 'MIT' },
+          with: null,
+        },
+        right: {
+          type: 'SIMPLE_EXPRESSION',
+          value: { type: 'LICENSE', value: 'BSD-3-Clause' },
+          with: null,
+        },
+      },
+      right: {
+        type: 'SIMPLE_EXPRESSION',
+        value: { type: 'LICENSE', value: 'Apache-2.0' },
+        with: null,
+      },
+    })
+  })
+
+  it('throws on unbalanced or empty parentheses', () => {
+    expect(() => parse('(MIT')).to.throw(SyntaxError)
+    expect(() => parse('MIT)')).to.throw(SyntaxError)
+    expect(() => parse('()')).to.throw(SyntaxError)
+  })
+
+  it('throws on empty or whitespace-only input', () => {
+    expect(() => parse('')).to.throw(SyntaxError)
+    expect(() => parse('   ')).to.throw(SyntaxError)
+  })
+
+  it('throws on unconsumed trailing input', () => {
+    expect(() => parse('MIT MIT')).to.throw(SyntaxError)
+  })
+
   it('forbids space between a license-id and a following `+`', () => {
     expect(() => parse('MIT +')).to.throw(SyntaxError)
+  })
+
+  it('parses a license id with a `+` suffix directly attached', () => {
+    expect(parse('GPL-2.0+')).to.deep.equal({
+      type: 'SIMPLE_EXPRESSION',
+      value: { type: 'LICENSE', value: 'GPL-2.0+' },
+      with: null,
+    })
   })
 
   it('parses document ref', () => {
@@ -138,6 +193,30 @@ describe('spdx/parse()', () => {
   it('requires DocumentRefs to be followed by LicenseRef', function () {
     expect(() => parse('DocumentRef-something:x')).to.throw(SyntaxError)
     expect(() => parse('DocumentRef-something:')).to.throw(SyntaxError)
+  })
+
+  it('throws on a malformed DocumentRef', () => {
+    expect(() => parse('DocumentReffoo:LicenseRef-bar')).to.throw(SyntaxError)
+    expect(() => parse('DocumentRef-:LicenseRef-bar')).to.throw(SyntaxError)
+    expect(() => parse('DocumentRef-foo LicenseRef-bar')).to.throw(SyntaxError)
+  })
+
+  it('throws on a malformed LicenseRef', () => {
+    expect(() => parse('DocumentRef-x:LicenseReffoo')).to.throw(SyntaxError)
+    expect(() => parse('DocumentRef-x:LicenseRef-')).to.throw(SyntaxError)
+  })
+
+  it('falls back to a plain exception id when AdditionRef is malformed', () => {
+    expect(parse('MIT WITH AdditionReffoo')).to.deep.equal({
+      type: 'SIMPLE_EXPRESSION',
+      value: { type: 'LICENSE', value: 'MIT' },
+      with: { type: 'EXCEPTION', value: 'AdditionReffoo' },
+    })
+    expect(parse('MIT WITH AdditionRef-')).to.deep.equal({
+      type: 'SIMPLE_EXPRESSION',
+      value: { type: 'LICENSE', value: 'MIT' },
+      with: { type: 'EXCEPTION', value: 'AdditionRef-' },
+    })
   })
 
   it('parses `AND`, `OR` and `WITH` with the correct precedence', function () {
@@ -295,9 +374,99 @@ describe('spdx/parse()', () => {
     expect(() => parse('MIT WITHClasspath-exception-2.0')).to.throw(SyntaxError)
   })
 
+  it('parses an AdditionRef without a DocumentRef prefix', () => {
+    expect(parse('MIT WITH AdditionRef-foo')).to.deep.equal({
+      type: 'SIMPLE_EXPRESSION',
+      value: { type: 'LICENSE', value: 'MIT' },
+      with: {
+        type: 'ADDITION_REF',
+        keyword: 'AdditionRef',
+        value: 'foo',
+        prefix: null,
+      },
+    })
+  })
+
+  it('forbids a second `WITH` clause on the same simple expression', () => {
+    expect(() =>
+      parse('MIT WITH GCC-exception-2.0 WITH Classpath-exception-2.0')
+    ).to.throw(SyntaxError)
+  })
+
+  it('forbids `WITH` directly after a parenthesized expression', () => {
+    expect(() => parse('(MIT) WITH GCC-exception-2.0')).to.throw(SyntaxError)
+  })
+
+  it('requires an exception after `WITH`', () => {
+    expect(() => parse('MIT WITH')).to.throw(SyntaxError)
+    expect(() => parse('MIT WITH ')).to.throw(SyntaxError)
+  })
+
   it('requires white space on both sides of `AND/OR`', () => {
     expect(() => parse('MIT ANDClasspath-exception-2.0')).to.throw(SyntaxError)
     expect(() => parse('MIT ORClasspath-exception-2.0')).to.throw(SyntaxError)
+  })
+
+  it('parses AND chains that mix upper- and lower-case keywords', () => {
+    expect(parse('MIT AND BSD-3-Clause and CC-BY-4.0')).to.deep.equal({
+      type: 'AND_EXPRESSION',
+      left: {
+        type: 'AND_EXPRESSION',
+        left: {
+          type: 'SIMPLE_EXPRESSION',
+          value: { type: 'LICENSE', value: 'MIT' },
+          with: null,
+        },
+        right: {
+          type: 'SIMPLE_EXPRESSION',
+          value: { type: 'LICENSE', value: 'BSD-3-Clause' },
+          with: null,
+        },
+      },
+      right: {
+        type: 'SIMPLE_EXPRESSION',
+        value: { type: 'LICENSE', value: 'CC-BY-4.0' },
+        with: null,
+      },
+    })
+  })
+
+  it('parses OR chains that mix upper- and lower-case keywords', () => {
+    expect(parse('MIT OR BSD-3-Clause or CC-BY-4.0')).to.deep.equal({
+      type: 'OR_EXPRESSION',
+      left: {
+        type: 'OR_EXPRESSION',
+        left: {
+          type: 'SIMPLE_EXPRESSION',
+          value: { type: 'LICENSE', value: 'MIT' },
+          with: null,
+        },
+        right: {
+          type: 'SIMPLE_EXPRESSION',
+          value: { type: 'LICENSE', value: 'BSD-3-Clause' },
+          with: null,
+        },
+      },
+      right: {
+        type: 'SIMPLE_EXPRESSION',
+        value: { type: 'LICENSE', value: 'CC-BY-4.0' },
+        with: null,
+      },
+    })
+  })
+
+  it('throws when a later AND/OR in a chain is glued to the next id', () => {
+    expect(() => parse('MIT AND BSD-3-Clause ANDApache-2.0')).to.throw(
+      SyntaxError
+    )
+    expect(() => parse('MIT OR BSD-3-Clause ORApache-2.0')).to.throw(
+      SyntaxError
+    )
+  })
+
+  it('throws on a dangling AND/OR at the end of a chain', () => {
+    expect(() => parse('MIT AND BSD-3-Clause AND')).to.throw(SyntaxError)
+    expect(() => parse('MIT OR BSD-3-Clause OR')).to.throw(SyntaxError)
   })
 
   it('requires white space and/or parentheses on both sides of `AND`', () => {
