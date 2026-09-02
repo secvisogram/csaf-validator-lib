@@ -5,6 +5,7 @@
   "scripts": {
     "pretest": "tsc -b .",
     "prepublishOnly": "tsc -b .",
+    "prepare": "peggy --format es lib/spdx/parser.peggy",
     "test": "prettier --check . && vitest run",
     "test:node": "vitest run --project node",
     "test:browser": "vitest run --project browser",
@@ -20,7 +21,8 @@
     "#*.js": "./*.js"
   },
   "files": [
-    "lib",
+    "lib/**/*.js",
+    "lib/**/*.d.ts",
     "schemas",
     "build/*.d.ts",
     "build/lib",
@@ -149,6 +151,7 @@
     "@types/xml2js": "^0.4.11",
     "@vitest/browser-playwright": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10",
+    "peggy": "^5.1.0",
     "playwright": "^1.62.1",
     "prettier": "^2.8.1",
     "typescript": "^6.0.3",

@@ -4,3 +4,4 @@
 /.vitest-attachments
 __screenshots__/
 /coverage
+/lib/spdx/parser.js
