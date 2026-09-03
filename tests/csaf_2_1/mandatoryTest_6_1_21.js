@@ -52,11 +52,15 @@ describe('mandatoryTest_6_1_21', function () {
       },
     })
     expect(result.isValid).to.equal(false)
-    expect(result.errors.length).to.equal(1)
+    expect(result.errors.length).to.equal(2)
     expect(result.errors).to.deep.equal([
       {
         instancePath: `/document/tracking/revision_history`,
-        message: `major version 3 was omitted`,
+        message: `missing revision history item with number \`3.0.0\` at all`,
+      },
+      {
+        instancePath: `/document/tracking/revision_history`,
+        message: `missing revision history item with number \`4.0.0\` at all`,
       },
     ])
   })
