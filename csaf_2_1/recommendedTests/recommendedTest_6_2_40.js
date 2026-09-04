@@ -1,6 +1,7 @@
 import { Ajv } from 'ajv/dist/jtd.js'
 import translations from '../../lib/language_specific_translation/translations.js'
 import bcp47 from 'bcp47'
+import { isLangEnglishOrUnspecified } from '../shared/langHelper.js'
 
 const ajv = new Ajv()
 
@@ -28,16 +29,6 @@ const inputSchema = /** @type {const} */ ({
 })
 
 const validate = ajv.compile(inputSchema)
-
-/**
- * Checks if the document language is English or unspecified
- *
- * @param {string | undefined} language The language expression to check
- * @returns {boolean} True if the language is English or unspecified, false otherwise
- */
-export function isLangEnglishOrUnspecified(language) {
-  return !language || bcp47.parse(language)?.langtag.language.language === 'en'
-}
 
 /**
  * Get the language specific translation of the given i18nKey
