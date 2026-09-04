@@ -78,6 +78,9 @@ You can also include this library as a subtree in your repository.
 
 - For test 6.3.8 an installation of hunspell as well as all languages that
   you want to spell check is required.
+- For test 6.3.16 a running LanguageTool server is required.
+  See [Running LanguageTool for informative test 6.3.16](#running-languagetool-for-informative-test-6316) for more
+  information.
 
 ### Managing Hunspell languages
 
@@ -102,6 +105,17 @@ If you need additional languages they are most likely available in the
 repository of your distribution. If you have a custom dictionary
 copy them in the directory provided by the command above. Hunspell should
 automatically recognize them.
+
+### Running LanguageTool for informative test 6.3.16
+
+Informative test 6.3.16 requires a running LanguageTool server.
+The default URL in this library is `http://localhost:8010`.
+
+You can start LanguageTool with Docker Compose from the repository root:
+
+```sh
+docker compose -f dev/languagetool/compose.yml up -d
+```
 
 [(back to top)](#bsi-csaf-validator-lib)
 
@@ -381,7 +395,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.13
 - Informative Test 6.3.14
 - Informative Test 6.3.15
-- Informative Test 6.3.16
 - Informative Test 6.3.17
 - Informative Test 6.3.19.1
 - Informative Test 6.3.19.2
@@ -546,6 +559,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_16: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 export const informativeTest_6_3_20: DocumentTest
 export const informativeTest_6_3_21_1: DocumentTest
