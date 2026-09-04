@@ -2,7 +2,7 @@ import {
   getNotListedLicenses,
   mandatoryTest_6_1_55,
 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_55.js'
-import { expect } from 'chai'
+import { describe, it, expect } from 'vitest'
 
 describe('mandatoryTest_6_1_55', function () {
   it('only runs on relevant documents', function () {
