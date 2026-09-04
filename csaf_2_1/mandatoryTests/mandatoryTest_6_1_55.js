@@ -1,7 +1,7 @@
-import Ajv from 'ajv/dist/jtd.js'
-import { parse, validate } from 'license-expressions'
+import { Ajv } from 'ajv/dist/jtd.js'
+import { parse } from '#lib/spdx/spdx.js'
 import license_information from '../../lib/license/license_information.js'
-import bcp47 from 'bcp47'
+import { isLangEnglishOrUnspecified } from '../shared/langHelper.js'
 
 const ajv = new Ajv()
 
@@ -80,21 +80,23 @@ function isAboutCodeLicense(licenseRefToCheck) {
 /**
  * Recursively checks if a parsed license expression contains not listed licenses.
  *
- * @param {import('license-expressions').ParsedSpdxExpression} parsedExpression - The parsed license expression
+ * @param {import('#lib/spdx/spdx.js').ParseResult} parsedExpression - The parsed license expression
  * @returns {Array<string>} all not listed licenses
  */
 function notListedLicenses(parsedExpression) {
   /** @type {Array<string>} */
   const deprecatedLicenses = []
   // If it's a LicenseRef type directly
-  if ('licenseRef' in parsedExpression) {
-    if (!isAboutCodeLicense(parsedExpression.licenseRef)) {
-      deprecatedLicenses.push(parsedExpression.licenseRef)
+  if (parsedExpression.type === 'SIMPLE_EXPRESSION') {
+    if (
+      parsedExpression.value &&
+      parsedExpression.value.type === 'LICENSE_REF' &&
+      parsedExpression.value.keyword === 'LicenseRef' &&
+      !isAboutCodeLicense('LicenseRef-' + parsedExpression.value.value)
+    ) {
+      deprecatedLicenses.push('LicenseRef-' + parsedExpression.value.value)
     }
-  }
-
-  // If it's a conjunction, check both sides
-  if ('conjunction' in parsedExpression) {
+  } else {
     deprecatedLicenses.push(...notListedLicenses(parsedExpression.left))
     deprecatedLicenses.push(...notListedLicenses(parsedExpression.right))
   }
@@ -110,12 +112,11 @@ function notListedLicenses(parsedExpression) {
 /**
  * Checks if a valid license expression string contains any not listed references.
  *
- * @param {string} licenseToCheck - The valid license expression to check
+ * @param {import('#lib/spdx/spdx.js').ParseResult} parsedExpressionToCheck - The parsed license expression
  * @returns {Array<string>} all not listed licenses
  */
-function allNotListedLicensesInValidExpression(licenseToCheck) {
-  const parseResult = parse(licenseToCheck)
-  return notListedLicenses(parseResult)
+function allNotListedLicensesInValidExpression(parsedExpressionToCheck) {
+  return notListedLicenses(parsedExpressionToCheck)
 }
 
 /**
@@ -129,21 +130,17 @@ function allNotListedLicensesInValidExpression(licenseToCheck) {
  */
 export function getNotListedLicenses(licenseToCheck) {
   // Validate ensures that no invalid SPDX licenses are present
-  if (!licenseToCheck || !validate(licenseToCheck).valid) {
-    return []
-  } else {
-    return allNotListedLicensesInValidExpression(licenseToCheck)
-  }
-}
 
-/**
- * Checks if the document language is English or unspecified
- *
- * @param {string | undefined} language - The language expression to check
- * @returns {boolean} True if the language is valid, false otherwise
- */
-export function isLangEnglishOrUnspecified(language) {
-  return !language || bcp47.parse(language)?.langtag.language.language === 'en'
+  if (licenseToCheck) {
+    try {
+      const parseResult = parse(licenseToCheck)
+      return allNotListedLicensesInValidExpression(parseResult)
+    } catch (e) {
+      return []
+    }
+  } else {
+    return []
+  }
 }
 
 /**
