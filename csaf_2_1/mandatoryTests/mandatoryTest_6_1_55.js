@@ -1,6 +1,6 @@
 import { Ajv } from 'ajv/dist/jtd.js'
 import { parse } from '#lib/spdx/spdx.js'
-import license_information from '../../lib/license/license_information.js'
+import { exceptions, licenses } from '@secvisogram/license-deprecation-list'
 import { isLangEnglishOrUnspecified } from '../shared/langHelper.js'
 
 const ajv = new Ajv()
@@ -46,23 +46,53 @@ const inputSchema = /** @type {const} */ ({
 const validateSchema = ajv.compile(inputSchema)
 
 const ABOUT_CODE_LICENSE_REF_PREFIX = 'LicenseRef-scancode-'
+const ABOUT_CODE_EXCEPTION_REF_PREFIX = 'AdditionRef-scancode-'
 
-const ABOUT_CODE_LICENSE_KEYS = new Set(
-  license_information.licenses
+const SPDX_EXCEPTION_KEYS = new Set(
+  [...exceptions.values()]
     .filter(
-      (license) => license.source === 'aboutCode' && !license.is_exception
+      (exception) =>
+        exception.source === 'spdx' &&
+        exception.is_exception &&
+        !exception.deprecated_since
+    )
+    .map((exception) => exception.license_key)
+)
+
+const ABOUT_CODE_EXCEPTION_KEYS = new Set(
+  [...exceptions.values()]
+    .filter(
+      (exception) =>
+        exception.source === 'aboutCode' &&
+        exception.is_exception &&
+        !exception.deprecated_since
+    )
+    .map((exception) => exception.license_key)
+)
+const ABOUT_CODE_LICENSE_KEYS = new Set(
+  [...licenses.values()]
+    .filter(
+      (license) =>
+        license.source === 'aboutCode' &&
+        !license.is_exception &&
+        !license.deprecated_since
     )
     .map((license) => license.license_key)
 )
 
-const ABOUT_CODE_EXCEPTION_KEYS = new Set(
-  license_information.licenses
-    .filter((license) => license.source === 'aboutCode' && license.is_exception)
+const SPDX_LICENSE_KEYS = new Set(
+  [...licenses.values()]
+    .filter(
+      (license) =>
+        license.source === 'spdx' &&
+        !license.is_exception &&
+        !license.deprecated_since
+    )
     .map((license) => license.license_key)
 )
 
 /**
- * Check whether license identifiers are not listed Aboutcode's "ScanCode LicenseDB"
+ * Check whether license identifiers are listed Aboutcode's "ScanCode LicenseDB"
  * @param {string} licenseRefToCheck
  * @return {boolean}
  */
@@ -78,35 +108,96 @@ function isAboutCodeLicense(licenseRefToCheck) {
 }
 
 /**
- * Recursively checks if a parsed license expression contains not listed licenses.
+ * Check whether license identifiers are listed in SPDX license list
+ * @param {string} licenseToCheck
+ * @return {boolean}
+ */
+function isSpdxLicense(licenseToCheck) {
+  //  remove trailing unary "+" operator
+  return SPDX_LICENSE_KEYS.has(licenseToCheck.replace(/\+$/, ''))
+}
+
+/**
+ * Check whether an exception identifier is listed in the SPDX exception list
+ * @param {string} exceptionId
+ * @return {boolean}
+ */
+function isSpdxException(exceptionId) {
+  return SPDX_EXCEPTION_KEYS.has(exceptionId)
+}
+
+/**
+ * Check whether an AdditionRef-scancode-* identifier is listed in AboutCode's
+ * "ScanCode LicenseDB" exceptions
+ * @param {string} additionRefToCheck - full identifier, e.g. "AdditionRef-scancode-autoconf-exception-2.0"
+ * @return {boolean}
+ */
+function isAboutCodeException(additionRefToCheck) {
+  if (!additionRefToCheck.startsWith(ABOUT_CODE_EXCEPTION_REF_PREFIX)) {
+    return false
+  } else {
+    const exceptionKey = additionRefToCheck.substring(
+      ABOUT_CODE_EXCEPTION_REF_PREFIX.length
+    )
+    return ABOUT_CODE_EXCEPTION_KEYS.has(exceptionKey)
+  }
+}
+
+/**
+ * Recursively checks if a parsed license expression contains not listed licenses
+ * or exceptions.
  *
  * @param {import('#lib/spdx/spdx.js').ParseResult} parsedExpression - The parsed license expression
- * @returns {Array<string>} all not listed licenses
+ * @returns {Array<string>} all not listed licenses and exceptions
  */
 function notListedLicenses(parsedExpression) {
   /** @type {Array<string>} */
-  const deprecatedLicenses = []
-  // If it's a LicenseRef type directly
+  const notListed = []
   if (parsedExpression.type === 'SIMPLE_EXPRESSION') {
+    // Check the license identifier (LicenseRef-* that is not in AboutCode)
     if (
-      parsedExpression.value &&
-      parsedExpression.value.type === 'LICENSE_REF' &&
+      parsedExpression.value?.type === 'LICENSE_REF' &&
       parsedExpression.value.keyword === 'LicenseRef' &&
       !isAboutCodeLicense('LicenseRef-' + parsedExpression.value.value)
     ) {
-      deprecatedLicenses.push('LicenseRef-' + parsedExpression.value.value)
+      notListed.push('LicenseRef-' + parsedExpression.value.value)
+    }
+
+    if (
+      parsedExpression.value?.type === 'LICENSE' &&
+      !isSpdxLicense(parsedExpression.value?.value)
+    ) {
+      notListed.push(parsedExpression.value.value)
+    }
+
+    // Check the WITH clause exception identifier.
+    const withClause = parsedExpression.with
+    if (withClause) {
+      if (
+        withClause.type === 'EXCEPTION' &&
+        !isSpdxException(withClause.value)
+      ) {
+        // Plain exception id (e.g. "Classpath-exception-2.0") not in SPDX list
+        notListed.push(withClause.value)
+      } else if (withClause.type === 'ADDITION_REF') {
+        // Full identifier: e.g. "AdditionRef-scancode-autoconf-exception-2.0"
+        const fullAdditionRef = withClause.keyword + '-' + withClause.value
+        // Only check AdditionRef-scancode-* identifiers against AboutCode
+        if (
+          fullAdditionRef.startsWith(ABOUT_CODE_EXCEPTION_REF_PREFIX) &&
+          !isAboutCodeException(fullAdditionRef)
+        ) {
+          // AdditionRef-scancode-* not listed in AboutCode's ScanCode LicenseDB
+          notListed.push(fullAdditionRef)
+        }
+      }
     }
   } else {
-    deprecatedLicenses.push(...notListedLicenses(parsedExpression.left))
-    deprecatedLicenses.push(...notListedLicenses(parsedExpression.right))
+    notListed.push(...notListedLicenses(parsedExpression.left))
+    notListed.push(...notListedLicenses(parsedExpression.right))
   }
 
-  // If it's a valid LicenseInfo type, it doesn't contain not listed license
-  // Before we call this function we check that the whole expression is valid.
-  // The expression is not valid, when it contains licences that are not listend
-  // in the SPDX License List. (We check this in test 6.1.54)
-
-  return deprecatedLicenses
+  return notListed
 }
 
 /**
