@@ -4,8 +4,7 @@
   "license": "MIT",
   "scripts": {
     "pretest": "tsc -b .",
-    "prepublishOnly": "tsc -b .",
-    "prepare": "peggy --format es lib/spdx/parser.peggy",
+    "prepublishOnly": "tsc -b . && peggy --format es lib/spdx/parser.peggy",
     "test": "prettier --check . && vitest run",
     "test:node": "vitest run --project node",
     "test:browser": "vitest run --project browser",
