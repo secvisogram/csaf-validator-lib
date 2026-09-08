@@ -90,11 +90,13 @@ export default defineConfig({
         // literals with no other logic. Same 0/0-statement issue as above.
         'schemas/**',
         'lib/cwec/**',
+        'lib/cwec.js',
         'lib/shared/cwec.js',
         'lib/shared/bcpLanguageTagChecker/**',
         'lib/language_specific_translation/**',
         'csaf_2_1/csafAjv/**',
         '**/schemaTests/**/schema.js',
+        'lib/shared/first',
       ],
     },
   },
