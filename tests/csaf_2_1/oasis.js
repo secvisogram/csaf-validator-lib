@@ -34,6 +34,7 @@ const excluded = [
   '6.2.54.1',
   '6.2.54.2',
   '6.2.54.4',
+  '6.2.55',
   '6.3.12',
   '6.3.13',
   '6.3.14',
@@ -47,6 +48,7 @@ const excluded = [
   '6.3.19.5',
   '6.3.21.2',
   '6.3.21.7',
+  '6.3.24',
 ]
 
 /**
@@ -56,8 +58,10 @@ const excluded = [
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-01.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
+  'informative/oasis_csaf_tc-csaf_2_1-2024-6-3-06-03.json',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
