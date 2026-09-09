@@ -1,8 +1,8 @@
 import addFormats from 'ajv-formats'
 import { Ajv2020 } from 'ajv/dist/2020.js'
-import cvss_v2_0 from '../schemas/cvss-v2.0.js'
-import cvss_v3_0 from '../schemas/cvss-v3.0.js'
-import cvss_v3_1 from '../schemas/cvss-v3.1.js'
+import cvss_v2_0 from './csafAjv/cvss-v2.0.js'
+import cvss_v3_0 from './csafAjv/cvss-v3.0.js'
+import cvss_v3_1 from './csafAjv/cvss-v3.1.js'
 import cvss_v4_0_0 from './csafAjv/cvss-v4.0.0.js'
 import extension_content from './csafAjv/extension-content.js'
 import content_schema from './csafAjv/content_schema.js'
@@ -11,6 +11,7 @@ import cvss_meta from './csafAjv/cvss_meta.js'
 import meta_format_assertion from './csafAjv/meta-format-assertion.js'
 import draft_07_schema from './csafAjv/draft-07-schema.js'
 import selectionList_2_0_0Schema from './csafAjv/SelectionList_2_0_0.schema.js'
+import { registerExtensionSchemas } from './csafAjv/extensionSchemas/index.js'
 
 import { validateTimestamp } from './dateHelper.js'
 
@@ -45,6 +46,7 @@ csafAjv.addSchema(
   selectionList_2_0_0Schema,
   'https://certcc.github.io/SSVC/data/schema/v2/SelectionList_2_0_0.schema.json'
 )
+registerExtensionSchemas(csafAjv)
 
 csafAjv.addFormat('date-time', {
   type: 'string',
