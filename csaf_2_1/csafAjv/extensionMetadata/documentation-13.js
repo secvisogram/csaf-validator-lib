@@ -1,0 +1,24 @@
+// https://raw.githubusercontent.com/oasis-tcs/csaf/refs/heads/master/csaf_2.1/extension/data/valid/documentation-13/documentation-13-metadata_1.0.0.json
+// CSAF Extension Metadata for the "documentation-13" CSAF Extension used by
+// the OASIS CSAF TC's own test suite to exercise mandatory test 6.1.60.3
+// ("Extension Metadata").
+export default {
+  $schema:
+    'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metadata.json',
+  extension_schema:
+    'https://raw.githubusercontent.com/oasis-tcs/csaf/refs/heads/master/csaf_2.1/extension/data/valid/documentation-13/documentation-13-content_1.0.0.json',
+  last_updated: '2026-02-23T17:10:00Z',
+  requirement: {
+    '$.document.x_extensions': { max_occurrence: 0 },
+    '$.product_tree.branches..product.x_extensions': { max_occurrence: 0 },
+    '$.product_tree.full_product_names[*].x_extensions': { max_occurrence: 0 },
+    '$.product_tree.relationships[*].full_product_name.x_extensions': {
+      max_occurrence: 0,
+    },
+    '$.vulnerabilities[*].metrics[*].content.x_extensions': {
+      max_occurrence: 0,
+    },
+    '$.vulnerabilities[*].x_extensions': { max_occurrence: 0 },
+    '$.x_extensions': { max_occurrence: 1 },
+  },
+}
