@@ -23,6 +23,14 @@ jobs:
         with:
           node-version: 24.x
       - run: sudo apt-get install hunspell
+      - name: Start language tool
+        run: docker compose -f dev/languagetool/compose.yml up -d
+          - name: Wait for app start
+            uses: ifaxity/wait-on-action@v1
+            with:
+              delay: 1
+              timeout: 120000
+              resource: http://localhost:8010/v2/languages
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
