@@ -1,0 +1,24 @@
+name: "Renovate Weekly Update"
+
+on:
+  schedule:
+    - cron: '0 4 * * 2'
+  workflow_dispatch:  # optional: allows manual triggering
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.2.2
+      # Don't waste time starting Renovate if JSON is invalid
+      - name: Validate Renovate JSON
+        run: jq type .github/renovate.json
+      - name: Run Renovate
+        uses: renovatebot/github-action@v41.0.13
+        with:
+          token: ${{ secrets.RENOVATE_TOKEN }}
+        env:
+          # Repository taken from variable to keep configuration file generic
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          LOG_LEVEL: DEBUG
