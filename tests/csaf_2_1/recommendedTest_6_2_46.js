@@ -2,19 +2,20 @@ import {
   getNotListedLicenses,
   recommendedTest_6_2_46,
 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_46.js'
-import { expect } from 'chai'
 import assert from 'node:assert'
 
 describe('recommendedTest_6_2_46', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(recommendedTest_6_2_46({}).warnings.length, 0)
+    expect(recommendedTest_6_2_46({}).warnings.length).to.eql(0)
   })
 
   it('check license expressions', function () {
     expect(getNotListedLicenses('GPL-3.0+')).to.eql([])
     expect(getNotListedLicenses('GPL-3.0-only')).to.be.eql([])
     expect(getNotListedLicenses('MIT OR (Apache-2.0 AND 0BSD)')).to.be.eql([])
-    expect(getNotListedLicenses('Invalid-license-expression')).to.be.eql([])
+    expect(getNotListedLicenses('Invalid-license-expression')).to.be.eql([
+      'Invalid-license-expression',
+    ])
     expect(getNotListedLicenses('GPL-2.0 OR BSD-3-Clause')).to.be.eql([])
     expect(getNotListedLicenses('LGPL-2.1 OR BSD-3-Clause AND MIT')).to.be.eql(
       []
@@ -29,7 +30,7 @@ describe('recommendedTest_6_2_46', function () {
     expect(
       getNotListedLicenses('3dslicer-1.0'),
       'SPDX License List matching guidelines'
-    ).to.eql([])
+    ).to.eql(['3dslicer-1.0'])
 
     expect(
       getNotListedLicenses('LicenseRef-www.example.com-no-work-pd'),
@@ -61,7 +62,7 @@ describe('recommendedTest_6_2_46', function () {
       getNotListedLicenses(
         'LicenseRef-www.example.org-Example-CSAF-License-3.0+'
       ),
-      'LicenseRef in License with trailing +'
+      'LicenseRef in License with trailing + (invalid expression)'
     ).to.eql([])
     expect(
       getNotListedLicenses('LicenseRef-scancode-acroname-bdk'),

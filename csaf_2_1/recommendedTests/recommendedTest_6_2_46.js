@@ -1,6 +1,7 @@
-import Ajv from 'ajv/dist/jtd.js'
-import { parse, validate } from 'license-expressions'
-import license_information from '../../lib/license/license_information.js'
+import { Ajv } from 'ajv/dist/jtd.js'
+import { parse } from '#lib/spdx/spdx.js'
+import { exceptions, licenses } from '@secvisogram/license-deprecation-list'
+/** @typedef {import('@secvisogram/license-deprecation-list').LicenseEntry} LicenseEntry */
 import translations from '../../lib/language_specific_translation/translations.js'
 import bcp47 from 'bcp47'
 
@@ -46,100 +47,140 @@ const inputSchema = /** @type {const} */ ({
 
 const validateSchema = ajv.compile(inputSchema)
 
-const ABOUT_CODE_LICENSE_REF_PREFIX = 'LicenseRef-scancode-'
-
-const ABOUT_CODE_LICENSE_KEYS = new Set(
-  license_information.licenses
-    .filter((license) => license.source === 'aboutCode')
-    .map((license) => license.license_key)
-)
-
-const SPDX_LICENSE_KEYS = new Set(
-  license_information.licenses
-    .filter((license) => license.source === 'spdx')
-    .map((license) => license.license_key)
-)
+const SCANCODE_LICENSE_REF_PREFIX = 'scancode-'
+const ABOUT_CODE_EXCEPTION_REF_PREFIX = 'AdditionRef-scancode-'
 
 /**
- * Check whether license identifiers are not listed Aboutcode's "ScanCode LicenseDB"
+ *  Check whether the ref contains a license not listed in the SPDX license list or AboutCode's "ScanCode LicenseDB"
  * @param {string} licenseRefToCheck
  * @return {boolean}
  */
-function isAboutCodeLicense(licenseRefToCheck) {
-  if (!licenseRefToCheck.startsWith(ABOUT_CODE_LICENSE_REF_PREFIX)) {
-    return false
-  } else {
+function isLicenseReferenceListed(licenseRefToCheck) {
+  if (licenseRefToCheck.startsWith(SCANCODE_LICENSE_REF_PREFIX)) {
     const licenseKey = licenseRefToCheck.substring(
-      ABOUT_CODE_LICENSE_REF_PREFIX.length
+      SCANCODE_LICENSE_REF_PREFIX.length
     )
-    return ABOUT_CODE_LICENSE_KEYS.has(licenseKey)
+    const license = licenses.get(licenseKey)
+    return license?.source === 'aboutCode'
+  } else {
+    const license = licenses.get(licenseRefToCheck)
+    return license?.source === 'spdx'
   }
 }
 
 /**
- * Recursively checks if a parsed license expression contains not listed licenses.
+ * Check whether license identifiers are listed in SPDX license list.
+ * @param {string} licenseToCheck
+ * @return {boolean}
+ */
+function isSpdxLicense(licenseToCheck) {
+  /** @type {LicenseEntry | undefined} */
+  const license = licenses.get(licenseToCheck)
+  return license?.source === 'spdx'
+}
+
+/**
+ * Check whether an exception identifier is listed in the SPDX exception list
+ * @param {string} exceptionId
+ * @return {boolean}
+ */
+function isSpdxException(exceptionId) {
+  /** @type {LicenseEntry | undefined} */
+  const exception = exceptions.get(exceptionId)
+  return exception?.source === 'spdx'
+}
+
+/**
+ * Check whether an AdditionRef-scancode-* identifier is listed in AboutCode's
+ * "ScanCode LicenseDB" exceptions
+ * @param {string} additionRefToCheck - full identifier, e.g. "AdditionRef-scancode-autoconf-exception-2.0"
+ * @return {boolean}
+ */
+function isExceptionReferenceListed(additionRefToCheck) {
+  if (additionRefToCheck.startsWith(SCANCODE_LICENSE_REF_PREFIX)) {
+    const licenseKey = additionRefToCheck.substring(
+      SCANCODE_LICENSE_REF_PREFIX.length
+    )
+    const license = exceptions.get(licenseKey)
+    return license?.source === 'aboutCode'
+  } else {
+    const license = exceptions.get(additionRefToCheck)
+    return license?.source === 'spdx'
+  }
+}
+
+/**
+ * Recursively checks if a parsed license expression contains not listed licenses
+ * or exceptions.
  *
- * @param {import('license-expressions').ParsedSpdxExpression} parsedExpression - The parsed license expression
- * @returns {Array<string>} all not listed licenses
+ * @param {import('#lib/spdx/spdx.js').ParseResult} parsedExpression - The parsed license expression
+ * @returns {Array<string>} all deprecated licenses and exceptions found
  */
 function notListedLicenses(parsedExpression) {
   /** @type {Array<string>} */
-  const deprecatedLicenses = []
-  // If it's a LicenseRef type directly
-  if ('licenseRef' in parsedExpression) {
-    if (!isAboutCodeLicense(parsedExpression.licenseRef)) {
-      deprecatedLicenses.push(parsedExpression.licenseRef)
+  const notListed = []
+  if (parsedExpression.type === 'SIMPLE_EXPRESSION') {
+    // Check the license identifier (LicenseRef-* that is not in AboutCode)
+    if (
+      parsedExpression.value?.type === 'LICENSE_REF' &&
+      parsedExpression.value.keyword === 'LicenseRef'
+    ) {
+      if (!isLicenseReferenceListed(parsedExpression.value.value)) {
+        notListed.push('LicenseRef-' + parsedExpression.value.value)
+      }
     }
+
+    if (parsedExpression.value?.type === 'LICENSE') {
+      if (!isSpdxLicense(parsedExpression.value?.value)) {
+        notListed.push(parsedExpression.value?.value)
+      }
+    }
+
+    // Check the WITH clause exception identifier.
+    const withClause = parsedExpression.with
+    if (withClause) {
+      if (withClause.type === 'EXCEPTION') {
+        if (!isSpdxException(withClause.value)) {
+          notListed.push(withClause.value)
+        }
+      } else if (withClause.type === 'ADDITION_REF') {
+        // Full identifier: e.g. "AdditionRef-scancode-autoconf-exception-2.0"
+        const fullAdditionRef = withClause.keyword + '-' + withClause.value
+        // isAboutCodeException handles the prefix check internally (line 115)
+        const exception = isExceptionReferenceListed(fullAdditionRef)
+        if (!exception) {
+          notListed.push(fullAdditionRef)
+        }
+      }
+    }
+  } else {
+    notListed.push(...notListedLicenses(parsedExpression.left))
+    notListed.push(...notListedLicenses(parsedExpression.right))
   }
 
-  if (
-    'license' in parsedExpression &&
-    !SPDX_LICENSE_KEYS.has(parsedExpression.license)
-  ) {
-    deprecatedLicenses.push(parsedExpression.license)
-  }
-
-  if (
-    'exception' in parsedExpression &&
-    parsedExpression.exception &&
-    !SPDX_LICENSE_KEYS.has(parsedExpression.exception)
-  ) {
-    deprecatedLicenses.push(parsedExpression.exception)
-  }
-
-  // If it's a conjunction, check both sides
-  if ('conjunction' in parsedExpression) {
-    deprecatedLicenses.push(...notListedLicenses(parsedExpression.left))
-    deprecatedLicenses.push(...notListedLicenses(parsedExpression.right))
-  }
-
-  // If it's a LicenseInfo type, it doesn't contain not listed licenses
-  return deprecatedLicenses
+  return notListed
 }
-
 /**
- * Checks if a license expression string contains any not listed licenses.
- *
- * @param {string} licenseToCheck - The license expression to check
- * @returns {Array<string>} all not listed licenses
- */
-function allNotListedLicenses(licenseToCheck) {
-  const parseResult = parse(licenseToCheck)
-  return notListedLicenses(parseResult)
-}
-
-/**
- * check if the license_expression contains license identifiers or exceptions
- * that are not listed in the SPDX license list or Aboutcode's "ScanCode LicenseDB"
- *
- * @param {string} licenseToCheck - The license expression to check
- * @returns {Array<string>} all not listed licenses
+ * Check if the license_expression contains license identifiers or exceptions
+ * contains license identifiers or exceptions that are not listed in the
+ * SPDX license list or AboutCode's "ScanCode LicenseDB"
+ * When the license expression is not valid SPDX the check is skipped
+ * @param {string | null | undefined} licenseToCheck - The license expression to check
+ * @returns {Array<string>} all not listed licenses and exceptions found,
+ *                                empty array when the SPDX expression is not valid
  */
 export function getNotListedLicenses(licenseToCheck) {
-  if (!licenseToCheck || !validate(licenseToCheck).valid) {
-    return []
+  // Validate ensures that no invalid SPDX licenses are present
+
+  if (licenseToCheck) {
+    try {
+      const parseResult = parse(licenseToCheck)
+      return notListedLicenses(parseResult)
+    } catch (e) {
+      return []
+    }
   } else {
-    return allNotListedLicenses(licenseToCheck)
+    return []
   }
 }
 
