@@ -11,6 +11,7 @@ import cvss_meta from './csafAjv/cvss_meta.js'
 import meta_format_assertion from './csafAjv/meta-format-assertion.js'
 import draft_07_schema from './csafAjv/draft-07-schema.js'
 import selectionList_2_0_0Schema from './csafAjv/SelectionList_2_0_0.schema.js'
+import { registerExtensionSchemas } from './csafAjv/extensionSchemas/index.js'
 
 import { validateTimestamp } from './dateHelper.js'
 
@@ -45,6 +46,7 @@ csafAjv.addSchema(
   selectionList_2_0_0Schema,
   'https://certcc.github.io/SSVC/data/schema/v2/SelectionList_2_0_0.schema.json'
 )
+registerExtensionSchemas(csafAjv)
 
 csafAjv.addFormat('date-time', {
   type: 'string',
