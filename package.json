@@ -129,6 +129,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@pandatix/js-cvss": "^0.4.4",
     "@secvisogram/is-leap-second": "^1.0.0",
     "ajv": "^8.11.2",
     "ajv-formats": "^3.0.1",
