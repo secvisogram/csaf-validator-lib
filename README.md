@@ -443,6 +443,7 @@ export const mandatoryTest_6_1_27_9: DocumentTest
 export const mandatoryTest_6_1_27_10: DocumentTest
 export const mandatoryTest_6_1_27_11: DocumentTest
 export const mandatoryTest_6_1_27_12: DocumentTest
+export const mandatoryTest_6_1_27_13: DocumentTest
 export const mandatoryTest_6_1_27_14: DocumentTest
 export const mandatoryTest_6_1_27_15: DocumentTest
 export const mandatoryTest_6_1_27_16: DocumentTest
