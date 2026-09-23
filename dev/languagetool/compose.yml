@@ -1,0 +1,6 @@
+# Optional dev dependency: only needed to run informative test 6.3.16
+services:
+  languagetool:
+    image: collabora/languagetool
+    ports:
+      - 8010:8010
