@@ -33,7 +33,7 @@ export async function mandatoryTest_6_1_4(doc) {
         /** @type {{id: string, instancePath: string}} */ missingGroupDefinition
       ) => {
         ctx.errors.push({
-          message: 'definition of group id missing',
+          message: `definition of group id \`${missingGroupDefinition.id}\` missing`,
           instancePath: missingGroupDefinition.instancePath,
         })
       }

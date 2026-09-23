@@ -6,6 +6,7 @@
   - [Strict Mode](#strict-mode)
   - [API](#api)
     - [Interfaces](#interfaces)
+      - [How `isValid` is computed](#how-isvalid-is-computed)
     - CSAF 2.0
       - [Module `schemaTests.js`](#module-schematestsjs)
       - [Module `mandatoryTests.js`](#module-mandatorytestsjs)
@@ -54,6 +55,8 @@ npm install @secvisogram/csaf-validator-lib
 
 ### Using a git subtree
 
+> **NOTE**: `csaf-validator-lib` is now published as an [npm package](#using-the-official-npm-package). It is recommended to use this instead of including a subtree of the package.
+
 You can also include this library as a subtree in your repository.
 
 - include as git subtree
@@ -65,7 +68,7 @@ You can also include this library as a subtree in your repository.
 - install dependencies
 
   ```sh
-  cd csaf-validator-lib && npm ci --prod
+  cd csaf-validator-lib && npm ci --omit=dev
   ```
 
 - This repository includes git submodules. Make sure to initialize and update
@@ -162,6 +165,39 @@ interface TestResult {
   infos?: Array<{ message: string; instancePath: string }>
 }
 ```
+
+#### How `isValid` is computed
+
+The validator follows the severity categorisation defined by the CSAF 2.0 standard and distinguishing between three
+levels: `errors`, `warnings`, and `infos`:
+
+| Array      | Produced by                              | Meaning                                                         |
+| ---------- | ---------------------------------------- | --------------------------------------------------------------- |
+| `errors`   | Schema tests and mandatory tests (6.1.x) | The document violates a **MUST** requirement                    |
+| `warnings` | Optional tests (6.2.x)                   | The document deviates from a **SHOULD**/recommended requirement |
+| `infos`    | Informative tests (6.3.x)                | Informational finding, no requirement violated                  |
+
+Only `errors` affect `isValid`:
+
+- **Per-test `isValid`** (`TestResult.isValid`): a test is only invalid (`isValid: false`) if it reports `errors`.
+  By contrast, `warnings` and `infos` never cause a test to be marked invalid. If a test doesn't set `isValid`
+  explicitly, `validate.js`/`validateStrict.js` default it to `true`.
+- **Overall `isValid`** (`Result.isValid`): the logical AND of all per-test
+  `isValid` values. It is `false` only if at least one test produced
+  `errors` (i.e. a schema or mandatory/6.1.x test failed).
+
+Because optional tests (6.2.x) are designed to produce only`warnings`, an optional test can legitimately report
+`isValid: true` alongside one or more `warnings`. In this case, the document does not violate a mandatory requirement;
+it merely deviates from an optional recommendation.
+
+> **Note:** It may seem counterintuitive that a test or even the overall document can be reported as `isValid: true` while it still
+> produced one or more `warnings`. This is intentional: `isValid` only
+> answers the question "does the document violate a **MUST** requirement of
+> the CSAF standard?", not "are there any findings at all?".
+>
+> Callers that want to treat `warnings` or `infos` as a failure condition need to
+> check `warnings.length`/`infos.length` explicitly in addition to
+> `isValid`.
 
 ```typescript
 /**
@@ -322,7 +358,6 @@ The following tests are not yet implemented and therefore missing:
 
 **Recommended Tests**
 
-- Recommended Test 6.2.19
 - Recommended Test 6.2.20
 - Recommended Test 6.2.24
 - Recommended Test 6.2.26
@@ -468,6 +503,7 @@ export const recommendedTest_6_2_15: DocumentTest
 export const recommendedTest_6_2_16: DocumentTest
 export const recommendedTest_6_2_17: DocumentTest
 export const recommendedTest_6_2_18: DocumentTest
+export const recommendedTest_6_2_19: DocumentTest
 export const recommendedTest_6_2_21: DocumentTest
 export const recommendedTest_6_2_22: DocumentTest
 export const recommendedTest_6_2_23: DocumentTest

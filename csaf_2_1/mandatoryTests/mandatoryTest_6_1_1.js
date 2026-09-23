@@ -57,7 +57,7 @@ export async function mandatoryTest_6_1_1(doc) {
         ctx.isValid = false
         ctx.errors.push({
           instancePath,
-          message: 'definition of product id missing',
+          message: `definition of product id \`${value}\` missing`,
         })
       }
     })
