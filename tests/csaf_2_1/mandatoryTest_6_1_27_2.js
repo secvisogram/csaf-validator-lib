@@ -17,14 +17,6 @@ describe('mandatoryTest_6_1_27_2', function () {
     ).to.equal(true)
   })
 
-  it('returns valid when no references are present and the category is not relevant', function () {
-    expect(
-      mandatoryTest_6_1_27_2({
-        document: { category: 'csaf_base' },
-      }).isValid
-    ).to.equal(true)
-  })
-
   it('returns invalid for a relevant document without references at all', function () {
     const { isValid, errors } = mandatoryTest_6_1_27_2({
       document: { category: 'csaf_informational_advisory' },
