@@ -33,12 +33,17 @@ const allowedCategoryValues = [
   'csaf_deprecated_security_advisory',
   'csaf_withdrawn',
   'csaf_superseded',
+  'csaf_vulnerability_report',
 ]
 
-// Pattern for Unicode Dash-like, connector, and whitespace characters.
-// The combining low line (U+0332) is listed explicitly because its category \p{Mn} would also match unrelated
-// characters.
-const SEPARATOR_PATTERN = /[\p{Dash}\p{Pc}\u0332\s]+/gu
+// Pattern for Unicode Dash-like, connector, whitespace, and invisible characters.
+// \p{Cf} (format characters) covers most invisible characters (e.g. zero-width space, word joiner, byte order
+// mark). The remaining codepoints are listed explicitly because they are dash-, connector-, or underscore-like
+// look-alikes (e.g. box-drawing/technical dash symbols, a math symbol, and a Duployan letter used purely as a
+// visual underscore stand-in) that fall outside \p{Dash}, \p{Pc}, and \p{Cf}, or (in the case of the combining low
+// line and combining double low line) their general category \p{Mn} would also match unrelated characters.
+const SEPARATOR_PATTERN =
+  /[\p{Dash}\p{Pc}\p{Cf}\u02D7\u02CD\u0332\u0333\u034F\u2017\u2043\u2053\u2581\u23AF\u23B5\u23BA\u23BB\u23BC\u23BD\u23E4\u2500\u2501\u254C\u254D\u2574\u2576\u2578\u257A\u2796\u29FF\u{1BC03}\u{1BC08}\u{1BC0D}\u{1BC11}\u{1BC12}\u{1BC13}\u{1BC86}\u{1BC96}\u{1BC97}\u{1BC99}\s]+/gu
 
 export const normalize = (/** @type {string} */ value) =>
   value.replace(SEPARATOR_PATTERN, '').toLowerCase()
@@ -55,8 +60,8 @@ const prohibitedNormalizedCategories = otherProfileValues.flatMap((value) => [
 
 /**
  * It MUST be tested that the document category is not equal to the (case-insensitive) name (without the prefix csaf_)
- * or value of any other profile than "CSAF Base". Any occurrences of dash, whitespace, and underscore characters are
- * removed from the values on both sides before the match.
+ * or value of any other profile than "CSAF Base". Any occurrences of dash, hyphen, minus, underscore, white space,
+ * and invisible characters are removed from the values on both sides before the match.
  * Also, the value MUST NOT start with the reserved prefix csaf_ except if the value is csaf_base.
  * @param {unknown} doc
  */
