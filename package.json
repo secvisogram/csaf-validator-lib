@@ -4,8 +4,7 @@
   "license": "MIT",
   "scripts": {
     "pretest": "tsc -b .",
-    "prepublishOnly": "tsc -b .",
-    "prepare": "peggy --format es lib/spdx/parser.peggy",
+    "prepublishOnly": "tsc -b . && peggy --format es lib/spdx/parser.peggy",
     "test": "prettier --check . && vitest run",
     "test:node": "vitest run --project node",
     "test:browser": "vitest run --project browser",
@@ -130,6 +129,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@pandatix/js-cvss": "^0.4.4",
     "@secvisogram/is-leap-second": "^1.0.0",
     "ajv": "^8.11.2",
     "ajv-formats": "^3.0.1",
@@ -158,5 +158,5 @@
     "vitest": "^4.1.10",
     "xml2js": "^0.5.0"
   },
-  "version": "2.1.4"
+  "version": "2.1.6"
 }
