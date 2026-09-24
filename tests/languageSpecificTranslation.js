@@ -1,5 +1,4 @@
 import { getTranslationInMap } from '../lib/shared/languageSpecificTranslation.js'
-import { expect } from 'chai'
 
 describe('test language specific translation', function () {
   it('test getTranslationInMap', function () {

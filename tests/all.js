@@ -1,6 +1,4 @@
-import Ajv from 'ajv'
-import chai from 'chai'
-import { getGlobalDispatcher, setGlobalDispatcher } from 'undici'
+import { Ajv } from 'ajv'
 import * as informativeTests from '../informativeTests.js'
 import * as mandatoryTests from '../mandatoryTests.js'
 import * as schemaTests from '../schemaTests.js'
@@ -8,12 +6,10 @@ import strip from '../strip.js'
 import validate from '../validate.js'
 import * as optionalTests from '../optionalTests.js'
 import documentTests from './all/documentTests.js'
-import informativeTestTests from './all/informativeTests.js'
 import optionalTestTests from './all/optionalTests.js'
 import schemaTestTests from './all/schemaTests.js'
 
 const { csaf_2_0_strict, csaf_2_0 } = schemaTests
-const { expect } = chai
 
 describe('Core', () => {
   describe('test naming', function () {
@@ -89,43 +85,6 @@ describe('Core', () => {
           warnings.length,
           'Document has the correct number of warnings'
         ).to.equal(documentTest.expectedNumberOfWarnings)
-      })
-    })
-  })
-
-  describe('informativeTests', () => {
-    const globalDispatcher = getGlobalDispatcher()
-
-    after(function () {
-      setGlobalDispatcher(globalDispatcher)
-    })
-
-    informativeTestTests.forEach((informativeTest, i) => {
-      it(informativeTest.title ?? `Optional Test #${i + 1}`, async () => {
-        if ('mockAgent' in informativeTest) {
-          setGlobalDispatcher(informativeTest.mockAgent())
-        }
-        const result = await validate(
-          [
-            csaf_2_0_strict,
-            ...Object.values(mandatoryTests),
-            ...Object.values(optionalTests),
-            ...Object.values(informativeTests).filter(
-              (t) => t.name !== 'informativeTest_6_3_8'
-            ),
-          ],
-          informativeTest.content
-        )
-        expect(result.isValid).to.be.true
-        const errors = result.tests.flatMap((t) => t.errors)
-        const warnings = result.tests.flatMap((t) => t.warnings)
-        const infos = result.tests.flatMap((t) => t.infos)
-        expect(errors).to.have.lengthOf(0)
-        expect(warnings).to.have.lengthOf(0)
-        expect(
-          infos.length,
-          'Document has the correct number of infos'
-        ).to.equal(informativeTest.expectedNumberOfInfos)
       })
     })
   })

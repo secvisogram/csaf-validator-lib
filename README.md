@@ -6,6 +6,7 @@
   - [Strict Mode](#strict-mode)
   - [API](#api)
     - [Interfaces](#interfaces)
+      - [How `isValid` is computed](#how-isvalid-is-computed)
     - CSAF 2.0
       - [Module `schemaTests.js`](#module-schematestsjs)
       - [Module `mandatoryTests.js`](#module-mandatorytestsjs)
@@ -54,6 +55,8 @@ npm install @secvisogram/csaf-validator-lib
 
 ### Using a git subtree
 
+> **NOTE**: `csaf-validator-lib` is now published as an [npm package](#using-the-official-npm-package). It is recommended to use this instead of including a subtree of the package.
+
 You can also include this library as a subtree in your repository.
 
 - include as git subtree
@@ -65,7 +68,7 @@ You can also include this library as a subtree in your repository.
 - install dependencies
 
   ```sh
-  cd csaf-validator-lib && npm ci --prod
+  cd csaf-validator-lib && npm ci --omit=dev
   ```
 
 - This repository includes git submodules. Make sure to initialize and update
@@ -162,6 +165,39 @@ interface TestResult {
   infos?: Array<{ message: string; instancePath: string }>
 }
 ```
+
+#### How `isValid` is computed
+
+The validator follows the severity categorisation defined by the CSAF 2.0 standard and distinguishing between three
+levels: `errors`, `warnings`, and `infos`:
+
+| Array      | Produced by                              | Meaning                                                         |
+| ---------- | ---------------------------------------- | --------------------------------------------------------------- |
+| `errors`   | Schema tests and mandatory tests (6.1.x) | The document violates a **MUST** requirement                    |
+| `warnings` | Optional tests (6.2.x)                   | The document deviates from a **SHOULD**/recommended requirement |
+| `infos`    | Informative tests (6.3.x)                | Informational finding, no requirement violated                  |
+
+Only `errors` affect `isValid`:
+
+- **Per-test `isValid`** (`TestResult.isValid`): a test is only invalid (`isValid: false`) if it reports `errors`.
+  By contrast, `warnings` and `infos` never cause a test to be marked invalid. If a test doesn't set `isValid`
+  explicitly, `validate.js`/`validateStrict.js` default it to `true`.
+- **Overall `isValid`** (`Result.isValid`): the logical AND of all per-test
+  `isValid` values. It is `false` only if at least one test produced
+  `errors` (i.e. a schema or mandatory/6.1.x test failed).
+
+Because optional tests (6.2.x) are designed to produce only`warnings`, an optional test can legitimately report
+`isValid: true` alongside one or more `warnings`. In this case, the document does not violate a mandatory requirement;
+it merely deviates from an optional recommendation.
+
+> **Note:** It may seem counterintuitive that a test or even the overall document can be reported as `isValid: true` while it still
+> produced one or more `warnings`. This is intentional: `isValid` only
+> answers the question "does the document violate a **MUST** requirement of
+> the CSAF standard?", not "are there any findings at all?".
+>
+> Callers that want to treat `warnings` or `infos` as a failure condition need to
+> check `warnings.length`/`infos.length` explicitly in addition to
+> `isValid`.
 
 ```typescript
 /**
@@ -311,44 +347,50 @@ The following tests are not yet implemented and therefore missing:
 
 **Mandatory Tests**
 
-- Mandatory Test 6.1.26
 - Mandatory Test 6.1.27.13
-- Mandatory Test 6.1.46
-- Mandatory Test 6.1.47
 - Mandatory Test 6.1.48
-- Mandatory Test 6.1.49
-- Mandatory Test 6.1.53
 - Mandatory Test 6.1.54
 - Mandatory Test 6.1.55
+- Mandatory Test 6.1.59
+- Mandatory Test 6.1.60.2
+- Mandatory Test 6.1.60.3
 
 **Recommended Tests**
 
-- Recommended Test 6.2.11
-- Recommended Test 6.2.19
 - Recommended Test 6.2.20
 - Recommended Test 6.2.24
 - Recommended Test 6.2.26
 - Recommended Test 6.2.31
-- Recommended Test 6.2.32
-- Recommended Test 6.2.33
 - Recommended Test 6.2.34
 - Recommended Test 6.2.35
-- Recommended Test 6.2.36
 - Recommended Test 6.2.37
 - Recommended Test 6.2.38
-- Recommended Test 6.2.39
-- Recommended Test 6.2.42
+- Recommended Test 6.2.39.1
 - Recommended Test 6.2.44
 - Recommended Test 6.2.45
 - Recommended Test 6.2.46
+- Recommended Test 6.2.50.1
+- Recommended Test 6.2.50.2
+- Recommended Test 6.2.50.3
+- Recommended Test 6.2.51
+- Recommended Test 6.2.54.1
+- Recommended Test 6.2.54.2
+- Recommended Test 6.2.54.4
 
 **Informative Tests**
 
-- Informative Test 6.2.13
-- Informative Test 6.2.14
-- Informative Test 6.2.15
-- Informative Test 6.2.16
-- Informative Test 6.2.17
+- Informative Test 6.3.13
+- Informative Test 6.3.14
+- Informative Test 6.3.15
+- Informative Test 6.3.16
+- Informative Test 6.3.17
+- Informative Test 6.3.19.1
+- Informative Test 6.3.19.2
+- Informative Test 6.3.19.3
+- Informative Test 6.3.19.4
+- Informative Test 6.3.19.5
+- Informative Test 6.3.21.2
+- Informative Test 6.3.21.7
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -387,6 +429,7 @@ export const mandatoryTest_6_1_22: DocumentTest
 export const mandatoryTest_6_1_23: DocumentTest
 export const mandatoryTest_6_1_24: DocumentTest
 export const mandatoryTest_6_1_25: DocumentTest
+export const mandatoryTest_6_1_26: DocumentTest
 export const mandatoryTest_6_1_27_1: DocumentTest
 export const mandatoryTest_6_1_27_2: DocumentTest
 export const mandatoryTest_6_1_27_3: DocumentTest
@@ -423,9 +466,18 @@ export const mandatoryTest_6_1_42: DocumentTest
 export const mandatoryTest_6_1_43: DocumentTest
 export const mandatoryTest_6_1_44: DocumentTest
 export const mandatoryTest_6_1_45: DocumentTest
+export const mandatoryTest_6_1_46: DocumentTest
+export const mandatoryTest_6_1_47: DocumentTest
+export const mandatoryTest_6_1_49: DocumentTest
 export const mandatoryTest_6_1_50: DocumentTest
 export const mandatoryTest_6_1_51: DocumentTest
 export const mandatoryTest_6_1_52: DocumentTest
+export const mandatoryTest_6_1_53: DocumentTest
+export const mandatoryTest_6_1_56: DocumentTest
+export const mandatoryTest_6_1_57: DocumentTest
+export const mandatoryTest_6_1_58: DocumentTest
+export const mandatoryTest_6_1_61: DocumentTest
+export const mandatoryTest_6_1_60_1: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -443,6 +495,7 @@ export const recommendedTest_6_2_7: DocumentTest
 export const recommendedTest_6_2_8: DocumentTest
 export const recommendedTest_6_2_9: DocumentTest
 export const recommendedTest_6_2_10: DocumentTest
+export const recommendedTest_6_2_11: DocumentTest
 export const recommendedTest_6_2_12: DocumentTest
 export const recommendedTest_6_2_13: DocumentTest
 export const recommendedTest_6_2_14: DocumentTest
@@ -450,6 +503,7 @@ export const recommendedTest_6_2_15: DocumentTest
 export const recommendedTest_6_2_16: DocumentTest
 export const recommendedTest_6_2_17: DocumentTest
 export const recommendedTest_6_2_18: DocumentTest
+export const recommendedTest_6_2_19: DocumentTest
 export const recommendedTest_6_2_21: DocumentTest
 export const recommendedTest_6_2_22: DocumentTest
 export const recommendedTest_6_2_23: DocumentTest
@@ -458,11 +512,23 @@ export const recommendedTest_6_2_27: DocumentTest
 export const recommendedTest_6_2_28: DocumentTest
 export const recommendedTest_6_2_29: DocumentTest
 export const recommendedTest_6_2_30: DocumentTest
+export const recommendedTest_6_2_32: DocumentTest
+export const recommendedTest_6_2_33: DocumentTest
+export const recommendedTest_6_2_36: DocumentTest
 export const recommendedTest_6_2_39_2: DocumentTest
+export const recommendedTest_6_2_39_3: DocumentTest
+export const recommendedTest_6_2_39_4: DocumentTest
+export const recommendedTest_6_2_39_5: DocumentTest
 export const recommendedTest_6_2_40: DocumentTest
 export const recommendedTest_6_2_41: DocumentTest
+export const recommendedTest_6_2_42: DocumentTest
 export const recommendedTest_6_2_43: DocumentTest
 export const recommendedTest_6_2_47: DocumentTest
+export const recommendedTest_6_2_48: DocumentTest
+export const recommendedTest_6_2_49: DocumentTest
+export const recommendedTest_6_2_52: DocumentTest
+export const recommendedTest_6_2_53: DocumentTest
+export const recommendedTest_6_2_54_3: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -483,6 +549,15 @@ export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
+export const informativeTest_6_3_20: DocumentTest
+export const informativeTest_6_3_21_1: DocumentTest
+export const informativeTest_6_3_21_3: DocumentTest
+export const informativeTest_6_3_21_4: DocumentTest
+export const informativeTest_6_3_21_5: DocumentTest
+export const informativeTest_6_3_21_6: DocumentTest
+export const informativeTest_6_3_21_8: DocumentTest
+export const informativeTest_6_3_21_9: DocumentTest
+export const informativeTest_6_3_22: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -550,7 +625,7 @@ export const weaknesses: Array<{ id: string; name: string }>
 
 ## Testing
 
-Tests are implemented using [mocha](https://mochajs.org/). The minimal supported Node.js version is **20**. They can be run using the following command:
+Tests are implemented using [vitest](https://vitest.dev/). The minimal supported Node.js version is **22**. They can be run using the following command:
 
 ```sh
 npm test
@@ -577,7 +652,5 @@ For the complete list of dependencies please take a look at [package.json](https
 - [packageurl-js](https://github.com/package-url/packageurl-js)
 - [semver](https://github.com/npm/node-semver)
 - [undici](https://undici.nodejs.org)
-- [@js-joda/core](https://js-joda.github.io/js-joda/)
-- [@js-joda/timezone](https://js-joda.github.io/js-joda/)
 
 [(back to top)](#bsi-csaf-validator-lib)

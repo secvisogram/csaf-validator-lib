@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_23 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_23', function () {
   it('only runs on relevant documents', async function () {
-    assert.equal(
+    expect(
       (await recommendedTest_6_2_23({ vulnerabilities: 'mydoc' })).warnings
-        .length,
-      0
-    )
+        .length
+    ).to.equal(0)
   })
   it('skips empty objects', async function () {
-    assert.equal(
+    expect(
       (
         await recommendedTest_6_2_23({
           vulnerabilities: [
@@ -26,8 +24,7 @@ describe('recommendedTest_6_2_23', function () {
             {}, // should be ignored
           ],
         })
-      ).warnings.length,
-      1
-    )
+      ).warnings.length
+    ).to.equal(1)
   })
 })

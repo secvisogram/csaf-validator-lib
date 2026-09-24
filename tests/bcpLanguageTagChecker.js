@@ -1,9 +1,6 @@
-import chai from 'chai'
 import bcpLanguageTagChecker, {
   isPrivateLanguage,
 } from '../lib/shared/bcpLanguageTagChecker.js'
-
-const { expect } = chai
 
 describe('bcpLanguageTagChecker', function () {
   const correctLanguageTags = [
