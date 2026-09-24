@@ -53,10 +53,10 @@ async function collectGroupIds(doc) {
 
   for (const path of [
     '/document/notes[]/group_ids[]',
+    '/document/involvement/actions[]/group_ids[]',
     '/vulnerabilities[]/first_known_exploitation_dates[]/group_ids[]',
     '/vulnerabilities[]/flags[]/group_ids[]',
     '/vulnerabilities[]/ids[]/group_ids[]',
-    '/vulnerabilities[]/involvements[]/group_ids[]',
     '/vulnerabilities[]/notes[]/group_ids[]',
     '/vulnerabilities[]/remediations[]/group_ids[]',
     '/vulnerabilities[]/threats[]/group_ids[]',

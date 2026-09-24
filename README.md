@@ -55,6 +55,8 @@ npm install @secvisogram/csaf-validator-lib
 
 ### Using a git subtree
 
+> **NOTE**: `csaf-validator-lib` is now published as an [npm package](#using-the-official-npm-package). It is recommended to use this instead of including a subtree of the package.
+
 You can also include this library as a subtree in your repository.
 
 - include as git subtree
@@ -66,7 +68,7 @@ You can also include this library as a subtree in your repository.
 - install dependencies
 
   ```sh
-  cd csaf-validator-lib && npm ci --prod
+  cd csaf-validator-lib && npm ci --omit=dev
   ```
 
 - This repository includes git submodules. Make sure to initialize and update
