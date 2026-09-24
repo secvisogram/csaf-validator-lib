@@ -16,8 +16,7 @@ export async function informativeTest_6_3_21_7(doc) {
     async (instancePath) => {
       ctx.infos.push({
         instancePath,
-        message:
-          'The element "x_extensions" exists in a path that starts with "$.vulnerabilities[*].metrics".',
+        message: 'usage of extensions',
       })
     }
   )
