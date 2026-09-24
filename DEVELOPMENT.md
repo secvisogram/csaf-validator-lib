@@ -49,3 +49,7 @@ message:
   'the ssvc id does neither match the "cve" nor it '+
   'matches the "text" of any item in the "ids" array',
 ```
+
+### Maintaining the spdx parser
+
+There is an spdx parser included in the project which is generated from a peggy grammar file in `lib/spdx/parser.peggy`. When updating the grammar file run `npm run prepublishOnly` to update the generated artifact which is versioned in git.
