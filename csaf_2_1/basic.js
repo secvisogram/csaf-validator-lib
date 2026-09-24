@@ -73,4 +73,5 @@ export {
   mandatoryTest_6_1_58,
   mandatoryTest_6_1_60_1,
   mandatoryTest_6_1_61,
+  mandatoryTest_6_1_62,
 } from './mandatoryTests.js'
