@@ -1,5 +1,7 @@
 import { Ajv } from 'ajv/dist/jtd.js'
 import csafAjv from '../csafAjv.js'
+import bcpLanguageTagChecker from '../../lib/shared/bcpLanguageTagChecker.js'
+import { getSsvcNamespaceLanguageTags } from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
 
@@ -26,6 +28,16 @@ const inputSchema = /** @type {const} */ ({
                     ssvc_v2: {
                       additionalProperties: true,
                       properties: {},
+                      optionalProperties: {
+                        selections: {
+                          elements: {
+                            additionalProperties: true,
+                            optionalProperties: {
+                              namespace: { type: 'string' },
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -77,6 +89,24 @@ export function mandatoryTest_6_1_46(doc) {
             })
           }
         }
+
+        metric.content.ssvc_v2.selections?.forEach(
+          (selection, selectionIndex) => {
+            const namespace = selection.namespace
+            if (typeof namespace !== 'string') {
+              return
+            }
+            for (const languageTag of getSsvcNamespaceLanguageTags(namespace)) {
+              if (!bcpLanguageTagChecker(languageTag)) {
+                ctx.isValid = false
+                ctx.errors.push({
+                  instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/content/ssvc_v2/selections/${selectionIndex}/namespace`,
+                  message: `the namespace contains the language tag "${languageTag}", which is not a valid language-tag`,
+                })
+              }
+            }
+          }
+        )
       }
     })
   })
