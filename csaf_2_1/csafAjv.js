@@ -26,7 +26,7 @@ csafAjv.addSchema(cvss_v3_1, 'https://www.first.org/cvss/cvss-v3.1.json')
 csafAjv.addSchema(cvss_meta, 'https://www.first.org/cvss/meta.json')
 csafAjv.addSchema(
   content_schema,
-  'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metaschema.json#/$defs/content_schema_t'
+  'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metaschema.json'
 )
 csafAjv.addSchema(
   meta_format_assertion,
