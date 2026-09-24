@@ -8,6 +8,7 @@
     "test": "prettier --check . && vitest run",
     "test:node": "vitest run --project node",
     "test:browser": "vitest run --project browser",
+    "test-vers": "node --experimental-wasm-modules csaf_2_1/test-vers-integration.js",
     "pretest-report": "tsc -b .",
     "test-report": "prettier --check . && vitest run --project node --reporter=junit --outputFile=test-results.xml",
     "test-coverage": "vitest run --project node --coverage",
@@ -129,6 +130,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@csaf-rs/vers-rs": "^0.1.2",
     "@pandatix/js-cvss": "^0.4.4",
     "@secvisogram/is-leap-second": "^1.0.0",
     "ajv": "^8.11.2",
