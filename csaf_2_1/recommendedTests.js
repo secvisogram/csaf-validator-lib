@@ -37,6 +37,7 @@ export { recommendedTest_6_2_32 } from './recommendedTests/recommendedTest_6_2_3
 export { recommendedTest_6_2_33 } from './recommendedTests/recommendedTest_6_2_33.js'
 export { recommendedTest_6_2_36 } from './recommendedTests/recommendedTest_6_2_36.js'
 export { recommendedTest_6_2_38 } from './recommendedTests/recommendedTest_6_2_38.js'
+export { recommendedTest_6_2_39_1 } from './recommendedTests/recommendedTest_6_2_39_1.js'
 export { recommendedTest_6_2_39_2 } from './recommendedTests/recommendedTest_6_2_39_2.js'
 export { recommendedTest_6_2_39_3 } from './recommendedTests/recommendedTest_6_2_39_3.js'
 export { recommendedTest_6_2_39_4 } from './recommendedTests/recommendedTest_6_2_39_4.js'
