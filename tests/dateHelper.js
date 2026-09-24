@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import { compareZonedDateTimes } from '../lib/shared/dateHelper.js'
 
 describe('dateHelper', function () {

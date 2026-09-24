@@ -1,6 +1,5 @@
 import minimalDoc from './shared/minimalCSAFBaseDoc.js'
 
-import { expect } from 'chai'
 import { mandatoryTest_6_1_30 } from '../mandatoryTests.js'
 
 describe('Mandatory test 6.1.30', function () {

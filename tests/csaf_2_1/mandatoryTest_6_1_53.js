@@ -1,13 +1,12 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_53 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_53.js'
 
 describe('mandatoryTest_6_1_53', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_53({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_53({ document: 'mydoc' }).isValid).to.equal(true)
   })
 
   it('skips vulnerability without first_known_exploitation_dates', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_53({
         vulnerabilities: [
           {}, // should be ignored
@@ -20,13 +19,12 @@ describe('mandatoryTest_6_1_53', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 
   it('skips empty first_known_exploitation_date', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_53({
         vulnerabilities: [
           {
@@ -39,8 +37,7 @@ describe('mandatoryTest_6_1_53', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 })

@@ -194,7 +194,7 @@ export default {
               uniqueItems: true,
               items: {
                 type: 'string',
-                enum: ['critical', 'high_value', 'informational'],
+                enum: ['essential', 'significant', 'supplementary'],
               },
             },
           },

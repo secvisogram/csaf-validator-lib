@@ -1,4 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
+import { containsMultipleUnescapedStars } from './shared/wildcardUtils.js'
 
 const ajv = new Ajv()
 
@@ -78,16 +79,6 @@ const validate = ajv.compile(inputSchema)
  */
 
 /**
- *
- * @param {string} stringToCheck
- * @return {boolean}
- */
-export function containMultipleUnescapedStars(stringToCheck) {
-  const regex = /\*/g
-  return (stringToCheck.replace(/\\\*/g, '').match(regex)?.length ?? 0) > 1
-}
-
-/**
  * Validates all given model numbers and
  * check whether they contain multiple unescaped stars
  *
@@ -100,7 +91,7 @@ export function checkModelNumbers(modelNumbers) {
   if (modelNumbers) {
     for (let i = 0; i < modelNumbers.length; i++) {
       const modelNumber = modelNumbers[i]
-      if (containMultipleUnescapedStars(modelNumber)) {
+      if (containsMultipleUnescapedStars(modelNumber)) {
         invalidNumbers.push(i)
       }
     }

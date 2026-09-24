@@ -1,13 +1,12 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_51 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_51.js'
 
 describe('mandatoryTest_6_1_51', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_51({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_51({ document: 'mydoc' }).isValid).to.equal(true)
   })
 
   it('skips status draft', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_51({
         document: {
           tracking: {
@@ -16,13 +15,12 @@ describe('mandatoryTest_6_1_51', function () {
           },
         },
         vulnerabilities: [],
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('skips empty revision_history object', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_51({
         document: {
           tracking: {
@@ -46,13 +44,12 @@ describe('mandatoryTest_6_1_51', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 
   it('skips empty vulnerability object', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_51({
         document: {
           tracking: {
@@ -74,13 +71,12 @@ describe('mandatoryTest_6_1_51', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 
   it('skips empty metrics object', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_51({
         document: {
           tracking: {
@@ -102,13 +98,12 @@ describe('mandatoryTest_6_1_51', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 
   it('skips empty epss object', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_51({
         document: {
           tracking: {
@@ -134,8 +129,7 @@ describe('mandatoryTest_6_1_51', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 })

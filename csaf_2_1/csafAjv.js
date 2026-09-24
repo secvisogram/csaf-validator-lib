@@ -12,7 +12,7 @@ import meta_format_assertion from './csafAjv/meta-format-assertion.js'
 import draft_07_schema from './csafAjv/draft-07-schema.js'
 import selectionList_2_0_0Schema from './csafAjv/SelectionList_2_0_0.schema.js'
 
-import { timestampRegex, validateTimestamp } from './dateHelper.js'
+import { validateTimestamp } from './dateHelper.js'
 
 const csafAjv = new Ajv2020({ strict: false, allErrors: true })
 addFormats.default(csafAjv)
@@ -26,7 +26,7 @@ csafAjv.addSchema(cvss_v3_1, 'https://www.first.org/cvss/cvss-v3.1.json')
 csafAjv.addSchema(cvss_meta, 'https://www.first.org/cvss/meta.json')
 csafAjv.addSchema(
   content_schema,
-  'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metaschema.json#/$defs/content_schema_t'
+  'https://docs.oasis-open.org/csaf/csaf/v2.1/schema/extension-metaschema.json'
 )
 csafAjv.addSchema(
   meta_format_assertion,
@@ -49,7 +49,7 @@ csafAjv.addSchema(
 csafAjv.addFormat('date-time', {
   type: 'string',
   validate: (v) => {
-    return timestampRegex.test(v) && validateTimestamp(v)
+    return validateTimestamp(v).isValid
   },
 })
 

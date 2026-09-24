@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { mandatoryTest_6_1_57 } from '../../csaf_2_1/mandatoryTests.js'
 
 describe('mandatoryTest_6_1_57', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      mandatoryTest_6_1_57({ vulnerabilities: 'mydoc' }).errors.length,
-      0
-    )
+    expect(
+      mandatoryTest_6_1_57({ vulnerabilities: 'mydoc' }).errors.length
+    ).to.equal(0)
   })
 
   it('passes when product_tree has no branches', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_57({
         product_tree: {
           full_product_names: [
@@ -20,9 +18,8 @@ describe('mandatoryTest_6_1_57', function () {
             },
           ],
         },
-      }).errors.length,
-      0
-    )
+      }).errors.length
+    ).to.equal(0)
   })
 
   it('skips recursion when an intermediate branch has invalid branches property', function () {
@@ -43,7 +40,7 @@ describe('mandatoryTest_6_1_57', function () {
         ],
       },
     })
-    assert.equal(result.errors.length, 0)
-    assert.equal(result.isValid, true)
+    expect(result.errors.length).to.equal(0)
+    expect(result.isValid).to.equal(true)
   })
 })

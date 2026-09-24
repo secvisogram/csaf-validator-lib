@@ -1,12 +1,10 @@
-import assert from 'node:assert'
 import { collectProductIdsFromFullProductPath } from '../../../csaf_2_1/mandatoryTests/shared/docProductUtils.js'
 
 describe('docProductUtils', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      collectProductIdsFromFullProductPath({ document: 'mydoc' }).length,
-      0
-    )
+    expect(
+      collectProductIdsFromFullProductPath({ document: 'mydoc' }).length
+    ).to.equal(0)
   })
 
   it('collects product_id from full_product_names', function () {
@@ -15,9 +13,8 @@ describe('docProductUtils', function () {
         full_product_names: [{ product_id: 'CSAFPID-0001' }],
       },
     })
-    assert.equal(result.length, 1)
-    assert.equal(
-      result[0].instancePath,
+    expect(result.length).to.equal(1)
+    expect(result[0].instancePath).to.equal(
       '/product_tree/full_product_names/0/product_id'
     )
   })
@@ -34,9 +31,8 @@ describe('docProductUtils', function () {
         ],
       },
     })
-    assert.equal(result.length, 1)
-    assert.equal(
-      result[0].instancePath,
+    expect(result.length).to.equal(1)
+    expect(result[0].instancePath).to.equal(
       '/product_tree/product_paths/0/full_product_name/product_id'
     )
   })
@@ -51,9 +47,8 @@ describe('docProductUtils', function () {
         ],
       },
     })
-    assert.equal(result.length, 1)
-    assert.equal(
-      result[0].instancePath,
+    expect(result.length).to.equal(1)
+    expect(result[0].instancePath).to.equal(
       '/product_tree/branches/0/product/product_id'
     )
   })
@@ -75,9 +70,8 @@ describe('docProductUtils', function () {
         ],
       },
     })
-    assert.equal(result.length, 1)
-    assert.equal(
-      result[0].instancePath,
+    expect(result.length).to.equal(1)
+    expect(result[0].instancePath).to.equal(
       '/product_tree/branches/0/branches/0/product/product_id'
     )
   })
