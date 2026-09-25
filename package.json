@@ -131,6 +131,7 @@
   "dependencies": {
     "@pandatix/js-cvss": "^0.4.4",
     "@secvisogram/is-leap-second": "^1.0.0",
+    "@secvisogram/license-deprecation-list": "^1.0.0",
     "ajv": "^8.11.2",
     "ajv-formats": "^3.0.1",
     "bcp47": "^1.1.2",
