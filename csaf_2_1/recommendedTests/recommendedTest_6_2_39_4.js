@@ -101,10 +101,34 @@ export function recommendedTest_6_2_39_4(doc) {
       ctx.warnings.push({
         instancePath: '/document/references',
         message:
-          `for document category "${docCategoryCsafSuperseded}" at least one references must exist ` +
-          `with reference category "${referenceCategory}" and whose summary begins with ${supersedingInDocLang}`,
+          `\`${docCategoryCsafSuperseded}\` must have at least one document reference with a summary ` +
+          `starting with \`${supersedingInDocLang}\` and category \`${referenceCategory}\``,
       })
     }
+
+    references?.forEach((reference, index) => {
+      if (!reference.summary?.startsWith(supersedingInDocLang)) {
+        return
+      }
+
+      if (
+        reference.category === undefined ||
+        reference.category !== referenceCategory
+      ) {
+        const category =
+          reference.category !== undefined &&
+          reference.category !== referenceCategory
+            ? `\`${reference.category}\``
+            : 'not present'
+
+        ctx.warnings.push({
+          instancePath: `/document/references/${index}`,
+          message:
+            `The category of the \`${supersedingInDocLang}\` reference must be present and ` +
+            `contain the value \`${referenceCategory}\` (was: ${category}).`,
+        })
+      }
+    })
   }
 
   return ctx
