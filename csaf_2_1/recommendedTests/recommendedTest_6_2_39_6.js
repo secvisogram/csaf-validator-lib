@@ -1,6 +1,6 @@
 import { Ajv } from 'ajv/dist/jtd.js'
 import {
-  containsOneNoteWithTitleAndCategory,
+  containsAtLeastOneNoteWithTitle,
   getTranslationInDocumentLang,
   isLangSpecifiedAndNotEnglish,
 } from '../../lib/shared/languageSpecificTranslation.js'
@@ -55,21 +55,11 @@ const inputSchema = /** @type {const} */ ({
 const validateSchema = ajv.compile(inputSchema)
 
 /**
- * If the document language is specified but not English, it SHALL be tested that at least one item
- * in vulnerability notes exists that has the language specific translation of the term
- * "Vulnerability Summary" or "CVE Description" as title. The category of this item SHALL be
- * consistent with the required category for that title ("summary" respectively "description",
- * see the table of category/title combinations with special meaning). If no language specific
- * translation has been recorded, the test SHALL be skipped and output an information to the user
- * that no such translation is known.
+ * This implements the recommended test 6.2.39.6 of the CSAF 2.1 standard.
  *
  * @param {unknown} doc
  */
 export function recommendedTest_6_2_39_6(doc) {
-  /*
-      The `ctx` variable holds the state that is accumulated during the test run and is
-      finally returned by the function.
-     */
   /** @type { {warnings: Array<{ message: string; instancePath: string }>;
    * infos: Array<{ message: string; instancePath: string }>}} */
   const ctx = {
@@ -108,53 +98,53 @@ export function recommendedTest_6_2_39_6(doc) {
     return ctx
   }
 
+  /** @type {Array<{ titleKey: string; category: string }>} */
+  const knownTranslations = []
+
+  if (cveDescriptionInDocLang) {
+    knownTranslations.push({
+      titleKey: cveDescriptionInDocLang,
+      category: 'description',
+    })
+  }
+
+  if (vulnerabilitySummaryInDocLang) {
+    knownTranslations.push({
+      titleKey: vulnerabilitySummaryInDocLang,
+      category: 'summary',
+    })
+  }
+
   const vulnerabilities = doc.vulnerabilities ?? []
   vulnerabilities.forEach((vulnerability, index) => {
     const notes = vulnerability.notes ?? []
     const hasMatchingNote =
       !!notes &&
-      ((!!cveDescriptionInDocLang &&
-        containsOneNoteWithTitleAndCategory(
-          notes,
-          cveDescriptionInDocLang,
-          'description'
-        )) ||
-        (!!vulnerabilitySummaryInDocLang &&
-          containsOneNoteWithTitleAndCategory(
-            notes,
-            vulnerabilitySummaryInDocLang,
-            'summary'
-          )))
+      knownTranslations.some(({ titleKey }) =>
+        containsAtLeastOneNoteWithTitle(notes, titleKey)
+      )
 
     if (!hasMatchingNote) {
       ctx.warnings.push({
         instancePath: `/vulnerabilities/${index}/notes`,
         message:
           `for document category "${docCategoryCsafVulnerabilityReport}" at least one note must exist ` +
-          `with title "${vulnerabilitySummaryInDocLang}" or "${vulnerabilitySummaryInDocLang}" and matching category "description" or "summary"`,
+          `with title ${knownTranslations
+            .map(({ titleKey }) => `"${titleKey}"`)
+            .join(' or ')}.`,
+      })
+    } else {
+      notes.forEach((note, noteIndex) => {
+        knownTranslations.forEach(({ titleKey, category }) => {
+          if (note.title === titleKey && note.category !== category) {
+            ctx.warnings.push({
+              instancePath: `/vulnerabilities/${index}/notes/${noteIndex}`,
+              message: `note with title "${titleKey}" should have category "${category}" but has "${note.category}"`,
+            })
+          }
+        })
       })
     }
-
-    notes.forEach((note, noteIndex) => {
-      if (
-        note.title === vulnerabilitySummaryInDocLang &&
-        note.category !== 'summary'
-      ) {
-        ctx.warnings.push({
-          instancePath: `/vulnerabilities/${index}/notes/${noteIndex}`,
-          message: `note with title "${vulnerabilitySummaryInDocLang}" has incorrect category "${note.category}"`,
-        })
-      }
-      if (
-        note.title === cveDescriptionInDocLang &&
-        note.category !== 'description'
-      ) {
-        ctx.warnings.push({
-          instancePath: `/vulnerabilities/${index}/notes/${noteIndex}`,
-          message: `note with title "${cveDescriptionInDocLang}" has incorrect category "${note.category}"`,
-        })
-      }
-    })
   })
 
   return ctx
