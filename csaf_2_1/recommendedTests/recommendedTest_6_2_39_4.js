@@ -116,8 +116,7 @@ export function recommendedTest_6_2_39_4(doc) {
         reference.category !== referenceCategory
       ) {
         const category =
-          reference.category !== undefined &&
-          reference.category !== referenceCategory
+          reference.category !== undefined
             ? `\`${reference.category}\``
             : 'not present'
 
