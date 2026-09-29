@@ -118,11 +118,9 @@ export function recommendedTest_6_2_39_6(doc) {
   const vulnerabilities = doc.vulnerabilities ?? []
   vulnerabilities.forEach((vulnerability, index) => {
     const notes = vulnerability.notes ?? []
-    const hasMatchingNote =
-      !!notes &&
-      knownTranslations.some(({ titleKey }) =>
-        containsAtLeastOneNoteWithTitle(notes, titleKey)
-      )
+    const hasMatchingNote = knownTranslations.some(({ titleKey }) =>
+      containsAtLeastOneNoteWithTitle(notes, titleKey)
+    )
 
     if (!hasMatchingNote) {
       ctx.warnings.push({
