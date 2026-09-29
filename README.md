@@ -529,6 +529,7 @@ export const recommendedTest_6_2_39_2: DocumentTest
 export const recommendedTest_6_2_39_3: DocumentTest
 export const recommendedTest_6_2_39_4: DocumentTest
 export const recommendedTest_6_2_39_5: DocumentTest
+export const recommendedTest_6_2_39_6: DocumentTest
 export const recommendedTest_6_2_39_7: DocumentTest
 export const recommendedTest_6_2_40: DocumentTest
 export const recommendedTest_6_2_41: DocumentTest
