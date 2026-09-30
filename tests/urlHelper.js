@@ -86,4 +86,74 @@ describe('test url helper', function () {
   it('returns false for a URL with multiple extra slashes', function () {
     expect(hasHostname('https:////foo.json')).to.be.false
   })
+
+  it('isCanonicalUrl rejects a URL with no hostname', function () {
+    const reference = {
+      url: 'https://',
+      category: 'self',
+    }
+    const trackingId = 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-47-12'
+
+    expect(isCanonicalUrl(reference, trackingId, true)).to.be.false
+  })
+
+  it('isCanonicalUrl rejects an uppercase Https scheme (canonical URLs are case-sensitive)', function () {
+    const reference = {
+      url: 'Https://example.com/.well-known/csaf/clear/2024/oasis_csaf_tc-csaf_2_1-2024-6-2-47-12.json',
+      category: 'self',
+    }
+    const trackingId = 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-47-12'
+
+    expect(isCanonicalUrl(reference, trackingId, true)).to.be.false
+  })
+
+  it('isCanonicalUrl with requireHostname rejects a URL with userinfo but no hostname', function () {
+    const reference = {
+      url: 'https://user:pass@/oasis_csaf_tc-csaf_2_1-2024-6-2-47-12.json',
+      category: 'self',
+    }
+    const trackingId = 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-47-12'
+
+    expect(isCanonicalUrl(reference, trackingId, true)).to.be.false
+  })
+
+  it('isCanonicalUrl with requireHostname rejects a URL with multiple extra slashes', function () {
+    const reference = {
+      url: 'https:////oasis_csaf_tc-csaf_2_1-2024-6-2-47-12.json',
+      category: 'self',
+    }
+    const trackingId = 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-47-12'
+
+    expect(isCanonicalUrl(reference, trackingId, true)).to.be.false
+  })
+
+  it('isCanonicalUrl rejects a URL with leading whitespace', function () {
+    const reference = {
+      url: ' https://example.com/.well-known/csaf/clear/2024/oasis_csaf_tc-csaf_2_1-2024-6-2-47-12.json',
+      category: 'self',
+    }
+    const trackingId = 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-47-12'
+
+    expect(isCanonicalUrl(reference, trackingId, true)).to.be.false
+  })
+
+  it('isCanonicalUrl rejects a URL with a trailing slash after the filename', function () {
+    const reference = {
+      url: 'https://example.com/.well-known/csaf/clear/2024/oasis_csaf_tc-csaf_2_1-2024-6-2-47-12.json/',
+      category: 'self',
+    }
+    const trackingId = 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-47-12'
+
+    expect(isCanonicalUrl(reference, trackingId, true)).to.be.false
+  })
+
+  it('isCanonicalUrl rejects a URL whose filename case does not match the generated filename', function () {
+    const reference = {
+      url: 'https://example.com/.well-known/csaf/clear/2024/OASIS_CSAF_TC-CSAF_2_1-2024-6-2-47-12.JSON',
+      category: 'self',
+    }
+    const trackingId = 'OASIS_CSAF_TC-CSAF_2.1-2024-6-2-47-12'
+
+    expect(isCanonicalUrl(reference, trackingId, true)).to.be.false
+  })
 })
