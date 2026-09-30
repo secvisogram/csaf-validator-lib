@@ -9,3 +9,6 @@
 **/*.json
 !package.json
 /lib/shared/first
+/lib/spdx/parser.js
+/scancode-licensedb
+/license-list-data

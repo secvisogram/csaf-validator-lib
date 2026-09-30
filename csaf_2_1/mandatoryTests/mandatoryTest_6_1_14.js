@@ -104,7 +104,7 @@ export function mandatoryTest_6_1_14(doc) {
     ctx.errors.push({
       instancePath: `/document/tracking/revision_history`,
       message:
-        'items must be in ascending order when sorted by "date" and "number"',
+        'items must be in ascending order when sorted by `date` and `number`',
     })
   }
 
