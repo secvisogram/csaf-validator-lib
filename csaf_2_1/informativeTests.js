@@ -24,3 +24,4 @@ export { informativeTest_6_3_21_8 } from './informativeTests/informativeTest_6_3
 export { informativeTest_6_3_21_9 } from './informativeTests/informativeTest_6_3_21_9.js'
 export { informativeTest_6_3_22 } from './informativeTests/informativeTest_6_3_22.js'
 export { informativeTest_6_3_23_1 } from './informativeTests/informativeTest_6_3_23_1.js'
+export { informativeTest_6_3_23_2 } from './informativeTests/informativeTest_6_3_23_2.js'
