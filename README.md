@@ -367,7 +367,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.37
 - Recommended Test 6.2.38
 - Recommended Test 6.2.39.1
-- Recommended Test 6.2.39.13
 - Recommended Test 6.2.44
 - Recommended Test 6.2.45
 - Recommended Test 6.2.46
@@ -384,7 +383,6 @@ The following tests are not yet implemented and therefore missing:
 
 - Informative Test 6.3.13
 - Informative Test 6.3.14
-- Informative Test 6.3.15
 - Informative Test 6.3.16
 - Informative Test 6.3.17
 - Informative Test 6.3.19.1
@@ -393,9 +391,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
-- Informative Test 6.3.21.7
-- Informative Test 6.3.23.1
-- Informative Test 6.3.23.2
 - Informative Test 6.3.24
 
 #### Module `csaf_2_1/schemaTests.js`
@@ -532,6 +527,7 @@ export const recommendedTest_6_2_39_9: DocumentTest
 export const recommendedTest_6_2_39_10: DocumentTest
 export const recommendedTest_6_2_39_11: DocumentTest
 export const recommendedTest_6_2_39_12: DocumentTest
+export const recommendedTest_6_2_39_13: DocumentTest
 export const recommendedTest_6_2_40: DocumentTest
 export const recommendedTest_6_2_41: DocumentTest
 export const recommendedTest_6_2_42: DocumentTest
@@ -561,6 +557,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_15: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 export const informativeTest_6_3_20: DocumentTest
 export const informativeTest_6_3_21_1: DocumentTest
@@ -568,9 +565,12 @@ export const informativeTest_6_3_21_3: DocumentTest
 export const informativeTest_6_3_21_4: DocumentTest
 export const informativeTest_6_3_21_5: DocumentTest
 export const informativeTest_6_3_21_6: DocumentTest
+export const informativeTest_6_3_21_7: DocumentTest
 export const informativeTest_6_3_21_8: DocumentTest
 export const informativeTest_6_3_21_9: DocumentTest
 export const informativeTest_6_3_22: DocumentTest
+export const informativeTest_6_3_23_1: DocumentTest
+export const informativeTest_6_3_23_2: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)

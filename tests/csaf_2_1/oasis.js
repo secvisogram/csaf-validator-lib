@@ -28,7 +28,6 @@ const excluded = [
   '6.2.35',
   '6.2.37',
   '6.2.39.1',
-  '6.2.39.13',
   '6.2.44',
   '6.2.45',
   '6.2.46',
@@ -39,11 +38,9 @@ const excluded = [
   '6.2.54.1',
   '6.2.54.2',
   '6.2.54.4',
-  '6.3.11',
   '6.3.12',
   '6.3.13',
   '6.3.14',
-  '6.3.15',
   '6.3.16',
   '6.3.17',
   '6.3.19.1',
@@ -52,9 +49,6 @@ const excluded = [
   '6.3.19.4',
   '6.3.19.5',
   '6.3.21.2',
-  '6.3.21.7',
-  '6.3.23.1',
-  '6.3.23.2',
   '6.3.24',
 ]
 
@@ -67,7 +61,6 @@ const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-11-04.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
-  'informative/oasis_csaf_tc-csaf_2_1-2024-6-3-06-03.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-46-03.json',
 ])
 

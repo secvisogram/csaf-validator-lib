@@ -48,6 +48,7 @@ export { recommendedTest_6_2_39_9 } from './recommendedTests/recommendedTest_6_2
 export { recommendedTest_6_2_39_10 } from './recommendedTests/recommendedTest_6_2_39_10.js'
 export { recommendedTest_6_2_39_11 } from './recommendedTests/recommendedTest_6_2_39_11.js'
 export { recommendedTest_6_2_39_12 } from './recommendedTests/recommendedTest_6_2_39_12.js'
+export { recommendedTest_6_2_39_13 } from './recommendedTests/recommendedTest_6_2_39_13.js'
 export { recommendedTest_6_2_40 } from './recommendedTests/recommendedTest_6_2_40.js'
 export { recommendedTest_6_2_41 } from './recommendedTests/recommendedTest_6_2_41.js'
 export { recommendedTest_6_2_42 } from './recommendedTests/recommendedTest_6_2_42.js'
