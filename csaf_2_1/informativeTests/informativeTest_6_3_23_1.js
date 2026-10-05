@@ -35,19 +35,16 @@ export function informativeTest_6_3_23_1(doc) {
   const infos = []
   const context = { infos }
 
-  const docCategoryCsafVulnerabilityReport = 'csaf_vulnerability_report'
+  const docCategoryCsafVulnReport = 'csaf_vulnerability_report'
 
-  if (
-    !validate(doc) ||
-    doc.document.category !== docCategoryCsafVulnerabilityReport
-  ) {
+  if (!validate(doc) || doc.document.category !== docCategoryCsafVulnReport) {
     return context
   }
 
   if (doc.document.involvement === undefined) {
     context.infos.push({
       instancePath: '/document/involvement',
-      message: `for document category "${docCategoryCsafVulnerabilityReport}" the document does not have a "involvement" element`,
+      message: `for document category "${docCategoryCsafVulnReport}" the document should have an "involvement" element`,
     })
   }
 
