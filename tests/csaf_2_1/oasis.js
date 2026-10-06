@@ -19,7 +19,6 @@ const excluded = [
   '6.1.59',
   '6.1.60.2',
   '6.1.60.3',
-  '6.1.62',
   '6.2.11',
   '6.2.20',
   '6.2.24',
@@ -28,15 +27,6 @@ const excluded = [
   '6.2.34',
   '6.2.35',
   '6.2.37',
-  '6.2.39.4',
-  '6.2.39.6',
-  '6.2.39.7',
-  '6.2.39.8',
-  '6.2.39.9',
-  '6.2.39.10',
-  '6.2.39.11',
-  '6.2.39.12',
-  '6.2.39.13',
   '6.2.44',
   '6.2.45',
   '6.2.46',
@@ -47,12 +37,9 @@ const excluded = [
   '6.2.54.1',
   '6.2.54.2',
   '6.2.54.4',
-  '6.2.55',
-  '6.3.11',
   '6.3.12',
   '6.3.13',
   '6.3.14',
-  '6.3.15',
   '6.3.16',
   '6.3.17',
   '6.3.19.1',
@@ -61,9 +48,6 @@ const excluded = [
   '6.3.19.4',
   '6.3.19.5',
   '6.3.21.2',
-  '6.3.21.7',
-  '6.3.23.1',
-  '6.3.23.2',
   '6.3.24',
 ]
 
@@ -74,10 +58,24 @@ const excluded = [
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-11-04.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
-  'informative/oasis_csaf_tc-csaf_2_1-2024-6-3-06-03.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-46-03.json',
+])
+
+/**
+ * Tests that can't run in the Vitest browser project and are therefore
+ * skipped when `isBrowserRuntime` is true:
+ * - `informative/6.3.8` shells out to the real `hunspell` CLI, which isn't
+ *   available in the browser.
+ * - `recommended/6.2.55`, `informative/6.3.6` and `informative/6.3.7` perform real HTTP
+ *   requests (see lib/informativeTests/shared/testURL.js); a real browser
+ *   sandbox can't make arbitrary cross-origin requests without CORS.
+ */
+const browserSkippedTests = new Set([
+  'informative/6.3.6',
+  'informative/6.3.7',
+  'informative/6.3.8',
+  'recommended/6.2.55',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
@@ -176,19 +174,8 @@ for (const [group, t] of testMap) {
     for (const [testId, u] of t) {
       if (excluded.includes(testId)) continue
 
-      // informativeTest_6_3_8 (the only OASIS informative test reached here
-      // without a hunspell mock override) shells out to the real `hunspell`
-      // CLI - not available in the Vitest browser project.
-      // informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
-      // lib/informativeTests/shared/testURL.js); a real browser sandbox can't
-      // make arbitrary cross-origin requests without CORS. Therefore we skip
-      // the tests here.
-      const isSkipped =
-        isBrowserRuntime &&
-        group === 'informative' &&
-        ['6.3.6', '6.3.7', '6.3.8'].includes(testId)
-
-      if (isSkipped) continue
+      if (isBrowserRuntime && browserSkippedTests.has(`${group}/${testId}`))
+        continue
 
       describe(testId, function () {
         for (const [type, testSpecs] of u) {
