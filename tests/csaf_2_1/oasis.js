@@ -49,7 +49,6 @@ const excluded = [
   '6.3.19.4',
   '6.3.19.5',
   '6.3.21.2',
-  '6.3.24',
 ]
 
 /**
@@ -68,15 +67,17 @@ const skippedTests = new Set([
  * skipped when `isBrowserRuntime` is true:
  * - `informative/6.3.8` shells out to the real `hunspell` CLI, which isn't
  *   available in the browser.
- * - `recommended/6.2.55`, `informative/6.3.6` and `informative/6.3.7` perform real HTTP
- *   requests (see lib/informativeTests/shared/testURL.js); a real browser
- *   sandbox can't make arbitrary cross-origin requests without CORS.
+ * - `recommended/6.2.55`, `informative/6.3.6`, `informative/6.3.7` and
+ *   `informative/6.3.24` perform real HTTP requests (see
+ *   lib/informativeTests/shared/testURL.js); a real browser sandbox can't
+ *   make arbitrary cross-origin requests without CORS.
  */
 const browserSkippedTests = new Set([
+  'recommended/6.2.55',
   'informative/6.3.6',
   'informative/6.3.7',
   'informative/6.3.8',
-  'recommended/6.2.55',
+  'informative/6.3.24',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
