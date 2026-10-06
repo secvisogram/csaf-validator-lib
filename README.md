@@ -383,7 +383,6 @@ The following tests are not yet implemented and therefore missing:
 
 - Informative Test 6.3.13
 - Informative Test 6.3.14
-- Informative Test 6.3.15
 - Informative Test 6.3.16
 - Informative Test 6.3.17
 - Informative Test 6.3.19.1
@@ -392,8 +391,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
-- Informative Test 6.3.23.1
-- Informative Test 6.3.23.2
 - Informative Test 6.3.24
 
 #### Module `csaf_2_1/schemaTests.js`
@@ -452,6 +449,7 @@ export const mandatoryTest_6_1_27_16: DocumentTest
 export const mandatoryTest_6_1_27_17: DocumentTest
 export const mandatoryTest_6_1_27_18: DocumentTest
 export const mandatoryTest_6_1_27_19: DocumentTest
+export const mandatoryTest_6_1_27_20: DocumentTest
 export const mandatoryTest_6_1_28: DocumentTest
 export const mandatoryTest_6_1_29: DocumentTest
 export const mandatoryTest_6_1_30: DocumentTest
@@ -560,6 +558,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_15: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 export const informativeTest_6_3_20: DocumentTest
 export const informativeTest_6_3_21_1: DocumentTest
@@ -571,6 +570,8 @@ export const informativeTest_6_3_21_7: DocumentTest
 export const informativeTest_6_3_21_8: DocumentTest
 export const informativeTest_6_3_21_9: DocumentTest
 export const informativeTest_6_3_22: DocumentTest
+export const informativeTest_6_3_23_1: DocumentTest
+export const informativeTest_6_3_23_2: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
