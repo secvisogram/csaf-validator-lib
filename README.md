@@ -449,6 +449,7 @@ export const mandatoryTest_6_1_27_16: DocumentTest
 export const mandatoryTest_6_1_27_17: DocumentTest
 export const mandatoryTest_6_1_27_18: DocumentTest
 export const mandatoryTest_6_1_27_19: DocumentTest
+export const mandatoryTest_6_1_27_20: DocumentTest
 export const mandatoryTest_6_1_28: DocumentTest
 export const mandatoryTest_6_1_29: DocumentTest
 export const mandatoryTest_6_1_30: DocumentTest
