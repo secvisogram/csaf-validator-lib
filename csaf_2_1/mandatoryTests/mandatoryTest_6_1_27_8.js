@@ -81,7 +81,13 @@ export function mandatoryTest_6_1_27_8(doc) {
     isValid: true,
   }
 
-  if (!validate(doc) || doc.document.category !== 'csaf_vex') {
+  const checkedDocumentCategories = new Set([
+    'csaf_security_advisory',
+    'csaf_vex',
+    'csaf_vulnerability_report',
+  ])
+
+  if (!validate(doc) || !checkedDocumentCategories.has(doc.document.category)) {
     return ctx
   }
 
@@ -106,8 +112,7 @@ export function mandatoryTest_6_1_27_8(doc) {
       ctx.isValid = false
       ctx.errors.push({
         instancePath: `/vulnerabilities/${vulnerabilityIndex}`,
-        message:
-          'Neither a CVE nor a general vulnerability id (ids) is given for this vulnerability.',
+        message: 'needs at least one of the following properties: `cve`, `ids`',
       })
       return
     }
