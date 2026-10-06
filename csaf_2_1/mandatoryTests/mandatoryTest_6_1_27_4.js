@@ -37,6 +37,7 @@ const validate = ajv.compile(inputSchema)
  *  csaf_security_advisory
  *  csaf_vex
  *  csaf_deprecated_security_advisory
+ *  csaf_vulnerability_report
  *
  * @param {any} doc
  */
@@ -53,6 +54,7 @@ export function mandatoryTest_6_1_27_4(doc) {
     'csaf_security_advisory',
     'csaf_vex',
     'csaf_deprecated_security_advisory',
+    'csaf_vulnerability_report',
   ])
 
   if (

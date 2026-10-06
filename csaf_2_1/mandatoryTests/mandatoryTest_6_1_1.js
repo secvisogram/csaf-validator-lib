@@ -6,6 +6,7 @@ import { collectProductIdsFromFullProductPath } from './shared/docProductUtils.j
  * @type {string[]}
  */
 const PRODUCT_ID_REF_PATHS = [
+  '/document/involvement/actions[]/product_ids[]',
   '/document/notes[]/product_ids[]',
   '/product_tree/product_groups[]/product_ids[]',
   '/product_tree/product_paths[]/beginning_product_reference',
@@ -25,7 +26,6 @@ const PRODUCT_ID_REF_PATHS = [
   '/vulnerabilities[]/flags[]/product_ids[]',
   '/vulnerabilities[]/first_known_exploitation_dates[]/product_ids[]',
   '/vulnerabilities[]/ids[]/product_ids[]',
-  '/vulnerabilities[]/involvements[]/product_ids[]',
   '/vulnerabilities[]/notes[]/product_ids[]',
 ]
 

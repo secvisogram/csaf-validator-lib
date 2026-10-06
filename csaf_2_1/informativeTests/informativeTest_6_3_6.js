@@ -52,6 +52,12 @@ const inputSchema = /** @type {const} */ ({
           additionalProperties: true,
           optionalProperties: {
             namespace: { type: 'string' },
+            contact: {
+              additionalProperties: true,
+              optionalProperties: {
+                public_openpgp_key_url: { type: 'string' },
+              },
+            },
           },
         },
       },
@@ -169,6 +175,7 @@ export async function informativeTest_6_3_6(doc) {
     '/document/acknowledgments[]/urls[]',
     '/document/aggregate_severity/namespace',
     '/document/distribution/tlp/url',
+    '/document/publisher/contact/public_openpgp_key_url',
     '/document/publisher/namespace',
     '/product_tree/branches[*]/product/product_identification_helper/sbom_urls[]',
     '/product_tree/branches[*]/product/product_identification_helper/x_generic_uris[]/namespace',
