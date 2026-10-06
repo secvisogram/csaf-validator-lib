@@ -10,6 +10,7 @@ describe('mandatoryTest_6_1_55', function () {
   })
 
   it('check license expressions', function () {
+    expect(getNotListedLicenses(''), 'empty license expression').to.eql([])
     expect(getNotListedLicenses('GPL-3.0+'), 'deprecated license').to.eql([
       'GPL-3.0+',
     ])

@@ -133,14 +133,10 @@ function isSpdxException(exceptionId) {
  * @return {boolean}
  */
 function isAboutCodeException(additionRefToCheck) {
-  if (!additionRefToCheck.startsWith(ABOUT_CODE_EXCEPTION_REF_PREFIX)) {
-    return false
-  } else {
-    const exceptionKey = additionRefToCheck.substring(
-      ABOUT_CODE_EXCEPTION_REF_PREFIX.length
-    )
-    return ABOUT_CODE_EXCEPTION_KEYS.has(exceptionKey)
-  }
+  const exceptionKey = additionRefToCheck.substring(
+    ABOUT_CODE_EXCEPTION_REF_PREFIX.length
+  )
+  return ABOUT_CODE_EXCEPTION_KEYS.has(exceptionKey)
 }
 
 /**
