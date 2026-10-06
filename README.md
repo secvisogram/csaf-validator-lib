@@ -350,7 +350,6 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.27.13
 - Mandatory Test 6.1.50
 - Mandatory Test 6.1.54
-- Mandatory Test 6.1.55
 - Mandatory Test 6.1.59
 - Mandatory Test 6.1.60.2
 - Mandatory Test 6.1.60.3
@@ -376,12 +375,12 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
 - Recommended Test 6.2.54.4
+- Recommended Test 6.2.55
 
 **Informative Tests**
 
 - Informative Test 6.3.13
 - Informative Test 6.3.14
-- Informative Test 6.3.15
 - Informative Test 6.3.16
 - Informative Test 6.3.17
 - Informative Test 6.3.19.1
@@ -390,7 +389,7 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
-- Informative Test 6.3.21.7
+- Informative Test 6.3.24
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -448,6 +447,7 @@ export const mandatoryTest_6_1_27_16: DocumentTest
 export const mandatoryTest_6_1_27_17: DocumentTest
 export const mandatoryTest_6_1_27_18: DocumentTest
 export const mandatoryTest_6_1_27_19: DocumentTest
+export const mandatoryTest_6_1_27_20: DocumentTest
 export const mandatoryTest_6_1_28: DocumentTest
 export const mandatoryTest_6_1_29: DocumentTest
 export const mandatoryTest_6_1_30: DocumentTest
@@ -473,11 +473,13 @@ export const mandatoryTest_6_1_49: DocumentTest
 export const mandatoryTest_6_1_51: DocumentTest
 export const mandatoryTest_6_1_52: DocumentTest
 export const mandatoryTest_6_1_53: DocumentTest
+export const mandatoryTest_6_1_55: DocumentTest
 export const mandatoryTest_6_1_56: DocumentTest
 export const mandatoryTest_6_1_57: DocumentTest
 export const mandatoryTest_6_1_58: DocumentTest
 export const mandatoryTest_6_1_61: DocumentTest
 export const mandatoryTest_6_1_60_1: DocumentTest
+export const mandatoryTest_6_1_62: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -519,6 +521,14 @@ export const recommendedTest_6_2_39_2: DocumentTest
 export const recommendedTest_6_2_39_3: DocumentTest
 export const recommendedTest_6_2_39_4: DocumentTest
 export const recommendedTest_6_2_39_5: DocumentTest
+export const recommendedTest_6_2_39_6: DocumentTest
+export const recommendedTest_6_2_39_7: DocumentTest
+export const recommendedTest_6_2_39_8: DocumentTest
+export const recommendedTest_6_2_39_9: DocumentTest
+export const recommendedTest_6_2_39_10: DocumentTest
+export const recommendedTest_6_2_39_11: DocumentTest
+export const recommendedTest_6_2_39_12: DocumentTest
+export const recommendedTest_6_2_39_13: DocumentTest
 export const recommendedTest_6_2_40: DocumentTest
 export const recommendedTest_6_2_41: DocumentTest
 export const recommendedTest_6_2_42: DocumentTest
@@ -548,6 +558,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_15: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 export const informativeTest_6_3_20: DocumentTest
 export const informativeTest_6_3_21_1: DocumentTest
@@ -555,9 +566,12 @@ export const informativeTest_6_3_21_3: DocumentTest
 export const informativeTest_6_3_21_4: DocumentTest
 export const informativeTest_6_3_21_5: DocumentTest
 export const informativeTest_6_3_21_6: DocumentTest
+export const informativeTest_6_3_21_7: DocumentTest
 export const informativeTest_6_3_21_8: DocumentTest
 export const informativeTest_6_3_21_9: DocumentTest
 export const informativeTest_6_3_22: DocumentTest
+export const informativeTest_6_3_23_1: DocumentTest
+export const informativeTest_6_3_23_2: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)

@@ -78,7 +78,7 @@ function getCanonicalUrl(references, trackingId) {
     // Find the reference that matches our criteria
     /** @type {Reference| undefined} */
     const canonicalUrlReference = references.find((reference) =>
-      isCanonicalUrl(reference, trackingId)
+      isCanonicalUrl(reference, trackingId, true)
     )
 
     // When we find a matching reference, we know it has the url property
