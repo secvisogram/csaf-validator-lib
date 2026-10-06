@@ -278,7 +278,7 @@ export function mandatoryTest_6_1_55(doc) {
           instancePath: '/document/notes',
           message:
             `The license_expression contains the following license identifiers that ` +
-            `are nor listed in Aboutcode's or  SPDX license list: ` +
+            `are not listed in Aboutcode's or  SPDX license list: ` +
             `"${notListedLicenses.join(', ')}". ` +
             `Therefore exactly one note with ` +
             `title "License" and category "legal_disclaimer" must exist`,
