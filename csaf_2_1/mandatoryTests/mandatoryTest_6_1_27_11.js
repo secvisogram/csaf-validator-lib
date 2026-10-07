@@ -61,7 +61,7 @@ export function mandatoryTest_6_1_27_11(doc) {
   ) {
     isValid = false
     errors.push({
-      instancePath: '/vulnerabilities',
+      instancePath: '',
       message: 'needs vulnerabilities',
     })
   }
