@@ -1,6 +1,6 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import testURL from '#lib/informativeTests/shared/testURL.js'
-import * as openpgp from 'openpgp'
+import testURL from '../../lib/informativeTests/shared/testURL.js'
+import { readKey } from 'openpgp'
 
 const INSTANCE_PATH = '/document/publisher/contact/public_openpgp_key_url'
 
@@ -73,10 +73,10 @@ export async function recommendedTest_6_2_55(doc) {
 
   const armoredKey = await response.text()
 
-  /** @type {openpgp.Key} */
+  /** @typedef {import('openpgp').Key} Key */
   let publicKey
   try {
-    publicKey = await openpgp.readKey({ armoredKey })
+    publicKey = await readKey({ armoredKey })
   } catch (e) {
     ctx.warnings.push({
       instancePath: INSTANCE_PATH,
