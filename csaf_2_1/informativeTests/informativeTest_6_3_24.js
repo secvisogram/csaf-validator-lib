@@ -44,7 +44,7 @@ const validate = ajv.compile(inputSchema)
  *
  * @param {string} email
  */
-function stripPlusTag(email) {
+export function stripPlusTag(email) {
   const atIndex = email.lastIndexOf('@')
   if (atIndex === -1) {
     return email
@@ -55,6 +55,22 @@ function stripPlusTag(email) {
   return (
     (plusIndex === -1 ? localPart : localPart.slice(0, plusIndex)) + domainPart
   )
+}
+
+/**
+ * Parses an ASCII-armored OpenPGP public key, returning `undefined` instead
+ * of throwing when the input cannot be parsed as a key, e.g. because it
+ * isn't ASCII-armored. See 6.2.55 for reporting this case.
+ *
+ * @param {string} armoredKey
+ * @returns {Promise<openpgp.Key | undefined>}
+ */
+export async function readPublicKeyOrUndefined(armoredKey) {
+  try {
+    return await openpgp.readKey({ armoredKey })
+  } catch (e) {
+    return undefined
+  }
 }
 
 /**
@@ -92,11 +108,8 @@ export async function informativeTest_6_3_24(doc) {
 
   const armoredKey = await response.text()
 
-  /** @type {openpgp.Key} */
-  let publicKey
-  try {
-    publicKey = await openpgp.readKey({ armoredKey })
-  } catch (e) {
+  const publicKey = await readPublicKeyOrUndefined(armoredKey)
+  if (!publicKey) {
     // Not ASCII-armored: skip, see 6.2.55 for reporting this case.
     return ctx
   }
