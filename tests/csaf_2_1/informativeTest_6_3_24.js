@@ -1,3 +1,8 @@
+vi.mock('#lib/informativeTests/shared/testURL.js', () => ({
+  default: vi.fn(),
+}))
+
+import testURL from '#lib/informativeTests/shared/testURL.js'
 import {
   informativeTest_6_3_24,
   readPublicKeyOrUndefined,
@@ -45,14 +50,14 @@ describe('informativeTest_6_3_24 (CSAF 2.1)', function () {
 
   describe('does not report when the key URL cannot be retrieved', function () {
     afterEach(function () {
-      vi.unstubAllGlobals()
+      vi.mocked(testURL).mockRestore()
     })
 
     it('returns no infos on a network error while fetching the key', async function () {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockRejectedValue(new Error('network error'))
-      )
+      vi.mocked(testURL).mockImplementation(async (_url, onError) => {
+        onError()
+        return undefined
+      })
 
       const result = await informativeTest_6_3_24({
         document: {
@@ -69,9 +74,8 @@ describe('informativeTest_6_3_24 (CSAF 2.1)', function () {
     })
 
     it('returns no infos when the retrieved key is not ASCII-armored', async function () {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue(new Response('not a key', { status: 200 }))
+      vi.mocked(testURL).mockResolvedValue(
+        /** @type {any} */ ({ text: async () => 'not a key' })
       )
 
       const result = await informativeTest_6_3_24({
