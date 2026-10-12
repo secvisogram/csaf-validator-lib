@@ -46,4 +46,38 @@ describe('recommendedTest_6_2_26', function () {
       ).warnings.length
     ).toBe(0)
   })
+  it('skips CWEs that do not match the CWE schema', async function () {
+    expect(
+      (
+        await recommendedTest_6_2_26({
+          vulnerabilities: [
+            {
+              cwes: [
+                { id: 123, name: 'Invalid id type', version: '4.13' }, // id must be string
+              ],
+            },
+          ],
+        })
+      ).warnings.length
+    ).toBe(0)
+  })
+  it('skips CWEs with an unknown/unsupported version', async function () {
+    expect(
+      (
+        await recommendedTest_6_2_26({
+          vulnerabilities: [
+            {
+              cwes: [
+                {
+                  id: 'CWE-1023',
+                  name: 'Incomplete Comparison',
+                  version: '99.99',
+                },
+              ],
+            },
+          ],
+        })
+      ).warnings.length
+    ).toBe(0)
+  })
 })

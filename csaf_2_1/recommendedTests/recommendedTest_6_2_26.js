@@ -70,9 +70,8 @@ export async function recommendedTest_6_2_26(doc) {
             //NOTE: the usage property is not available in cwe version 4.11 and older.
             if (entry?.usage === 'Allowed-with-Review') {
               context.warnings.push({
-                instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
-                message:
-                  'the usage of the weakness with the given id is only allowed with review',
+                instancePath: `/vulnerabilities/${i}/cwes/${j}`,
+                message: `Weakness '${cwe.id}' has usage 'Allowed-with-Review' in version ${cwe.version}, which requires a thorough review.`,
               })
             }
           }
