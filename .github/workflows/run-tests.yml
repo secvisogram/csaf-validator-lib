@@ -26,6 +26,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
+      - run: node scripts/runTest.js -f ./csaf/csaf_2.1/examples/csaf/bsi-2022-0001.json -t base -c 2.1
       - run: npm run test-report
         env:
           NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
