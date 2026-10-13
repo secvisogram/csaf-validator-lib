@@ -8,24 +8,19 @@ import isBrowserRuntime from '../shared/isBrowserRuntime.js'
  * Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
+  '6.1.24',
   '6.1.27.13',
   '6.1.48',
   '6.1.50',
   '6.1.53',
-  '6.1.54',
-  '6.1.55',
   '6.1.59',
   '6.1.60.2',
   '6.1.60.3',
-  '6.2.19',
   '6.2.20',
   '6.2.24',
-  '6.2.26',
   '6.2.31',
-  '6.2.34',
   '6.2.37',
   '6.2.39.1',
-  '6.2.44',
   '6.2.45',
   '6.2.46',
   '6.2.50.1',
@@ -38,7 +33,6 @@ const excluded = [
   '6.3.12',
   '6.3.13',
   '6.3.14',
-  '6.3.15',
   '6.3.16',
   '6.3.17',
   '6.3.19.1',
@@ -47,7 +41,7 @@ const excluded = [
   '6.3.19.4',
   '6.3.19.5',
   '6.3.21.2',
-  '6.3.21.7',
+  '6.3.24',
 ]
 
 /**
@@ -57,15 +51,28 @@ const excluded = [
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-14-32.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-17.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-27-08-02.json',
-  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-13.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-46-03.json',
+])
+
+/**
+ * Tests that can't run in the Vitest browser project and are therefore
+ * skipped when `isBrowserRuntime` is true:
+ * - `informative/6.3.8` shells out to the real `hunspell` CLI, which isn't
+ *   available in the browser.
+ * - `recommended/6.2.55`, `informative/6.3.6` and `informative/6.3.7` perform real HTTP
+ *   requests (see lib/informativeTests/shared/testURL.js); a real browser
+ *   sandbox can't make arbitrary cross-origin requests without CORS.
+ */
+const browserSkippedTests = new Set([
+  'informative/6.3.6',
+  'informative/6.3.7',
+  'informative/6.3.8',
+  'recommended/6.2.55',
 ])
 
 /** @typedef {import('../../lib/shared/types.js').DocumentTest} DocumentTest */
-
+/** @typedef {import('../../lib/shared/types.js').TestResult} TestResult */
 /** @typedef {Map<string, DocumentTest>} TestMap */
 
 /**
@@ -82,10 +89,45 @@ const skippedTests = new Set([
  */
 
 /**
+ * @typedef {object} PrimaryResult
+ * @property {string} id
+ * @property {boolean} passed
+ * @property {ResultError[] | undefined} [errors]
+ * @property {ResultError[] | undefined} [warnings]
+ * @property {ResultError[] | undefined} [infos]
+ */
+
+/**
+ * @typedef {object} SecondaryResult
+ * @property {string} id
+ * @property {boolean} passed
+ * @property {ResultError[]} [errors]
+ */
+
+/**
+ * @typedef {object} ResultError
+ * @property {string} instance_path
+ * @property {string} message
+ */
+
+/**
+ * @typedef {object} CsafTestResult s. https://raw.githubusercontent.com/oasis-tcs/csaf/master/csaf_2.1/test/validator/testresult_json_schema.json
+ * @property {string} $schema
+ * @property {boolean} overall_valid
+ * @property {PrimaryResult} primary_result
+ * @property {string} resultschema_version
+ * @property {SecondaryResult[]} secondary_results
+ */
+
+/**
  * @typedef {object} TestSpec
  * @property {string} name
- * @property {boolean} valid
+ * @property {string} result
+ * @property {boolean} valid - The valid field indicates whether the document is valid against all basic tests
  */
+
+const TYPE_FAILURES = 'failures'
+const TYPE_VALID = 'valid' //The entry in the array indicates that the test case is valid against the corresponding test.
 
 const tests = new Map([
   [
@@ -125,19 +167,8 @@ for (const [group, t] of testMap) {
     for (const [testId, u] of t) {
       if (excluded.includes(testId)) continue
 
-      // informativeTest_6_3_8 (the only OASIS informative test reached here
-      // without a hunspell mock override) shells out to the real `hunspell`
-      // CLI - not available in the Vitest browser project.
-      // informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
-      // lib/informativeTests/shared/testURL.js); a real browser sandbox can't
-      // make arbitrary cross-origin requests without CORS. Therefore we skip
-      // the tests here.
-      const isSkipped =
-        isBrowserRuntime &&
-        group === 'informative' &&
-        ['6.3.6', '6.3.7', '6.3.8'].includes(testId)
-
-      if (isSkipped) continue
+      if (isBrowserRuntime && browserSkippedTests.has(`${group}/${testId}`))
+        continue
 
       describe(testId, function () {
         for (const [type, testSpecs] of u) {
@@ -149,11 +180,11 @@ for (const [group, t] of testMap) {
           describe(type, function () {
             for (const testSpec of filteredTestSpecs) {
               it(testSpec.name, async () => {
-                const test = tests
+                const testToExecute = tests
                   .get(group)
                   ?.get(`${group}Test_${testId.replace(/\./g, '_')}`)
 
-                if (!test)
+                if (!testToExecute)
                   throw new Error(
                     `no matching test found for group=${group}, ${testId}`
                   )
@@ -162,33 +193,46 @@ for (const [group, t] of testMap) {
                   `${testDataDir}${testSpec.name}`
                 ]()
 
-                const result = await test(doc)
+                /** @type {TestResult} */
+                const primaryExecutionResult = await testToExecute(doc)
+
+                /** @type {CsafTestResult | null} */
+                let csafTestResult = null
+                if (testSpec.result) {
+                  csafTestResult = /** @type {CsafTestResult} */ (
+                    await testDataModules[`${testDataDir}${testSpec.result}`]()
+                  )
+                  if (csafTestResult) {
+                    checkResultMessages(primaryExecutionResult, csafTestResult)
+                  }
+                }
 
                 if (group === 'mandatory') {
-                  expect(result.isValid).to.equal(testSpec.valid)
+                  const validForCurrentTest = type === TYPE_VALID
+                  expect(primaryExecutionResult.isValid).to.equal(
+                    validForCurrentTest
+                  )
                   expect(
-                    Boolean(result.errors?.length),
-                    type === 'failures'
+                    Boolean(primaryExecutionResult.errors?.length),
+                    type === TYPE_FAILURES
                       ? 'should have errors'
-                      : `should not have errors, but had ${result.errors?.length}`
-                  ).to.equal(type === 'failures')
+                      : `should not have errors, but had ${primaryExecutionResult.errors?.length}`
+                  ).to.equal(type === TYPE_FAILURES)
                 } else {
-                  expect(result.isValid === undefined).to.equal(testSpec.valid)
-
                   if (group === 'recommended') {
                     expect(
-                      Boolean(result.warnings?.length),
-                      type === 'failures'
+                      Boolean(primaryExecutionResult.warnings?.length),
+                      type === TYPE_FAILURES
                         ? 'should have warnings'
-                        : `should not have warnings, but had ${result.warnings?.length}`
-                    ).to.equal(type === 'failures')
+                        : `should not have warnings, but had ${primaryExecutionResult.warnings?.length}`
+                    ).to.equal(type === TYPE_FAILURES)
                   } else if (group === 'informative') {
                     expect(
-                      Boolean(result.infos?.length),
-                      type === 'failures'
+                      Boolean(primaryExecutionResult.infos?.length),
+                      type === TYPE_FAILURES
                         ? 'should have infos'
-                        : `should not have infos, but had ${result.infos?.length}`
-                    ).to.equal(type === 'failures')
+                        : `should not have infos, but had ${primaryExecutionResult.infos?.length}`
+                    ).to.equal(type === TYPE_FAILURES)
                   }
                 }
               })
@@ -220,11 +264,84 @@ function parseTestCases() {
       new Map(testData.get(test.group)).set(
         test.id,
         new Map(testData.get(test.group)?.get(test.id))
-          .set('valid', valids)
-          .set('failures', failures)
+          .set(TYPE_VALID, valids)
+          .set(TYPE_FAILURES, failures)
       )
     )
   }
 
   return testData
+}
+
+/**
+ * Compares errors, warnings, and infos from `primaryExecutionResult` against
+ * those declared in the OASIS `csafTestResult` JSON file, independently per
+ * severity bucket.  Each bucket is sorted by `instancePath` and then by
+ * `message` before comparison so that ordering differences do not cause false
+ * failures.
+ *
+ * @param {TestResult} primaryExecutionResult
+ * @param {CsafTestResult} csafTestResult
+ */
+function checkResultMessages(primaryExecutionResult, csafTestResult) {
+  checkMessages(
+    primaryExecutionResult.errors,
+    csafTestResult.primary_result.errors,
+    'errors'
+  )
+  checkMessages(
+    primaryExecutionResult.warnings,
+    csafTestResult.primary_result.warnings,
+    'warnings'
+  )
+  checkMessages(
+    primaryExecutionResult.infos,
+    csafTestResult.primary_result.infos,
+    'infos'
+  )
+}
+
+/**
+ * Compares one severity bucket (errors, warnings, or infos) from the actual
+ * execution result against the expected entries in the OASIS result file.
+ * The OASIS result file uses snake_case `instance_path`; this is normalised to
+ * camelCase so the two sides can be compared directly.
+ * Both sides are sorted by `instancePath` then `message` before comparison.
+ *
+ * @param {Array<{instancePath: string, message: string}> | undefined} actual
+ * @param {ResultError[] | undefined} expected
+ * @param {string} label
+ */
+function checkMessages(actual, expected, label) {
+  if (!expected?.length) return
+
+  const actualSorted = (actual ?? [])
+    .map((e) => ({ instancePath: e.instancePath, message: e.message }))
+    .sort(byInstancePathThenMessage)
+
+  const expectedSorted = expected
+    .map((e) => ({ instancePath: e.instance_path, message: e.message }))
+    .sort(byInstancePathThenMessage)
+
+  for (let i = 0; i < expectedSorted.length; i++) {
+    expect(
+      actualSorted[i]?.instancePath,
+      `${label}[${i}].instancePath`
+    ).to.equal(expectedSorted[i].instancePath)
+    expect(actualSorted[i]?.message, `${label}[${i}].message`).to.equal(
+      expectedSorted[i].message
+    )
+  }
+}
+
+/**
+ * Comparator used to sort message entries: primary key is `instancePath`,
+ * secondary key is `message`.
+ *
+ * @param {{ instancePath: string; message: string }} a
+ * @param {{ instancePath: string; message: string }} b
+ */
+function byInstancePathThenMessage(a, b) {
+  const pathCmp = a.instancePath.localeCompare(b.instancePath)
+  return pathCmp !== 0 ? pathCmp : a.message.localeCompare(b.message)
 }
