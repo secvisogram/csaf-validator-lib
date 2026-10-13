@@ -32,6 +32,10 @@ describe('recommendedTest_6_2_45', function () {
       'Exception associated with unrelated license'
     ).to.eql([])
     expect(
+      allNonExistingLicenses('MIT WITH Custom-Unknown-Exception'),
+      'Exception not listed in SPDX exception list'
+    ).to.eql(['Custom-Unknown-Exception'])
+    expect(
       allNonExistingLicenses('3dslicer-1.0'),
       'SPDX License List matching guidelines'
     ).to.eql(['3dslicer-1.0'])
@@ -81,5 +85,32 @@ describe('recommendedTest_6_2_45', function () {
       ),
       'LicenseRef in with About Code Prefix and not listed license'
     ).to.eql(['scancode-www.example.org-Example-CSAF-License-3.0'])
+  })
+
+  it('checks AdditionRef exceptions', function () {
+    expect(
+      allNonExistingLicenses(
+        'GPL-2.0-only WITH AdditionRef-scancode-autoconf-exception-2.0'
+      ),
+      'AdditionRef-scancode with listed AboutCode exception'
+    ).to.eql([])
+
+    expect(
+      allNonExistingLicenses(
+        'GPL-2.0-only WITH AdditionRef-scancode-www.example.org-Custom-Exception'
+      ),
+      'AdditionRef-scancode with unlisted AboutCode exception'
+    ).to.eql(['AdditionRef-scancode-www.example.org-Custom-Exception'])
+
+    expect(
+      allNonExistingLicenses(
+        'GPL-2.0-only WITH AdditionRef-other-custom-exception'
+      ),
+      'AdditionRef without ScanCode prefix'
+    ).to.eql(['AdditionRef-other-custom-exception'])
+  })
+
+  it('skips absent license expressions', function () {
+    expect(allNonExistingLicenses(undefined)).to.eql([])
   })
 })
