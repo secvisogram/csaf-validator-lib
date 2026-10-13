@@ -74,23 +74,6 @@ export const registeredSsvcNamespaces = [
 ]
 
 /**
- * Extracts the base namespace from a full SSVC namespace string.
- * Strips everything after the first '#' or '/'.
- * @param {string} namespace
- * @returns {string}
- */
-export function getSsvcBaseNamespace(namespace) {
-  const hashIdx = namespace.indexOf('#')
-  const slashIdx = namespace.indexOf('/')
-
-  let endIdx = namespace.length
-  if (hashIdx !== -1) endIdx = Math.min(endIdx, hashIdx)
-  if (slashIdx !== -1) endIdx = Math.min(endIdx, slashIdx)
-
-  return namespace.substring(0, endIdx)
-}
-
-/**
  * Returns true if the namespace belongs to a registered SSVC base namespace.
  * @param {string} namespace - full namespace string
  * @returns {boolean}
