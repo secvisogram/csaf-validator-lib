@@ -8,6 +8,7 @@ import {
   isPvrss,
   isPvss,
 } from '../../csaf_2_1/shared/productVersionRangeHelper/productVersionRange.js'
+import { initVls } from '../../csaf_2_1/shared/productVersionRangeHelper/vlsFormat.js'
 
 /**
  * @param {Partial<import('../../csaf_2_1/shared/productVersionRangeHelper/productVersionRange.js').Sibling>} overrides
@@ -21,6 +22,10 @@ const sibling = (overrides) => ({
 })
 
 describe('productVersionRange helper', function () {
+  beforeAll(async function () {
+    await initVls()
+  })
+
   it('classifies siblings', function () {
     expect(isPvrss(sibling({ category: 'product_version_range' }))).to.equal(
       true

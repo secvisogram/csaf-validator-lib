@@ -6,12 +6,12 @@ import {
   collectPvrss,
   filterLeaf,
   filterVls,
-  isVlsFormat,
 } from '../shared/productVersionRangeHelper/productVersionRange.js'
 import {
+  initVls,
   isValidVls,
-  vlsRangesOverlap,
-} from '../shared/productVersionRangeHelper/vlsRangesOverlap.js'
+} from '../shared/productVersionRangeHelper/vlsFormat.js'
+import { vlsRangesOverlap } from '../shared/productVersionRangeHelper/vlsRangesOverlap.js'
 
 const ajv = new Ajv()
 
@@ -80,6 +80,8 @@ export async function recommendedTest_6_2_50_2(doc) {
     return ctx
   }
 
+  await initVls()
+
   const ctpvrsByProductId = collectCtpvrsByProductId(doc.product_tree?.branches)
 
   doc.vulnerabilities?.forEach((vulnerability) => {
@@ -96,11 +98,7 @@ export async function recommendedTest_6_2_50_2(doc) {
     for (const [productId, groups] of productStatusGroupsByProductId) {
       for (const productCtpvr of ctpvrsByProductId.get(productId) ?? []) {
         const rangeName = productCtpvr.ctpvr.name
-        if (
-          rangeName === undefined ||
-          !isVlsFormat(rangeName) ||
-          !isValidVls(rangeName)
-        ) {
+        if (rangeName === undefined || !isValidVls(rangeName)) {
           continue
         }
 
@@ -129,7 +127,10 @@ export async function recommendedTest_6_2_50_2(doc) {
 
           ctx.warnings.push({
             instancePath: productCtpvr.instancePath,
-            message: `product version range overlaps with "${sibling.name}" (${sibling.productId}) which belongs to a contradicting product status group`,
+            message:
+              `Product version range "${rangeName}" of ${productId} overlaps ` +
+              `with "${sibling.name}" of ${sibling.productId}, which belongs ` +
+              'to a contradicting product status group.',
           })
         }
       }

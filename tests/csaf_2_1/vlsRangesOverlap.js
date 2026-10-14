@@ -1,7 +1,12 @@
 import {
+  initVls,
   isValidVls,
-  vlsRangesOverlap,
-} from '../../csaf_2_1/shared/productVersionRangeHelper/vlsRangesOverlap.js'
+} from '../../csaf_2_1/shared/productVersionRangeHelper/vlsFormat.js'
+import { vlsRangesOverlap } from '../../csaf_2_1/shared/productVersionRangeHelper/vlsRangesOverlap.js'
+
+beforeAll(async function () {
+  await initVls()
+})
 
 describe('vlsRangesOverlap', function () {
   /** @type {Array<[string, string, boolean]>} */
@@ -29,6 +34,9 @@ describe('vlsRangesOverlap', function () {
     ['10.9', '<10.9a', true],
     ['1', '1.0', true],
     ['>1', '1.0', false],
+    ['vers:semver/>1.0.0', '>1', false],
+    ['>1', 'vers:semver/>1.0.0', false],
+    ['<1.0', '>=1.0-rc1', false],
   ]
 
   for (const [a, b, expected] of cases) {

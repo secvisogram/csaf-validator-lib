@@ -1,5 +1,3 @@
-// TODO: In the future, this code should be covered by the vers-like-specifier repository and can then be removed: https://github.com/csaf-rs/vers-like-specifier
-
 const CONSTRAINT = /^(<=|>=|!=|<|>|=)?\s*([^<>=!|*\s]+)$/
 
 /**
@@ -25,16 +23,6 @@ function parseVls(range) {
     })
   }
   return constraints
-}
-
-/**
- * Checks whether a product version range is well-formed "vls".
- *
- * @param {string} range
- * @returns {boolean}
- */
-export function isValidVls(range) {
-  return parseVls(range) !== undefined
 }
 
 /**

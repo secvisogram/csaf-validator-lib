@@ -1,5 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import { isValidVls } from './vlsRangesOverlap.js'
+import { isValidVls } from './vlsFormat.js'
 
 const ajv = new Ajv()
 
@@ -16,16 +16,6 @@ export const VERS_PREFIX = new RegExp(
  */
 export function isVersFormat(name) {
   return VERS_PREFIX.test(name.trim())
-}
-
-/**
- * Checks whether `name` uses the legacy "vls" format.
- *
- * @param {string} name
- * @returns {boolean}
- */
-export function isVlsFormat(name) {
-  return !isVersFormat(name)
 }
 
 /**
@@ -159,9 +149,7 @@ export function filterLeaf(siblings) {
  */
 export function filterVls(siblings) {
   return siblings.flatMap((sibling) =>
-    sibling.name !== undefined &&
-    isVlsFormat(sibling.name) &&
-    isValidVls(sibling.name)
+    sibling.name !== undefined && isValidVls(sibling.name)
       ? [
           {
             productId: /** @type {string} */ (sibling.productId),
