@@ -2,7 +2,6 @@ import {
   getNotListedLicenses,
   recommendedTest_6_2_46,
 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_46.js'
-import assert from 'node:assert'
 
 describe('recommendedTest_6_2_46', function () {
   it('only runs on relevant documents', function () {
@@ -27,6 +26,10 @@ describe('recommendedTest_6_2_46', function () {
       getNotListedLicenses('MIT OR Apache-2.0 WITH Autoconf-exception-2.0'),
       'Exception associated with unrelated license'
     ).to.eql([])
+    expect(
+      getNotListedLicenses('MIT WITH Unknown-exception'),
+      'Unknown SPDX exception'
+    ).to.eql(['Unknown-exception'])
     expect(
       getNotListedLicenses('3dslicer-1.0'),
       'SPDX License List matching guidelines'
@@ -75,5 +78,58 @@ describe('recommendedTest_6_2_46', function () {
       ),
       'LicenseRef in with About Code Prefix and not listed license'
     ).to.eql(['LicenseRef-scancode-www.example.org-Example-CSAF-License-3.0'])
+
+    expect(
+      getNotListedLicenses(
+        'MIT WITH AdditionRef-scancode-autoconf-exception-2.0'
+      ),
+      'AboutCode AdditionRef exception'
+    ).to.eql([])
+    expect(
+      getNotListedLicenses('MIT WITH AdditionRef-example'),
+      'Unknown AdditionRef exception'
+    ).to.eql(['AdditionRef-example'])
+    expect(
+      getNotListedLicenses(
+        'MIT OR (Apache-2.0 WITH AdditionRef-scancode-autoconf-exception-2.0)'
+      ),
+      'AboutCode AdditionRef exception in compound expression'
+    ).to.eql([])
+    expect(getNotListedLicenses(null), 'Missing license expression').to.eql([])
+  })
+
+  it('skips documents without a supported language translation', function () {
+    expect(
+      recommendedTest_6_2_46({
+        document: {
+          license_expression: 'Invalid-license-expression',
+        },
+      }).warnings
+    ).to.eql([])
+    expect(
+      recommendedTest_6_2_46({
+        document: {
+          lang: 'fr',
+          license_expression: 'Invalid-license-expression',
+        },
+      }).warnings
+    ).to.eql([])
+  })
+
+  it('warns when a non-English document has unlisted licenses but no matching disclaimer', function () {
+    expect(
+      recommendedTest_6_2_46({
+        document: {
+          lang: 'de',
+          license_expression: 'Invalid-license-expression',
+        },
+      }).warnings
+    ).to.eql([
+      {
+        instancePath: '/document/notes',
+        message:
+          'The license_expression contains contains the following license identifiers that are nor listed in Aboutcode or SPDX license list: "Invalid-license-expression". Therefore exactly one note with title "License" and category "legal_disclaimer" must exist',
+      },
+    ])
   })
 })
