@@ -2,8 +2,11 @@ import { Ajv } from 'ajv/dist/jtd.js'
 import { parse } from '#lib/spdx/spdx.js'
 import { exceptions, licenses } from '@secvisogram/license-deprecation-list'
 /** @typedef {import('@secvisogram/license-deprecation-list').LicenseEntry} LicenseEntry */
-import translations from '../../lib/language_specific_translation/translations.js'
-import bcp47 from 'bcp47'
+import {
+  containsOneNoteWithTitleAndCategory,
+  getTranslationInDocumentLang,
+  isLangSpecifiedAndNotEnglish,
+} from '../../lib/shared/languageSpecificTranslation.js'
 
 const ajv = new Ajv()
 
@@ -97,9 +100,9 @@ function isSpdxException(exceptionId) {
  * @return {boolean}
  */
 function isExceptionReferenceListed(additionRefToCheck) {
-  if (additionRefToCheck.startsWith(SCANCODE_LICENSE_REF_PREFIX)) {
+  if (additionRefToCheck.startsWith(ABOUT_CODE_EXCEPTION_REF_PREFIX)) {
     const licenseKey = additionRefToCheck.substring(
-      SCANCODE_LICENSE_REF_PREFIX.length
+      ABOUT_CODE_EXCEPTION_REF_PREFIX.length
     )
     const license = exceptions.get(licenseKey)
     return license?.source === 'aboutCode'
@@ -185,54 +188,6 @@ export function getNotListedLicenses(licenseToCheck) {
 }
 
 /**
- * Checks if the document language is specified and not English
- *
- * @param {string | undefined} language - The language expression to check
- * @returns {boolean} True if the language is valid, false otherwise
- */
-export function isLangSpecifiedAndNotEnglish(language) {
-  return (
-    !!language && !(bcp47.parse(language)?.langtag.language.language === 'en')
-  )
-}
-
-/**
- *  test whether exactly one item in document notes exists that has the given title.
- *  The category of this item MUST be legal_disclaimer.
- * @param {({} & { category?: string | undefined; title?: string | undefined; } & Record<string, unknown>)[]} notes
- * @param {string} titleToFind
- * @returns {boolean} True if the language is valid, false otherwise
- */
-function containsOneLegalDisclaimerWithTitle(notes, titleToFind) {
-  return (
-    notes.filter(
-      (note) =>
-        note.category === 'legal_disclaimer' && note.title === titleToFind
-    ).length === 1
-  )
-}
-
-/**
- * Get the language specific translation of the term License
- * @param {{ document: { lang?: string; }; }} doc
- * @return {string | undefined}
- */
-export function getLicenseInDocumentLang(doc) {
-  if (!doc.document.lang) {
-    return undefined
-  }
-  const language = bcp47.parse(doc.document.lang)?.langtag.language.language
-
-  /** @type {Record<string, Record <string,string>>}*/
-  const translationByLang = translations.translation
-  if (!language || !translationByLang[language]) {
-    return undefined
-  } else {
-    return translationByLang[language]['license']
-  }
-}
-
-/**
  * If the document language is specified but not English, and the license_expression contains license
  * identifiers or exceptions that are not listed in the SPDX license list or Aboutcode's "ScanCode LicenseDB",
  * it MUST be tested that exactly one item in document notes exists that has the language specific translation
@@ -256,7 +211,7 @@ export function recommendedTest_6_2_46(doc) {
     return ctx
   }
 
-  const licenseInDocLang = getLicenseInDocumentLang(doc)
+  const licenseInDocLang = getTranslationInDocumentLang(doc, 'license')
   if (!licenseInDocLang) {
     return ctx
   }
@@ -268,7 +223,11 @@ export function recommendedTest_6_2_46(doc) {
       const notes = doc.document.notes
       if (
         !notes ||
-        !containsOneLegalDisclaimerWithTitle(notes, licenseInDocLang)
+        !containsOneNoteWithTitleAndCategory(
+          notes,
+          licenseInDocLang,
+          'legal_disclaimer'
+        )
       ) {
         ctx.warnings.push({
           instancePath: '/document/notes',
