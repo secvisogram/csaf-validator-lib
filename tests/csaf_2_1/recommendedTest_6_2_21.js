@@ -1,15 +1,13 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_21 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_21', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_21({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_21({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
   it('skips empty objects', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_21({
         document: {
           tracking: {
@@ -28,16 +26,15 @@ describe('recommendedTest_6_2_21', function () {
             ],
           },
         },
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
   /**
    * Tests if in the warnings message the right revision_history items are referenced even the revision_history
    * contains items where the "date" property is undefined
    * */
   it('warnings message references right revision history items in case of undefined dates', function () {
-    assert.deepEqual(
+    expect(
       recommendedTest_6_2_21({
         document: {
           tracking: {
@@ -66,14 +63,13 @@ describe('recommendedTest_6_2_21', function () {
             ],
           },
         },
-      }).warnings,
-      [
-        {
-          instancePath: '/document/tracking/revision_history/5/date',
-          message:
-            'the timestamps of the revision history items with version number 2.0.0 and 1.0.0 are equal',
-        },
-      ]
-    )
+      }).warnings
+    ).to.deep.equal([
+      {
+        instancePath: '/document/tracking/revision_history/5/date',
+        message:
+          'the timestamps of the revision history items with version number 2.0.0 and 1.0.0 are equal',
+      },
+    ])
   })
 })

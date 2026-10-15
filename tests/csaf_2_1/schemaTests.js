@@ -1,4 +1,3 @@
-import assert from 'node:assert/strict'
 import { csaf_2_1, csaf_2_1_strict } from '../../csaf_2_1/schemaTests.js'
 
 const minimalValidDocument = {
@@ -34,12 +33,12 @@ const minimalValidDocument = {
 
 describe('csaf_2_1_strict', function () {
   it('validates a basic document', function () {
-    assert.ok(csaf_2_1_strict(minimalValidDocument).isValid)
+    expect(csaf_2_1_strict(minimalValidDocument).isValid).to.be.ok
   })
 })
 
 describe('csaf_2_1', function () {
   it('validates a basic document', function () {
-    assert.ok(csaf_2_1(minimalValidDocument).isValid)
+    expect(csaf_2_1(minimalValidDocument).isValid).to.be.ok
   })
 })

@@ -26,6 +26,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
+      - run: node scripts/runTest.js -f ./csaf/csaf_2.1/examples/csaf/bsi-2022-0001.json -t base -c 2.1
       - run: npm run test-report
         env:
           NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
@@ -42,6 +43,22 @@ jobs:
         with:
           name: test-results-${{ matrix.node-version }}
           path: |
-            test-results.json
+            test-results.xml
             coverage
             pr_number
+
+  test-browser:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+        env:
+          NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt

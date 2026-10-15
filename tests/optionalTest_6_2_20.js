@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import optionalTest_6_2_20 from '../lib/optionalTests/optionalTest_6_2_20.js'
 import readExampleFiles from './shared/readExampleFiles.js'
 

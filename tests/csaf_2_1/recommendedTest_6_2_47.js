@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { recommendedTest_6_2_47 } from '../../csaf_2_1/recommendedTests.js'
 
 describe('recommendedTest_6_2_47', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      recommendedTest_6_2_47({ vulnerabilities: 'mydoc' }).warnings.length,
-      0
-    )
+    expect(
+      recommendedTest_6_2_47({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
   })
 
   it('runs on references with empty category in reference', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_47({
         document: {
           references: [
@@ -37,13 +35,12 @@ describe('recommendedTest_6_2_47', function () {
             ],
           },
         ],
-      }).warnings.length,
-      1
-    )
+      }).warnings.length
+    ).to.equal(1)
   })
 
   it('runs on references with empty qualitative_severity_rating (considered as not existing)', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_47({
         document: {
           references: [
@@ -70,13 +67,12 @@ describe('recommendedTest_6_2_47', function () {
             ],
           },
         ],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 
   it('runs on empty metric', function () {
-    assert.equal(
+    expect(
       recommendedTest_6_2_47({
         document: {
           references: [
@@ -92,8 +88,7 @@ describe('recommendedTest_6_2_47', function () {
           },
         },
         vulnerabilities: [],
-      }).warnings.length,
-      0
-    )
+      }).warnings.length
+    ).to.equal(0)
   })
 })

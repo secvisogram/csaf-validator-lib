@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import { csaf_2_0 } from '../schemaTests.js'
 import minimalCSAFBaseDoc from './shared/minimalCSAFBaseDoc.js'
 

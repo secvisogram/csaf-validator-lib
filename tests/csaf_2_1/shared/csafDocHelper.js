@@ -14,6 +14,23 @@ export function productTreeWithFullProductName(productId, name) {
 }
 
 /**
+ * @param {string} filename
+ * @param {Array<{algorithm?: string | null, value?: string}>} fileHashes
+ */
+export function productWithFileHashes(filename, fileHashes) {
+  return {
+    product_identification_helper: {
+      hashes: [
+        {
+          filename: filename,
+          file_hashes: fileHashes,
+        },
+      ],
+    },
+  }
+}
+
+/**
  * @param {number} baseSCore
  * @param {string} vectorString
  * @param {string[]} products

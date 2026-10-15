@@ -1,16 +1,14 @@
-import assert from 'node:assert'
 import { mandatoryTest_6_1_58 } from '../../csaf_2_1/mandatoryTests.js'
 
 describe('mandatoryTest_6_1_58', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(
-      mandatoryTest_6_1_58({ vulnerabilities: 'mydoc' }).errors.length,
-      0
-    )
+    expect(
+      mandatoryTest_6_1_58({ vulnerabilities: 'mydoc' }).errors.length
+    ).to.equal(0)
   })
 
   it('passes when product_tree has no branches', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_58({
         product_tree: {
           full_product_names: [
@@ -20,9 +18,8 @@ describe('mandatoryTest_6_1_58', function () {
             },
           ],
         },
-      }).errors.length,
-      0
-    )
+      }).errors.length
+    ).to.equal(0)
   })
 
   it('skips recursion when a child branch has invalid branches property', function () {
@@ -43,8 +40,8 @@ describe('mandatoryTest_6_1_58', function () {
         ],
       },
     })
-    assert.equal(result.errors.length, 0)
-    assert.equal(result.isValid, true)
+    expect(result.errors.length).to.equal(0)
+    expect(result.isValid).to.equal(true)
   })
 
   it('reports all leaves under a conflicting branch', function () {
@@ -82,14 +79,14 @@ describe('mandatoryTest_6_1_58', function () {
         ],
       },
     })
-    assert.equal(result.isValid, false)
-    assert.equal(result.errors.length, 2)
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.equal(2)
     const paths = result.errors.map((e) => e.instancePath)
-    assert.ok(
+    expect(
       paths.includes('/product_tree/branches/0/branches/0/branches/0/product')
-    )
-    assert.ok(
+    ).to.be.ok
+    expect(
       paths.includes('/product_tree/branches/0/branches/0/branches/1/product')
-    )
+    ).to.be.ok
   })
 })

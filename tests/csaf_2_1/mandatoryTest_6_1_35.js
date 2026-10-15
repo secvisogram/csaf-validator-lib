@@ -1,22 +1,20 @@
-import assert from 'node:assert'
 import { mandatoryTest_6_1_35 } from '../../csaf_2_1/mandatoryTests.js'
 
 describe('mandatoryTest_6_1_37', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_35({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_35({ document: 'mydoc' }).isValid).to.equal(true)
   })
 
   it('skips remediations without valid category', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_35({
         vulnerabilities: [{ remediations: [{}] }],
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('skips remediation group checks without declared group', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_35({
         vulnerabilities: [
           {
@@ -28,8 +26,7 @@ describe('mandatoryTest_6_1_37', function () {
             ],
           },
         ],
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 })

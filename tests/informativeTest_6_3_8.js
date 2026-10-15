@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import informativeTest_6_3_8 from '../lib/informativeTests/informativeTest_6_3_8.js'
 import minimalDoc from './shared/shared/minimalDoc.js'
 import csaf_2_0 from '../lib/schemaTests/csaf_2_0.js'
