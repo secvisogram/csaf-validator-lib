@@ -68,13 +68,17 @@ export async function recommendedTest_6_2_25(doc) {
             )
             //NOTE: the usage property is not available in cwe version 4.11 and older
             if (
-              entry?.usage !== 'Allowed' &&
-              entry?.usage !== 'Allowed-with-Review'
+              entry?.usage === 'Discouraged' ||
+              entry?.usage === 'Prohibited'
             ) {
+              const message =
+                entry.usage === 'Discouraged'
+                  ? 'the usage of the weakness with the given id is discouraged'
+                  : 'the usage of the weakness with the given id is prohibited'
+
               context.warnings.push({
                 instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
-                message:
-                  'the usage of the weakness with the given id is not allowed',
+                message: message,
               })
             }
           }
