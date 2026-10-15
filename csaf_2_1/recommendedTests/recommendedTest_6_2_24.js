@@ -56,6 +56,29 @@ const cweSchema = /** @type {const} */ ({
 
 const validateCWE = ajv.compile(cweSchema)
 
+/** @type {Promise<Array<[string, string]>> | undefined} */
+let sortedCwecReleases
+
+/**
+ * Loads the release dates of all known CWE versions once (loading all catalogues is expensive)
+ * and returns them sorted descending by date (newest first). Versions with the same date
+ * keep the order of the `cwecMap`, which lists newer versions first.
+ *
+ * @returns {Promise<Array<[string, string]>>}
+ */
+function getSortedCwecReleases() {
+  sortedCwecReleases ??= (async () => {
+    /** @type {Array<[string, string]>} */
+    const releases = []
+    for (const [version, load] of cwecMap) {
+      const date = (await load()).default.date
+      releases.push([version, localDateToTimeZonedDate(date)])
+    }
+    return releases.sort((a, b) => compareZonedDateTimes(b[1], a[1]))
+  })()
+  return sortedCwecReleases
+}
+
 /**
  * This implements the recommended test 6.2.24 of the CSAF 2.1 standard.
  *
@@ -71,16 +94,7 @@ export async function recommendedTest_6_2_24(doc) {
   }
 
   const currentReleaseDate = doc.document.tracking.current_release_date
-  const cwecArray = []
-  for (const key of cwecMap.keys()) {
-    const cwec = cwecMap.get(key)
-    if (cwec) {
-      const date = (await cwec()).default.date
-      cwecArray.push([key, localDateToTimeZonedDate(date)])
-    }
-  }
-  /** Make sure the array is sorted descending by date (newest first) hence this is crucial later */
-  cwecArray.sort((a, b) => compareZonedDateTimes(b[1], a[1]))
+  const cwecArray = await getSortedCwecReleases()
 
   for (let i = 0; i < doc.vulnerabilities.length; ++i) {
     const vulnerability = doc.vulnerabilities[i]
@@ -97,7 +111,7 @@ export async function recommendedTest_6_2_24(doc) {
             compareZonedDateTimes(currentReleaseDate, zonedCweReleaseDate) < 0
           ) {
             context.warnings.push({
-              instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
+              instancePath: `/vulnerabilities/${i}/cwes/${j}/version`,
               message: `at release date ${currentReleaseDate} the used version ${cwe.version} was not published yet`,
             })
             // Case 2: Check if a newer cwe version than the used one had already been published
@@ -113,7 +127,7 @@ export async function recommendedTest_6_2_24(doc) {
                 ) > 0
               ) {
                 context.warnings.push({
-                  instancePath: `/vulnerabilities/${i}/cwes/${j}/id`,
+                  instancePath: `/vulnerabilities/${i}/cwes/${j}/version`,
                   message:
                     `the used cwe version ${cwe.version} ` +
                     `was not the newest one available at release date ${currentReleaseDate}`,
