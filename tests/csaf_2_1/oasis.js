@@ -9,7 +9,6 @@ import isBrowserRuntime from '../shared/isBrowserRuntime.js'
  */
 const excluded = [
   '6.1.24',
-  '6.1.27.13',
   '6.1.48',
   '6.1.50',
   '6.1.53',
