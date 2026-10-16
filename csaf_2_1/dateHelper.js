@@ -18,6 +18,22 @@ export const compareZonedDateTimes = (a, b) => {
 }
 
 /**
+ * Convert a local date in string representation, i.e. a date accurate to the
+ * day like 'yyyy-mm-dd', to a zoned instant string at the start of that day
+ * in UTC. This is needed because `compareZonedDateTimes` relies on
+ * `Temporal.Instant.from`, which cannot parse plain (offset-less) dates.
+ *
+ * @param {string} localDateString
+ * @returns {string} the UTC instant representing the start of the given local date
+ */
+export const localDateToTimeZonedDate = (localDateString) => {
+  return Temporal.PlainDate.from(localDateString)
+    .toZonedDateTime('UTC')
+    .toInstant()
+    .toString()
+}
+
+/**
  * This regex validates a date against RFC 3339 section 5.6.
  * See: https://datatracker.ietf.org/doc/html/rfc3339#section-5.6
  */
