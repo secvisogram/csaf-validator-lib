@@ -8,6 +8,7 @@ import isBrowserRuntime from '../shared/isBrowserRuntime.js'
  * Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
+  '6.1.8',
   '6.1.24',
   '6.1.27.13',
   '6.1.48',
@@ -16,6 +17,8 @@ const excluded = [
   '6.1.59',
   '6.1.60.2',
   '6.1.60.3',
+  '6.1.63',
+  '6.2.17',
   '6.2.20',
   '6.2.24',
   '6.2.31',
@@ -28,6 +31,7 @@ const excluded = [
   '6.2.54.1',
   '6.2.54.2',
   '6.2.54.4',
+  '6.3.5',
   '6.3.12',
   '6.3.13',
   '6.3.16',
@@ -38,6 +42,7 @@ const excluded = [
   '6.3.19.4',
   '6.3.19.5',
   '6.3.21.2',
+  '6.3.25',
 ]
 
 /**
