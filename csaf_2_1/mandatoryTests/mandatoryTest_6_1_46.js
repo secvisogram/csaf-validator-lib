@@ -32,9 +32,7 @@ const inputSchema = /** @type {const} */ ({
                         selections: {
                           elements: {
                             additionalProperties: true,
-                            optionalProperties: {
-                              namespace: { type: 'string' },
-                            },
+                            properties: {},
                           },
                         },
                       },
