@@ -1,11 +1,65 @@
+import { Ajv } from 'ajv/dist/jtd.js'
+
+const ajv = new Ajv()
+
+const actionSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  properties: {
+    action_id: { type: 'string' },
+  },
+  optionalProperties: {
+    acting_entity_refs: { elements: { type: 'string' } },
+    category: { type: 'string' },
+    date: { type: 'string' },
+    dl_vuln_ids: { elements: { type: 'string' } },
+    group_ids: { elements: { type: 'string' } },
+    product_ids: { elements: { type: 'string' } },
+    receiving_entity_refs: { elements: { type: 'string' } },
+    referenced_action_ids: { elements: { type: 'string' } },
+    status: { type: 'string' },
+    summary: { type: 'string' },
+  },
+})
+
+/*
+  This is the jtd schema that needs to match the input document so that the
+  test is activated. If this schema doesn't match, it normally means that the input
+  document does not validate against the csaf JSON schema or optional fields that
+  the test checks are not present.
+ */
+const inputSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    document: {
+      additionalProperties: true,
+      optionalProperties: {
+        involvement: {
+          additionalProperties: true,
+          optionalProperties: {
+            actions: {
+              elements: actionSchema,
+            },
+          },
+        },
+      },
+    },
+  },
+})
+
+const validate = ajv.compile(inputSchema)
+
+/**
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof actionSchema>} Action
+ */
+
 /**
  * Finds which array property in the object contains duplicate strings.
- * @param {Record<string, any>} obj
+ * @param {Action} obj
  * @returns {string | undefined} The key containing duplicates, or undefined if none
  */
 function findDuplicateKey(obj) {
   for (const key in obj) {
-    const value = obj[key]
+    const value = /** @type {Record<string, unknown>} */ (obj)[key]
 
     // Skip non-array properties
     if (!Array.isArray(value)) continue
@@ -19,7 +73,7 @@ function findDuplicateKey(obj) {
 }
 
 // Helper to generate a key by ignoring the 'action_id' field
-const createSanitizedKey = (/** @type {any} */ obj) => {
+const createSanitizedKey = (/** @type {Action} */ obj) => {
   return JSON.stringify(obj, (key, value) => {
     if (key === 'action_id') return undefined // Completely removes 'action_id' from serialization
     if (Array.isArray(value)) return [...value].sort() // Normalize array order
@@ -28,11 +82,9 @@ const createSanitizedKey = (/** @type {any} */ obj) => {
 }
 
 /**
- * @param {any} doc
- * @returns {{
- *   errors: Array<{ message: string; instancePath: string }>,
- *   isValid: boolean
- * }}
+ * This implements the mandatory test 6.1.24 of the CSAF 2.1 standard.
+ *
+ * @param {unknown} doc
  */
 export function mandatoryTest_6_1_24(doc) {
   /** @type {Array<{ message: string; instancePath: string }>} */
@@ -40,7 +92,7 @@ export function mandatoryTest_6_1_24(doc) {
   let isValid = true
 
   // 6.1.24 Definition in Actions
-  if (preconditionFor_6_1_24_Matches(doc)) {
+  if (validate(doc) && Array.isArray(doc.document?.involvement?.actions)) {
     /** @type {Set<string>} */ const uniqueObjects = new Set()
     doc.document.involvement.actions.forEach((action, actionIndex) => {
       // Check for duplicates in sets
@@ -66,71 +118,4 @@ export function mandatoryTest_6_1_24(doc) {
   }
 
   return { errors, isValid }
-}
-
-/**
- * @param {any} doc
- * @returns {doc is {
- *    document: {
- *      involvement: {
- *        actions: Array<{
- *          action_id: string
- *          acting_entity_refs?: Array<string>
- *          category?: string
- *          date?: string
- *          dl_vuln_ids?: Array<string>
- *          group_ids?: Array<string>
- *          product_ids?: Array<string>
- *          receiving_entity_refs?: Array<string>
- *          referenced_action_ids?: Array<string>
- *          status?: string
- *          summary?: string
- *        }>
- *      }
- *    }
- *  }}
- */
-const preconditionFor_6_1_24_Matches = (doc) => {
-  return (
-    Array.isArray(doc?.document?.involvement?.actions) &&
-    doc.document.involvement.actions.every(
-      (/** @type {any} */ action) =>
-        typeof action.action_id === 'string' &&
-        ((Array.isArray(action.acting_entity_refs) &&
-          action.acting_entity_refs.every(
-            (/** @type {any} */ ref) => typeof ref === 'string'
-          )) ||
-          action.acting_entity_refs === undefined) &&
-        (typeof action.category === 'string' ||
-          action.category === undefined) &&
-        (typeof action.date === 'string' || action.date === undefined) &&
-        ((Array.isArray(action.dl_vuln_ids) &&
-          action.dl_vuln_ids.every(
-            (/** @type {any} */ id) => typeof id === 'string'
-          )) ||
-          action.dl_vuln_ids === undefined) &&
-        ((Array.isArray(action.group_ids) &&
-          action.group_ids.every(
-            (/** @type {any} */ id) => typeof id === 'string'
-          )) ||
-          action.group_ids === undefined) &&
-        ((Array.isArray(action.product_ids) &&
-          action.product_ids.every(
-            (/** @type {any} */ id) => typeof id === 'string'
-          )) ||
-          action.product_ids === undefined) &&
-        ((Array.isArray(action.receiving_entity_refs) &&
-          action.receiving_entity_refs.every(
-            (/** @type {any} */ ref) => typeof ref === 'string'
-          )) ||
-          action.receiving_entity_refs === undefined) &&
-        ((Array.isArray(action.referenced_action_ids) &&
-          action.referenced_action_ids.every(
-            (/** @type {any} */ ref) => typeof ref === 'string'
-          )) ||
-          action.referenced_action_ids === undefined) &&
-        (typeof action.status === 'string' || action.status === undefined) &&
-        (typeof action.summary === 'string' || action.summary === undefined)
-    )
-  )
 }
