@@ -3,6 +3,18 @@ import { collectProductIdsFromFullProductPath } from './shared/docProductUtils.j
 
 const ajv = new Ajv()
 
+/*
+  Branch categories that denote "a version of the same product" as opposed to
+  a different product/component altogether (e.g. `product_name`, `vendor`,
+  `architecture`, ...). Two leaves are only considered different versions of
+  "the same" product (and therefore potentially corresponding fixed/affected
+  pairs) if both their own branch category is one of these.
+ */
+const VERSION_BRANCH_CATEGORIES = new Set([
+  'product_version',
+  'product_version_range',
+])
+
 const branchSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
@@ -102,6 +114,7 @@ const validateBranch = ajv.compile(branchSchema)
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productPathSchema>} ProductPath
  * @typedef {{ category?: string; name?: string }} LineageSegment
+ * @typedef {{ ancestry: LineageSegment[]; leafCategory: string | undefined }} BranchLineage
  */
 
 /**
@@ -136,11 +149,11 @@ export function mandatoryTest_6_1_27_13(doc) {
     collectProductIdsFromFullProductPath(doc).map((p) => p.id)
   )
 
-  // Maps a product id to all the ancestor branch lineages (path of
-  // {category, name} pairs, not including the leaf branch itself) it is
+  // Maps a product id to all the branch lineages (ancestor path of
+  // {category, name} pairs, plus the leaf branch's own category) it is
   // defined under. A product id can have more than one lineage if it is
   // (erroneously) defined multiple times in the product tree.
-  /** @type {Map<string, LineageSegment[][]>} */
+  /** @type {Map<string, BranchLineage[]>} */
   const branchLineages = new Map()
 
   /**
@@ -152,7 +165,7 @@ export function mandatoryTest_6_1_27_13(doc) {
       const productId = branch.product?.product_id
       if (productId) {
         const lineages = branchLineages.get(productId) ?? []
-        lineages.push(ancestry)
+        lineages.push({ ancestry, leafCategory: branch.category })
         branchLineages.set(productId, lineages)
       }
       if (Array.isArray(branch.branches)) {
@@ -184,7 +197,7 @@ export function mandatoryTest_6_1_27_13(doc) {
    * @param {LineageSegment[]} a
    * @param {LineageSegment[]} b
    */
-  const lineagesEqual = (a, b) =>
+  const ancestryEqual = (a, b) =>
     a.length === b.length &&
     a.every(
       (segment, index) =>
@@ -193,8 +206,11 @@ export function mandatoryTest_6_1_27_13(doc) {
 
   /**
    * Checks whether `idA` and `idB` are defined at the same position in the
-   * branch structure of the product tree, differing only in the leaf branch
-   * (i.e. they are different versions of "the same" product).
+   * branch structure of the product tree (same ancestor path) and whether
+   * both leaf branches use a version related category (`product_version` or
+   * `product_version_range`), i.e. they are different versions of "the same"
+   * product as opposed to e.g. a sibling `product_name` or `architecture`
+   * branch.
    *
    * @param {string} idA
    * @param {string} idB
@@ -204,21 +220,153 @@ export function mandatoryTest_6_1_27_13(doc) {
     const lineagesA = branchLineages.get(idA)
     const lineagesB = branchLineages.get(idB)
     if (!lineagesA || !lineagesB) return false
-    return lineagesA.some((la) => lineagesB.some((lb) => lineagesEqual(la, lb)))
+    return lineagesA.some((la) =>
+      lineagesB.some(
+        (lb) =>
+          ancestryEqual(la.ancestry, lb.ancestry) &&
+          !!la.leafCategory &&
+          !!lb.leafCategory &&
+          VERSION_BRANCH_CATEGORIES.has(la.leafCategory) &&
+          VERSION_BRANCH_CATEGORIES.has(lb.leafCategory)
+      )
+    )
+  }
+
+  /**
+   * Given a product path and the index of one of its `installed_with`
+   * subpaths, this resolves the product id of "the product path leading to
+   * but not including the relationship", i.e. the same beginning product
+   * reference combined with all subpaths before the given index. If that
+   * index is `0`, this is just the beginning product reference itself.
+   *
+   * Returns `undefined` if no product in the tree is explicitly defined for
+   * that leading path.
+   *
+   * @param {ProductPath} productPath
+   * @param {number} installedWithIndex
+   * @returns {string | undefined}
+   */
+  const resolveLeadingProductPathId = (productPath, installedWithIndex) => {
+    if (installedWithIndex === 0) {
+      return productPath.beginning_product_reference
+    }
+
+    const prefix = (productPath.subpaths ?? []).slice(0, installedWithIndex)
+    for (const candidate of productPaths.values()) {
+      const candidateSubpaths = candidate.subpaths ?? []
+      if (
+        candidateSubpaths.length !== prefix.length ||
+        candidate.beginning_product_reference !==
+          productPath.beginning_product_reference
+      ) {
+        continue
+      }
+      const isPrefixMatch = candidateSubpaths.every(
+        (s, index) =>
+          s.category === prefix[index].category &&
+          s.next_product_reference === prefix[index].next_product_reference
+      )
+      if (isPrefixMatch) {
+        return candidate.full_product_name?.product_id
+      }
+    }
+    return undefined
+  }
+
+  /**
+   * Resolves all "corresponding products" of `id` that arise from an
+   * `installed_with` relationship, per the following two readings of the
+   * spec note:
+   *
+   * (a) `id` is itself defined via a product path that contains an
+   *     `installed_with` subpath (`id` is the combined product, e.g. "App
+   *     installed with Hotfix") - the corresponding product is the path
+   *     leading up to (but not including) that relationship (e.g. "App"
+   *     alone).
+   * (b) `id` is referenced as the `next_product_reference` of another
+   *     product path's `installed_with` subpath (`id` is the add-on
+   *     component itself, e.g. the hotfix) - the corresponding product is
+   *     the path leading up to (but not including) that relationship in the
+   *     *other* product path (e.g. "App" without the hotfix).
+   *
+   * @param {string} id
+   * @returns {string[]}
+   */
+  const getInstalledWithCounterparts = (id) => {
+    /** @type {string[]} */
+    const counterparts = []
+
+    // (a) `id` owns a product path that contains an `installed_with` subpath.
+    const ownPath = productPaths.get(id)
+    if (ownPath) {
+      const index = (ownPath.subpaths ?? []).findIndex(
+        (s) => s.category === 'installed_with'
+      )
+      if (index !== -1) {
+        const leading = resolveLeadingProductPathId(ownPath, index)
+        if (leading) counterparts.push(leading)
+      }
+    }
+
+    // (b) `id` is the target of an `installed_with` subpath in some other
+    // product path.
+    for (const productPath of productPaths.values()) {
+      ;(productPath.subpaths ?? []).forEach((subpath, index) => {
+        if (
+          subpath.category === 'installed_with' &&
+          subpath.next_product_reference === id
+        ) {
+          const leading = resolveLeadingProductPathId(productPath, index)
+          if (leading) counterparts.push(leading)
+        }
+      })
+    }
+
+    return counterparts
   }
 
   /**
    * Checks whether `idA` and `idB` are "corresponding products" as required
    * by this test, i.e. they occupy the same position in the product tree /
-   * product path graph and differ in exactly one version related component.
+   * product path graph and differ in exactly one version related component,
+   * or are related through an `installed_with` relationship.
+   *
+   * `visited` protects against infinite recursion on cyclic / self
+   * referencing product paths (e.g. a product path that (in)directly
+   * references itself via `beginning_product_reference` or
+   * `next_product_reference`); a document with such a structure is invalid,
+   * but this test must not crash on it.
    *
    * @param {string | undefined} idA
    * @param {string | undefined} idB
+   * @param {Set<string>} [visited]
+   * @returns {boolean}
    */
-  const isCorrespondingProduct = (idA, idB) => {
+  const isCorrespondingProduct = (idA, idB, visited = new Set()) => {
     if (!idA || !idB || idA === idB) return false
 
+    const visitedKey = idA < idB ? `${idA}\u0000${idB}` : `${idB}\u0000${idA}`
+    if (visited.has(visitedKey)) return false
+    visited.add(visitedKey)
+
     if (isBranchCorrespondence(idA, idB)) return true
+
+    for (const counterpart of getInstalledWithCounterparts(idA)) {
+      if (
+        counterpart === idB ||
+        isCorrespondingProduct(counterpart, idB, visited)
+      ) {
+        return true
+      }
+    }
+    for (const counterpart of getInstalledWithCounterparts(idB)) {
+      if (
+        counterpart === idA ||
+        isCorrespondingProduct(counterpart, idA, visited)
+      ) {
+        return true
+      }
+    }
 
     const pathA = productPaths.get(idA)
     const pathB = productPaths.get(idB)
@@ -246,7 +394,8 @@ export function mandatoryTest_6_1_27_13(doc) {
         a.category === b.category &&
         isCorrespondingProduct(
           a.next_product_reference,
-          b.next_product_reference
+          b.next_product_reference,
+          visited
         )
       ) {
         subpathDiffIndex = i
@@ -267,7 +416,8 @@ export function mandatoryTest_6_1_27_13(doc) {
       subpathDiffIndex === -1 &&
       isCorrespondingProduct(
         pathA.beginning_product_reference,
-        pathB.beginning_product_reference
+        pathB.beginning_product_reference,
+        visited
       )
     ) {
       // only the beginning product reference differs and it is a
@@ -275,63 +425,6 @@ export function mandatoryTest_6_1_27_13(doc) {
       return true
     }
 
-    return false
-  }
-
-  /**
-   * Handles the special `installed_with` relationship case: if `fixedId` is
-   * used as the `next_product_reference` of an `installed_with` subpath, the
-   * product path leading up to (but not including) that relationship is a
-   * corresponding product.
-   *
-   * @param {string} fixedId
-   * @param {Set<string>} affectedIds
-   */
-  const hasInstalledWithCorrespondence = (fixedId, affectedIds) => {
-    for (const productPath of productPaths.values()) {
-      const subpaths = productPath.subpaths ?? []
-      for (let i = 0; i < subpaths.length; i++) {
-        if (
-          subpaths[i].category !== 'installed_with' ||
-          subpaths[i].next_product_reference !== fixedId
-        ) {
-          continue
-        }
-
-        if (i === 0) {
-          const beginningRef = productPath.beginning_product_reference
-          if (beginningRef && affectedIds.has(beginningRef)) {
-            return true
-          }
-          continue
-        }
-
-        // Find the product path (if any) that represents the path leading up
-        // to (but not including) the relationship.
-        for (const candidate of productPaths.values()) {
-          const candidateSubpaths = candidate.subpaths ?? []
-          if (
-            candidateSubpaths.length !== i ||
-            candidate.beginning_product_reference !==
-              productPath.beginning_product_reference
-          ) {
-            continue
-          }
-          const isPrefix = candidateSubpaths.every(
-            (s, index) =>
-              s.category === subpaths[index].category &&
-              s.next_product_reference ===
-                subpaths[index].next_product_reference
-          )
-          if (!isPrefix) continue
-
-          const candidateId = candidate.full_product_name?.product_id
-          if (candidateId && affectedIds.has(candidateId)) {
-            return true
-          }
-        }
-      }
-    }
     return false
   }
 
@@ -362,10 +455,9 @@ export function mandatoryTest_6_1_27_13(doc) {
       // mandatory test 6.1.1), so it is skipped here.
       if (!definedIds.has(id)) return
 
-      const hasCorrespondence =
-        [...affectedIds].some((affectedId) =>
-          isCorrespondingProduct(id, affectedId)
-        ) || hasInstalledWithCorrespondence(id, affectedIds)
+      const hasCorrespondence = [...affectedIds].some((affectedId) =>
+        isCorrespondingProduct(id, affectedId)
+      )
 
       if (!hasCorrespondence) {
         ctx.isValid = false
