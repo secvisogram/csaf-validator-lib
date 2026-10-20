@@ -48,99 +48,6 @@ describe('mandatoryTest_6_1_27_13', function () {
     expect(result.errors.length).to.equal(0)
   })
 
-  it('passes when exactly one subpath component differs between corresponding product paths', function () {
-    // ProductB 1.0 installed_on ProductA 4.1 (P1) vs. ProductB 1.0 installed_on
-    // ProductA 4.2 (P2): only the `installed_on` target differs, and that
-    // target is itself a corresponding pair of branch versions.
-    const result = mandatoryTest_6_1_27_13({
-      document: { category: 'csaf_security_advisory' },
-      product_tree: {
-        branches: [
-          {
-            category: 'vendor',
-            name: 'Example Company',
-            branches: [
-              {
-                category: 'product_name',
-                name: 'Product A',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '4.1',
-                    product: {
-                      name: 'Product A 4.1',
-                      product_id: 'CSAFPID-A1',
-                    },
-                  },
-                  {
-                    category: 'product_version',
-                    name: '4.2',
-                    product: {
-                      name: 'Product A 4.2',
-                      product_id: 'CSAFPID-A2',
-                    },
-                  },
-                ],
-              },
-              {
-                category: 'product_name',
-                name: 'Product B',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '1.0',
-                    product: {
-                      name: 'Product B 1.0',
-                      product_id: 'CSAFPID-B1',
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-        product_paths: [
-          {
-            beginning_product_reference: 'CSAFPID-B1',
-            full_product_name: {
-              name: 'Product B 1.0 installed on Product A 4.1',
-              product_id: 'CSAFPID-P1',
-            },
-            subpaths: [
-              {
-                category: 'installed_on',
-                next_product_reference: 'CSAFPID-A1',
-              },
-            ],
-          },
-          {
-            beginning_product_reference: 'CSAFPID-B1',
-            full_product_name: {
-              name: 'Product B 1.0 installed on Product A 4.2',
-              product_id: 'CSAFPID-P2',
-            },
-            subpaths: [
-              {
-                category: 'installed_on',
-                next_product_reference: 'CSAFPID-A2',
-              },
-            ],
-          },
-        ],
-      },
-      vulnerabilities: [
-        {
-          product_status: {
-            fixed: ['CSAFPID-P2'],
-            known_affected: ['CSAFPID-P1'],
-          },
-        },
-      ],
-    })
-    expect(result.isValid).to.equal(true)
-    expect(result.errors.length).to.equal(0)
-  })
-
   it('fails when product paths differ in more than one component', function () {
     // Both the `installed_on` target for ProductB and the one for ProductA
     // differ at the same time, so P1 and P2 do not count as corresponding
@@ -471,6 +378,441 @@ describe('mandatoryTest_6_1_27_13', function () {
         instancePath: '/vulnerabilities/0/product_status/first_fixed/0',
         message:
           'No corresponding version of product "CSAFPID-HOTFIX1" is listed as affected (known_affected) in the same vulnerability',
+      },
+    ])
+  })
+
+  it('does not treat unrelated top-level leaves as corresponding products', function () {
+    // Two top-level leaves (empty ancestry) for entirely different products
+    // must not be considered "corresponding" just because they share the
+    // same (empty) ancestor path.
+    const result = mandatoryTest_6_1_27_13({
+      document: { category: 'csaf_security_advisory' },
+      product_tree: {
+        branches: [
+          {
+            category: 'product_name',
+            name: 'Product A',
+            product: { name: 'Product A', product_id: 'CSAFPID-PA' },
+          },
+          {
+            category: 'product_name',
+            name: 'Product B',
+            product: { name: 'Product B', product_id: 'CSAFPID-PB' },
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-PA'],
+            known_affected: ['CSAFPID-PB'],
+          },
+        },
+      ],
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: '/vulnerabilities/0/product_status/fixed/0',
+        message:
+          'No corresponding version of product "CSAFPID-PA" is listed as affected (known_affected) in the same vulnerability',
+      },
+    ])
+  })
+
+  it('does not treat a product_name leaf and a sibling product_version leaf as corresponding', function () {
+    const result = mandatoryTest_6_1_27_13({
+      document: { category: 'csaf_security_advisory' },
+      product_tree: {
+        branches: [
+          {
+            category: 'vendor',
+            name: 'Vendor',
+            branches: [
+              {
+                category: 'product_name',
+                name: 'Sibling Product',
+                product: {
+                  name: 'Sibling Product',
+                  product_id: 'CSAFPID-SIB',
+                },
+              },
+              {
+                category: 'product_name',
+                name: 'Product A',
+                branches: [
+                  {
+                    category: 'product_version',
+                    name: '1.0',
+                    product: {
+                      name: 'Product A 1.0',
+                      product_id: 'CSAFPID-PA1',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-PA1'],
+            known_affected: ['CSAFPID-SIB'],
+          },
+        },
+      ],
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: '/vulnerabilities/0/product_status/fixed/0',
+        message:
+          'No corresponding version of product "CSAFPID-PA1" is listed as affected (known_affected) in the same vulnerability',
+      },
+    ])
+  })
+
+  it('does not crash on cyclic product paths and still reports missing correspondences', function () {
+    // PA references PB via `installed_on` and PB references PA back,
+    // forming a cycle. The test must terminate and not throw/stack overflow.
+    const result = mandatoryTest_6_1_27_13({
+      document: { category: 'csaf_security_advisory' },
+      product_tree: {
+        full_product_names: [
+          { name: 'A', product_id: 'CSAFPID-A' },
+          { name: 'B', product_id: 'CSAFPID-B' },
+        ],
+        product_paths: [
+          {
+            beginning_product_reference: 'CSAFPID-A',
+            full_product_name: { name: 'PA', product_id: 'CSAFPID-PA' },
+            subpaths: [
+              {
+                category: 'installed_on',
+                next_product_reference: 'CSAFPID-PB',
+              },
+            ],
+          },
+          {
+            beginning_product_reference: 'CSAFPID-B',
+            full_product_name: { name: 'PB', product_id: 'CSAFPID-PB' },
+            subpaths: [
+              {
+                category: 'installed_on',
+                next_product_reference: 'CSAFPID-PA',
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-PA'],
+            known_affected: [],
+          },
+        },
+      ],
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: '/vulnerabilities/0/product_status/fixed/0',
+        message:
+          'No corresponding version of product "CSAFPID-PA" is listed as affected (known_affected) in the same vulnerability',
+      },
+    ])
+  })
+
+  it('passes when the fixed product itself is the combined product path containing the installed_with relationship', function () {
+    // FULL1 = App 1.0 installed_with Hotfix H1 (the fixed product id *is*
+    // the combined product path entry). The corresponding affected product
+    // is the path leading up to (but not including) the relationship, i.e.
+    // plain "App 1.0".
+    const result = mandatoryTest_6_1_27_13({
+      document: { category: 'csaf_security_advisory' },
+      product_tree: {
+        branches: [
+          {
+            category: 'vendor',
+            name: 'Example Company',
+            branches: [
+              {
+                category: 'product_name',
+                name: 'App',
+                branches: [
+                  {
+                    category: 'product_version',
+                    name: '1.0',
+                    product: { name: 'App 1.0', product_id: 'CSAFPID-APP4' },
+                  },
+                ],
+              },
+              {
+                category: 'product_name',
+                name: 'Hotfix',
+                branches: [
+                  {
+                    category: 'product_version',
+                    name: 'H1',
+                    product: {
+                      name: 'Hotfix H1',
+                      product_id: 'CSAFPID-HOTFIX4',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        product_paths: [
+          {
+            beginning_product_reference: 'CSAFPID-APP4',
+            full_product_name: {
+              name: 'App 1.0 installed with Hotfix H1',
+              product_id: 'CSAFPID-FULL4',
+            },
+            subpaths: [
+              {
+                category: 'installed_with',
+                next_product_reference: 'CSAFPID-HOTFIX4',
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-FULL4'],
+            known_affected: ['CSAFPID-APP4'],
+          },
+        },
+      ],
+    })
+    expect(result.isValid).to.equal(true)
+    expect(result.errors.length).to.equal(0)
+  })
+
+  it('passes when exactly one subpath component differs between otherwise identical product paths', function () {
+    // P1 = Product B 1.0 installed_on Product A 4.1
+    // P2 = Product B 1.0 installed_on Product A 4.2
+    // The `beginning_product_reference` (Product B 1.0) is identical for both
+    // paths, and the single subpath differs only in a corresponding pair of
+    // Product A versions.
+    const result = mandatoryTest_6_1_27_13({
+      document: { category: 'csaf_security_advisory' },
+      product_tree: {
+        branches: [
+          {
+            category: 'vendor',
+            name: 'Example Company',
+            branches: [
+              {
+                category: 'product_name',
+                name: 'Product A',
+                branches: [
+                  {
+                    category: 'product_version',
+                    name: '4.1',
+                    product: {
+                      name: 'Product A 4.1',
+                      product_id: 'CSAFPID-A1',
+                    },
+                  },
+                  {
+                    category: 'product_version',
+                    name: '4.2',
+                    product: {
+                      name: 'Product A 4.2',
+                      product_id: 'CSAFPID-A2',
+                    },
+                  },
+                ],
+              },
+              {
+                category: 'product_name',
+                name: 'Product B',
+                branches: [
+                  {
+                    category: 'product_version',
+                    name: '1.0',
+                    product: {
+                      name: 'Product B 1.0',
+                      product_id: 'CSAFPID-B1',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        product_paths: [
+          {
+            beginning_product_reference: 'CSAFPID-B1',
+            full_product_name: {
+              name: 'Product B 1.0 installed on Product A 4.1',
+              product_id: 'CSAFPID-P1',
+            },
+            subpaths: [
+              {
+                category: 'installed_on',
+                next_product_reference: 'CSAFPID-A1',
+              },
+            ],
+          },
+          {
+            beginning_product_reference: 'CSAFPID-B1',
+            full_product_name: {
+              name: 'Product B 1.0 installed on Product A 4.2',
+              product_id: 'CSAFPID-P2',
+            },
+            subpaths: [
+              {
+                category: 'installed_on',
+                next_product_reference: 'CSAFPID-A2',
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-P2'],
+            known_affected: ['CSAFPID-P1'],
+          },
+        },
+      ],
+    })
+    expect(result.isValid).to.equal(true)
+    expect(result.errors.length).to.equal(0)
+  })
+
+  it('passes when the affected product itself is the combined product path containing the installed_with relationship', function () {
+    // Mirror image of the "fixed product owns the combined path" case: here
+    // the *affected* id (idB in the implementation) is the one that owns the
+    // installed_with relationship, and the fixed id is the plain base.
+    const result = mandatoryTest_6_1_27_13({
+      document: { category: 'csaf_security_advisory' },
+      product_tree: {
+        branches: [
+          {
+            category: 'vendor',
+            name: 'Example Company',
+            branches: [
+              {
+                category: 'product_name',
+                name: 'App',
+                branches: [
+                  {
+                    category: 'product_version',
+                    name: '1.0',
+                    product: { name: 'App 1.0', product_id: 'CSAFPID-APP6' },
+                  },
+                ],
+              },
+              {
+                category: 'product_name',
+                name: 'Hotfix',
+                branches: [
+                  {
+                    category: 'product_version',
+                    name: 'H1',
+                    product: {
+                      name: 'Hotfix H1',
+                      product_id: 'CSAFPID-HOTFIX6',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        product_paths: [
+          {
+            beginning_product_reference: 'CSAFPID-APP6',
+            full_product_name: {
+              name: 'App 1.0 installed with Hotfix H1',
+              product_id: 'CSAFPID-FULL6',
+            },
+            subpaths: [
+              {
+                category: 'installed_with',
+                next_product_reference: 'CSAFPID-HOTFIX6',
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-APP6'],
+            known_affected: ['CSAFPID-FULL6'],
+          },
+        },
+      ],
+    })
+    expect(result.isValid).to.equal(true)
+    expect(result.errors.length).to.equal(0)
+  })
+
+  it('fails when an installed_with relationship nested behind another subpath has no corresponding leading product defined', function () {
+    // FULL7 = App installed_on Host installed_with Hotfix, but there is no
+    // product explicitly defined for "App installed_on Host" (without the
+    // hotfix), so `resolveLeadingProductPathId` can't resolve a counterpart
+    // product id for the relationship. `known_affected` lists an unrelated
+    // product (rather than being empty) so that the correspondence check is
+    // actually evaluated instead of short-circuiting on an empty candidate
+    // set.
+    const result = mandatoryTest_6_1_27_13({
+      document: { category: 'csaf_security_advisory' },
+      product_tree: {
+        full_product_names: [
+          { name: 'App', product_id: 'CSAFPID-APP7' },
+          { name: 'Host', product_id: 'CSAFPID-HOST7' },
+          { name: 'Hotfix', product_id: 'CSAFPID-HOTFIX7' },
+          { name: 'Unrelated Product', product_id: 'CSAFPID-UNRELATED7' },
+        ],
+        product_paths: [
+          {
+            beginning_product_reference: 'CSAFPID-APP7',
+            full_product_name: {
+              name: 'App installed on Host installed with Hotfix',
+              product_id: 'CSAFPID-FULL7',
+            },
+            subpaths: [
+              {
+                category: 'installed_on',
+                next_product_reference: 'CSAFPID-HOST7',
+              },
+              {
+                category: 'installed_with',
+                next_product_reference: 'CSAFPID-HOTFIX7',
+              },
+            ],
+          },
+        ],
+      },
+      vulnerabilities: [
+        {
+          product_status: {
+            fixed: ['CSAFPID-HOTFIX7'],
+            known_affected: ['CSAFPID-UNRELATED7'],
+          },
+        },
+      ],
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors).to.deep.equal([
+      {
+        instancePath: '/vulnerabilities/0/product_status/fixed/0',
+        message:
+          'No corresponding version of product "CSAFPID-HOTFIX7" is listed as affected (known_affected) in the same vulnerability',
       },
     ])
   })
