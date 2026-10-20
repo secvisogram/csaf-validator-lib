@@ -30,4 +30,34 @@ describe('mandatoryTest_6_1_46', function () {
     )
     expect(result.errors.length).to.eq(1)
   })
+  it('ignores a selection whose namespace is not a string', function () {
+    const result = mandatoryTest_6_1_46({
+      vulnerabilities: [
+        {
+          cve: 'CVE-1900-0001',
+          metrics: [
+            {
+              content: {
+                ssvc_v2: {
+                  schemaVersion: '2.0.0',
+                  timestamp: '2024-01-24T10:00:00.000Z',
+                  selections: [
+                    {
+                      key: 'MI',
+                      namespace: 42,
+                      values: [{ key: 'N' }],
+                      version: '1.0.0',
+                    },
+                  ],
+                },
+              },
+              products: ['CSAFPID-9080700'],
+            },
+          ],
+        },
+      ],
+    })
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.eq(1)
+  })
 })

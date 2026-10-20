@@ -359,15 +359,9 @@ The following tests are not yet implemented and therefore missing:
 
 - Recommended Test 6.2.20
 - Recommended Test 6.2.24
-- Recommended Test 6.2.26
 - Recommended Test 6.2.31
-- Recommended Test 6.2.34
-- Recommended Test 6.2.35
-- Recommended Test 6.2.37
 - Recommended Test 6.2.38
 - Recommended Test 6.2.39.1
-- Recommended Test 6.2.44
-- Recommended Test 6.2.45
 - Recommended Test 6.2.46
 - Recommended Test 6.2.50.1
 - Recommended Test 6.2.50.2
@@ -381,7 +375,6 @@ The following tests are not yet implemented and therefore missing:
 **Informative Tests**
 
 - Informative Test 6.3.13
-- Informative Test 6.3.14
 - Informative Test 6.3.16
 - Informative Test 6.3.17
 - Informative Test 6.3.19.1
@@ -390,7 +383,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
-- Informative Test 6.3.24
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -511,13 +503,17 @@ export const recommendedTest_6_2_21: DocumentTest
 export const recommendedTest_6_2_22: DocumentTest
 export const recommendedTest_6_2_23: DocumentTest
 export const recommendedTest_6_2_25: DocumentTest
+export const recommendedTest_6_2_26: DocumentTest
 export const recommendedTest_6_2_27: DocumentTest
 export const recommendedTest_6_2_28: DocumentTest
 export const recommendedTest_6_2_29: DocumentTest
 export const recommendedTest_6_2_30: DocumentTest
 export const recommendedTest_6_2_32: DocumentTest
 export const recommendedTest_6_2_33: DocumentTest
+export const recommendedTest_6_2_34: DocumentTest
+export const recommendedTest_6_2_35: DocumentTest
 export const recommendedTest_6_2_36: DocumentTest
+export const recommendedTest_6_2_37: DocumentTest
 export const recommendedTest_6_2_39_2: DocumentTest
 export const recommendedTest_6_2_39_3: DocumentTest
 export const recommendedTest_6_2_39_4: DocumentTest
@@ -534,6 +530,8 @@ export const recommendedTest_6_2_40: DocumentTest
 export const recommendedTest_6_2_41: DocumentTest
 export const recommendedTest_6_2_42: DocumentTest
 export const recommendedTest_6_2_43: DocumentTest
+export const recommendedTest_6_2_44: DocumentTest
+export const recommendedTest_6_2_45: DocumentTest
 export const recommendedTest_6_2_47: DocumentTest
 export const recommendedTest_6_2_48: DocumentTest
 export const recommendedTest_6_2_49: DocumentTest
@@ -559,6 +557,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_14: DocumentTest
 export const informativeTest_6_3_15: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 export const informativeTest_6_3_20: DocumentTest
@@ -573,6 +572,7 @@ export const informativeTest_6_3_21_9: DocumentTest
 export const informativeTest_6_3_22: DocumentTest
 export const informativeTest_6_3_23_1: DocumentTest
 export const informativeTest_6_3_23_2: DocumentTest
+export const informativeTest_6_3_24: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)

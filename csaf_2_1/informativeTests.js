@@ -12,6 +12,7 @@ export { informativeTest_6_3_5 } from './informativeTests/informativeTest_6_3_5.
 export { informativeTest_6_3_6 } from './informativeTests/informativeTest_6_3_6.js'
 export { informativeTest_6_3_11 } from './informativeTests/informativeTest_6_3_11.js'
 export { informativeTest_6_3_12 } from './informativeTests/informativeTest_6_3_12.js'
+export { informativeTest_6_3_14 } from './informativeTests/informativeTest_6_3_14.js'
 export { informativeTest_6_3_15 } from './informativeTests/informativeTest_6_3_15.js'
 export { informativeTest_6_3_18 } from './informativeTests/informativeTest_6_3_18.js'
 export { informativeTest_6_3_20 } from './informativeTests/informativeTest_6_3_20.js'
@@ -26,3 +27,4 @@ export { informativeTest_6_3_21_9 } from './informativeTests/informativeTest_6_3
 export { informativeTest_6_3_22 } from './informativeTests/informativeTest_6_3_22.js'
 export { informativeTest_6_3_23_1 } from './informativeTests/informativeTest_6_3_23_1.js'
 export { informativeTest_6_3_23_2 } from './informativeTests/informativeTest_6_3_23_2.js'
+export { informativeTest_6_3_24 } from './informativeTests/informativeTest_6_3_24.js'
