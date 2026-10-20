@@ -21,7 +21,11 @@ export default defineConfig({
           name: 'node',
           environment: 'node',
           globals: true,
-          include: ['tests/*.js', 'tests/csaf_2_1/*.js'],
+          include: [
+            'tests/*.js',
+            'tests/csaf_2_1/*.js',
+            'tests/csaf_2_1/shared/productVersionRangeHelper/*.js',
+          ],
           env: hunspellEnv,
         },
       },
@@ -29,7 +33,11 @@ export default defineConfig({
         test: {
           name: 'browser',
           globals: true,
-          include: ['tests/*.js', 'tests/csaf_2_1/*.js'],
+          include: [
+            'tests/*.js',
+            'tests/csaf_2_1/*.js',
+            'tests/csaf_2_1/shared/productVersionRangeHelper/*.js',
+          ],
           // Only genuinely Node-only test content: `undici`'s `MockAgent`-based
           // network mocking. The other Node-only content (real `hunspell` CLI
           // in the OASIS 6.3.8 branches) is skipped at runtime instead, via
