@@ -24,6 +24,8 @@
       - [Module `csaf_2_1/basic.js`](#module-csaf_2_1basicjs)
       - [Module `csaf_2_1/extended.js`](#module-csaf_2_1extendedjs)
       - [Module `csaf_2_1/full.js`](#module-csaf_2_1fulljs)
+      - [Module `csaf_2_1/nonExternalRequestFree.js`](#module-csaf_2_1nonexternalrequestfreejs)
+      - [Module `csaf_2_1/externalRequestFree.js`](#module-csaf_2_1externalrequestfreejs)
     - [Module `validate.js`](#module-validatejs)
     - [Module `validateStrict.js`](#module-validatestrictjs)
     - [Module `strip.js`](#module-stripjs)
@@ -591,6 +593,18 @@ This module exports all tests included in `basic.js` and all optional tests.
 #### Module `csaf_2_1/full.js`
 
 This module exports all tests included in `extended.js` and all informative tests.
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `csaf_2_1/nonExternalRequestFree.js`
+
+This module exports the implemented tests in the `non-external-request-free` preset defined in [CSAF 2.1 §6.4.3](https://github.com/oasis-tcs/csaf/blob/55bcf04835f4a08cd5ee0ae534106c5f1692d993/csaf_2.1/prose/share/csaf-v2.1-draft.md#643-additional-presets). It contains the tests implemented by this library only; see [Known Issues](#known-issues).
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `csaf_2_1/externalRequestFree.js`
+
+This module exports the implemented tests in `full.js` except for the tests in the `non-external-request-free` preset defined in [CSAF 2.1 §6.4.3](https://github.com/oasis-tcs/csaf/blob/55bcf04835f4a08cd5ee0ae534106c5f1692d993/csaf_2.1/prose/share/csaf-v2.1-draft.md#643-additional-presets). It contains the tests implemented by this library only; see [Known Issues](#known-issues).
 
 [(back to top)](#bsi-csaf-validator-lib)
 
