@@ -1,8 +1,25 @@
+import * as basic from '../../csaf_2_1/basic.js'
 import * as full from '../../csaf_2_1/full.js'
 import * as externalRequestFree from '../../csaf_2_1/externalRequestFree.js'
+import * as mandatory from '../../csaf_2_1/mandatoryTests.js'
 import * as nonExternalRequestFree from '../../csaf_2_1/nonExternalRequestFree.js'
 
-describe('CSAF 2.1 network access presets', function () {
+const mandatoryTestsNotIncludedInBasic = ['mandatoryTest_6_1_8']
+
+describe('CSAF 2.1 presets', function () {
+  it('exports every implemented mandatory test in the basic preset', function () {
+    const basicMandatoryTestNames = Object.keys(basic)
+      .filter((testName) => testName.startsWith('mandatoryTest_'))
+      .sort()
+    const implementedMandatoryTestNames = Object.keys(mandatory)
+      .filter(
+        (testName) => !mandatoryTestsNotIncludedInBasic.includes(testName)
+      )
+      .sort()
+
+    expect(basicMandatoryTestNames).to.deep.equal(implementedMandatoryTestNames)
+  })
+
   it('exports exactly the non-external-request-free tests', function () {
     expect(Object.keys(nonExternalRequestFree).sort()).to.deep.equal(
       [
