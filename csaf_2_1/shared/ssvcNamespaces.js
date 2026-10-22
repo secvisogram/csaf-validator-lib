@@ -55,7 +55,29 @@ export function isUnregisteredNamespace(namespace) {
  */
 export function isSpecialPurposeSsvcNamespace(namespace) {
   const base = getSsvcBaseNamespace(namespace)
-  return specialPurposeSsvcNamespaces.some((prefix) => base === prefix)
+  return (
+    specialPurposeSsvcNamespaces.includes(base) ||
+    noProductionUseSsvcNamespaces.includes(base)
+  )
+}
+
+/**
+ * Registered base namespaces reserved for documentation (`example`) and
+ * testing (`test`). They have no decision points of their own and must not be
+ * used in production (SSVC-RNS "Reserved Namespace Strings").
+ *
+ * @type {string[]}
+ */
+export const noProductionUseSsvcNamespaces = ['example', 'test']
+
+/**
+ * Returns true if the namespace belongs to a registered base namespace that is
+ * reserved for documentation or testing.
+ * @param {string} namespace - full namespace string
+ * @returns {boolean}
+ */
+export function isNoProductionUseSsvcNamespace(namespace) {
+  return noProductionUseSsvcNamespaces.includes(getSsvcBaseNamespace(namespace))
 }
 
 /**
@@ -84,20 +106,6 @@ export function isRegisteredSsvcNamespace(namespace) {
   return registeredSsvcNamespaces.includes(base)
 }
 
-/**
- * Registered SSVC base namespaces for production use, according to the SSVC
- * Registered Namespace specification (SSVC-RNS):
- * https://certcc.github.io/SSVC/reference/code/namespaces/#registered-namespace
- */
-export const registeredSsvcNamespaces = [
-  'ssvc',
-  'cvss',
-  'cisa',
-  'basic',
-  'example',
-  'test',
-  'nist',
-]
 /**
  * Namespace strings that must never be used at all, regardless of context (SSVC-RNS):
  * https://certcc.github.io/SSVC/reference/code/namespaces/#base-namespace
@@ -105,34 +113,6 @@ export const registeredSsvcNamespaces = [
  * - `invalid` / `x_invalid` — must not be used at all; always an error.
  */
 export const invalidNamespace = ['invalid', 'x_invalid']
-
-/**
- * Extracts the base namespace from a full SSVC namespace string.
- * Strips everything after the first '#' or '/'.
- * @param {string} namespace
- * @returns {string}
- */
-export function getSsvcBaseNamespace(namespace) {
-  const hashIdx = namespace.indexOf('#')
-  const slashIdx = namespace.indexOf('/')
-
-  let endIdx = namespace.length
-  if (hashIdx !== -1) endIdx = Math.min(endIdx, hashIdx)
-  if (slashIdx !== -1) endIdx = Math.min(endIdx, slashIdx)
-
-  return namespace.substring(0, endIdx)
-}
-
-/**
- * Returns true if the namespace belongs to a registered SSVC base namespace.
- * @param {string} namespace - full namespace string
- * @returns {boolean}
- */
-export function isRegisteredSsvcNamespace(namespace) {
-  const base = getSsvcBaseNamespace(namespace)
-  if (base.startsWith('x_')) return false
-  return registeredSsvcNamespaces.includes(base)
-}
 
 /**
  * Returns true if `namespace` uses one of the invalid base namespace strings.

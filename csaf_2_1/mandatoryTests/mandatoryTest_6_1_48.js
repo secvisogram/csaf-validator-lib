@@ -2,8 +2,9 @@ import { Ajv } from 'ajv/dist/jtd.js'
 import ssvcDecisionPoints from '../../lib/ssvc/ssvc_decision_points.js'
 import {
   getSsvcBaseNamespace,
-  isRegisteredSsvcNamespace,
   isInvalidNamespace,
+  isNoProductionUseSsvcNamespace,
+  isRegisteredSsvcNamespace,
 } from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
@@ -132,6 +133,10 @@ export function mandatoryTest_6_1_48(doc) {
           }
 
           if (!isRegisteredSsvcNamespace(selection.namespace)) {
+            return
+          }
+
+          if (isNoProductionUseSsvcNamespace(selection.namespace)) {
             return
           }
 
