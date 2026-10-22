@@ -24,6 +24,8 @@
       - [Module `csaf_2_1/basic.js`](#module-csaf_2_1basicjs)
       - [Module `csaf_2_1/extended.js`](#module-csaf_2_1extendedjs)
       - [Module `csaf_2_1/full.js`](#module-csaf_2_1fulljs)
+      - [Module `csaf_2_1/nonExternalRequestFree.js`](#module-csaf_2_1nonexternalrequestfreejs)
+      - [Module `csaf_2_1/externalRequestFree.js`](#module-csaf_2_1externalrequestfreejs)
     - [Module `validate.js`](#module-validatejs)
     - [Module `validateStrict.js`](#module-validatestrictjs)
     - [Module `strip.js`](#module-stripjs)
@@ -349,7 +351,6 @@ The following tests are not yet implemented and therefore missing:
 
 - Mandatory Test 6.1.27.13
 - Mandatory Test 6.1.50
-- Mandatory Test 6.1.54
 - Mandatory Test 6.1.59
 - Mandatory Test 6.1.60.2
 - Mandatory Test 6.1.60.3
@@ -358,15 +359,9 @@ The following tests are not yet implemented and therefore missing:
 
 - Recommended Test 6.2.20
 - Recommended Test 6.2.24
-- Recommended Test 6.2.26
 - Recommended Test 6.2.31
-- Recommended Test 6.2.34
-- Recommended Test 6.2.35
-- Recommended Test 6.2.37
 - Recommended Test 6.2.38
 - Recommended Test 6.2.39.1
-- Recommended Test 6.2.44
-- Recommended Test 6.2.45
 - Recommended Test 6.2.46
 - Recommended Test 6.2.50.1
 - Recommended Test 6.2.50.2
@@ -380,7 +375,6 @@ The following tests are not yet implemented and therefore missing:
 **Informative Tests**
 
 - Informative Test 6.3.13
-- Informative Test 6.3.14
 - Informative Test 6.3.16
 - Informative Test 6.3.17
 - Informative Test 6.3.19.1
@@ -389,7 +383,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
-- Informative Test 6.3.24
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -510,13 +503,17 @@ export const recommendedTest_6_2_21: DocumentTest
 export const recommendedTest_6_2_22: DocumentTest
 export const recommendedTest_6_2_23: DocumentTest
 export const recommendedTest_6_2_25: DocumentTest
+export const recommendedTest_6_2_26: DocumentTest
 export const recommendedTest_6_2_27: DocumentTest
 export const recommendedTest_6_2_28: DocumentTest
 export const recommendedTest_6_2_29: DocumentTest
 export const recommendedTest_6_2_30: DocumentTest
 export const recommendedTest_6_2_32: DocumentTest
 export const recommendedTest_6_2_33: DocumentTest
+export const recommendedTest_6_2_34: DocumentTest
+export const recommendedTest_6_2_35: DocumentTest
 export const recommendedTest_6_2_36: DocumentTest
+export const recommendedTest_6_2_37: DocumentTest
 export const recommendedTest_6_2_39_2: DocumentTest
 export const recommendedTest_6_2_39_3: DocumentTest
 export const recommendedTest_6_2_39_4: DocumentTest
@@ -533,6 +530,8 @@ export const recommendedTest_6_2_40: DocumentTest
 export const recommendedTest_6_2_41: DocumentTest
 export const recommendedTest_6_2_42: DocumentTest
 export const recommendedTest_6_2_43: DocumentTest
+export const recommendedTest_6_2_44: DocumentTest
+export const recommendedTest_6_2_45: DocumentTest
 export const recommendedTest_6_2_47: DocumentTest
 export const recommendedTest_6_2_48: DocumentTest
 export const recommendedTest_6_2_49: DocumentTest
@@ -558,6 +557,7 @@ export const informativeTest_6_3_9: DocumentTest
 export const informativeTest_6_3_10: DocumentTest
 export const informativeTest_6_3_11: DocumentTest
 export const informativeTest_6_3_12: DocumentTest
+export const informativeTest_6_3_14: DocumentTest
 export const informativeTest_6_3_15: DocumentTest
 export const informativeTest_6_3_18: DocumentTest
 export const informativeTest_6_3_20: DocumentTest
@@ -572,6 +572,7 @@ export const informativeTest_6_3_21_9: DocumentTest
 export const informativeTest_6_3_22: DocumentTest
 export const informativeTest_6_3_23_1: DocumentTest
 export const informativeTest_6_3_23_2: DocumentTest
+export const informativeTest_6_3_24: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -591,6 +592,18 @@ This module exports all tests included in `basic.js` and all optional tests.
 #### Module `csaf_2_1/full.js`
 
 This module exports all tests included in `extended.js` and all informative tests.
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `csaf_2_1/nonExternalRequestFree.js`
+
+This module exports the implemented tests in the `non-external-request-free` preset defined in [CSAF 2.1 §6.4.3](https://github.com/oasis-tcs/csaf/blob/55bcf04835f4a08cd5ee0ae534106c5f1692d993/csaf_2.1/prose/share/csaf-v2.1-draft.md#643-additional-presets). It contains the tests implemented by this library only; see [Known Issues](#known-issues).
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `csaf_2_1/externalRequestFree.js`
+
+This module exports the implemented tests in `full.js` except for the tests in the `non-external-request-free` preset defined in [CSAF 2.1 §6.4.3](https://github.com/oasis-tcs/csaf/blob/55bcf04835f4a08cd5ee0ae534106c5f1692d993/csaf_2.1/prose/share/csaf-v2.1-draft.md#643-additional-presets). It contains the tests implemented by this library only; see [Known Issues](#known-issues).
 
 [(back to top)](#bsi-csaf-validator-lib)
 
