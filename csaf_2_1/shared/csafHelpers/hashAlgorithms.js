@@ -1,11 +1,7 @@
 /**
- * All hash algorithm names mentioned in section 3.1.10.3.2 (full_product_name
- * type) / 3.1.4.3.2 (vulnerability type) of the CSAF 2.1 standard.
+ * All hash algorithm names mentioned in section 3.1.10.3.2 of the CSAF 2.1 standard.
  * These are derived from the OpenSSL dgst -list output (version 3.4.0,
  * 2024-10-22) with leading dashes removed.
- *
- * This is the single, shared source of truth for the supported hash
- * algorithm names. Keep this list in sync with the spec if it changes.
  */
 export const ALGORITHMS_IN_SPEC = new Set([
   'blake2b512',
@@ -64,17 +60,12 @@ export const SECURE_ALGORITHMS = new Set([
 ])
 
 /**
- * Subset of ALGORITHMS_IN_SPEC with variable-length (XOF) output. The length
- * consistency test (6.1.63) must be skipped for these algorithms since there
- * is no single expected output length to compare against.
+ * Subset of algorithms that support variable-length (XOF) output.
  */
 export const VARIABLE_LENGTH_ALGORITHMS = new Set(['shake128', 'shake256'])
 
 /**
- * Expected hash `value` length in hexadecimal characters for every
- * fixed-length algorithm in ALGORITHMS_IN_SPEC (i.e. all algorithms except
- * those in VARIABLE_LENGTH_ALGORITHMS). Derived from the digest sizes of the
- * corresponding OpenSSL algorithms (hex length = 2 * digest byte length).
+ * Expected hash value length in hexadecimal characters for each algorithm.
  *
  * @type {Record<string, number>}
  */
