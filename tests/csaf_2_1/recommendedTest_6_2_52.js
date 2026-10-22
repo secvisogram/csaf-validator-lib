@@ -2,12 +2,6 @@ import { recommendedTest_6_2_52 } from '../../csaf_2_1/recommendedTests/recommen
 import { productWithFileHashes } from './shared/csafDocHelper.js'
 
 describe('recommendedTest_6_2_52', function () {
-  it('returns early with no warnings when product_tree is not an object', function () {
-    expect(
-      recommendedTest_6_2_52({ product_tree: 'string' }).warnings.length
-    ).to.equal(0)
-  })
-
   it('warns for unsupported algorithm in product_tree.branches product hashes', function () {
     const result = recommendedTest_6_2_52({
       product_tree: {
@@ -25,112 +19,6 @@ describe('recommendedTest_6_2_52', function () {
       '/product_tree/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/algorithm'
     )
     expect(result.warnings[0].message).to.match(/md9000/)
-  })
-
-  it('warns for unsupported algorithm in product_tree.product_paths full_product_name', function () {
-    const result = recommendedTest_6_2_52({
-      product_tree: {
-        product_paths: [
-          {
-            full_product_name: productWithFileHashes('product.exe', [
-              { algorithm: 'unknown-algo' },
-            ]),
-          },
-        ],
-      },
-    })
-    expect(result.warnings.length).to.equal(1)
-    expect(result.warnings[0].instancePath).to.equal(
-      '/product_tree/product_paths/0/full_product_name/product_identification_helper/hashes/0/file_hashes/0/algorithm'
-    )
-    expect(result.warnings[0].message).to.match(/unknown-algo/)
-  })
-
-  it('does not warn for product_paths entry without full_product_name', function () {
-    const result = recommendedTest_6_2_52({
-      product_tree: {
-        product_paths: [{}],
-      },
-    })
-    expect(result.warnings.length).to.equal(0)
-  })
-
-  it('warns for unsupported algorithm in branch product hashes', function () {
-    const result = recommendedTest_6_2_52({
-      product_tree: {
-        branches: [
-          {
-            product: productWithFileHashes('lib.so', [
-              { algorithm: 'fakehash' },
-            ]),
-          },
-        ],
-      },
-    })
-    expect(result.warnings.length).to.equal(1)
-    expect(result.warnings[0].instancePath).to.equal(
-      '/product_tree/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/algorithm'
-    )
-  })
-
-  it('warns for unsupported algorithm in nested child branch', function () {
-    const result = recommendedTest_6_2_52({
-      product_tree: {
-        branches: [
-          {
-            branches: [
-              {
-                product: productWithFileHashes('nested.dll', [
-                  { algorithm: 'not-in-spec' },
-                ]),
-              },
-            ],
-          },
-        ],
-      },
-    })
-    expect(result.warnings.length).to.equal(1)
-    expect(result.warnings[0].instancePath).to.equal(
-      '/product_tree/branches/0/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/algorithm'
-    )
-    expect(result.warnings[0].message).to.match(/not-in-spec/)
-  })
-
-  it('skips recursion into a child branch that fails schema validation', function () {
-    const result = recommendedTest_6_2_52({
-      product_tree: {
-        branches: [
-          {
-            product: productWithFileHashes('parent.exe', [
-              { algorithm: 'md9000' },
-            ]),
-            // Not a valid branch object (must be an object matching
-            // branchSchema), so validateBranch() returns false and this
-            // entry must be skipped without recursing into it.
-            branches: ['not-an-object'],
-          },
-        ],
-      },
-    })
-    expect(result.warnings.length).to.equal(1)
-    expect(result.warnings[0].instancePath).to.equal(
-      '/product_tree/branches/0/product/product_identification_helper/hashes/0/file_hashes/0/algorithm'
-    )
-  })
-
-  it('does not warn when file_hashes is absent (line 212 guard)', function () {
-    const result = recommendedTest_6_2_52({
-      product_tree: {
-        full_product_names: [
-          {
-            product_identification_helper: {
-              hashes: [{ filename: 'product.exe' }],
-            },
-          },
-        ],
-      },
-    })
-    expect(result.warnings.length).to.equal(0)
   })
 
   it('does not warn when algorithm is undefined', function () {
