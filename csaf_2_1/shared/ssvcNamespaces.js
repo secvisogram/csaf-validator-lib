@@ -55,7 +55,29 @@ export function isUnregisteredNamespace(namespace) {
  */
 export function isSpecialPurposeSsvcNamespace(namespace) {
   const base = getSsvcBaseNamespace(namespace)
-  return specialPurposeSsvcNamespaces.some((prefix) => base === prefix)
+  return (
+    specialPurposeSsvcNamespaces.includes(base) ||
+    noProductionUseSsvcNamespaces.includes(base)
+  )
+}
+
+/**
+ * Registered base namespaces reserved for documentation (`example`) and
+ * testing (`test`). They have no decision points of their own and must not be
+ * used in production (SSVC-RNS "Reserved Namespace Strings").
+ *
+ * @type {string[]}
+ */
+export const noProductionUseSsvcNamespaces = ['example', 'test']
+
+/**
+ * Returns true if the namespace belongs to a registered base namespace that is
+ * reserved for documentation or testing.
+ * @param {string} namespace - full namespace string
+ * @returns {boolean}
+ */
+export function isNoProductionUseSsvcNamespace(namespace) {
+  return noProductionUseSsvcNamespaces.includes(getSsvcBaseNamespace(namespace))
 }
 
 /**
@@ -82,6 +104,29 @@ export function isRegisteredSsvcNamespace(namespace) {
   const base = getSsvcBaseNamespace(namespace)
   if (base.startsWith('x_')) return false
   return registeredSsvcNamespaces.includes(base)
+}
+
+/**
+ * Namespace strings that must never be used at all, regardless of context (SSVC-RNS):
+ * https://certcc.github.io/SSVC/reference/code/namespaces/#base-namespace
+ *
+ * - `invalid` / `x_invalid` — must not be used at all; always an error.
+ */
+export const invalidNamespace = ['invalid', 'x_invalid']
+
+/**
+ * Returns true if `namespace` uses one of the invalid base namespace strings.
+ * @param {string} namespace - full namespace string
+ * @returns {boolean}
+ */
+export function isInvalidNamespace(namespace) {
+  const preExtension = namespace.split('/')[0]
+  return invalidNamespace.some(
+    (invalid) =>
+      preExtension === invalid ||
+      preExtension.startsWith(`${invalid}.`) ||
+      preExtension.startsWith(`${invalid}#`)
+  )
 }
 
 /**
