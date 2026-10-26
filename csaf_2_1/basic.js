@@ -70,10 +70,13 @@ export {
   mandatoryTest_6_1_51,
   mandatoryTest_6_1_52,
   mandatoryTest_6_1_53,
+  mandatoryTest_6_1_54,
+  mandatoryTest_6_1_55,
   mandatoryTest_6_1_56,
   mandatoryTest_6_1_57,
   mandatoryTest_6_1_58,
   mandatoryTest_6_1_60_1,
   mandatoryTest_6_1_61,
   mandatoryTest_6_1_62,
+  mandatoryTest_6_1_64_1,
 } from './mandatoryTests.js'
