@@ -10,10 +10,12 @@ const ajv = new Ajv()
   "the same" product (and therefore potentially corresponding fixed/affected
   pairs) if both their own branch category is one of these.
  */
-const VERSION_BRANCH_CATEGORIES = new Set([
-  'product_version',
-  'product_version_range',
-])
+const VERSION_BRANCH_CATEGORIES = new Set(
+  /** @type {Array<string | undefined>} */ ([
+    'product_version',
+    'product_version_range',
+  ])
+)
 
 const branchSchema = /** @type {const} */ ({
   additionalProperties: true,
@@ -113,6 +115,7 @@ const validateBranch = ajv.compile(branchSchema)
 /**
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof productPathSchema>} ProductPath
+ * @typedef {{ beginning_product_reference?: string; subpaths: NonNullable<ProductPath['subpaths']> }} NormalizedProductPath
  * @typedef {{ category?: string; name?: string }} LineageSegment
  * @typedef {{ ancestry: LineageSegment[]; leafCategory: string | undefined }} BranchLineage
  */
@@ -184,12 +187,15 @@ export function mandatoryTest_6_1_27_13(doc) {
 
   // Maps a product id (defined via `full_product_name.product_id`) to its
   // product path definition.
-  /** @type {Map<string, ProductPath>} */
+  /** @type {Map<string, NormalizedProductPath>} */
   const productPaths = new Map()
   doc.product_tree?.product_paths?.forEach((productPath) => {
     const productId = productPath.full_product_name?.product_id
     if (productId) {
-      productPaths.set(productId, productPath)
+      productPaths.set(productId, {
+        beginning_product_reference: productPath.beginning_product_reference,
+        subpaths: productPath.subpaths ?? [],
+      })
     }
   })
 
@@ -216,7 +222,6 @@ export function mandatoryTest_6_1_27_13(doc) {
    * @param {string} idB
    */
   const isBranchCorrespondence = (idA, idB) => {
-    if (idA === idB) return false
     const lineagesA = branchLineages.get(idA)
     const lineagesB = branchLineages.get(idB)
     if (!lineagesA || !lineagesB) return false
@@ -224,8 +229,6 @@ export function mandatoryTest_6_1_27_13(doc) {
       lineagesB.some(
         (lb) =>
           ancestryEqual(la.ancestry, lb.ancestry) &&
-          !!la.leafCategory &&
-          !!lb.leafCategory &&
           VERSION_BRANCH_CATEGORIES.has(la.leafCategory) &&
           VERSION_BRANCH_CATEGORIES.has(lb.leafCategory)
       )
@@ -242,7 +245,7 @@ export function mandatoryTest_6_1_27_13(doc) {
    * Returns `undefined` if no product in the tree is explicitly defined for
    * that leading path.
    *
-   * @param {ProductPath} productPath
+   * @param {NormalizedProductPath} productPath
    * @param {number} installedWithIndex
    * @returns {string | undefined}
    */
@@ -251,9 +254,9 @@ export function mandatoryTest_6_1_27_13(doc) {
       return productPath.beginning_product_reference
     }
 
-    const prefix = (productPath.subpaths ?? []).slice(0, installedWithIndex)
-    for (const candidate of productPaths.values()) {
-      const candidateSubpaths = candidate.subpaths ?? []
+    const prefix = productPath.subpaths.slice(0, installedWithIndex)
+    for (const [candidateId, candidate] of productPaths) {
+      const candidateSubpaths = candidate.subpaths
       if (
         candidateSubpaths.length !== prefix.length ||
         candidate.beginning_product_reference !==
@@ -267,7 +270,7 @@ export function mandatoryTest_6_1_27_13(doc) {
           s.next_product_reference === prefix[index].next_product_reference
       )
       if (isPrefixMatch) {
-        return candidate.full_product_name?.product_id
+        return candidateId
       }
     }
     return undefined
@@ -299,7 +302,7 @@ export function mandatoryTest_6_1_27_13(doc) {
     // (a) `id` owns a product path that contains an `installed_with` subpath.
     const ownPath = productPaths.get(id)
     if (ownPath) {
-      const index = (ownPath.subpaths ?? []).findIndex(
+      const index = ownPath.subpaths.findIndex(
         (s) => s.category === 'installed_with'
       )
       if (index !== -1) {
@@ -311,7 +314,7 @@ export function mandatoryTest_6_1_27_13(doc) {
     // (b) `id` is the target of an `installed_with` subpath in some other
     // product path.
     for (const productPath of productPaths.values()) {
-      ;(productPath.subpaths ?? []).forEach((subpath, index) => {
+      productPath.subpaths.forEach((subpath, index) => {
         if (
           subpath.category === 'installed_with' &&
           subpath.next_product_reference === id
@@ -372,8 +375,8 @@ export function mandatoryTest_6_1_27_13(doc) {
     const pathB = productPaths.get(idB)
     if (!pathA || !pathB) return false
 
-    const subpathsA = pathA.subpaths ?? []
-    const subpathsB = pathB.subpaths ?? []
+    const subpathsA = pathA.subpaths
+    const subpathsB = pathB.subpaths
     if (subpathsA.length !== subpathsB.length) return false
 
     const beginningEqual =

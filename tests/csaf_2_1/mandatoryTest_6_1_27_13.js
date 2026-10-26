@@ -57,66 +57,34 @@ describe('mandatoryTest_6_1_27_13', function () {
       product_tree: {
         branches: [
           {
-            category: 'vendor',
-            name: 'Example Company',
+            category: 'product_name',
+            name: 'Product A',
             branches: [
               {
-                category: 'product_name',
-                name: 'Product A',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '3.0',
-                    product: {
-                      name: 'Product A 3.0',
-                      product_id: 'CSAFPID-A1',
-                    },
-                  },
-                  {
-                    category: 'product_version',
-                    name: '3.1',
-                    product: {
-                      name: 'Product A 3.1',
-                      product_id: 'CSAFPID-A2',
-                    },
-                  },
-                ],
+                category: 'product_version',
+                name: '3.0',
+                product: { product_id: 'CSAFPID-A1' },
               },
               {
-                category: 'product_name',
-                name: 'Product B',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '2.0',
-                    product: {
-                      name: 'Product B 2.0',
-                      product_id: 'CSAFPID-B1',
-                    },
-                  },
-                  {
-                    category: 'product_version',
-                    name: '2.1',
-                    product: {
-                      name: 'Product B 2.1',
-                      product_id: 'CSAFPID-B2',
-                    },
-                  },
-                ],
+                category: 'product_version',
+                name: '3.1',
+                product: { product_id: 'CSAFPID-A2' },
+              },
+            ],
+          },
+          {
+            category: 'product_name',
+            name: 'Product B',
+            branches: [
+              {
+                category: 'product_version',
+                name: '2.0',
+                product: { product_id: 'CSAFPID-B1' },
               },
               {
-                category: 'product_name',
-                name: 'Product C',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '1.0',
-                    product: {
-                      name: 'Product C 1.0',
-                      product_id: 'CSAFPID-C0',
-                    },
-                  },
-                ],
+                category: 'product_version',
+                name: '2.1',
+                product: { product_id: 'CSAFPID-B2' },
               },
             ],
           },
@@ -124,10 +92,7 @@ describe('mandatoryTest_6_1_27_13', function () {
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-C0',
-            full_product_name: {
-              name: 'Product C 1.0 installed on B 2.0 installed on A 3.0',
-              product_id: 'CSAFPID-P1',
-            },
+            full_product_name: { product_id: 'CSAFPID-P1' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -141,10 +106,7 @@ describe('mandatoryTest_6_1_27_13', function () {
           },
           {
             beginning_product_reference: 'CSAFPID-C0',
-            full_product_name: {
-              name: 'Product C 1.0 installed on B 2.1 installed on A 3.1',
-              product_id: 'CSAFPID-P2',
-            },
+            full_product_name: { product_id: 'CSAFPID-P2' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -186,60 +148,11 @@ describe('mandatoryTest_6_1_27_13', function () {
     const result = mandatoryTest_6_1_27_13({
       document: { category: 'csaf_security_advisory' },
       product_tree: {
-        branches: [
-          {
-            category: 'vendor',
-            name: 'Example Company',
-            branches: [
-              {
-                category: 'product_name',
-                name: 'App',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '1.0',
-                    product: { name: 'App 1.0', product_id: 'CSAFPID-APP1' },
-                  },
-                ],
-              },
-              {
-                category: 'product_name',
-                name: 'Host',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '2.0',
-                    product: {
-                      name: 'Host 2.0',
-                      product_id: 'CSAFPID-HOST1',
-                    },
-                  },
-                ],
-              },
-              {
-                category: 'product_name',
-                name: 'Hotfix',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: 'H1',
-                    product: {
-                      name: 'Hotfix H1',
-                      product_id: 'CSAFPID-HOTFIX1',
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+        full_product_names: [{ product_id: 'CSAFPID-HOTFIX1' }],
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-APP1',
-            full_product_name: {
-              name: 'App 1.0 installed on Host 2.0',
-              product_id: 'CSAFPID-BASE1',
-            },
+            full_product_name: { product_id: 'CSAFPID-BASE1' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -249,10 +162,7 @@ describe('mandatoryTest_6_1_27_13', function () {
           },
           {
             beginning_product_reference: 'CSAFPID-APP1',
-            full_product_name: {
-              name: 'App 1.0 installed on Host 2.0 installed with Hotfix H1',
-              product_id: 'CSAFPID-FULL1',
-            },
+            full_product_name: { product_id: 'CSAFPID-FULL1' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -283,60 +193,11 @@ describe('mandatoryTest_6_1_27_13', function () {
     const result = mandatoryTest_6_1_27_13({
       document: { category: 'csaf_security_advisory' },
       product_tree: {
-        branches: [
-          {
-            category: 'vendor',
-            name: 'Example Company',
-            branches: [
-              {
-                category: 'product_name',
-                name: 'App',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '1.0',
-                    product: { name: 'App 1.0', product_id: 'CSAFPID-APP1' },
-                  },
-                ],
-              },
-              {
-                category: 'product_name',
-                name: 'Host',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '2.0',
-                    product: {
-                      name: 'Host 2.0',
-                      product_id: 'CSAFPID-HOST1',
-                    },
-                  },
-                ],
-              },
-              {
-                category: 'product_name',
-                name: 'Hotfix',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: 'H1',
-                    product: {
-                      name: 'Hotfix H1',
-                      product_id: 'CSAFPID-HOTFIX1',
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+        full_product_names: [{ product_id: 'CSAFPID-HOTFIX1' }],
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-APP1',
-            full_product_name: {
-              name: 'App 1.0 installed on Host 2.0',
-              product_id: 'CSAFPID-BASE1',
-            },
+            full_product_name: { product_id: 'CSAFPID-BASE1' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -346,10 +207,7 @@ describe('mandatoryTest_6_1_27_13', function () {
           },
           {
             beginning_product_reference: 'CSAFPID-APP1',
-            full_product_name: {
-              name: 'App 1.0 installed on Host 2.0 installed with Hotfix H1',
-              product_id: 'CSAFPID-FULL1',
-            },
+            full_product_name: { product_id: 'CSAFPID-FULL1' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -393,12 +251,12 @@ describe('mandatoryTest_6_1_27_13', function () {
           {
             category: 'product_name',
             name: 'Product A',
-            product: { name: 'Product A', product_id: 'CSAFPID-PA' },
+            product: { product_id: 'CSAFPID-PA' },
           },
           {
             category: 'product_name',
             name: 'Product B',
-            product: { name: 'Product B', product_id: 'CSAFPID-PB' },
+            product: { product_id: 'CSAFPID-PB' },
           },
         ],
       },
@@ -434,7 +292,6 @@ describe('mandatoryTest_6_1_27_13', function () {
                 category: 'product_name',
                 name: 'Sibling Product',
                 product: {
-                  name: 'Sibling Product',
                   product_id: 'CSAFPID-SIB',
                 },
               },
@@ -446,7 +303,6 @@ describe('mandatoryTest_6_1_27_13', function () {
                     category: 'product_version',
                     name: '1.0',
                     product: {
-                      name: 'Product A 1.0',
                       product_id: 'CSAFPID-PA1',
                     },
                   },
@@ -481,14 +337,10 @@ describe('mandatoryTest_6_1_27_13', function () {
     const result = mandatoryTest_6_1_27_13({
       document: { category: 'csaf_security_advisory' },
       product_tree: {
-        full_product_names: [
-          { name: 'A', product_id: 'CSAFPID-A' },
-          { name: 'B', product_id: 'CSAFPID-B' },
-        ],
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-A',
-            full_product_name: { name: 'PA', product_id: 'CSAFPID-PA' },
+            full_product_name: { product_id: 'CSAFPID-PA' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -498,7 +350,7 @@ describe('mandatoryTest_6_1_27_13', function () {
           },
           {
             beginning_product_reference: 'CSAFPID-B',
-            full_product_name: { name: 'PB', product_id: 'CSAFPID-PB' },
+            full_product_name: { product_id: 'CSAFPID-PB' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -535,46 +387,10 @@ describe('mandatoryTest_6_1_27_13', function () {
     const result = mandatoryTest_6_1_27_13({
       document: { category: 'csaf_security_advisory' },
       product_tree: {
-        branches: [
-          {
-            category: 'vendor',
-            name: 'Example Company',
-            branches: [
-              {
-                category: 'product_name',
-                name: 'App',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '1.0',
-                    product: { name: 'App 1.0', product_id: 'CSAFPID-APP4' },
-                  },
-                ],
-              },
-              {
-                category: 'product_name',
-                name: 'Hotfix',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: 'H1',
-                    product: {
-                      name: 'Hotfix H1',
-                      product_id: 'CSAFPID-HOTFIX4',
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-APP4',
-            full_product_name: {
-              name: 'App 1.0 installed with Hotfix H1',
-              product_id: 'CSAFPID-FULL4',
-            },
+            full_product_name: { product_id: 'CSAFPID-FULL4' },
             subpaths: [
               {
                 category: 'installed_with',
@@ -608,44 +424,18 @@ describe('mandatoryTest_6_1_27_13', function () {
       product_tree: {
         branches: [
           {
-            category: 'vendor',
-            name: 'Example Company',
+            category: 'product_name',
+            name: 'Product A',
             branches: [
               {
-                category: 'product_name',
-                name: 'Product A',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '4.1',
-                    product: {
-                      name: 'Product A 4.1',
-                      product_id: 'CSAFPID-A1',
-                    },
-                  },
-                  {
-                    category: 'product_version',
-                    name: '4.2',
-                    product: {
-                      name: 'Product A 4.2',
-                      product_id: 'CSAFPID-A2',
-                    },
-                  },
-                ],
+                category: 'product_version',
+                name: '4.1',
+                product: { product_id: 'CSAFPID-A1' },
               },
               {
-                category: 'product_name',
-                name: 'Product B',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '1.0',
-                    product: {
-                      name: 'Product B 1.0',
-                      product_id: 'CSAFPID-B1',
-                    },
-                  },
-                ],
+                category: 'product_version',
+                name: '4.2',
+                product: { product_id: 'CSAFPID-A2' },
               },
             ],
           },
@@ -653,10 +443,7 @@ describe('mandatoryTest_6_1_27_13', function () {
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-B1',
-            full_product_name: {
-              name: 'Product B 1.0 installed on Product A 4.1',
-              product_id: 'CSAFPID-P1',
-            },
+            full_product_name: { product_id: 'CSAFPID-P1' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -666,10 +453,7 @@ describe('mandatoryTest_6_1_27_13', function () {
           },
           {
             beginning_product_reference: 'CSAFPID-B1',
-            full_product_name: {
-              name: 'Product B 1.0 installed on Product A 4.2',
-              product_id: 'CSAFPID-P2',
-            },
+            full_product_name: { product_id: 'CSAFPID-P2' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -699,46 +483,11 @@ describe('mandatoryTest_6_1_27_13', function () {
     const result = mandatoryTest_6_1_27_13({
       document: { category: 'csaf_security_advisory' },
       product_tree: {
-        branches: [
-          {
-            category: 'vendor',
-            name: 'Example Company',
-            branches: [
-              {
-                category: 'product_name',
-                name: 'App',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: '1.0',
-                    product: { name: 'App 1.0', product_id: 'CSAFPID-APP6' },
-                  },
-                ],
-              },
-              {
-                category: 'product_name',
-                name: 'Hotfix',
-                branches: [
-                  {
-                    category: 'product_version',
-                    name: 'H1',
-                    product: {
-                      name: 'Hotfix H1',
-                      product_id: 'CSAFPID-HOTFIX6',
-                    },
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+        full_product_names: [{ product_id: 'CSAFPID-APP6' }],
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-APP6',
-            full_product_name: {
-              name: 'App 1.0 installed with Hotfix H1',
-              product_id: 'CSAFPID-FULL6',
-            },
+            full_product_name: { product_id: 'CSAFPID-FULL6' },
             subpaths: [
               {
                 category: 'installed_with',
@@ -772,19 +521,11 @@ describe('mandatoryTest_6_1_27_13', function () {
     const result = mandatoryTest_6_1_27_13({
       document: { category: 'csaf_security_advisory' },
       product_tree: {
-        full_product_names: [
-          { name: 'App', product_id: 'CSAFPID-APP7' },
-          { name: 'Host', product_id: 'CSAFPID-HOST7' },
-          { name: 'Hotfix', product_id: 'CSAFPID-HOTFIX7' },
-          { name: 'Unrelated Product', product_id: 'CSAFPID-UNRELATED7' },
-        ],
+        full_product_names: [{ product_id: 'CSAFPID-HOTFIX7' }],
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-APP7',
-            full_product_name: {
-              name: 'App installed on Host installed with Hotfix',
-              product_id: 'CSAFPID-FULL7',
-            },
+            full_product_name: { product_id: 'CSAFPID-FULL7' },
             subpaths: [
               {
                 category: 'installed_on',
@@ -817,14 +558,150 @@ describe('mandatoryTest_6_1_27_13', function () {
     ])
   })
 
-  it('fails when an installed_with relationship at the top level has no matching beginning product listed as affected', function () {
-    const result = mandatoryTest_6_1_27_13({
+  describe('edge cases of the product tree structure', function () {
+    /**
+     * @param {object} productTree
+     * @param {object} productStatus
+     */
+    const buildDoc = (productTree, productStatus) => ({
       document: { category: 'csaf_security_advisory' },
-      product_tree: {
-        branches: [
+      product_tree: productTree,
+      vulnerabilities: [{ product_status: productStatus }],
+    })
+
+    /** @param {string} id */
+    const missingError = (id) => [
+      {
+        instancePath: '/vulnerabilities/0/product_status/fixed/0',
+        message: `No corresponding version of product "${id}" is listed as affected (known_affected) in the same vulnerability`,
+      },
+    ]
+
+    /** @param {string[]} ids */
+    const names = (ids) => ids.map((id) => ({ name: id, product_id: id }))
+
+    it('skips vulnerabilities without a product_status', function () {
+      const result = mandatoryTest_6_1_27_13({
+        document: { category: 'csaf_security_advisory' },
+        vulnerabilities: [{}],
+      })
+      expect(result.isValid).to.equal(true)
+      expect(result.errors.length).to.equal(0)
+    })
+
+    it('ignores product paths without a product id and treats missing subpaths as empty', function () {
+      const result = mandatoryTest_6_1_27_13(
+        buildDoc(
           {
-            category: 'vendor',
-            name: 'Example Company',
+            full_product_names: names(['OTHER', 'BEGIN']),
+            product_paths: [
+              {
+                beginning_product_reference: 'BEGIN',
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'OTHER' },
+                ],
+              },
+              {
+                beginning_product_reference: 'BEGIN',
+                full_product_name: { name: 'No subpaths', product_id: 'NOSUB' },
+              },
+            ],
+          },
+          { fixed: ['NOSUB'], known_affected: ['OTHER'] }
+        )
+      )
+      expect(result.isValid).to.equal(false)
+      expect(result.errors).to.deep.equal(missingError('NOSUB'))
+    })
+
+    it('does not use a same-length candidate path with different subpaths as the leading product', function () {
+      const result = mandatoryTest_6_1_27_13(
+        buildDoc(
+          {
+            full_product_names: names(['APP', 'HOST', 'HOST2', 'HOTFIX']),
+            product_paths: [
+              {
+                beginning_product_reference: 'APP',
+                full_product_name: { name: 'FULL', product_id: 'FULL' },
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'HOST' },
+                  {
+                    category: 'installed_with',
+                    next_product_reference: 'HOTFIX',
+                  },
+                ],
+              },
+              {
+                beginning_product_reference: 'APP',
+                full_product_name: { name: 'OTHER', product_id: 'OTHER' },
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'HOST2' },
+                ],
+              },
+            ],
+          },
+          { fixed: ['HOTFIX'], known_affected: ['OTHER'] }
+        )
+      )
+      expect(result.isValid).to.equal(false)
+      expect(result.errors).to.deep.equal(missingError('HOTFIX'))
+    })
+
+    it('fails when the fixed product owns an installed_with path whose leading product is not defined', function () {
+      const result = mandatoryTest_6_1_27_13(
+        buildDoc(
+          {
+            full_product_names: names(['APP', 'HOST', 'HOTFIX', 'UNRELATED']),
+            product_paths: [
+              {
+                beginning_product_reference: 'APP',
+                full_product_name: { name: 'FULL', product_id: 'FULL' },
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'HOST' },
+                  {
+                    category: 'installed_with',
+                    next_product_reference: 'HOTFIX',
+                  },
+                ],
+              },
+            ],
+          },
+          { fixed: ['FULL'], known_affected: ['UNRELATED'] }
+        )
+      )
+      expect(result.isValid).to.equal(false)
+      expect(result.errors).to.deep.equal(missingError('FULL'))
+    })
+
+    it('fails when the affected product owns an installed_with path but the fixed product is unrelated to its leading product', function () {
+      const result = mandatoryTest_6_1_27_13(
+        buildDoc(
+          {
+            full_product_names: names(['APP', 'HOTFIX', 'UNRELATED']),
+            product_paths: [
+              {
+                beginning_product_reference: 'APP',
+                full_product_name: { name: 'FULL', product_id: 'FULL' },
+                subpaths: [
+                  {
+                    category: 'installed_with',
+                    next_product_reference: 'HOTFIX',
+                  },
+                ],
+              },
+            ],
+          },
+          { fixed: ['UNRELATED'], known_affected: ['FULL'] }
+        )
+      )
+      expect(result.isValid).to.equal(false)
+      expect(result.errors).to.deep.equal(missingError('UNRELATED'))
+    })
+
+    it('passes when the fixed product corresponds to the leading product of the affected installed_with path', function () {
+      const result = mandatoryTest_6_1_27_13(
+        buildDoc(
+          {
             branches: [
               {
                 category: 'product_name',
@@ -833,34 +710,133 @@ describe('mandatoryTest_6_1_27_13', function () {
                   {
                     category: 'product_version',
                     name: '1.0',
-                    product: { name: 'App 1.0', product_id: 'CSAFPID-APP2' },
+                    product: { name: 'App 1.0', product_id: 'APP1' },
+                  },
+                  {
+                    category: 'product_version',
+                    name: '2.0',
+                    product: { name: 'App 2.0', product_id: 'APP2' },
                   },
                 ],
               },
+            ],
+            full_product_names: names(['HOTFIX']),
+            product_paths: [
               {
-                category: 'product_name',
-                name: 'Hotfix',
-                branches: [
+                beginning_product_reference: 'APP1',
+                full_product_name: { name: 'FULL', product_id: 'FULL' },
+                subpaths: [
                   {
-                    category: 'product_version',
-                    name: 'H1',
-                    product: {
-                      name: 'Hotfix H1',
-                      product_id: 'CSAFPID-HOTFIX2',
-                    },
+                    category: 'installed_with',
+                    next_product_reference: 'HOTFIX',
                   },
                 ],
               },
             ],
           },
-        ],
+          { fixed: ['APP2'], known_affected: ['FULL'] }
+        )
+      )
+      expect(result.isValid).to.equal(true)
+      expect(result.errors.length).to.equal(0)
+    })
+
+    it('does not crash on a subpath without next_product_reference', function () {
+      const result = mandatoryTest_6_1_27_13(
+        buildDoc(
+          {
+            full_product_names: names(['BEGIN', 'NEXT']),
+            product_paths: [
+              {
+                beginning_product_reference: 'BEGIN',
+                full_product_name: { name: 'PA', product_id: 'PA' },
+                subpaths: [{ category: 'installed_on' }],
+              },
+              {
+                beginning_product_reference: 'BEGIN',
+                full_product_name: { name: 'PB', product_id: 'PB' },
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'NEXT' },
+                ],
+              },
+            ],
+          },
+          { fixed: ['PA'], known_affected: ['PB'] }
+        )
+      )
+      expect(result.isValid).to.equal(false)
+      expect(result.errors).to.deep.equal(missingError('PA'))
+    })
+
+    it('does not crash on cyclic product paths when an affected product is listed', function () {
+      const result = mandatoryTest_6_1_27_13(
+        buildDoc(
+          {
+            full_product_names: names(['A', 'B']),
+            product_paths: [
+              {
+                beginning_product_reference: 'A',
+                full_product_name: { name: 'PA', product_id: 'PA' },
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'PB' },
+                ],
+              },
+              {
+                beginning_product_reference: 'B',
+                full_product_name: { name: 'PB', product_id: 'PB' },
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'PA' },
+                ],
+              },
+            ],
+          },
+          { fixed: ['PA'], known_affected: ['PB'] }
+        )
+      )
+      expect(result.isValid).to.equal(false)
+      expect(result.errors).to.deep.equal(missingError('PA'))
+    })
+
+    it('fails when product paths have a different number of subpaths', function () {
+      const result = mandatoryTest_6_1_27_13(
+        buildDoc(
+          {
+            full_product_names: names(['BEGIN', 'HOST', 'HOST2']),
+            product_paths: [
+              {
+                beginning_product_reference: 'BEGIN',
+                full_product_name: { name: 'PA', product_id: 'PA' },
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'HOST' },
+                ],
+              },
+              {
+                beginning_product_reference: 'BEGIN',
+                full_product_name: { name: 'PB', product_id: 'PB' },
+                subpaths: [
+                  { category: 'installed_on', next_product_reference: 'HOST' },
+                  { category: 'installed_on', next_product_reference: 'HOST2' },
+                ],
+              },
+            ],
+          },
+          { fixed: ['PA'], known_affected: ['PB'] }
+        )
+      )
+      expect(result.isValid).to.equal(false)
+      expect(result.errors).to.deep.equal(missingError('PA'))
+    })
+  })
+
+  it('fails when an installed_with relationship at the top level has no matching beginning product listed as affected', function () {
+    const result = mandatoryTest_6_1_27_13({
+      document: { category: 'csaf_security_advisory' },
+      product_tree: {
+        full_product_names: [{ product_id: 'CSAFPID-HOTFIX2' }],
         product_paths: [
           {
             beginning_product_reference: 'CSAFPID-APP2',
-            full_product_name: {
-              name: 'App 1.0 installed with Hotfix H1',
-              product_id: 'CSAFPID-FULL2',
-            },
+            full_product_name: { product_id: 'CSAFPID-FULL2' },
             subpaths: [
               {
                 category: 'installed_with',
