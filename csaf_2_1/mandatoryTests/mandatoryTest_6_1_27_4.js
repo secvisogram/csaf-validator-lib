@@ -63,7 +63,7 @@ export function mandatoryTest_6_1_27_4(doc) {
   ) {
     isValid = false
     errors.push({
-      instancePath: '/product_tree',
+      instancePath: '',
       message: 'needs a product_tree',
     })
   }
