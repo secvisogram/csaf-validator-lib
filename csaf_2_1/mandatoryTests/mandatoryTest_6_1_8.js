@@ -13,7 +13,11 @@ const jtdAjv = new Ajv()
   `additionalProperties: false` at the root, so a plain `$ref` to them (as registered on
   the shared `csafAjv` used elsewhere) would silently accept unknown properties.
  */
-const strictAjv = new Ajv2020({ strict: false, allErrors: true })
+const strictAjv = new Ajv2020({
+  strict: false,
+  allErrors: true,
+  multipleOfPrecision: 6,
+})
 addFormats.default(strictAjv)
 
 /**
