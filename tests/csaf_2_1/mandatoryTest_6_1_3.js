@@ -105,6 +105,22 @@ describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
     expect(doc.errors.length).to.equal(0)
   })
 
+  it('ignores subpaths without next_product_reference', function () {
+    const doc = mandatoryTest_6_1_3({
+      product_tree: {
+        product_paths: [
+          {
+            beginning_product_reference: 'A',
+            full_product_name: { name: 'B', product_id: 'B' },
+            subpaths: [{ category: 'installed_on' }],
+          },
+        ],
+      },
+    })
+    expect(doc.isValid).to.equal(true)
+    expect(doc.errors.length).to.equal(0)
+  })
+
   it('does not report duplicate edges as circular (same target in beginning_product_reference and subpath)', function () {
     const doc = mandatoryTest_6_1_3({
       product_tree: {
