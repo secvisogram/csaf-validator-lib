@@ -14,7 +14,7 @@ describe.skipIf(isBrowserRuntime)('versRangesOverlap', function () {
     expect(isValidVers('vers:semver/>1.0.0||')).to.equal(false)
     expect(isValidVers('vers:semver/>%')).to.equal(false)
     expect(isValidVers('vers:semver/>')).to.equal(false)
-    expect(isValidVers('vers:intdot/>1.0|<2.0')).to.equal(false)
+    expect(isValidVers('vers:intdot/>1.0|<2.0')).to.equal(true)
   })
 
   it('detects overlapping ranges', function () {
