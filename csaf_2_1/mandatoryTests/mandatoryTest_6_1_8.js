@@ -1,8 +1,31 @@
 import { Ajv } from 'ajv/dist/jtd.js'
+import { Ajv2020 } from 'ajv/dist/2020.js'
+import addFormats from 'ajv-formats'
+import cvss_v2_0 from '../../schemas/cvss-v2.0.js'
+import cvss_v3_0 from '../../schemas/cvss-v3.0.js'
+import cvss_v3_1 from '../../schemas/cvss-v3.1.js'
 import csafAjv from '../csafAjv.js'
 
 const jtdAjv = new Ajv()
 
+/**
+  The referenced FIRST.org CVSS v2.0/v3.0/v3.1 schemas don't set
+  `additionalProperties: false` at the root, so a plain `$ref` to them (as registered on
+  the shared `csafAjv` used elsewhere) would silently accept unknown properties.
+ */
+const strictAjv = new Ajv2020({
+  strict: false,
+  allErrors: true,
+  multipleOfPrecision: 6,
+})
+addFormats.default(strictAjv)
+
+/**
+  This is the jtd schema that needs to match the input document so that the
+  test is activated. If this schema doesn't match it normally means that the input
+  document does not validate against the csaf json schema or optional fields that
+  the test checks are not present.
+ */
 const inputSchema = /** @type {const} */ ({
   additionalProperties: true,
   optionalProperties: {
@@ -42,18 +65,15 @@ const inputSchema = /** @type {const} */ ({
 
 const validate = jtdAjv.compile(inputSchema)
 
-const validate_2_0 = csafAjv.compile({
-  $ref: 'https://www.first.org/cvss/cvss-v2.0.json',
+const validate_2_0 = strictAjv.compile({
+  ...cvss_v2_0,
+  additionalProperties: false,
 })
 
-const validate_3 = csafAjv.compile({
+const validate_3 = strictAjv.compile({
   oneOf: [
-    {
-      $ref: 'https://www.first.org/cvss/cvss-v3.0.json',
-    },
-    {
-      $ref: 'https://www.first.org/cvss/cvss-v3.1.json',
-    },
+    { ...cvss_v3_0, additionalProperties: false },
+    { ...cvss_v3_1, additionalProperties: false },
   ],
 })
 
