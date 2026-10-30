@@ -202,22 +202,29 @@ export function recommendedTest_6_2_46(doc) {
       The `ctx` variable holds the state that is accumulated during the test run and is
       finally returned by the function.
      */
+  /** @type { {warnings: Array<{ message: string; instancePath: string }>;
+   * infos: Array<{ message: string; instancePath: string }>}} */
   const ctx = {
-    warnings:
-      /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
+    warnings: [],
+    infos: [],
   }
 
   if (!validateSchema(doc)) {
     return ctx
   }
 
-  const licenseInDocLang = getTranslationInDocumentLang(doc, 'license')
-  if (!licenseInDocLang) {
-    return ctx
-  }
-
   const licenseToCheck = doc.document.license_expression
   if (isLangSpecifiedAndNotEnglish(doc.document.lang)) {
+    const licenseInDocLang = getTranslationInDocumentLang(doc, 'license')
+    if (!licenseInDocLang) {
+      ctx.infos.push({
+        instancePath: '/document/notes',
+        message:
+          'no language specific translation for "license" has been recorded',
+      })
+      return ctx
+    }
+
     const notListedLicenses = getNotListedLicenses(licenseToCheck)
     if (notListedLicenses.length > 0) {
       const notes = doc.document.notes
@@ -233,7 +240,7 @@ export function recommendedTest_6_2_46(doc) {
           instancePath: '/document/notes',
           message:
             `The license_expression contains contains the following license identifiers that ` +
-            `are nor listed in Aboutcode or SPDX license list: ` +
+            `are nor listed in AboutCode or SPDX license list: ` +
             `"${notListedLicenses.join(', ')}". ` +
             `Therefore exactly one note with ` +
             `title "License" and category "legal_disclaimer" must exist`,
