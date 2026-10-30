@@ -99,21 +99,28 @@ describe('recommendedTest_6_2_46', function () {
   })
 
   it('skips documents without a supported language translation', function () {
-    expect(
-      recommendedTest_6_2_46({
-        document: {
-          license_expression: 'Invalid-license-expression',
-        },
-      }).warnings
-    ).to.eql([])
-    expect(
-      recommendedTest_6_2_46({
-        document: {
-          lang: 'fr',
-          license_expression: 'Invalid-license-expression',
-        },
-      }).warnings
-    ).to.eql([])
+    const resultWithoutLanguage = recommendedTest_6_2_46({
+      document: {
+        license_expression: 'Invalid-license-expression',
+      },
+    })
+    expect(resultWithoutLanguage.warnings).to.eql([])
+    expect(resultWithoutLanguage.infos).to.eql([])
+
+    const resultWithoutTranslation = recommendedTest_6_2_46({
+      document: {
+        lang: 'fr',
+        license_expression: 'Invalid-license-expression',
+      },
+    })
+    expect(resultWithoutTranslation.warnings).to.eql([])
+    expect(resultWithoutTranslation.infos).to.eql([
+      {
+        instancePath: '/document/notes',
+        message:
+          'no language specific translation for "License" has been recorded',
+      },
+    ])
   })
 
   it('warns when a non-English document has unlisted licenses but no matching disclaimer', function () {
