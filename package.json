@@ -1,7 +1,7 @@
 {
   "name": "@secvisogram/csaf-validator-lib",
   "type": "module",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "pretest": "tsc -b .",
     "prepublishOnly": "tsc -b . && peggy --format es lib/spdx/parser.peggy",
