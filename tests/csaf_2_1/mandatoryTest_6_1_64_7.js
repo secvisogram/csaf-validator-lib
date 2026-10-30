@@ -1,0 +1,7 @@
+import { mandatoryTest_6_1_64_7 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_64_7.js'
+
+describe('mandatoryTest_6_1_64_7', function () {
+  it('only runs on relevant documents', function () {
+    expect(mandatoryTest_6_1_64_7({ document: 'mydoc' }).isValid).to.equal(true)
+  })
+})
