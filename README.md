@@ -360,11 +360,8 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.64.4
 - Mandatory Test 6.1.64.5
 - Mandatory Test 6.1.64.6
-- Mandatory Test 6.1.64.7
 - Mandatory Test 6.1.64.8
-- Mandatory Test 6.1.64.11
 - Mandatory Test 6.1.64.12
-- Mandatory Test 6.1.65.1
 - Mandatory Test 6.1.66
 
 **Recommended Tests**
@@ -497,9 +494,12 @@ export const mandatoryTest_6_1_60_1: DocumentTest
 export const mandatoryTest_6_1_62: DocumentTest
 export const mandatoryTest_6_1_64_1: DocumentTest
 export const mandatoryTest_6_1_64_3: DocumentTest
+export const mandatoryTest_6_1_64_7: DocumentTest
 export const mandatoryTest_6_1_64_9: DocumentTest
 export const mandatoryTest_6_1_64_10: DocumentTest
+export const mandatoryTest_6_1_64_11: DocumentTest
 export const mandatoryTest_6_1_64_13: DocumentTest
+export const mandatoryTest_6_1_65_1: DocumentTest
 export const mandatoryTest_6_1_65_2: DocumentTest
 ```
 
