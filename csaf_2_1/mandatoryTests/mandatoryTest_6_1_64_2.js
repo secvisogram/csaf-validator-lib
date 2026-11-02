@@ -1,4 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
+import { toTimeKey } from '../dateHelper.js'
 
 const ajv = new Ajv()
 
@@ -153,7 +154,7 @@ export function mandatoryTest_6_1_64_2(doc) {
   actions.forEach((action, index) => {
     const key = JSON.stringify([
       action.category,
-      Date.parse(action.date) || action.date,
+      toTimeKey(action.date),
       canonicalSet(expand(action.acting_entity_refs, entityGroupMembers)),
       canonicalSet(expand(action.receiving_entity_refs, entityGroupMembers)),
       canonicalSet(action.referenced_action_ids ?? []),
