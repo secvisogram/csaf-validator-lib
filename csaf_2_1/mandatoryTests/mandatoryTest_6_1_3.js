@@ -61,6 +61,8 @@ const validate = ajv.compile(inputSchema)
 /**
  * This implements the mandatory test 6.1.3 of the CSAF 2.1 standard.
  *
+ * The test checks for circular references in the product_paths of the product_tree.
+ *
  * @param {any} doc
  */
 export function mandatoryTest_6_1_3(doc) {
@@ -175,27 +177,36 @@ function hasCircle(
   visited = new Set(),
   recursionStack = new Set()
 ) {
-  if (visited.has(productId)) return null
-
   visited.add(productId)
   recursionStack.add(productId)
-  const node = graph.get(productId)
+  /** @type {Array<{ productId: string, depIndex: number }>} */
+  const stack = [{ productId, depIndex: 0 }]
 
-  if (node) {
-    for (const dep of node.dependencies) {
-      if (recursionStack.has(dep.productId)) {
-        return {
-          cycleProductId: dep.productId,
-          pathIndex: dep.pathIndex,
-          type: dep.type,
-          subIndex: dep.subIndex ?? null,
-        }
+  while (stack.length > 0) {
+    const frame = stack[stack.length - 1]
+    const dependencies = graph.get(frame.productId)?.dependencies ?? []
+
+    if (frame.depIndex >= dependencies.length) {
+      recursionStack.delete(frame.productId)
+      stack.pop()
+      continue
+    }
+
+    const dep = dependencies[frame.depIndex++]
+    if (recursionStack.has(dep.productId)) {
+      return {
+        cycleProductId: dep.productId,
+        pathIndex: dep.pathIndex,
+        type: dep.type,
+        subIndex: dep.subIndex ?? null,
       }
-      const result = hasCircle(dep.productId, graph, visited, recursionStack)
-      if (result) return result
+    }
+    if (!visited.has(dep.productId)) {
+      visited.add(dep.productId)
+      recursionStack.add(dep.productId)
+      stack.push({ productId: dep.productId, depIndex: 0 })
     }
   }
 
-  recursionStack.delete(productId)
   return null
 }

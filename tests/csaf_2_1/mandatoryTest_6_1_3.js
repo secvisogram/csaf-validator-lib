@@ -141,4 +141,25 @@ describe('mandatoryTest_6_1_3 (CSAF 2.1)', function () {
     expect(doc.isValid).to.equal(true)
     expect(doc.errors.length).to.equal(0)
   })
+
+  it('handles very long chains without stack overflow', function () {
+    const length = 20000
+    const chain = (/** @type {boolean} */ cyclic) =>
+      Array.from({ length }, (_, i) => ({
+        beginning_product_reference: `P${i === 0 && cyclic ? length : i}`,
+        full_product_name: { name: `P${i + 1}`, product_id: `P${i + 1}` },
+        subpaths: [],
+      }))
+
+    const valid = mandatoryTest_6_1_3({
+      product_tree: { product_paths: chain(false) },
+    })
+    expect(valid.isValid).to.equal(true)
+
+    const cyclic = mandatoryTest_6_1_3({
+      product_tree: { product_paths: chain(true) },
+    })
+    expect(cyclic.isValid).to.equal(false)
+    expect(cyclic.errors.length).to.equal(1)
+  })
 })
