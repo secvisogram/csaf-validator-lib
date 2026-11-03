@@ -25,7 +25,7 @@ describe('recommendedTest_6_2_17', function () {
     expect(result.warnings.length).to.equal(0)
   })
 
-  it('warns when a CVE-like value is obfuscated with invisible/whitespace characters', function () {
+  it('normalize removes invisible and whitespace characters', function () {
     const nonBreakingSpace = '\u00A0'
     const zeroWidthSpace = '\u200B'
     const zeroWidthNonJoiner = '\u200C'
@@ -37,7 +37,8 @@ describe('recommendedTest_6_2_17', function () {
     const invisiblePlus = '\u2064'
     const byteOrderMark = '\uFEFF'
     const combiningAcuteAccent = '\u0301'
-    const combiningGraveAccent = '\u034F'
+    const combiningGraveAccent = '\u0300'
+    const combiningGraphemeJoiner = '\u034F'
     const mongolianVowelSeparator = '\u180E'
     const tab = '\u0009'
     const newline = '\n'
@@ -48,13 +49,14 @@ describe('recommendedTest_6_2_17', function () {
         `softHyphen${softHyphen}wordJoiner${wordJoiner}invisibleTimes${invisibleTimes}` +
         `invisibleSeparator${invisibleSeparator}invisiblePlus${invisiblePlus}byteOrderMark${byteOrderMark}` +
         `combiningAcuteAccent${combiningAcuteAccent}combiningGraveAccent${combiningGraveAccent}` +
+        `combiningGraphemeJoiner${combiningGraphemeJoiner}` +
         `mongolianVowelSeparator${mongolianVowelSeparator}tab${tab}newline${newline}`
     )
 
-    expect(result).toBe(
+    expect(result).to.equal(
       'nonBreakingSpacezeroWidthSpacezeroWidthNonJoinerzeroWidthJoiner' +
         'softHyphenwordJoinerinvisibleTimesinvisibleSeparatorinvisiblePlus' +
-        'byteOrderMarkcombiningAcuteAccentcombiningGraveAccentmongolianVowelSeparatortabnewline'
+        'byteOrderMarkcombiningAcuteAccentcombiningGraveAccentcombiningGraphemeJoinermongolianVowelSeparatortabnewline'
     )
   })
 })
