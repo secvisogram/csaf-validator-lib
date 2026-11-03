@@ -8,14 +8,17 @@ import isBrowserRuntime from '../shared/isBrowserRuntime.js'
  * Once all tests are implemented for CSAF 2.1 this should be deleted.
  */
 const excluded = [
-  '6.1.8',
-  '6.1.27.13',
   '6.1.48',
   '6.1.50',
   '6.1.53',
+  '6.1.54',
   '6.1.59',
   '6.1.60.2',
   '6.1.60.3',
+  '6.1.64.5',
+  '6.1.64.8',
+  '6.1.64.12',
+  '6.1.66',
   '6.2.17',
   '6.2.20',
   '6.2.24',
@@ -29,6 +32,12 @@ const excluded = [
   '6.2.54.1',
   '6.2.54.2',
   '6.2.54.4',
+  '6.2.56.1',
+  '6.2.56.2',
+  '6.2.56.3',
+  '6.2.56.4',
+  '6.2.56.5',
+  '6.2.57',
   '6.3.12',
   '6.3.13',
   '6.3.16',
@@ -40,6 +49,10 @@ const excluded = [
   '6.3.19.5',
   '6.3.21.2',
   '6.3.25',
+  '6.3.26.1',
+  '6.3.26.2',
+  '6.3.26.3',
+  '6.3.26.4',
 ]
 
 /**
@@ -47,8 +60,7 @@ const excluded = [
  * Once the issues are resolved, these should be removed from this list and the tests should be re-enabled.
  */
 const skippedTests = new Set([
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-01.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-03-02.json',
+  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-08.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
 ])
 
