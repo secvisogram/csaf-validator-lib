@@ -24,6 +24,8 @@
       - [Module `csaf_2_1/basic.js`](#module-csaf_2_1basicjs)
       - [Module `csaf_2_1/extended.js`](#module-csaf_2_1extendedjs)
       - [Module `csaf_2_1/full.js`](#module-csaf_2_1fulljs)
+      - [Module `csaf_2_1/nonExternalRequestFree.js`](#module-csaf_2_1nonexternalrequestfreejs)
+      - [Module `csaf_2_1/externalRequestFree.js`](#module-csaf_2_1externalrequestfreejs)
     - [Module `validate.js`](#module-validatejs)
     - [Module `validateStrict.js`](#module-validatestrictjs)
     - [Module `strip.js`](#module-stripjs)
@@ -350,10 +352,15 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.27.13
 - Mandatory Test 6.1.48
 - Mandatory Test 6.1.50
-- Mandatory Test 6.1.54
 - Mandatory Test 6.1.59
 - Mandatory Test 6.1.60.2
 - Mandatory Test 6.1.60.3
+- Mandatory Test 6.1.63
+- Mandatory Test 6.1.64.5
+- Mandatory Test 6.1.64.6
+- Mandatory Test 6.1.64.8
+- Mandatory Test 6.1.64.12
+- Mandatory Test 6.1.66
 
 **Recommended Tests**
 
@@ -370,7 +377,12 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
 - Recommended Test 6.2.54.4
-- Recommended Test 6.2.55
+- Recommended Test 6.2.56.1
+- Recommended Test 6.2.56.2
+- Recommended Test 6.2.56.3
+- Recommended Test 6.2.56.4
+- Recommended Test 6.2.56.5
+- Recommended Test 6.2.57
 
 **Informative Tests**
 
@@ -383,6 +395,11 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.4
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
+- Informative Test 6.3.25
+- Informative Test 6.3.26.1
+- Informative Test 6.3.26.2
+- Informative Test 6.3.26.3
+- Informative Test 6.3.26.4
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -434,6 +451,7 @@ export const mandatoryTest_6_1_27_9: DocumentTest
 export const mandatoryTest_6_1_27_10: DocumentTest
 export const mandatoryTest_6_1_27_11: DocumentTest
 export const mandatoryTest_6_1_27_12: DocumentTest
+export const mandatoryTest_6_1_27_13: DocumentTest
 export const mandatoryTest_6_1_27_14: DocumentTest
 export const mandatoryTest_6_1_27_15: DocumentTest
 export const mandatoryTest_6_1_27_16: DocumentTest
@@ -472,6 +490,18 @@ export const mandatoryTest_6_1_58: DocumentTest
 export const mandatoryTest_6_1_61: DocumentTest
 export const mandatoryTest_6_1_60_1: DocumentTest
 export const mandatoryTest_6_1_62: DocumentTest
+export const mandatoryTest_6_1_64_1: DocumentTest
+export const mandatoryTest_6_1_64_2: DocumentTest
+export const mandatoryTest_6_1_64_3: DocumentTest
+export const mandatoryTest_6_1_64_4: DocumentTest
+export const mandatoryTest_6_1_64_6: DocumentTest
+export const mandatoryTest_6_1_64_7: DocumentTest
+export const mandatoryTest_6_1_64_9: DocumentTest
+export const mandatoryTest_6_1_64_10: DocumentTest
+export const mandatoryTest_6_1_64_11: DocumentTest
+export const mandatoryTest_6_1_64_13: DocumentTest
+export const mandatoryTest_6_1_65_1: DocumentTest
+export const mandatoryTest_6_1_65_2: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -591,6 +621,18 @@ This module exports all tests included in `basic.js` and all optional tests.
 #### Module `csaf_2_1/full.js`
 
 This module exports all tests included in `extended.js` and all informative tests.
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `csaf_2_1/nonExternalRequestFree.js`
+
+This module exports the implemented tests in the `non-external-request-free` preset defined in [CSAF 2.1 §6.4.3](https://github.com/oasis-tcs/csaf/blob/55bcf04835f4a08cd5ee0ae534106c5f1692d993/csaf_2.1/prose/share/csaf-v2.1-draft.md#643-additional-presets). It contains the tests implemented by this library only; see [Known Issues](#known-issues).
+
+[(back to top)](#bsi-csaf-validator-lib)
+
+#### Module `csaf_2_1/externalRequestFree.js`
+
+This module exports the implemented tests in `full.js` except for the tests in the `non-external-request-free` preset defined in [CSAF 2.1 §6.4.3](https://github.com/oasis-tcs/csaf/blob/55bcf04835f4a08cd5ee0ae534106c5f1692d993/csaf_2.1/prose/share/csaf-v2.1-draft.md#643-additional-presets). It contains the tests implemented by this library only; see [Known Issues](#known-issues).
 
 [(back to top)](#bsi-csaf-validator-lib)
 
