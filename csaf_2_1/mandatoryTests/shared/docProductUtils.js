@@ -153,7 +153,8 @@ export const collectGroupIdsFromProductTree = (doc) => {
  * @returns {{id: string, instancePath: string}[]}
  */
 export const findMissingDefinitions = (entries, refs) => {
-  return refs.filter((ref) => !entries.some((e) => e.id === ref.id))
+  const definedIds = new Set(entries.map((e) => e.id))
+  return refs.filter((ref) => !definedIds.has(ref.id))
 }
 
 /**
