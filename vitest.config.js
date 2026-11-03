@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { playwright } from '@vitest/browser-playwright'
+import wasm from 'vite-plugin-wasm'
 
 // The OASIS fixture-driven tests (tests/oasis.js, tests/csaf_2_1/oasis.js) run
 // informativeTest_6_3_8 without a hunspell mock, so they exercise the real
@@ -26,6 +27,13 @@ export default defineConfig({
         },
       },
       {
+        // vers-rs is a WebAssembly ES module, which vite only handles with a plugin
+        plugins: [
+          /** @type {() => import('vite').Plugin} */ (
+            /** @type {unknown} */ (wasm)
+          )(),
+        ],
+        optimizeDeps: { exclude: ['@csaf-rs/vers-rs'] },
         test: {
           name: 'browser',
           globals: true,
