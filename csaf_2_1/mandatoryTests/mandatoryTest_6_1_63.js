@@ -31,7 +31,9 @@ export function mandatoryTest_6_1_63(doc) {
         return
       }
 
-      const expectedLength = HASH_ALGORITHM_LENGTHS[algorithm]
+      const expectedLength = Object.hasOwn(HASH_ALGORITHM_LENGTHS, algorithm)
+        ? HASH_ALGORITHM_LENGTHS[algorithm]
+        : undefined
       if (expectedLength === undefined) {
         ctx.warnings.push({
           instancePath: `${path}/${fileHashIndex}/algorithm`,

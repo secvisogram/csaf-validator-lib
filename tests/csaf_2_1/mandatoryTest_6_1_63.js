@@ -49,6 +49,20 @@ describe('mandatoryTest_6_1_63', function () {
     ])
   })
 
+  it('warns for algorithm names matching inherited Object.prototype properties', function () {
+    const result = mandatoryTest_6_1_63(docWithAlgorithm('constructor'))
+    expect(result.isValid).to.equal(true)
+    expect(result.errors).to.deep.equal([])
+    expect(result.warnings).to.deep.equal([
+      {
+        instancePath:
+          '/product_tree/full_product_names/0/product_identification_helper/hashes/0/file_hashes/0/algorithm',
+        message:
+          "the hash algorithm 'constructor' is not specified in section 3.1.10.3.2 and is not supported by this implementation.",
+      },
+    ])
+  })
+
   it('warns that the length of an algorithm in the spec is unknown', function () {
     const original = HASH_ALGORITHM_LENGTHS.sha256
     delete HASH_ALGORITHM_LENGTHS.sha256
