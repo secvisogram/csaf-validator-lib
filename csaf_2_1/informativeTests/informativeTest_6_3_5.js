@@ -15,7 +15,7 @@ export function informativeTest_6_3_5(doc) {
       if (typeof fileHash.value === 'string' && fileHash.value.length < 64) {
         ctx.infos.push({
           instancePath: `${path}/${fileHashIndex}/value`,
-          message: 'use of short hash',
+          message: `hash value is only ${fileHash.value.length} characters; minimum recommended length is 64`,
         })
       }
     })
