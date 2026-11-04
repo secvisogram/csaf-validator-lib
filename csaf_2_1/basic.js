@@ -85,6 +85,7 @@ export {
   mandatoryTest_6_1_64_5,
   mandatoryTest_6_1_64_6,
   mandatoryTest_6_1_64_7,
+  mandatoryTest_6_1_64_8,
   mandatoryTest_6_1_64_9,
   mandatoryTest_6_1_64_10,
   mandatoryTest_6_1_64_11,
