@@ -4,7 +4,7 @@ const ajv = new Ajv()
 
 const hashSchema = /** @type {const} */ ({
   additionalProperties: true,
-  properties: {
+  optionalProperties: {
     file_hashes: {
       elements: {
         additionalProperties: true,
@@ -92,9 +92,11 @@ export function walkHashes(doc, onHashFound) {
       fullProductName.product_identification_helper?.hashes?.forEach(
         (hash, hashIndex) => {
           if (!validateFileHash(hash)) return
+          const { file_hashes } = hash
+          if (!file_hashes) return
           onHashFound({
             path: `/product_tree/full_product_names/${fullProductNameIndex}/product_identification_helper/hashes/${hashIndex}/file_hashes`,
-            hash,
+            hash: { ...hash, file_hashes },
           })
         }
       )
@@ -115,9 +117,11 @@ export function walkHashes(doc, onHashFound) {
       branch.product?.product_identification_helper?.hashes?.forEach(
         (hash, hashIndex) => {
           if (!validateFileHash(hash)) return
+          const { file_hashes } = hash
+          if (!file_hashes) return
           onHashFound({
             path: `${prefix}${branchIndex}/product/product_identification_helper/hashes/${hashIndex}/file_hashes`,
-            hash,
+            hash: { ...hash, file_hashes },
           })
         }
       )
@@ -134,9 +138,11 @@ export function walkHashes(doc, onHashFound) {
     productPath.full_product_name?.product_identification_helper?.hashes?.forEach(
       (hash, hashIndex) => {
         if (!validateFileHash(hash)) return
+        const { file_hashes } = hash
+        if (!file_hashes) return
         onHashFound({
           path: `/product_tree/product_paths/${productPathIndex}/full_product_name/product_identification_helper/hashes/${hashIndex}/file_hashes`,
-          hash,
+          hash: { ...hash, file_hashes },
         })
       }
     )

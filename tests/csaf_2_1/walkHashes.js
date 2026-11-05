@@ -111,4 +111,21 @@ describe('walkHashes', function () {
       })
     ).to.deep.equal([])
   })
+  it('still finds valid hashes next to a hash without file_hashes', function () {
+    expect(
+      collectPaths({
+        product_tree: {
+          full_product_names: [
+            {
+              product_identification_helper: {
+                hashes: [{ filename: 'a.exe' }, { file_hashes: fileHashes }],
+              },
+            },
+          ],
+        },
+      })
+    ).to.deep.equal([
+      '/product_tree/full_product_names/0/product_identification_helper/hashes/1/file_hashes',
+    ])
+  })
 })
