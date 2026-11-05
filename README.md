@@ -483,6 +483,7 @@ export const mandatoryTest_6_1_58: DocumentTest
 export const mandatoryTest_6_1_61: DocumentTest
 export const mandatoryTest_6_1_60_1: DocumentTest
 export const mandatoryTest_6_1_62: DocumentTest
+export const mandatoryTest_6_1_63: DocumentTest
 export const mandatoryTest_6_1_64_1: DocumentTest
 export const mandatoryTest_6_1_64_2: DocumentTest
 export const mandatoryTest_6_1_64_3: DocumentTest
