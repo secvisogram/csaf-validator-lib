@@ -17,7 +17,6 @@ const excluded = [
   '6.1.60.3',
   '6.1.63',
   '6.1.64.12',
-  '6.2.17',
   '6.2.20',
   '6.2.24',
   '6.2.31',
@@ -60,9 +59,6 @@ const excluded = [
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-08.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
-  // valid examples 13 and 14 are identical to failing examples 03 and 04
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-66-13.json',
-  'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-66-14.json',
 ])
 
 /**
