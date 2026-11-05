@@ -352,13 +352,6 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.27.13
 - Mandatory Test 6.1.48
 - Mandatory Test 6.1.50
-- Mandatory Test 6.1.60.2
-- Mandatory Test 6.1.60.3
-- Mandatory Test 6.1.63
-- Mandatory Test 6.1.64.5
-- Mandatory Test 6.1.64.6
-- Mandatory Test 6.1.64.8
-- Mandatory Test 6.1.64.12
 - Mandatory Test 6.1.66
 
 **Recommended Tests**
@@ -490,15 +483,19 @@ export const mandatoryTest_6_1_59: DocumentTest
 export const mandatoryTest_6_1_61: DocumentTest
 export const mandatoryTest_6_1_60_1: DocumentTest
 export const mandatoryTest_6_1_62: DocumentTest
+export const mandatoryTest_6_1_63: DocumentTest
 export const mandatoryTest_6_1_64_1: DocumentTest
 export const mandatoryTest_6_1_64_2: DocumentTest
 export const mandatoryTest_6_1_64_3: DocumentTest
 export const mandatoryTest_6_1_64_4: DocumentTest
+export const mandatoryTest_6_1_64_5: DocumentTest
 export const mandatoryTest_6_1_64_6: DocumentTest
 export const mandatoryTest_6_1_64_7: DocumentTest
+export const mandatoryTest_6_1_64_8: DocumentTest
 export const mandatoryTest_6_1_64_9: DocumentTest
 export const mandatoryTest_6_1_64_10: DocumentTest
 export const mandatoryTest_6_1_64_11: DocumentTest
+export const mandatoryTest_6_1_64_12: DocumentTest
 export const mandatoryTest_6_1_64_13: DocumentTest
 export const mandatoryTest_6_1_65_1: DocumentTest
 export const mandatoryTest_6_1_65_2: DocumentTest
