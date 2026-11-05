@@ -12,7 +12,13 @@ let vlsLib
  */
 export async function initVls() {
   loading ??= load()
-  vlsLib = await loading
+  try {
+    vlsLib = await loading
+  } catch (error) {
+    // do not cache a failed load so that a later call can retry
+    loading = undefined
+    throw error
+  }
 }
 
 /**
@@ -45,7 +51,13 @@ async function load() {
  * @returns {boolean}
  */
 export function isSingleVersionRange(range) {
-  const constraints = range.trim().replace(/^vers:[^/]*\//i, '')
+  let constraints = range.trim()
+  if (/^vers:/i.test(constraints)) {
+    // malformed vers: values (empty scheme, missing slash) are reported by 6.1.50
+    const match = /^vers:[^/]+\/(.*)$/i.exec(constraints)
+    if (!match) return false
+    constraints = match[1]
+  }
   try {
     return vlsLib?.Vls.parse(constraints).isSingleVersion() ?? false
   } catch {

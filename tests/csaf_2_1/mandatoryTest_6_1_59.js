@@ -82,6 +82,9 @@ describe('isSingleVersionRange', function () {
     ['vers:semver/', false],
     ['', false],
     ['vers:semver/=1.5.3', false],
+    ['vers:/all', false],
+    ['vers:all', false],
+    ['vers:4.2.0', false],
   ]
 
   for (const [input, expected] of cases) {
