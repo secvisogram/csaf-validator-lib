@@ -118,7 +118,7 @@ describe('recommendedTest_6_2_46', function () {
       {
         instancePath: '/document/notes',
         message:
-          'no language specific translation for "License" has been recorded',
+          'no language specific translation for "license" has been recorded',
       },
     ])
   })
@@ -135,7 +135,7 @@ describe('recommendedTest_6_2_46', function () {
       {
         instancePath: '/document/notes',
         message:
-          'The license_expression contains contains the following license identifiers that are nor listed in Aboutcode or SPDX license list: "Invalid-license-expression". Therefore exactly one note with title "License" and category "legal_disclaimer" must exist',
+          'The license_expression contains contains the following license identifiers that are nor listed in AboutCode or SPDX license list: "Invalid-license-expression". Therefore exactly one note with title "License" and category "legal_disclaimer" must exist',
       },
     ])
   })
