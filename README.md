@@ -387,7 +387,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
 - Informative Test 6.3.25
-- Informative Test 6.3.26.1
 - Informative Test 6.3.26.2
 - Informative Test 6.3.26.3
 - Informative Test 6.3.26.4
@@ -599,6 +598,7 @@ export const informativeTest_6_3_22: DocumentTest
 export const informativeTest_6_3_23_1: DocumentTest
 export const informativeTest_6_3_23_2: DocumentTest
 export const informativeTest_6_3_24: DocumentTest
+export const informativeTest_6_3_26_1: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
