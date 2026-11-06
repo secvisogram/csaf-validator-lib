@@ -564,6 +564,7 @@ export const recommendedTest_6_2_49: DocumentTest
 export const recommendedTest_6_2_52: DocumentTest
 export const recommendedTest_6_2_53: DocumentTest
 export const recommendedTest_6_2_54_3: DocumentTest
+export const recommendedTest_6_2_56_2: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
