@@ -87,4 +87,5 @@ export {
   informativeTest_6_3_22,
   informativeTest_6_3_23_1,
   informativeTest_6_3_23_2,
+  informativeTest_6_3_26_3,
 } from './informativeTests.js'
