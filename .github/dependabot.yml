@@ -8,6 +8,11 @@ updates:
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "daily"
     allow:
       - dependency-type: "production"
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
