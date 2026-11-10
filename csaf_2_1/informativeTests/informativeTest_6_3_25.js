@@ -1,10 +1,7 @@
 import { Ajv } from 'ajv/dist/jtd.js'
 import semver from 'semver'
 import ssvcDecisionPoints from '../../lib/ssvc/ssvc_decision_points.js'
-import {
-  getSsvcBaseNamespace,
-  isRegisteredSsvcNamespace,
-} from '../shared/ssvcNamespaces.js'
+import { isRegisteredSsvcNamespace } from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
 
@@ -63,9 +60,10 @@ const validate = ajv.compile(inputSchema)
  * @returns {string | undefined}
  */
 function findLatestVersion(selection) {
-  const baseNamespace = getSsvcBaseNamespace(selection.namespace)
+  // Keep the '#' fragment (e.g. nist#800-30), only the extension is removed
+  const namespace = selection.namespace.split('/')[0]
   const versions = ssvcDecisionPoints.decisionPoints
-    .filter((p) => p.namespace === baseNamespace && p.key === selection.key)
+    .filter((p) => p.namespace === namespace && p.key === selection.key)
     .map((p) => p.version)
   return semver.rsort(versions)[0]
 }

@@ -38,6 +38,15 @@ describe('informativeTest_6_3_25', function () {
     ])
   })
 
+  it('checks namespaces with a fragment like nist#800-30', async function () {
+    const { infos } = await informativeTest_6_3_25(
+      docWith([{ key: 'P_5X', namespace: 'nist#800-30', version: '0.9.0' }])
+    )
+    expect(infos.map((info) => info.message)).toEqual([
+      expect.stringContaining('(1.0.0)'),
+    ])
+  })
+
   describe('skips selections that cannot be checked', function () {
     /** @type {Array<[string, Record<string, string>]>} */
     const cases = [
