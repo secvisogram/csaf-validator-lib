@@ -352,8 +352,6 @@ The following tests are not yet implemented and therefore missing:
 - Mandatory Test 6.1.27.13
 - Mandatory Test 6.1.48
 - Mandatory Test 6.1.50
-- Mandatory Test 6.1.59
-- Mandatory Test 6.1.64.12
 
 **Recommended Tests**
 
@@ -370,7 +368,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
 - Recommended Test 6.2.54.4
-- Recommended Test 6.2.56.1
 - Recommended Test 6.2.56.2
 - Recommended Test 6.2.56.3
 - Recommended Test 6.2.56.4
@@ -480,9 +477,11 @@ export const mandatoryTest_6_1_55: DocumentTest
 export const mandatoryTest_6_1_56: DocumentTest
 export const mandatoryTest_6_1_57: DocumentTest
 export const mandatoryTest_6_1_58: DocumentTest
+export const mandatoryTest_6_1_59: DocumentTest
 export const mandatoryTest_6_1_61: DocumentTest
 export const mandatoryTest_6_1_60_1: DocumentTest
 export const mandatoryTest_6_1_62: DocumentTest
+export const mandatoryTest_6_1_63: DocumentTest
 export const mandatoryTest_6_1_64_1: DocumentTest
 export const mandatoryTest_6_1_64_2: DocumentTest
 export const mandatoryTest_6_1_64_3: DocumentTest
@@ -494,6 +493,7 @@ export const mandatoryTest_6_1_64_8: DocumentTest
 export const mandatoryTest_6_1_64_9: DocumentTest
 export const mandatoryTest_6_1_64_10: DocumentTest
 export const mandatoryTest_6_1_64_11: DocumentTest
+export const mandatoryTest_6_1_64_12: DocumentTest
 export const mandatoryTest_6_1_64_13: DocumentTest
 export const mandatoryTest_6_1_65_1: DocumentTest
 export const mandatoryTest_6_1_65_2: DocumentTest
@@ -563,6 +563,7 @@ export const recommendedTest_6_2_49: DocumentTest
 export const recommendedTest_6_2_52: DocumentTest
 export const recommendedTest_6_2_53: DocumentTest
 export const recommendedTest_6_2_54_3: DocumentTest
+export const recommendedTest_6_2_56_1: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
