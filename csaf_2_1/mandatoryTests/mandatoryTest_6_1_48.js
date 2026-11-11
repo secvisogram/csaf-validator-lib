@@ -5,6 +5,7 @@ import {
   isInvalidNamespace,
   isNoProductionUseSsvcNamespace,
   isRegisteredSsvcNamespace,
+  isSpecialPurposeSsvcNamespace,
 } from '../shared/ssvcNamespaces.js'
 
 const ajv = new Ajv()
@@ -136,7 +137,10 @@ export function mandatoryTest_6_1_48(doc) {
             return
           }
 
-          if (isNoProductionUseSsvcNamespace(selection.namespace)) {
+          if (
+            isSpecialPurposeSsvcNamespace(selection.namespace) ||
+            isNoProductionUseSsvcNamespace(selection.namespace)
+          ) {
             return
           }
 

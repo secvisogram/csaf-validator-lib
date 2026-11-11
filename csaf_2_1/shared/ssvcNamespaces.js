@@ -9,6 +9,30 @@
 export const specialPurposeSsvcNamespaces = ['x_example', 'x_test']
 
 /**
+ * Registered base namespaces reserved for documentation (`example`) and
+ * testing (`test`). They have no decision points of their own and must not be
+ * used in production (SSVC-RNS "Reserved Namespace Strings").
+ *
+ * @type {string[]}
+ */
+export const noProductionUseSsvcNamespaces = ['example', 'test']
+
+/**
+ * Registered SSVC base namespaces for production use, according to the SSVC
+ * Registered Namespace specification (SSVC-RNS):
+ * https://certcc.github.io/SSVC/reference/code/namespaces/#registered-namespace
+ */
+export const registeredSsvcNamespaces = [
+  'ssvc',
+  'cvss',
+  'cisa',
+  'basic',
+  'example',
+  'test',
+  'nist',
+]
+
+/**
  * Extracts the base namespace from a full SSVC namespace string.
  * Strips everything after the first '#' or '/'.
  *
@@ -54,46 +78,20 @@ export function isUnregisteredNamespace(namespace) {
  * @returns {boolean}
  */
 export function isSpecialPurposeSsvcNamespace(namespace) {
-  const base = getSsvcBaseNamespace(namespace)
-  return (
-    specialPurposeSsvcNamespaces.includes(base) ||
-    noProductionUseSsvcNamespaces.includes(base)
-  )
+  return specialPurposeSsvcNamespaces.includes(getSsvcBaseNamespace(namespace))
 }
 
 /**
- * Registered base namespaces reserved for documentation (`example`) and
- * testing (`test`). They have no decision points of their own and must not be
- * used in production (SSVC-RNS "Reserved Namespace Strings").
+ * Returns true if the namespace belongs to the registered base namespaces
+ * `example` or `test`. They have no decision points of their own, so the
+ * decision point lookup of test 6.1.48 does not apply to them.
  *
- * @type {string[]}
- */
-export const noProductionUseSsvcNamespaces = ['example', 'test']
-
-/**
- * Returns true if the namespace belongs to a registered base namespace that is
- * reserved for documentation or testing.
  * @param {string} namespace - full namespace string
  * @returns {boolean}
  */
 export function isNoProductionUseSsvcNamespace(namespace) {
   return noProductionUseSsvcNamespaces.includes(getSsvcBaseNamespace(namespace))
 }
-
-/**
- * Registered SSVC base namespaces for production use, according to the SSVC
- * Registered Namespace specification (SSVC-RNS):
- * https://certcc.github.io/SSVC/reference/code/namespaces/#registered-namespace
- */
-export const registeredSsvcNamespaces = [
-  'ssvc',
-  'cvss',
-  'cisa',
-  'basic',
-  'example',
-  'test',
-  'nist',
-]
 
 /**
  * Returns true if the namespace belongs to a registered SSVC base namespace.

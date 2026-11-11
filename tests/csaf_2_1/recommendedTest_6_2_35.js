@@ -95,6 +95,53 @@ describe('recommendedTest_6_2_35', function () {
     ).to.equal(2)
   })
 
+  it('does not warn for documents that are not TLP:CLEAR', function () {
+    expect(
+      recommendedTest_6_2_35({
+        document: {
+          distribution: { tlp: { label: 'GREEN' } },
+        },
+        vulnerabilities: [
+          {
+            metrics: [
+              {
+                content: {
+                  ssvc_v2: { selections: [{ namespace: 'x_example#test' }] },
+                },
+              },
+            ],
+          },
+        ],
+      }).warnings.length
+    ).to.equal(0)
+  })
+
+  it('does not warn for registered example/test namespaces', function () {
+    expect(
+      recommendedTest_6_2_35({
+        document: {
+          distribution: { tlp: { label: 'CLEAR' } },
+        },
+        vulnerabilities: [
+          {
+            metrics: [
+              {
+                content: {
+                  ssvc_v2: {
+                    selections: [
+                      { namespace: 'example' },
+                      { namespace: 'test#ref' },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      }).warnings.length
+    ).to.equal(0)
+  })
+
   it('warns for unregistered namespaces that look like special purpose (x_example.something)', function () {
     const result = recommendedTest_6_2_35({
       document: {
