@@ -48,6 +48,7 @@ const validate = ajv.compile(inputSchema)
  */
 
 const instancePath = '/document/tracking/revision_history'
+const MAX_REPORTED_PER_GAP = 100
 
 /**
  * This implements the mandatory test 6.1.21 of the CSAF 2.1 standard.
@@ -75,9 +76,9 @@ export function mandatoryTest_6_1_21(doc) {
     )
   const isSemver = entries.some((entry) => entry.number.includes('.'))
 
-  checkMajorVersions(entries, isSemver, ctx)
+  const reported = checkMajorVersions(entries, isSemver, ctx)
   if (isSemver) {
-    checkMinorAndPatchVersions(revisionHistory, ctx)
+    checkMinorAndPatchVersions(revisionHistory, reported, ctx)
   }
 
   return ctx
@@ -98,6 +99,7 @@ function addError(ctx, message) {
  * @param {RevisionHistoryEntry[]} entries sorted by date
  * @param {boolean} isSemver
  * @param {Context} ctx
+ * @returns {Set<string>} the versions reported as missing
  */
 function checkMajorVersions(entries, isSemver, ctx) {
   /**
@@ -122,6 +124,20 @@ function checkMajorVersions(entries, isSemver, ctx) {
     })
   }
 
+  let omitted = false
+  /**
+   * Adds the majors in `[start, end)`, at most `MAX_REPORTED_PER_GAP` of them.
+   *
+   * @param {number} start
+   * @param {number} end
+   * @param {{ beforeFirst?: boolean; from?: string; to?: string }} info
+   */
+  const addMissingRange = (start, end, info) => {
+    const cappedEnd = Math.min(end, start + MAX_REPORTED_PER_GAP)
+    for (let m = start; m < cappedEnd; m++) addMissing(m, info)
+    if (cappedEnd < end) omitted = true
+  }
+
   let sawLowerVersionAfterFirst = false
   /** @type {RevisionHistoryEntry | undefined} */
   let previous
@@ -139,9 +155,7 @@ function checkMajorVersions(entries, isSemver, ctx) {
           ctx,
           `revision history does not start with a version of ${expected} when sorted by date (was \`${entry.number}\`)`
         )
-        for (let m = 1; m < major; m++) {
-          addMissing(m, { beforeFirst: true, to: entry.date })
-        }
+        addMissingRange(1, major, { beforeFirst: true, to: entry.date })
       }
     } else if (major < previousMajor) {
       // A lower major after a higher one (e.g. 3, 1, 2) may have been missing before.
@@ -156,15 +170,18 @@ function checkMajorVersions(entries, isSemver, ctx) {
     } else if (major === previousMajor) {
       continue
     } else {
-      for (let m = previousMajor + 1; m < major; m++) {
-        addMissing(m, { from: previous.date, to: entry.date })
-      }
+      addMissingRange(previousMajor + 1, major, {
+        from: previous.date,
+        to: entry.date,
+      })
     }
 
     previous = entry
     previousMajor = major
   }
 
+  /** @type {Set<string>} */
+  const reported = new Set()
   for (const [major, missing] of missingVersions) {
     const { from, to } = missing
     let messageEnding = 'at all'
@@ -180,11 +197,17 @@ function checkMajorVersions(entries, isSemver, ctx) {
     }
 
     const version = isSemver ? `${major}.0.0` : `${major}`
+    reported.add(version)
     addError(
       ctx,
       `missing revision history item with number \`${version}\` ${messageEnding}`
     )
   }
+
+  if (omitted) {
+    addError(ctx, 'further major versions are missing in the revision history')
+  }
+  return reported
 }
 
 /**
@@ -193,13 +216,16 @@ function checkMajorVersions(entries, isSemver, ctx) {
  * version. Missing major versions are handled by `checkMajorVersions`.
  *
  * @param {RevisionHistoryEntry[]} revisionHistory
+ * @param {Set<string>} alreadyReported versions reported by `checkMajorVersions`
  * @param {Context} ctx
  */
-function checkMinorAndPatchVersions(revisionHistory, ctx) {
-  // `coerce` maps integer versions to semantic versions (`2` -> `2.0.0`).
+function checkMinorAndPatchVersions(revisionHistory, alreadyReported, ctx) {
   const entries = revisionHistory
     .flatMap(({ date, number }) => {
-      const version = semver.coerce(number)
+      // Values that are neither an integer nor a valid semantic version are ignored.
+      const version = semver.parse(
+        /^\d+$/.test(number) ? `${number}.0.0` : number
+      )
       return version ? [{ date, version }] : []
     })
     .sort(
@@ -208,39 +234,66 @@ function checkMinorAndPatchVersions(revisionHistory, ctx) {
         semver.compare(a.version, z.version)
     )
 
-  const known = new Set(entries.map(({ version }) => version.version))
+  const known = new Set([
+    ...entries.map(({ version }) => version.version),
+    ...alreadyReported,
+  ])
 
   let previous = entries[0]
   for (const current of entries.slice(1)) {
     if (semver.lte(current.version, previous.version)) continue
 
-    for (const version of requiredVersions(current.version)) {
+    let reported = 0
+    let truncated = false
+    for (const version of requiredVersions(previous.version, current.version)) {
       if (
-        semver.gt(version, previous.version) &&
-        semver.lt(version, current.version) &&
-        !known.has(version)
+        !(
+          semver.gt(version, previous.version) &&
+          semver.lt(version, current.version)
+        ) ||
+        known.has(version)
       ) {
-        known.add(version)
-        addError(
-          ctx,
-          `missing revision history item with number \`${version}\` between \`${previous.date}\` and \`${current.date}\``
-        )
+        continue
       }
+      if (reported >= MAX_REPORTED_PER_GAP) {
+        truncated = true
+        break
+      }
+      reported++
+      known.add(version)
+      addError(
+        ctx,
+        `missing revision history item with number \`${version}\` between \`${previous.date}\` and \`${current.date}\``
+      )
+    }
+    if (truncated) {
+      addError(
+        ctx,
+        `further revision history items are missing between \`${previous.date}\` and \`${current.date}\``
+      )
     }
     previous = current
   }
 }
 
 /**
- * Returns all versions of the same major version that have to precede the
- * given one: `X.0.0`, `X.1.0` ... `X.Y.0` and `X.Y.0` ... `X.Y.(Z-1)`.
+ * Lazily yields the versions of the same major version as `to` that have to
+ * precede it and are not older than `from`: `X.0.0`, `X.1.0` ... `X.Y.0` and
+ * `X.Y.0` ... `X.Y.(Z-1)`.
  *
- * @param {semver.SemVer} version
- * @returns {string[]}
+ * @param {semver.SemVer} from
+ * @param {semver.SemVer} to
+ * @returns {Generator<string>}
  */
-function requiredVersions({ major, minor, patch }) {
-  return [
-    ...Array.from({ length: minor + 1 }, (_, m) => `${major}.${m}.0`),
-    ...Array.from({ length: patch }, (_, p) => `${major}.${minor}.${p}`),
-  ]
+function* requiredVersions(from, to) {
+  const { major, minor, patch } = to
+  const startMinor = from.major === major ? from.minor : 0
+  for (let m = startMinor; m <= minor; m++) {
+    yield `${major}.${m}.0`
+  }
+  const startPatch =
+    from.major === major && from.minor === minor ? from.patch : 0
+  for (let p = startPatch; p < patch; p++) {
+    yield `${major}.${minor}.${p}`
+  }
 }
