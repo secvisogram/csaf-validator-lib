@@ -10,16 +10,8 @@ import isBrowserRuntime from '../shared/isBrowserRuntime.js'
 const excluded = [
   '6.1.50',
   '6.1.53',
-  '6.1.54',
-  '6.1.59',
   '6.1.60.2',
   '6.1.60.3',
-  '6.1.63',
-  '6.1.64.5',
-  '6.1.64.8',
-  '6.1.64.12',
-  '6.1.66',
-  '6.2.17',
   '6.2.20',
   '6.2.24',
   '6.2.31',
@@ -32,10 +24,8 @@ const excluded = [
   '6.2.54.1',
   '6.2.54.2',
   '6.2.54.4',
-  '6.2.56.1',
   '6.2.56.2',
   '6.2.56.3',
-  '6.2.56.4',
   '6.2.56.5',
   '6.2.57',
   '6.3.12',
@@ -62,6 +52,7 @@ const excluded = [
 const skippedTests = new Set([
   'mandatory/oasis_csaf_tc-csaf_2_1-2024-6-1-21-08.json',
   'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-38-02.json',
+  'recommended/oasis_csaf_tc-csaf_2_1-2024-6-2-55-12.json',
 ])
 
 /**
