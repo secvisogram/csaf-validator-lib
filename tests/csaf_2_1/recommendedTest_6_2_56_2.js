@@ -9,7 +9,11 @@ describe('recommendedTest_6_2_56_2', function () {
 
   it('does not warn for group with summary', function () {
     const result = recommendedTest_6_2_56_2({
-      document: { involvement: { entity_groups: 'EGID-1', summary: 'x' } },
+      document: {
+        involvement: {
+          entity_groups: [{ entity_group_id: 'EGID-9001', summary: 'x' }],
+        },
+      },
     })
     expect(result.warnings.length).to.equal(0)
   })
