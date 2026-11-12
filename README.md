@@ -369,7 +369,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.54.2
 - Recommended Test 6.2.54.4
 - Recommended Test 6.2.56.2
-- Recommended Test 6.2.56.3
 - Recommended Test 6.2.56.5
 - Recommended Test 6.2.57
 
@@ -563,6 +562,7 @@ export const recommendedTest_6_2_52: DocumentTest
 export const recommendedTest_6_2_53: DocumentTest
 export const recommendedTest_6_2_54_3: DocumentTest
 export const recommendedTest_6_2_56_1: DocumentTest
+export const recommendedTest_6_2_56_3: DocumentTest
 export const recommendedTest_6_2_56_4: DocumentTest
 ```
 
