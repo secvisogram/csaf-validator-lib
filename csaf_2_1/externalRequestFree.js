@@ -60,6 +60,7 @@ export {
   recommendedTest_6_2_53,
   recommendedTest_6_2_54_3,
   recommendedTest_6_2_56_1,
+  recommendedTest_6_2_56_2,
   recommendedTest_6_2_56_3,
   recommendedTest_6_2_56_4,
 } from './recommendedTests.js'
