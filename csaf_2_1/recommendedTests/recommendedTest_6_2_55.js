@@ -31,6 +31,39 @@ const inputSchema = /** @type {const} */ ({
 const validateInput = ajv.compile(inputSchema)
 
 /**
+ * @param {openpgp.Key | openpgp.Subkey} key
+ */
+async function isExpired(key) {
+  const expirationTime = await key.getExpirationTime()
+  return (
+    expirationTime instanceof Date && expirationTime.getTime() <= Date.now()
+  )
+}
+
+/**
+ * @param {openpgp.Key} publicKey
+ */
+async function hasUsableEncryptionSubkey(publicKey) {
+  const encryptionFlags =
+    openpgp.enums.keyFlags.encryptCommunication |
+    openpgp.enums.keyFlags.encryptStorage
+  for (const subkey of publicKey.subkeys) {
+    try {
+      const signature = await subkey.verify()
+      if (
+        ((signature.keyFlags?.[0] ?? 0) & encryptionFlags) !== 0 &&
+        !(await isExpired(subkey))
+      ) {
+        return true
+      }
+    } catch (e) {
+      // subkey invalid, revoked or expired; try the next one
+    }
+  }
+  return false
+}
+
+/**
  * This implements the recommended test 6.2.55 of the CSAF 2.1 standard.
  *
  * It fetches the OpenPGP key referenced by
@@ -85,10 +118,7 @@ export async function recommendedTest_6_2_55(doc) {
     return ctx
   }
 
-  const expirationTime = await publicKey.getExpirationTime()
-  const isExpired =
-    expirationTime instanceof Date && expirationTime.getTime() <= Date.now()
-  if (isExpired) {
+  if (await isExpired(publicKey)) {
     ctx.warnings.push({
       instancePath: INSTANCE_PATH,
       message: 'OpenPGP key retrieved is expired',
@@ -100,10 +130,17 @@ export async function recommendedTest_6_2_55(doc) {
     try {
       await publicKey.getEncryptionKey()
     } catch (e) {
-      ctx.warnings.push({
-        instancePath: INSTANCE_PATH,
-        message: 'OpenPGP retrieved is not usable for encryption',
-      })
+      // getEncryptionKey() also fails for keys without a User ID, so check
+      // the subkeys directly unless the primary key is revoked.
+      if (
+        (await publicKey.isRevoked()) ||
+        !(await hasUsableEncryptionSubkey(publicKey))
+      ) {
+        ctx.warnings.push({
+          instancePath: INSTANCE_PATH,
+          message: 'OpenPGP retrieved is not usable for encryption',
+        })
+      }
     }
   }
 
