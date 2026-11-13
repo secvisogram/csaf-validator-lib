@@ -1,4 +1,3 @@
-import { expect } from 'chai'
 import validateStrict from '../validateStrict.js'
 
 describe('validateStrict', function () {

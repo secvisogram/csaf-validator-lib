@@ -1,11 +1,9 @@
-import { readFile } from 'fs/promises'
 import * as informative from '../informativeTests.js'
 import * as optional from '../optionalTests.js'
 import * as mandatory from '../mandatoryTests.js'
-import { expect } from 'chai'
-import { readFileSync } from 'fs'
+import isBrowserRuntime from './shared/isBrowserRuntime.js'
 
-/** @typedef {import('../lib/shared/types').DocumentTest} DocumentTest */
+/** @typedef {import('../lib/shared/types.js').DocumentTest} DocumentTest */
 
 /** @typedef {Map<string, DocumentTest>} TestMap */
 
@@ -37,15 +35,23 @@ const tests = new Map([
   ['mandatory', /** @type {TestMap} */ (new Map(Object.entries(mandatory)))],
 ])
 
-const testDataBaseUrl = new URL(
-  '../csaf/csaf_2.0/test/validator/data/',
-  import.meta.url
-)
+// `import.meta.glob` patterns must be static string literals, so the shared
+// `../csaf/csaf_2.0/test/validator/data/` prefix can't be a variable there - it's
+// duplicated as a literal below and as the `testDataDir` string used to build lookup
+// keys into `testDataModules`.
+const testDataDir = '../csaf/csaf_2.0/test/validator/data/'
 
-const testCases = /** @type {TestCases} */ (
-  JSON.parse(
-    await readFile(new URL('testcases.json', testDataBaseUrl), 'utf-8')
-  )
+const testCasesModules = import.meta.glob(
+  '../csaf/csaf_2.0/test/validator/data/testcases.json',
+  { eager: true, import: 'default' }
+)
+const testCases = /** @type {TestCases} */ (Object.values(testCasesModules)[0])
+
+// Lazy (non-eager): resolves fixtures on demand instead of bundling the whole ~1MB
+// OASIS fixture corpus upfront.
+const testDataModules = import.meta.glob(
+  '../csaf/csaf_2.0/test/validator/data/**/*.json',
+  { import: 'default' }
 )
 
 const testMap = parseTestCases()
@@ -54,8 +60,24 @@ describe('oasis', function () {
   for (const [group, t] of testMap) {
     describe(group, function () {
       for (const [testId, u] of t) {
+        // informativeTest_6_3_8 (the only OASIS informative test reached here
+        // without a hunspell mock override) shells out to the real `hunspell`
+        // CLI - not available in the Vitest browser project.
+        // informativeTest_6_3_6/6_3_7 perform real HTTP HEAD requests (see
+        // lib/informativeTests/shared/testURL.js); a real browser sandbox can't
+        // make arbitrary cross-origin requests without CORS. Therefore we skip
+        // the tests here.
+        const isSkipped =
+          isBrowserRuntime &&
+          group === 'informative' &&
+          ['6.3.6', '6.3.7', '6.3.8'].includes(testId)
+
+        if (isSkipped) continue
+
         describe(testId, function () {
           for (const [type, testSpecs] of u) {
+            if (testSpecs.length === 0) continue
+
             describe(type, function () {
               for (const testSpec of testSpecs) {
                 it(testSpec.name, async function () {
@@ -68,12 +90,9 @@ describe('oasis', function () {
                       `no matching test found for group=${group}, ${testId}`
                     )
 
-                  const doc = JSON.parse(
-                    readFileSync(
-                      new URL(testSpec.name, testDataBaseUrl),
-                      'utf-8'
-                    )
-                  )
+                  const doc = await testDataModules[
+                    `${testDataDir}${testSpec.name}`
+                  ]()
 
                   const result = await test(doc)
 
@@ -98,9 +117,6 @@ describe('oasis', function () {
                           : `should not have warnings, but had ${result.warnings?.length}`
                       ).to.equal(type === 'failures')
                     } else if (group === 'informative') {
-                      if (result.infos?.length && type === 'valid') {
-                        console.log(testId, result.infos)
-                      }
                       expect(
                         Boolean(result.infos?.length),
                         type === 'failures'

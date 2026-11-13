@@ -1,0 +1,150 @@
+import { Ajv } from 'ajv/dist/jtd.js'
+
+const ajv = new Ajv()
+
+const hashSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    file_hashes: {
+      elements: {
+        additionalProperties: true,
+        optionalProperties: {
+          algorithm: { type: 'string' },
+          value: { type: 'string' },
+        },
+      },
+    },
+  },
+})
+
+const fullProductNameSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    product_identification_helper: {
+      additionalProperties: true,
+      optionalProperties: {
+        hashes: { elements: hashSchema },
+      },
+    },
+  },
+})
+
+const branchSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    branches: {
+      elements: {
+        additionalProperties: true,
+        properties: {},
+      },
+    },
+    product: fullProductNameSchema,
+  },
+})
+
+const productPathSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    full_product_name: fullProductNameSchema,
+  },
+})
+
+const inputSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    product_tree: {
+      additionalProperties: true,
+      optionalProperties: {
+        branches: {
+          elements: branchSchema,
+        },
+        full_product_names: {
+          elements: fullProductNameSchema,
+        },
+        product_paths: {
+          elements: productPathSchema,
+        },
+      },
+    },
+  },
+})
+
+const validateInput = ajv.compile(inputSchema)
+const validateBranch = ajv.compile(branchSchema)
+const validateFileHash = ajv.compile(hashSchema)
+
+/**
+ * @typedef {{ file_hashes: Array<{ algorithm?: string; value?: string }> }} FileHashEntry
+ */
+
+/**
+ * Walks through the document and calls the callback for each found hash entry.
+ * @param {any} doc
+ * @param {(params: { path: string; hash: FileHashEntry }) => void} onHashFound
+ */
+export function walkHashes(doc, onHashFound) {
+  if (!validateInput(doc)) {
+    return
+  }
+
+  doc.product_tree?.full_product_names?.forEach(
+    (fullProductName, fullProductNameIndex) => {
+      fullProductName.product_identification_helper?.hashes?.forEach(
+        (hash, hashIndex) => {
+          if (!validateFileHash(hash)) return
+          const { file_hashes } = hash
+          if (!file_hashes) return
+          onHashFound({
+            path: `/product_tree/full_product_names/${fullProductNameIndex}/product_identification_helper/hashes/${hashIndex}/file_hashes`,
+            hash: { ...hash, file_hashes },
+          })
+        }
+      )
+    }
+  )
+
+  /**
+   * Recursively checks branches for hashes and nested branches.
+   * @param {string} prefix
+   * @param {unknown[]} branches
+   */
+  const checkBranches = (prefix, branches) => {
+    branches.forEach((branch, branchIndex) => {
+      if (!validateBranch(branch)) {
+        return
+      }
+
+      branch.product?.product_identification_helper?.hashes?.forEach(
+        (hash, hashIndex) => {
+          if (!validateFileHash(hash)) return
+          const { file_hashes } = hash
+          if (!file_hashes) return
+          onHashFound({
+            path: `${prefix}${branchIndex}/product/product_identification_helper/hashes/${hashIndex}/file_hashes`,
+            hash: { ...hash, file_hashes },
+          })
+        }
+      )
+      checkBranches(
+        `${prefix}${branchIndex}/branches/`,
+        Array.isArray(branch.branches) ? branch.branches : []
+      )
+    })
+  }
+
+  checkBranches('/product_tree/branches/', doc.product_tree?.branches ?? [])
+
+  doc.product_tree?.product_paths?.forEach((productPath, productPathIndex) => {
+    productPath.full_product_name?.product_identification_helper?.hashes?.forEach(
+      (hash, hashIndex) => {
+        if (!validateFileHash(hash)) return
+        const { file_hashes } = hash
+        if (!file_hashes) return
+        onHashFound({
+          path: `/product_tree/product_paths/${productPathIndex}/full_product_name/product_identification_helper/hashes/${hashIndex}/file_hashes`,
+          hash: { ...hash, file_hashes },
+        })
+      }
+    )
+  })
+}

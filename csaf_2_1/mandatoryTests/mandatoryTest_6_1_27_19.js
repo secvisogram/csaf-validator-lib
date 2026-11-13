@@ -1,4 +1,4 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
 import bcp47 from 'bcp47'
 
 const ajv = new Ajv()
@@ -83,16 +83,20 @@ export function mandatoryTest_6_1_27_19(doc) {
     ctx.isValid = false
     ctx.errors.push({
       instancePath: `/document/references`,
-      message: `needs at least one entry that has a summary starting with "${summaryTitle}"`,
+      message: `\`csaf_superseded\` must have at least one document reference with a summary starting with \`${summaryTitle}\` and category \`external\``,
     })
   }
 
   for (const { reference, index } of supersessionReferences) {
     if (reference.category !== 'external') {
       ctx.isValid = false
+      const was =
+        reference.category === undefined
+          ? 'not present'
+          : `\`${reference.category}\``
       ctx.errors.push({
         instancePath: `/document/references/${index}`,
-        message: `the category of a "${summaryTitle}" reference must be "external"`,
+        message: `The category of the \`${summaryTitle}\` reference must be present and contain the value \`external\` (was: ${was}).`,
       })
     }
   }

@@ -1,4 +1,5 @@
-import Ajv from 'ajv/dist/jtd.js'
+import { Ajv } from 'ajv/dist/jtd.js'
+import { containsMultipleUnescapedStars } from './shared/wildcardUtils.js'
 
 const ajv = new Ajv()
 
@@ -47,7 +48,7 @@ const inputSchema = /** @type {const} */ ({
         full_product_names: {
           elements: fullProductNameSchema,
         },
-        relationships: {
+        product_paths: {
           elements: {
             additionalProperties: true,
             optionalProperties: {
@@ -63,25 +64,9 @@ const inputSchema = /** @type {const} */ ({
 const validate = ajv.compile(inputSchema)
 
 /**
- * @typedef {import('ajv/dist/core').JTDDataType<typeof branchSchema>} Branch
- * @typedef {import('ajv/dist/core').JTDDataType<typeof fullProductNameSchema>} FullProductName
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof branchSchema>} Branch
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof fullProductNameSchema>} FullProductName
  */
-
-/**
- * Checks if the `stringToCheck` includes more than one unescaped `*` character. A `*` character
- * can be escaped by prefixing it with a backslash (`\`).
- *
- * @param {string} stringToCheck
- * @return {boolean}
- */
-export function containMultipleUnescapedStars(stringToCheck) {
-  const regex = /\*/g
-  return (
-    (stringToCheck
-      .replace(/\\\*/g, '') // remove escaped '*'
-      .match(regex)?.length ?? 0) > 1 // check if there is more than 1 unescaped '*'
-  )
-}
 
 /**
  * Validates all given serial numbers and
@@ -96,7 +81,7 @@ export function checkSerialNumbers(serialNumbers) {
   if (serialNumbers) {
     for (let i = 0; i < serialNumbers.length; i++) {
       const serialNumber = serialNumbers[i]
-      if (containMultipleUnescapedStars(serialNumber)) {
+      if (containsMultipleUnescapedStars(serialNumber)) {
         invalidNumbers.push('' + i)
       }
     }
@@ -136,11 +121,11 @@ export function mandatoryTest_6_1_44(doc) {
     )
   })
 
-  doc.product_tree?.relationships?.forEach((relationship, index) => {
-    const fullProductName = relationship.full_product_name
+  doc.product_tree?.product_paths?.forEach((productPath, index) => {
+    const fullProductName = productPath.full_product_name
     if (fullProductName) {
       checkFullProductName(
-        `/product_tree/relationships/${index}/full_product_name`,
+        `/product_tree/product_paths/${index}/full_product_name`,
         fullProductName
       )
     }

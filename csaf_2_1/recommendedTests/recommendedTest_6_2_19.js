@@ -1,8 +1,351 @@
-import { optionalTest_6_2_19 } from '../../optionalTests.js'
+import { Ajv } from 'ajv/dist/jtd.js'
+import { cvss30, cvss31 } from '../../lib/shared/first.js'
+import * as cvss2 from '../../lib/shared/cvss2.js'
+import * as cvss3 from '../../lib/shared/cvss3.js'
+import * as cvss4 from '../../lib/shared/cvss4.js'
+
+const ajv = new Ajv()
+
+const cvssSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    environmentalScore: { type: 'float64' },
+    vectorString: { type: 'string' },
+    version: { type: 'string' },
+  },
+})
+
+const metricContentSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    cvss_v4: cvssSchema,
+    cvss_v3: cvssSchema,
+    cvss_v2: cvssSchema,
+  },
+})
+
+const metricSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    content: metricContentSchema,
+    products: {
+      elements: { type: 'string' },
+    },
+  },
+})
+
+const productStatusSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    fixed: {
+      elements: { type: 'string' },
+    },
+    first_fixed: {
+      elements: { type: 'string' },
+    },
+  },
+})
+
+const vulnerabilitySchema = /** @type {const} */ ({
+  additionalProperties: true,
+  optionalProperties: {
+    product_status: productStatusSchema,
+    metrics: {
+      elements: metricSchema,
+    },
+  },
+})
+
+const inputSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  properties: {
+    vulnerabilities: {
+      elements: vulnerabilitySchema,
+    },
+  },
+})
+
+const validateInput = ajv.compile(inputSchema)
 
 /**
- * @param {unknown} doc
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof vulnerabilitySchema>} Vulnerability
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof metricSchema>} Metric
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof metricContentSchema>} MetricContent
+ * @typedef {import('ajv/dist/core.js').JTDDataType<typeof cvssSchema>} Cvss
+ */
+
+/**
+ * @param {any} doc
  */
 export function recommendedTest_6_2_19(doc) {
-  return optionalTest_6_2_19(doc)
+  const ctx = {
+    warnings:
+      /** @type {Array<{ instancePath: string; message: string }>} */ ([]),
+  }
+
+  if (!validateInput(doc)) {
+    return ctx
+  }
+  const /** @type Vulnerability[] */ vulnerabilities = doc.vulnerabilities
+  vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
+    const fixedProductIDs = new Set([
+      ...(vulnerability.product_status?.first_fixed ?? []),
+      ...(vulnerability.product_status?.fixed ?? []),
+    ])
+    for (const productID of fixedProductIDs) {
+      const /** @type {Metric[] | undefined} */ metrics = vulnerability.metrics
+      metrics?.forEach((metric, metricIndex) => {
+        if (metric.products?.includes(productID)) {
+          const content = metric.content
+          if (content !== undefined) {
+            const cvssTypes = /** @type {Array<keyof MetricContent>} */ ([
+              'cvss_v4',
+              'cvss_v3',
+              'cvss_v2',
+            ])
+            cvssTypes.forEach((cvssType) => {
+              if (
+                content[cvssType] &&
+                checkCVSS(/** @type {Cvss} */ (content[cvssType]))
+              ) {
+                ctx.warnings.push({
+                  instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/${cvssType}`,
+                  message: `environmental score should be 0 since "${productID}" is listed as fixed`,
+                })
+              }
+            })
+          }
+        }
+      })
+    }
+  })
+
+  return ctx
+}
+
+/**
+ * Check if the cvss object has a valid environmental score.
+ * @param {Cvss} cvss
+ * @returns {boolean}
+ */
+function checkCVSS(cvss) {
+  const calculatedValue = calculateEnvironmentalScoreFromMetrics({
+    version: cvss.version,
+    vectorString: cvss.vectorString ?? '',
+    metrics: cvss,
+  })
+  return (
+    (typeof cvss.environmentalScore === 'number' &&
+      cvss.environmentalScore > 0) ||
+    (typeof calculatedValue === 'number' && calculatedValue > 0) ||
+    calculatedValue === null
+  )
+}
+
+/**
+ * @param {object} params
+ * @param {string | undefined} params.version
+ * @param {string} params.vectorString
+ * @param {Record<string, unknown>} params.metrics
+ */
+function calculateEnvironmentalScoreFromMetrics({
+  version,
+  vectorString,
+  metrics,
+}) {
+  const vectorFromVectorString = new Map(
+    vectorString
+      .split('/')
+      .map((e) => {
+        const [key, value] = e.split(':')
+        return /** @type {const} */ ([key, value])
+      })
+      .filter(([, value]) => value)
+  )
+
+  if (version === '4.0') {
+    return calculateMetricScoreForCVSS4(
+      vectorString,
+      metrics,
+      vectorFromVectorString
+    )
+  } else if (version === '3.1' || version === '3.0') {
+    return calculateMetricScoreForCVSS3(
+      vectorFromVectorString,
+      metrics,
+      version
+    )
+  } else {
+    return calculateMetricScoreForCVSS2(vectorFromVectorString, metrics)
+  }
+}
+
+/**
+ * @param {string} vectorString
+ * @param {Record<string, unknown>} metrics
+ * @param {Map<string, string>} vectorFromVectorString
+ */
+function calculateMetricScoreForCVSS4(
+  vectorString,
+  metrics,
+  vectorFromVectorString
+) {
+  // Extract all metrics from the metrics object and combine with vector string
+  const metricArray = calculateMetricArray({
+    mapping: cvss4Mapping,
+    metrics,
+    vector: vectorFromVectorString,
+  })
+
+  // Build complete vector string with all metrics including Modified ones
+  const completeVectorParts = metricArray
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}:${value}`)
+
+  // Keep CVSS version prefix from original vector
+  const versionPrefix = vectorString.split('/')[0]
+  const completeVectorString = [versionPrefix, ...completeVectorParts].join('/')
+
+  const scoreObject = cvss4.calculateCvss4_0_Score(completeVectorString)
+  return scoreObject?.score ?? null
+}
+
+/**
+ * This function takes a cvss vector and a metric object and extracts all cvss
+ * @param {Map<string, string>} vectorFromVectorString
+ * @param {Record<string, unknown>} metrics
+ * @param {'3.0' | '3.1'} version
+ * @returns {number|null}
+ */
+function calculateMetricScoreForCVSS3(
+  vectorFromVectorString,
+  metrics,
+  version
+) {
+  const args = /**
+   * @type {[
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   *   string,
+   * ]}
+   */ (
+    calculateMetricArray({
+      mapping: cvss3Mapping,
+      metrics,
+      vector: vectorFromVectorString,
+    }).map((e) => e[1])
+  )
+  const metric = (version === '3.1' ? cvss31 : cvss30).calculateCVSSFromMetrics(
+    ...args
+  )
+  if (!metric.success) return null
+  return Number(metric.environmentalMetricScore)
+}
+
+/**
+ * This function takes a cvss vector and a metric object and extracts all cvss
+ * @param {Map<string, string>} vectorFromVectorString
+ * @param {Record<string, unknown>} metrics
+ * @returns {number|null}
+ */
+function calculateMetricScoreForCVSS2(vectorFromVectorString, metrics) {
+  const vector = Object.fromEntries(
+    calculateMetricArray({
+      mapping: cvss2Mapping,
+      metrics,
+      vector: vectorFromVectorString,
+    })
+  )
+  const metric = safelyParseCVSSV2Vector(vector)
+  if (!metric.success) return null
+  return metric.environmentalMetricScore
+}
+
+const cvss2Mapping =
+  /** @type {ReadonlyArray<readonly [string, string, Record<string, string>]>} */ (
+    cvss2.mapping.map((mapping) => [
+      mapping[0],
+      mapping[1],
+      Object.fromEntries(
+        Object.entries(mapping[2]).map(([key, value]) => [key, value.id])
+      ),
+    ])
+  )
+
+const cvss3Mapping = cvss3.mapping
+
+const cvss4Mapping =
+  /** @type {ReadonlyArray<readonly [string, string, Record<string, string>]>} */ (
+    cvss4.flatMetrics.map((metric) => [
+      metric.jsonName,
+      metric.metricShort,
+      Object.fromEntries(
+        metric.options.map((option) => [option.optionValue, option.optionKey])
+      ),
+    ])
+  )
+
+/**
+ * This function takes a cvss vector and a metric object and extracts all cvss
+ * values according to the mapping. It does this by first looking up every property
+ * in the `vector`. If the property doesn't exist there but in the metrics objects,
+ * it takes the value from the corresponding metrics object.
+ *
+ * @param {object} params
+ * @param {Map<string, string>} params.vector
+ * @param {Record<string, unknown>} params.metrics
+ * @param {ReadonlyArray<readonly [string, string, Record<string, string>]>} params.mapping
+ * @returns an array of pairs where the first element is the metric name (abbreviated) and the
+ *    second is the value (abbreviated). If no value is found the value is `undefined`.
+ *    The order of the array is the same as in the mapping.
+ */
+function calculateMetricArray({ vector, metrics, mapping }) {
+  return mapping.map((e) => {
+    const metricAbbrev = e[1]
+    const metricPropertyName = e[0]
+    const /** @type {Record<string, string>} */ metricValueAbbrevMap = e[2]
+    const metricValue = /** @type {string} */ (metrics[metricPropertyName])
+    return [
+      metricAbbrev,
+      vector.get(metricAbbrev) ?? metricValueAbbrevMap[metricValue],
+    ]
+  })
+}
+
+/**
+ * @param {Record<string, string | undefined>} vectorString
+ * @returns {{ success: true; environmentalMetricScore: number } | { success: false; environmentalMetricScore: -1 }}
+ */
+function safelyParseCVSSV2Vector(vectorString) {
+  try {
+    return {
+      success: true,
+      environmentalMetricScore:
+        cvss2.getEnvironmentalScoreFromVectorString(vectorString),
+    }
+  } catch {
+    return {
+      success: false,
+      environmentalMetricScore: -1,
+    }
+  }
 }

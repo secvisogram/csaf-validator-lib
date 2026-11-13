@@ -1,0 +1,53 @@
+import { recommendedTest_6_2_16 } from '../../csaf_2_1/recommendedTests.js'
+
+describe('recommendedTest_6_2_16', function () {
+  it('only runs on relevant documents', function () {
+    expect(
+      recommendedTest_6_2_16({ vulnerabilities: 'mydoc' }).warnings.length
+    ).to.equal(0)
+  })
+
+  it('returns no warnings for invalid inputSchema (product_tree is not an object)', function () {
+    const result = recommendedTest_6_2_16({
+      product_tree: 'not-an-object',
+    })
+    expect(result.warnings.length).to.equal(0)
+  })
+
+  it('invalid branch entries are skipped without warning', function () {
+    const result = recommendedTest_6_2_16({
+      product_tree: {
+        branches: [{ product: 'not-an-object' }],
+      },
+    })
+    expect(result.warnings.length).to.equal(0)
+  })
+
+  it('invalid product_paths entries are skipped without warning', function () {
+    const result = recommendedTest_6_2_16({
+      product_tree: {
+        product_paths: [{ full_product_name: 'not-an-object' }],
+      },
+    })
+    expect(result.warnings.length).to.equal(0)
+  })
+
+  it('warns when a product_paths entry is missing product_identification_helper', function () {
+    const result = recommendedTest_6_2_16({
+      product_tree: {
+        product_paths: [
+          {
+            full_product_name: {
+              name: 'Product A',
+              product_id: 'CSAFPID-0001',
+            },
+          },
+        ],
+      },
+    })
+    expect(result.warnings.length).to.equal(1)
+    expect(result.warnings[0].instancePath).to.equal(
+      '/product_tree/product_paths/0/full_product_name'
+    )
+  })
+})

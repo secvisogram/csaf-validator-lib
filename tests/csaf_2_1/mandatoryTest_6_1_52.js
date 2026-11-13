@@ -1,13 +1,12 @@
-import assert from 'node:assert/strict'
 import { mandatoryTest_6_1_52 } from '../../csaf_2_1/mandatoryTests/mandatoryTest_6_1_52.js'
 
 describe('mandatoryTest_6_1_52', function () {
   it('only runs on relevant documents', function () {
-    assert.equal(mandatoryTest_6_1_52({ document: 'mydoc' }).isValid, true)
+    expect(mandatoryTest_6_1_52({ document: 'mydoc' }).isValid).to.equal(true)
   })
 
   it('skips status draft', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_52({
         document: {
           tracking: {
@@ -16,13 +15,12 @@ describe('mandatoryTest_6_1_52', function () {
           },
         },
         vulnerabilities: [],
-      }).isValid,
-      true
-    )
+      }).isValid
+    ).to.equal(true)
   })
 
   it('skips empty revision_history object', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_52({
         document: {
           tracking: {
@@ -43,13 +41,12 @@ describe('mandatoryTest_6_1_52', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 
   it('skips empty vulnerability object', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_52({
         document: {
           tracking: {
@@ -68,13 +65,12 @@ describe('mandatoryTest_6_1_52', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 
   it('skips empty first_known_exploitation_date object', function () {
-    assert.equal(
+    expect(
       mandatoryTest_6_1_52({
         document: {
           tracking: {
@@ -93,8 +89,7 @@ describe('mandatoryTest_6_1_52', function () {
             ],
           },
         ],
-      }).isValid,
-      false
-    )
+      }).isValid
+    ).to.equal(false)
   })
 })

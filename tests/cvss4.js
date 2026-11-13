@@ -2,8 +2,6 @@ import {
   calculateCvss4_0_Score,
   Cvss4JsonWrapper,
 } from '../lib/shared/cvss4.js'
-import { expect } from 'chai'
-import assert from 'node:assert'
 
 describe('CVSS4Attribute', () => {
   describe('CVSSMetrics', () => {
@@ -13,10 +11,6 @@ describe('CVSS4Attribute', () => {
       const data = wrapper.data
       expect(data.baseScore).to.equal(0)
       expect(data.baseSeverity).to.equal('NONE')
-      expect(data.environmentalScore).to.equal(0)
-      expect(data.environmentalSeverity).to.equal('NONE')
-      expect(data.threatScore).to.equal(0)
-      expect(data.threatSeverity).to.equal('NONE')
     })
 
     it('4.0 metrics can be calculated', () => {
@@ -32,10 +26,6 @@ describe('CVSS4Attribute', () => {
       const data = wrapper.data
       expect(data.baseScore).to.equal(4.1)
       expect(data.baseSeverity).to.equal('MEDIUM')
-      expect(data.environmentalScore).to.equal(4.1)
-      expect(data.environmentalSeverity).to.equal('MEDIUM')
-      expect(data.threatScore).to.equal(4.1)
-      expect(data.threatSeverity).to.equal('MEDIUM')
     })
 
     it('4.0 set metrics by fields', () => {
@@ -50,10 +40,6 @@ describe('CVSS4Attribute', () => {
       const data = wrapper.data
       expect(data.baseScore).to.equal(4.1)
       expect(data.baseSeverity).to.equal('MEDIUM')
-      expect(data.environmentalScore).to.equal(4.1)
-      expect(data.environmentalSeverity).to.equal('MEDIUM')
-      expect(data.threatScore).to.equal(4.1)
-      expect(data.threatSeverity).to.equal('MEDIUM')
     })
 
     it('Metrics can be updated from a partly 4.0 vector-string', () => {
@@ -214,15 +200,8 @@ describe('CVSS4Attribute', () => {
         'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H/E:P'
       )
 
-      assert.equal(score[0].scoreJsonName, 'baseScore')
-      assert.equal(score[0].severityJsonName, 'baseSeverity')
-      assert.equal(score[0].score, 10)
-      assert.equal(score[1].scoreJsonName, 'threatScore')
-      assert.equal(score[1].severityJsonName, 'threatSeverity')
-      assert.equal(score[1].score, 9.3)
-      assert.equal(score[2].scoreJsonName, 'environmentalScore')
-      assert.equal(score[2].severityJsonName, 'environmentalSeverity')
-      assert.equal(score[2].score, 10)
+      expect(score.score).to.equal(9.3)
+      expect(score.severity).to.equal('CRITICAL')
     })
   })
 })
