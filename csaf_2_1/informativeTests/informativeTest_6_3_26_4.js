@@ -20,7 +20,7 @@ const inputSchema = /** @type {const} */ ({
             entities: {
               elements: {
                 additionalProperties: true,
-                properties: {
+                optionalProperties: {
                   name: { type: 'string' },
                 },
               },
@@ -53,6 +53,7 @@ export function informativeTest_6_3_26_4(doc) {
 
   const seen = new Set()
   doc.document.involvement.entities.forEach((item, index) => {
+    if (item.name === undefined) return
     if (seen.has(item.name)) {
       ctx.infos.push({
         instancePath: `/document/involvement/entities/${index}/name`,
