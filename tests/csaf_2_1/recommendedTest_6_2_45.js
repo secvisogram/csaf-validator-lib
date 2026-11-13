@@ -1,8 +1,5 @@
-import assert from 'node:assert'
-import {
-  allNonExistingLicenses,
-  recommendedTest_6_2_45,
-} from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_45.js'
+import { recommendedTest_6_2_45 } from '../../csaf_2_1/recommendedTests/recommendedTest_6_2_45.js'
+import { allNonExistingLicenses } from '../../lib/license/allNonExistingLicenses.js'
 
 describe('recommendedTest_6_2_45', function () {
   it('only runs on relevant documents', function () {
