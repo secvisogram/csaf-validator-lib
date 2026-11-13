@@ -1,5 +1,5 @@
-﻿import { Ajv } from 'ajv/dist/jtd.js'
-import { allNonExistingLicenses } from '../recommendedTests/recommendedTest_6_2_45.js'
+import { Ajv } from 'ajv/dist/jtd.js'
+import { allNonExistingLicenses } from '#lib/license/allNonExistingLicenses.js'
 
 const ajv = new Ajv()
 
@@ -33,7 +33,7 @@ export function informativeTest_6_3_17(doc) {
     return ctx
   }
 
-  allNonExistingLicenses(doc.document.license_expression).forEach(
+  allNonExistingLicenses(doc.document.license_expression, true).forEach(
     (licenseKey) => {
       ctx.infos.push({
         instancePath: '/document/license_expression',

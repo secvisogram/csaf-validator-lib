@@ -22,17 +22,13 @@ describe('informativeTest_6_3_17', function () {
           `the SPDX license list or Aboutcode's ScanCode LicenseDB`
       )
 
-    expect(messages('GPL-3.0+')).to.eql(unlisted(['GPL-3.0+']))
+    expect(messages('GPL-3.0+'), 'deprecated but listed').to.eql([])
     expect(messages('GPL-3.0-only')).to.eql([])
     expect(messages('MIT OR (Apache-2.0 AND 0BSD)')).to.eql([])
     expect(messages('Invalid license expression')).to.eql([])
-    expect(messages('GPL-2.0 OR BSD-3-Clause')).to.eql(unlisted(['GPL-2.0']))
-    expect(messages('LGPL-2.1 OR BSD-3-Clause AND MIT')).to.eql(
-      unlisted(['LGPL-2.1'])
-    )
-    expect(messages('(MIT AND (LGPL-2.1+ AND BSD-3-Clause))')).to.eql(
-      unlisted(['LGPL-2.1+'])
-    )
+    expect(messages('GPL-2.0 OR BSD-3-Clause')).to.eql([])
+    expect(messages('LGPL-2.1 OR BSD-3-Clause AND MIT')).to.eql([])
+    expect(messages('(MIT AND (LGPL-2.1+ AND BSD-3-Clause))')).to.eql([])
     expect(
       messages('MIT OR Apache-2.0 WITH Autoconf-exception-2.0'),
       'Exception associated with unrelated license'
@@ -69,7 +65,7 @@ describe('informativeTest_6_3_17', function () {
         .length
     ).to.equal(1)
     expect(run('MIT WITH Custom-Unknown-Exception').length).to.equal(1)
-    expect(run('GPL-2.0 OR LGPL-2.1').length).to.equal(2)
+    expect(run('GPL-2.0 OR LGPL-2.1').length).to.equal(0)
   })
 
   it('skips invalid SPDX expressions', function () {
