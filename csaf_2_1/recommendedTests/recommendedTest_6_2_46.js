@@ -1,0 +1,253 @@
+import { Ajv } from 'ajv/dist/jtd.js'
+import { parse } from '#lib/spdx/spdx.js'
+import { exceptions, licenses } from '@secvisogram/license-deprecation-list'
+/** @typedef {import('@secvisogram/license-deprecation-list').LicenseEntry} LicenseEntry */
+import {
+  containsOneNoteWithTitleAndCategory,
+  getTranslationInDocumentLang,
+  isLangSpecifiedAndNotEnglish,
+} from '../../lib/shared/languageSpecificTranslation.js'
+
+const ajv = new Ajv()
+
+/*
+  This is the jtd schema that needs to match the input document so that the
+  test is activated. If this schema doesn't match it normally means that the input
+  document does not validate against the csaf json schema or optional fields that
+  the test checks are not present.
+ */
+const inputSchema = /** @type {const} */ ({
+  additionalProperties: true,
+  properties: {
+    document: {
+      additionalProperties: true,
+      properties: {
+        license_expression: {
+          type: 'string',
+        },
+      },
+      optionalProperties: {
+        lang: {
+          type: 'string',
+        },
+        notes: {
+          elements: {
+            additionalProperties: true,
+            optionalProperties: {
+              category: {
+                type: 'string',
+              },
+              title: {
+                type: 'string',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+})
+
+const validateSchema = ajv.compile(inputSchema)
+
+const SCANCODE_LICENSE_REF_PREFIX = 'scancode-'
+const ABOUT_CODE_EXCEPTION_REF_PREFIX = 'AdditionRef-scancode-'
+
+/**
+ *  Check whether the ref contains a license not listed in the SPDX license list or AboutCode's "ScanCode LicenseDB"
+ * @param {string} licenseRefToCheck
+ * @return {boolean}
+ */
+function isLicenseReferenceListed(licenseRefToCheck) {
+  if (licenseRefToCheck.startsWith(SCANCODE_LICENSE_REF_PREFIX)) {
+    const licenseKey = licenseRefToCheck.substring(
+      SCANCODE_LICENSE_REF_PREFIX.length
+    )
+    const license = licenses.get(licenseKey)
+    return license?.source === 'aboutCode'
+  } else {
+    const license = licenses.get(licenseRefToCheck)
+    return license?.source === 'spdx'
+  }
+}
+
+/**
+ * Check whether license identifiers are listed in SPDX license list.
+ * @param {string} licenseToCheck
+ * @return {boolean}
+ */
+function isSpdxLicense(licenseToCheck) {
+  /** @type {LicenseEntry | undefined} */
+  const license = licenses.get(licenseToCheck)
+  return license?.source === 'spdx'
+}
+
+/**
+ * Check whether an exception identifier is listed in the SPDX exception list
+ * @param {string} exceptionId
+ * @return {boolean}
+ */
+function isSpdxException(exceptionId) {
+  /** @type {LicenseEntry | undefined} */
+  const exception = exceptions.get(exceptionId)
+  return exception?.source === 'spdx'
+}
+
+/**
+ * Check whether an AdditionRef-scancode-* identifier is listed in AboutCode's
+ * "ScanCode LicenseDB" exceptions
+ * @param {string} additionRefToCheck - full identifier, e.g. "AdditionRef-scancode-autoconf-exception-2.0"
+ * @return {boolean}
+ */
+function isExceptionReferenceListed(additionRefToCheck) {
+  if (additionRefToCheck.startsWith(ABOUT_CODE_EXCEPTION_REF_PREFIX)) {
+    const licenseKey = additionRefToCheck.substring(
+      ABOUT_CODE_EXCEPTION_REF_PREFIX.length
+    )
+    const license = exceptions.get(licenseKey)
+    return license?.source === 'aboutCode'
+  } else {
+    const license = exceptions.get(additionRefToCheck)
+    return license?.source === 'spdx'
+  }
+}
+
+/**
+ * Recursively checks if a parsed license expression contains not listed licenses
+ * or exceptions.
+ *
+ * @param {import('#lib/spdx/spdx.js').ParseResult} parsedExpression - The parsed license expression
+ * @returns {Array<string>} all deprecated licenses and exceptions found
+ */
+function notListedLicenses(parsedExpression) {
+  /** @type {Array<string>} */
+  const notListed = []
+  if (parsedExpression.type === 'SIMPLE_EXPRESSION') {
+    // Check the license identifier (LicenseRef-* that is not in AboutCode)
+    if (
+      parsedExpression.value?.type === 'LICENSE_REF' &&
+      parsedExpression.value.keyword === 'LicenseRef'
+    ) {
+      if (!isLicenseReferenceListed(parsedExpression.value.value)) {
+        notListed.push('LicenseRef-' + parsedExpression.value.value)
+      }
+    }
+
+    if (parsedExpression.value?.type === 'LICENSE') {
+      if (!isSpdxLicense(parsedExpression.value?.value)) {
+        notListed.push(parsedExpression.value?.value)
+      }
+    }
+
+    // Check the WITH clause exception identifier.
+    const withClause = parsedExpression.with
+    if (withClause) {
+      if (withClause.type === 'EXCEPTION') {
+        if (!isSpdxException(withClause.value)) {
+          notListed.push(withClause.value)
+        }
+      } else if (withClause.type === 'ADDITION_REF') {
+        // Full identifier: e.g. "AdditionRef-scancode-autoconf-exception-2.0"
+        const fullAdditionRef = withClause.keyword + '-' + withClause.value
+        // isAboutCodeException handles the prefix check internally (line 115)
+        const exception = isExceptionReferenceListed(fullAdditionRef)
+        if (!exception) {
+          notListed.push(fullAdditionRef)
+        }
+      }
+    }
+  } else {
+    notListed.push(...notListedLicenses(parsedExpression.left))
+    notListed.push(...notListedLicenses(parsedExpression.right))
+  }
+
+  return notListed
+}
+/**
+ * Check if the license_expression contains license identifiers or exceptions
+ * contains license identifiers or exceptions that are not listed in the
+ * SPDX license list or AboutCode's "ScanCode LicenseDB"
+ * When the license expression is not valid SPDX the check is skipped
+ * @param {string | null | undefined} licenseToCheck - The license expression to check
+ * @returns {Array<string>} all not listed licenses and exceptions found,
+ *                                empty array when the SPDX expression is not valid
+ */
+export function getNotListedLicenses(licenseToCheck) {
+  // Validate ensures that no invalid SPDX licenses are present
+
+  if (licenseToCheck) {
+    try {
+      const parseResult = parse(licenseToCheck)
+      return notListedLicenses(parseResult)
+    } catch (e) {
+      return []
+    }
+  } else {
+    return []
+  }
+}
+
+/**
+ * If the document language is specified but not English, and the license_expression contains license
+ * identifiers or exceptions that are not listed in the SPDX license list or Aboutcode's "ScanCode LicenseDB",
+ * it MUST be tested that exactly one item in document notes exists that has the language specific translation
+ * of the term License as title. The category of this item MUST be legal_disclaimer.
+ * If no language-specific translation has been recorded, the test MUST be skipped
+ * and output information to the user that no such translation is known.
+ *
+ * @param {unknown} doc
+ */
+export function recommendedTest_6_2_46(doc) {
+  /*
+      The `ctx` variable holds the state that is accumulated during the test run and is
+      finally returned by the function.
+     */
+  /** @type { {warnings: Array<{ message: string; instancePath: string }>;
+   * infos: Array<{ message: string; instancePath: string }>}} */
+  const ctx = {
+    warnings: [],
+    infos: [],
+  }
+
+  if (!validateSchema(doc)) {
+    return ctx
+  }
+
+  const licenseToCheck = doc.document.license_expression
+  if (isLangSpecifiedAndNotEnglish(doc.document.lang)) {
+    const licenseInDocLang = getTranslationInDocumentLang(doc, 'license')
+    if (!licenseInDocLang) {
+      ctx.infos.push({
+        instancePath: '/document/notes',
+        message:
+          'no language specific translation for "license" has been recorded',
+      })
+      return ctx
+    }
+
+    const notListedLicenses = getNotListedLicenses(licenseToCheck)
+    if (notListedLicenses.length > 0) {
+      const notes = doc.document.notes
+      if (
+        !notes ||
+        !containsOneNoteWithTitleAndCategory(
+          notes,
+          licenseInDocLang,
+          'legal_disclaimer'
+        )
+      ) {
+        ctx.warnings.push({
+          instancePath: '/document/notes',
+          message:
+            `The license_expression contains contains the following license identifiers that ` +
+            `are nor listed in AboutCode or SPDX license list: ` +
+            `"${notListedLicenses.join(', ')}". ` +
+            `Therefore exactly one note with ` +
+            `title "License" and category "legal_disclaimer" must exist`,
+        })
+      }
+    }
+  }
+
+  return ctx
+}
