@@ -368,11 +368,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
 - Recommended Test 6.2.54.4
-- Recommended Test 6.2.56.2
-- Recommended Test 6.2.56.3
-- Recommended Test 6.2.56.4
-- Recommended Test 6.2.56.5
-- Recommended Test 6.2.57
 
 **Informative Tests**
 
@@ -386,9 +381,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
 - Informative Test 6.3.25
-- Informative Test 6.3.26.1
-- Informative Test 6.3.26.2
-- Informative Test 6.3.26.3
 - Informative Test 6.3.26.4
 
 #### Module `csaf_2_1/schemaTests.js`
@@ -564,6 +556,11 @@ export const recommendedTest_6_2_52: DocumentTest
 export const recommendedTest_6_2_53: DocumentTest
 export const recommendedTest_6_2_54_3: DocumentTest
 export const recommendedTest_6_2_56_1: DocumentTest
+export const recommendedTest_6_2_56_2: DocumentTest
+export const recommendedTest_6_2_56_3: DocumentTest
+export const recommendedTest_6_2_56_4: DocumentTest
+export const recommendedTest_6_2_56_5: DocumentTest
+export const recommendedTest_6_2_57: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -599,6 +596,9 @@ export const informativeTest_6_3_22: DocumentTest
 export const informativeTest_6_3_23_1: DocumentTest
 export const informativeTest_6_3_23_2: DocumentTest
 export const informativeTest_6_3_24: DocumentTest
+export const informativeTest_6_3_26_1: DocumentTest
+export const informativeTest_6_3_26_2: DocumentTest
+export const informativeTest_6_3_26_3: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
