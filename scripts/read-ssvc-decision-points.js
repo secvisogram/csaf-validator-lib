@@ -4,7 +4,6 @@
  * Reads the current `main` branch of CERTCC/SSVC, so the output may change
  * when upstream changes. Can be run from any directory:
  *
- *   npm run update-ssvc-decision-points
  *   node scripts/read-ssvc-decision-points.js
  */
 
