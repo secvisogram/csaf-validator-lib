@@ -90,17 +90,6 @@ describe('recommendedTest_6_2_55', function () {
       ])
     })
 
-    //
-    //
-    // it('accepts a key without User ID that has a usable encryption subkey', async function () {
-    //   mockResponse(
-    //     await generatePublicKey({ type: 'ecc', userIDs }, true),
-    //     'application/pgp-keys'
-    //   )
-    //   const result = await recommendedTest_6_2_55(doc)
-    //   expect(result.warnings.length).to.equal(0)
-    // })
-    //
     it('treats a subkey signature without key flags as not usable for encryption', async function () {
       mockResponse(
         await generatePublicKey({ type: 'ecc', userIDs }, true),
@@ -119,23 +108,40 @@ describe('recommendedTest_6_2_55', function () {
       }
     })
 
-    // it('reports a key without User ID whose encryption subkey is expired', async function () {
-    //   mockResponse(
-    //     await generatePublicKey(
-    //       {
-    //         type: 'ecc',
-    //         userIDs,
-    //         subkeys: [{ keyExpirationTime: 1 }],
-    //         date: new Date(Date.now() - 60_000),
-    //       },
-    //       true
-    //     ),
-    //     'application/pgp-keys'
-    //   )
-    //   const result = await recommendedTest_6_2_55(doc)
-    //   expect(result.warnings.map((w) => w.message)).to.deep.equal([
-    //     'OpenPGP retrieved is not usable for encryption',
-    //   ])
-    // })
+    /**
+     * @param {boolean} withoutUserID
+     */
+    async function generateRevokedPublicKey(withoutUserID) {
+      const { privateKey } = await openpgp.generateKey({
+        type: 'ecc',
+        userIDs,
+        format: 'object',
+      })
+      const { publicKey } = await openpgp.revokeKey({
+        key: privateKey,
+        format: 'object',
+      })
+      if (withoutUserID) publicKey.users = []
+      return publicKey.toPublic().armor()
+    }
+
+    it('reports a revoked primary key with a User ID', async function () {
+      mockResponse(
+        await generateRevokedPublicKey(false),
+        'application/pgp-keys'
+      )
+      const result = await recommendedTest_6_2_55(doc)
+      expect(result.warnings.map((w) => w.message)).to.deep.equal([
+        'OpenPGP retrieved is not usable for encryption',
+      ])
+    })
+
+    it('reports a revoked primary key without a User ID', async function () {
+      mockResponse(await generateRevokedPublicKey(true), 'application/pgp-keys')
+      const result = await recommendedTest_6_2_55(doc)
+      expect(result.warnings.map((w) => w.message)).to.deep.equal([
+        'OpenPGP retrieved is not usable for encryption',
+      ])
+    })
   })
 })

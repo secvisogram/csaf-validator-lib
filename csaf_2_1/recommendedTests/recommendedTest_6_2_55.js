@@ -130,9 +130,12 @@ export async function recommendedTest_6_2_55(doc) {
     try {
       await publicKey.getEncryptionKey()
     } catch (e) {
-      // getEncryptionKey() fails for keys without a User ID even if a valid
-      // encryption subkey exists, so check the subkeys directly.
-      if (!(await hasUsableEncryptionSubkey(publicKey))) {
+      // getEncryptionKey() also fails for keys without a User ID, so check
+      // the subkeys directly unless the primary key is revoked.
+      if (
+        (await publicKey.isRevoked()) ||
+        !(await hasUsableEncryptionSubkey(publicKey))
+      ) {
         ctx.warnings.push({
           instancePath: INSTANCE_PATH,
           message: 'OpenPGP retrieved is not usable for encryption',
