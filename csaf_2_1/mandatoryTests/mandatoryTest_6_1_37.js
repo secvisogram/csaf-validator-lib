@@ -16,6 +16,19 @@ const inputSchema = /** @type {const} */ ({
     document: {
       additionalProperties: true,
       optionalProperties: {
+        involvement: {
+          additionalProperties: true,
+          optionalProperties: {
+            actions: {
+              elements: {
+                additionalProperties: true,
+                optionalProperties: {
+                  date: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
         tracking: {
           additionalProperties: true,
           optionalProperties: {
@@ -55,14 +68,6 @@ const inputSchema = /** @type {const} */ ({
             },
           },
           flags: {
-            elements: {
-              additionalProperties: true,
-              optionalProperties: {
-                date: { type: 'string' },
-              },
-            },
-          },
-          involvements: {
             elements: {
               additionalProperties: true,
               optionalProperties: {
@@ -160,6 +165,7 @@ export async function mandatoryTest_6_1_37(doc) {
   }
 
   for (const path of [
+    '/document/involvement/actions[]/date',
     '/document/tracking/current_release_date',
     '/document/tracking/generator/date',
     '/document/tracking/initial_release_date',
@@ -169,7 +175,6 @@ export async function mandatoryTest_6_1_37(doc) {
     '/vulnerabilities[]/first_known_exploitation_dates[]/date',
     '/vulnerabilities[]/first_known_exploitation_dates[]/exploitation_date',
     '/vulnerabilities[]/flags[]/date',
-    '/vulnerabilities[]/involvements[]/date',
     '/vulnerabilities[]/metrics[]/content/epss/timestamp',
     '/vulnerabilities[]/metrics[]/content/ssvc_v2/timestamp',
     '/vulnerabilities[]/remediations[]/date',

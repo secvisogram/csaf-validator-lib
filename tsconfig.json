@@ -100,5 +100,5 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "include": ["**/*.js", "**/*.ts", "**/*.cjs"],
-  "exclude": ["node_modules", "build", "csaf", "coverage"]
+  "exclude": ["node_modules", "build", "csaf", "coverage", "license-list-data", "scancode-licensedb"]
 }

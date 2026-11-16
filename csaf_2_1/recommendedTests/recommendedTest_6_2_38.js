@@ -33,8 +33,7 @@ export function recommendedTest_6_2_38(doc) {
 
   if (doc.document.category.match(/^csaf_deprecated_.*$/)) {
     context.warnings.push({
-      message:
-        'The document category indicates the usage of a deprecated profile as it starts with "csaf_deprecated_"',
+      message: 'deprecated profile `csaf_deprecated_security_advisory` used',
       instancePath: '/document/category',
     })
   }

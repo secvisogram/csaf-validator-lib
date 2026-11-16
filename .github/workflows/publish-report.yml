@@ -49,9 +49,10 @@ jobs:
       #
       # The coverage report is generated for the latest node version only.
       # Make sure, to update this when changing the matrix above.
+      # Only runs for pull requests because the coverage report is posted as comment to the PR.
       #
 
-      if: ${{ matrix.node-version == '24.x' }}
+      if: ${{ matrix.node-version == '24.x' && github.event.workflow_run.event == 'pull_request' }}
       uses: Nef10/lcov-reporter-action@v0.6.1
       with:
         pr-number: ${{ env.PR_NUMBER }}

@@ -18,7 +18,7 @@ export default {
       title: 'Extension Category',
       description: 'Holds the category of the extension content.',
       type: 'string',
-      enum: ['critical', 'high_value', 'informational'],
+      enum: ['essential', 'significant', 'supplementary'],
     },
     content: {
       title: 'Content',
