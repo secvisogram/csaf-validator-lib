@@ -18,26 +18,56 @@ const inputSchema = /** @type {const} */ ({
 })
 const validateInput = ajv.compile(inputSchema)
 
-// Profile categories defined in CSAF 2.1 §4 that are exempt from
-// document/category spell-checking (they are machine-readable identifiers,
-// not natural-language text).
-const PROFILE_CATEGORIES = new Set([
-  'csaf_base',
-  'csaf_deprecated_security_advisory',
-  'csaf_informational_advisory',
-  'csaf_security_advisory',
-  'csaf_security_incident_response',
-  'csaf_superseded',
-  'csaf_vex',
-  'csaf_withdrawn',
-])
+const TEXT_PATHS = [
+  '/document/acknowledgments[]/names[]',
+  '/document/acknowledgments[]/organization',
+  '/document/acknowledgments[]/summary',
+  '/document/aggregate_severity/text',
+  '/document/distribution/text',
+  '/document/involvement/actions[]/summary',
+  '/document/involvement/entities[]/contact/details',
+  '/document/involvement/entities[]/name',
+  '/document/involvement/entity_groups[]/name',
+  '/document/involvement/entity_groups[]/summary',
+  '/document/notes[]/audience',
+  '/document/notes[]/text',
+  '/document/notes[]/title',
+  '/document/publisher/contact/details',
+  '/document/publisher/issuing_authority',
+  '/document/publisher/name',
+  '/document/references[]/summary',
+  '/document/title',
+  '/document/tracking/aliases[]',
+  '/document/tracking/generator/engine/name',
+  '/document/tracking/revision_history[]/summary',
+  '/product_tree/branches[*]/name',
+  '/product_tree/branches[*]/product/name',
+  '/product_tree/full_product_names[]/name',
+  '/product_tree/product_groups[]/summary',
+  '/product_tree/product_paths[]/full_product_name/name',
+  '/vulnerabilities[]/acknowledgments[]/names[]',
+  '/vulnerabilities[]/acknowledgments[]/organization',
+  '/vulnerabilities[]/acknowledgments[]/summary',
+  '/vulnerabilities[]/notes[]/audience',
+  '/vulnerabilities[]/notes[]/text',
+  '/vulnerabilities[]/notes[]/title',
+  '/vulnerabilities[]/references[]/summary',
+  '/vulnerabilities[]/remediations[]/details',
+  '/vulnerabilities[]/remediations[]/entitlements[]',
+  '/vulnerabilities[]/remediations[]/restart_required/details',
+  '/vulnerabilities[]/threats[]/details',
+  '/vulnerabilities[]/title',
+]
 
-// Spell-checking regexes for hunspell output.
-const HUNSPELL_SUGGESTION_RE = /^& (\S+)/
-const HUNSPELL_MISS_RE = /^# (\S+)/
+const URL_RE = /(https?|ftp):\/\/[^\s/$.?#].[^\s]*/gi
+const HUNSPELL_MISSPELLED_RE = /^[#&] (\S+)/
 
 /**
  * Informative test 6.3.8: Check for spelling mistakes in text fields.
+ *
+ * For performance, all text fields are collected and split into words first.
+ * The unique words of the whole document are then checked with a single
+ * hunspell invocation and the result is mapped back to the fields.
  *
  * @param {any} doc
  * @param {object} [params]
@@ -56,14 +86,51 @@ export async function informativeTest_6_3_8(
   }
 
   const lang = bcp47.parse(doc.document.lang)
-  if (!lang?.langtag.language.language) return ctx
-  const dictionary = `${lang.langtag.language.language}${
+  const language = lang?.langtag.language.language
+  if (!language) return ctx
+  const dictionary = `${language}${
     typeof lang.langtag.region === 'string' ? `_${lang.langtag.region}` : ''
   }`
 
+  /** @type {Array<{ instancePath: string; words: string[] }>} */
+  const fields = []
+  /**
+   * @param {string} instancePath
+   * @param {string} text
+   */
+  const collect = (instancePath, text) => {
+    const words = segmentText(text, language)
+    if (words.length) fields.push({ instancePath, words })
+  }
+
+  for (const path of TEXT_PATHS) {
+    await walkPath(doc, path, async (instancePath, value) => {
+      if (typeof value === 'string') collect(instancePath, value)
+    })
+  }
+  if (doc.document?.category === 'csaf_base') {
+    collect('/document/category', doc.document.category)
+  }
+
+  const uniqueWords = new Set(fields.flatMap((f) => f.words))
+
+  /** @type {string} */
+  let output
   try {
-    await params.hunspell({ dictionary, input: '' })
-  } catch {
+    // Also serves as the check whether the dictionary is available. The "^"
+    // prefix stops hunspell from interpreting a word as a pipe-mode command.
+    output = await params.hunspell({
+      dictionary,
+      input: [...uniqueWords].map((w) => `^${w}`).join('\n'),
+    })
+  } catch (e) {
+    if (/** @type {any} */ (e)?.code === 'ENOENT') {
+      ctx.infos.push({
+        instancePath: '/document/lang',
+        message: 'hunspell is not available, spell check was skipped',
+      })
+      return ctx
+    }
     ctx.infos.push({
       instancePath: '/document/lang',
       message: `language "${doc.document.lang}" is not supported`,
@@ -71,80 +138,26 @@ export async function informativeTest_6_3_8(
     return ctx
   }
 
-  for (const path of [
-    '/document/acknowledgments[]/names[]',
-    '/document/acknowledgments[]/organization',
-    '/document/acknowledgments[]/summary',
-    '/document/aggregate_severity/text',
-    '/document/distribution/text',
-    '/document/notes[]/audience',
-    '/document/notes[]/text',
-    '/document/notes[]/title',
-    '/document/publisher/issuing_authority',
-    '/document/publisher/name',
-    '/document/references[]/summary',
-    '/document/title',
-    '/document/tracking/aliases[]',
-    '/document/tracking/generator/engine/name',
-    '/document/tracking/revision_history[]/summary',
-    '/product_tree/branches[*]/name',
-    '/product_tree/branches[*]/product/name',
-    '/product_tree/full_product_names[]/name',
-    '/product_tree/product_groups[]/summary',
-    '/product_tree/product_paths[]/full_product_name/name',
-    '/vulnerabilities[]/acknowledgments[]/names[]',
-    '/vulnerabilities[]/acknowledgments[]/organization',
-    '/vulnerabilities[]/acknowledgments[]/summary',
-    '/vulnerabilities[]/involvements[]/summary',
-    '/vulnerabilities[]/notes[]/audience',
-    '/vulnerabilities[]/notes[]/text',
-    '/vulnerabilities[]/notes[]/title',
-    '/vulnerabilities[]/references[]/summary',
-    '/vulnerabilities[]/remediations[]/details',
-    '/vulnerabilities[]/remediations[]/entitlements[]',
-    '/vulnerabilities[]/remediations[]/restart_required/details',
-    '/vulnerabilities[]/threats[]/details',
-    '/vulnerabilities[]/title',
-  ]) {
-    await walkPath(doc, path, async (instancePath, value) => {
-      if (typeof value === 'string') {
-        await checkField(instancePath, value)
-      }
-    })
-  }
-
-  if (
-    typeof doc.document?.category === 'string' &&
-    !PROFILE_CATEGORIES.has(doc.document.category)
-  ) {
-    await checkField('/document/category', doc.document.category)
-  }
-
-  /**
-   * Check a single text field for spelling mistakes and add an info message to
-   * the context if any mistakes are found.
-   * @param {string} instancePath
-   * @param {string} text
-   */
-  async function checkField(instancePath, text) {
-    const result = await spellCheckString({
-      text,
-      dictionary,
-      hunspell: params.hunspell,
-    })
-    if (result.parseError) {
+  const misspelled = new Set()
+  for (const line of output.split('\n').slice(1)) {
+    if (!line.startsWith('# ') && !line.startsWith('& ')) continue
+    const match = HUNSPELL_MISSPELLED_RE.exec(line)
+    if (!match) {
       ctx.infos.push({
-        instancePath,
+        instancePath: '/document/lang',
         message: 'Error while parsing hunspell output',
       })
-      return
+      return ctx
     }
-    if (!result.ok) {
+    misspelled.add(match[1])
+  }
+
+  for (const { instancePath, words } of fields) {
+    const mistakes = [...new Set(words.filter((w) => misspelled.has(w)))]
+    if (mistakes.length) {
       ctx.infos.push({
         instancePath,
-        message: `there are spelling mistakes in: ${result.mistakes
-          .map((m) => m.word)
-          .join(', ')}`,
+        message: `there are spelling mistakes in: ${mistakes.join(', ')}`,
       })
     }
   }
@@ -153,26 +166,28 @@ export async function informativeTest_6_3_8(
 }
 
 /**
- * Spell-check a string using hunspell and return the list of mistakes.
- * @param {object} params
- * @param {(params: { dictionary: string; input: string }) => Promise<string>} params.hunspell
- * @param {string} params.text
- * @param {string} params.dictionary
+ * Split a text into words. URLs are kept as whole tokens.
+ * @param {string} text
+ * @param {string} language
+ * @returns {string[]}
  */
-async function spellCheckString({ text, dictionary, hunspell }) {
-  /** @type {string} */
-  const result = await hunspell({ dictionary, input: text })
-  const lines = result.split('\n').slice(1)
-  const errors = []
-  for (const l of lines) {
-    if (!l.startsWith('# ') && !l.startsWith('& ')) continue
-    const regexR = l.startsWith('& ')
-      ? HUNSPELL_SUGGESTION_RE.exec(l)
-      : HUNSPELL_MISS_RE.exec(l)
-    if (!regexR) {
-      return { mistakes: [], ok: false, parseError: true }
-    }
-    errors.push({ word: regexR[1] })
+function segmentText(text, language) {
+  const urls = text.match(URL_RE) ?? []
+  const words = []
+  for (const s of getSegmenter(language).segment(text.replace(URL_RE, ' '))) {
+    if (s.isWordLike) words.push(s.segment)
   }
-  return { mistakes: errors, ok: !errors.length, parseError: false }
+  return [...words, ...urls]
+}
+
+/** @type {Map<string, Intl.Segmenter>} */
+const segmenters = new Map()
+/** @param {string} language */
+function getSegmenter(language) {
+  let segmenter = segmenters.get(language)
+  if (!segmenter) {
+    segmenter = new Intl.Segmenter(language, { granularity: 'word' })
+    segmenters.set(language, segmenter)
+  }
+  return segmenter
 }

@@ -6,6 +6,22 @@ describe('informativeTest_6_3_8', function () {
     expect(result.infos.length).to.equal(0)
   })
 
+  it('does not collect text fields without words', async function () {
+    /** @type {string[]} */
+    const inputs = []
+    const result = await informativeTest_6_3_8(
+      { document: { lang: 'en', title: '!!! --- ...', notes: [{ text: '' }] } },
+      {
+        hunspell: async ({ input }) => {
+          inputs.push(input)
+          return 'Hunspell v1\n\n'
+        },
+      }
+    )
+    expect(inputs).to.deep.equal([''])
+    expect(result.infos).to.deep.equal([])
+  })
+
   it('skips documents without a resolvable language tag', async function () {
     const result = await informativeTest_6_3_8({
       document: { lang: 'not-a-valid-tag!!' },
@@ -13,57 +29,9 @@ describe('informativeTest_6_3_8', function () {
     expect(result.infos.length).to.equal(0)
   })
 
-  it('skips document/category when it is a known profile category', async function () {
-    const result = await informativeTest_6_3_8(
-      {
-        document: {
-          lang: 'en',
-          category: 'csaf_base',
-        },
-      },
-      {
-        hunspell: async () => 'Hunspell v1\n\n# ignored 0',
-      }
-    )
-    expect(result.infos.length).to.equal(0)
-  })
-
-  it('checks document/category when it is not a known profile category and reports misspellings without suggestions', async function () {
-    const result = await informativeTest_6_3_8(
-      {
-        document: {
-          lang: 'en',
-          category: 'my_custom_category',
-        },
-      },
-      {
-        hunspell: async () => 'Hunspell v1\n\n# custm 0',
-      }
-    )
-    expect(result.infos.length).to.equal(1)
-    expect(result.infos[0].instancePath).to.equal('/document/category')
-    expect(result.infos[0].message).to.match(/custm/)
-  })
-
-  it('reports misspelled words that have suggestions', async function () {
-    const result = await informativeTest_6_3_8(
-      {
-        document: {
-          lang: 'en',
-          category: 'my_custom_category',
-        },
-      },
-      {
-        hunspell: async () => 'Hunspell v1\n\n& custm 1 0: custom',
-      }
-    )
-    expect(result.infos.length).to.equal(1)
-    expect(result.infos[0].instancePath).to.equal('/document/category')
-    expect(result.infos[0].message).to.match(/custm/)
-  })
-
   it('skips non-string values when walking text fields', async function () {
-    let calls = 0
+    /** @type {string[]} */
+    const inputs = []
     const result = await informativeTest_6_3_8(
       {
         document: {
@@ -72,13 +40,13 @@ describe('informativeTest_6_3_8', function () {
         },
       },
       {
-        hunspell: async () => {
-          calls++
+        hunspell: async ({ input }) => {
+          inputs.push(input)
           return 'Hunspell v1\n\n'
         },
       }
     )
-    expect(calls).to.equal(1)
+    expect(inputs.join('')).to.equal('')
     expect(result.infos.length).to.equal(0)
   })
 
@@ -89,7 +57,7 @@ describe('informativeTest_6_3_8', function () {
       {
         document: {
           lang: 'en-US',
-          category: 'my_custom_category',
+          category: 'csaf_base',
         },
       },
       {
@@ -108,7 +76,7 @@ describe('informativeTest_6_3_8', function () {
       {
         document: {
           lang: 'en',
-          category: 'my_custom_category',
+          category: 'csaf_base',
         },
       },
       {
@@ -116,10 +84,70 @@ describe('informativeTest_6_3_8', function () {
       }
     )
     expect(result.infos.length).to.equal(1)
-    expect(result.infos[0].instancePath).to.equal('/document/category')
+    expect(result.infos[0].instancePath).to.equal('/document/lang')
     expect(result.infos[0].message).to.match(
       /Error while parsing hunspell output/
     )
+  })
+
+  it('reports a different message when hunspell is not installed', async function () {
+    const result = await informativeTest_6_3_8(
+      { document: { lang: 'en', title: 'Hello' } },
+      {
+        hunspell: async () => {
+          throw Object.assign(new Error('spawn hunspell ENOENT'), {
+            code: 'ENOENT',
+          })
+        },
+      }
+    )
+    expect(result.infos).to.deep.equal([
+      {
+        instancePath: '/document/lang',
+        message: 'hunspell is not available, spell check was skipped',
+      },
+    ])
+  })
+
+  it('calls hunspell once per document with unique words and maps results to fields', async function () {
+    /** @type {string[]} */
+    const inputs = []
+    const result = await informativeTest_6_3_8(
+      {
+        document: {
+          lang: 'en',
+          title: 'Helo world',
+          notes: [{ text: 'world see https://example.com/a?b=1 wrold' }],
+        },
+        product_tree: {
+          branches: [{ name: 'wrold', branches: [{ name: 'fine' }] }],
+        },
+      },
+      {
+        hunspell: async ({ input }) => {
+          inputs.push(input)
+          return 'Hunspell v1\n\n& Helo 1 0: Hello\n\n# wrold 0\n\n'
+        },
+      }
+    )
+    expect(inputs.length).to.equal(1)
+    const words = inputs[0].split('\n')
+    expect(words.length).to.equal(new Set(words).size)
+    expect(words).to.include('^https://example.com/a?b=1')
+    expect(result.infos).to.deep.equal([
+      {
+        instancePath: '/document/notes/0/text',
+        message: 'there are spelling mistakes in: wrold',
+      },
+      {
+        instancePath: '/document/title',
+        message: 'there are spelling mistakes in: Helo',
+      },
+      {
+        instancePath: '/product_tree/branches/0/name',
+        message: 'there are spelling mistakes in: wrold',
+      },
+    ])
   })
 
   it('does not reject even with the real hunspell process when the dictionary is unknown', async function () {
