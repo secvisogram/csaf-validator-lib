@@ -9,7 +9,7 @@ describe.skipIf(isBrowserRuntime)('recommendedTest_6_2_50_1', function () {
     expect(result.warnings.length).to.equal(0)
   })
 
-  it('skips documents not matching the input schema', async function () {
+  it('skips documents with no product version ranges', async function () {
     const result = await recommendedTest_6_2_50_1({
       product_tree: {
         branches: [
@@ -43,7 +43,7 @@ describe.skipIf(isBrowserRuntime)('recommendedTest_6_2_50_1', function () {
     ).to.have.length(0)
   })
 
-  it('ignores invalid vers siblings in recommendedTest_6_2_50_1', async function () {
+  it('ignores invalid vers siblings', async function () {
     const branch = (
       /** @type {string} */ name,
       /** @type {string} */ productId
@@ -59,8 +59,8 @@ describe.skipIf(isBrowserRuntime)('recommendedTest_6_2_50_1', function () {
             category: 'vendor',
             name: 'Example Company',
             branches: [
-              branch('vers:semver/>1.0.0|<5.0.0', 'A'),
-              branch('vers:semver/>1.0.0||', 'B'),
+              leaf('vers:semver/>1.0.0|<5.0.0', 'A'),
+              leaf('vers:semver/>1.0.0||', 'B'),
             ],
           },
         ],
@@ -94,10 +94,10 @@ describe.skipIf(isBrowserRuntime)('recommendedTest_6_2_50_1', function () {
                 category: 'product_name',
                 name: 'Nested',
                 branches: [
-                  branch('vers:semver/>1.0.0|<5.0.0', 'A'),
-                  branch('vers:semver/>2.0.0|<6.0.0', 'B'),
-                  branch('vers:semver/>3.0.0|<7.0.0', 'C'),
-                  branch('>1|<5', 'D'),
+                  leaf('vers:semver/>1.0.0|<5.0.0', 'A'),
+                  leaf('vers:semver/>2.0.0|<6.0.0', 'B'),
+                  leaf('vers:semver/>3.0.0|<7.0.0', 'C'),
+                  leaf('>1|<5', 'D'),
                   {
                     category: 'product_version_range',
                     name: 'vers:semver/>1.0.0|<5.0.0',
@@ -194,5 +194,24 @@ describe.skipIf(isBrowserRuntime)('recommendedTest_6_2_50_1', function () {
     expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/branches/0/branches/0/branches/0/product'
     )
+  })
+
+  it('reports the vulnerability of each overlap separately', async function () {
+    const status = { known_affected: ['A'], known_not_affected: ['B'] }
+    const result = await recommendedTest_6_2_50_1({
+      ...vendor([
+        leaf('vers:semver/>1.0.0|<5.0.0', 'A'),
+        leaf('vers:semver/>3.0.0|<7.0.0', 'B'),
+      ]),
+      vulnerabilities: [
+        {},
+        { product_status: status },
+        { product_status: status },
+      ],
+    })
+    expect(result.warnings.map((w) => w.instancePath)).to.deep.equal([
+      '/product_tree/branches/0/branches/0/product',
+      '/product_tree/branches/0/branches/0/product',
+    ])
   })
 })

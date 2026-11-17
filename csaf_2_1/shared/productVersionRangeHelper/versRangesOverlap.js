@@ -11,8 +11,41 @@ let versRs
  * @returns {Promise<void>}
  */
 export async function initVers() {
-  loading ??= import('@csaf-rs/vers-rs')
-  versRs = await loading
+  loading ??= load()
+  try {
+    versRs = await loading
+  } catch (error) {
+    // do not cache a failed load so that a later call can retry
+    loading = undefined
+    throw error
+  }
+}
+
+/**
+ * @returns {Promise<typeof import('@csaf-rs/vers-rs')>}
+ */
+async function load() {
+  if (typeof process === 'undefined' || !process.versions?.node) {
+    return import('@csaf-rs/vers-rs')
+  }
+  // Node.js only supports importing .wasm modules natively since 22.19 / 24.5,
+  // so the module is instantiated manually
+  // @ts-expect-error the package ships no declaration for this internal file
+  const bg = await import('@csaf-rs/vers-rs/vers_rs_bg.js')
+  const { readFile } = await import(
+    /* webpackIgnore: true */ 'node:fs/promises'
+  )
+  const wasmUrl = new URL(
+    'vers_rs_bg.wasm',
+    import.meta.resolve('@csaf-rs/vers-rs')
+  )
+  const { instance } = await WebAssembly.instantiate(await readFile(wasmUrl), {
+    './vers_rs_bg.js': bg,
+  })
+  bg.__wbg_set_wasm(instance.exports)
+  const start = /** @type {() => void} */ (instance.exports.__wbindgen_start)
+  start()
+  return /** @type {typeof import('@csaf-rs/vers-rs')} */ (bg)
 }
 
 /**

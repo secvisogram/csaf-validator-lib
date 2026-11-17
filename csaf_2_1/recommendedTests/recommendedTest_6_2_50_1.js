@@ -6,7 +6,6 @@ import {
   collectPvrss,
   filterLeaf,
   filterVers,
-  isVersFormat,
 } from '../shared/productVersionRangeHelper/productVersionRange.js'
 import {
   createVersOverlapChecker,
@@ -81,9 +80,12 @@ export async function recommendedTest_6_2_50_1(doc) {
     return ctx
   }
 
-  await initVers()
-
   const ctpvrsByProductId = collectCtpvrsByProductId(doc.product_tree?.branches)
+  if (ctpvrsByProductId.size === 0 || !doc.vulnerabilities?.length) {
+    return ctx
+  }
+
+  await initVers()
 
   // Shared across vulnerabilities so each range pair is evaluated only once.
   const versRangesOverlap = createVersOverlapChecker()
@@ -102,11 +104,7 @@ export async function recommendedTest_6_2_50_1(doc) {
     for (const [productId, groups] of productStatusGroupsByProductId) {
       for (const productCtpvr of ctpvrsByProductId.get(productId) ?? []) {
         const rangeName = productCtpvr.ctpvr.name
-        if (
-          rangeName === undefined ||
-          !isVersFormat(rangeName) ||
-          !isValidVers(rangeName)
-        ) {
+        if (rangeName === undefined || !isValidVers(rangeName)) {
           continue
         }
 
