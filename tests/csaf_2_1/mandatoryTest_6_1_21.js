@@ -137,4 +137,72 @@ describe('mandatoryTest_6_1_21', function () {
       },
     ])
   })
+
+  const run = (/** @type {Array<[string, string]>} */ history) =>
+    mandatoryTest_6_1_21({
+      document: {
+        tracking: {
+          revision_history: history.map(([date, number]) => ({
+            date: `2026-${date}T10:00:00.000Z`,
+            number,
+          })),
+        },
+      },
+    })
+
+  it('bounds the number of errors for extreme minor and patch numbers', function () {
+    for (const last of ['1.1000000.0', '1.0.99999999']) {
+      const result = run([
+        ['01-01', '1.0.0'],
+        ['01-02', last],
+      ])
+      expect(result.isValid).to.equal(false)
+      expect(result.errors.length).to.be.at.most(101)
+    }
+  })
+
+  it('bounds the number of errors for extreme major numbers', function () {
+    const result = run([
+      ['01-01', '1'],
+      ['01-02', '99999999'],
+    ])
+    expect(result.errors.length).to.be.at.most(101)
+  })
+
+  it('ignores values that are neither integers nor valid semver in the minor/patch check', function () {
+    for (const invalid of ['1.3', 'foo.9', '1.2.3.4']) {
+      const result = run([
+        ['01-01', '1.0.0'],
+        ['01-02', invalid],
+      ])
+      expect(result.errors, invalid).to.deep.equal([])
+    }
+  })
+
+  it('does not report the same version twice', function () {
+    const result = run([
+      ['01-01', '1.0.0'],
+      ['01-02', '3.0.1'],
+      ['01-03', '4'],
+      ['01-04', '1'],
+      ['01-05', '3.1.2'],
+    ])
+    const versions = result.errors.map(({ message }) => message.split('`')[1])
+    expect(new Set(versions).size).to.equal(versions.length)
+  })
+
+  it('reports each missing minor and patch version once (1.0.0 -> 1.2.3)', function () {
+    const result = run([
+      ['01-01', '1.0.0'],
+      ['01-02', '1.2.3'],
+    ])
+    const between =
+      'between `2026-01-01T10:00:00.000Z` and `2026-01-02T10:00:00.000Z`'
+    expect(result.errors).to.deep.equal(
+      ['1.1.0', '1.2.0', '1.2.1', '1.2.2'].map((version) => ({
+        instancePath: '/document/tracking/revision_history',
+        message: `missing revision history item with number \`${version}\` ${between}`,
+      }))
+    )
+  })
 })
