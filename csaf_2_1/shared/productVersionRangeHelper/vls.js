@@ -59,8 +59,10 @@ export function isSingleVersionRange(range) {
     constraints = match[1]
   }
   try {
-    return vlsLib?.Vls.parse(constraints).isSingleVersion() ?? false
-  } catch {
+    vlsLib?.Vls.parse(constraints).free()
     return false
+  } catch (error) {
+    // the library only exposes the message of its "SingleVersionNotAllowed" error
+    return error instanceof Error && /single version/i.test(error.message)
   }
 }
