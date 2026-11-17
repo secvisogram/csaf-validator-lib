@@ -350,23 +350,7 @@ The following tests are not yet implemented and therefore missing:
 **Mandatory Tests**
 
 - Mandatory Test 6.1.27.13
-- Mandatory Test 6.1.48
 - Mandatory Test 6.1.50
-- Mandatory Test 6.1.59
-- Mandatory Test 6.1.60.2
-- Mandatory Test 6.1.60.3
-- Mandatory Test 6.1.63
-- Mandatory Test 6.1.64.2
-- Mandatory Test 6.1.64.4
-- Mandatory Test 6.1.64.5
-- Mandatory Test 6.1.64.6
-- Mandatory Test 6.1.64.7
-- Mandatory Test 6.1.64.8
-- Mandatory Test 6.1.64.11
-- Mandatory Test 6.1.64.12
-- Mandatory Test 6.1.65.1
-- Mandatory Test 6.1.65.2
-- Mandatory Test 6.1.66
 
 **Recommended Tests**
 
@@ -382,12 +366,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
 - Recommended Test 6.2.54.4
-- Recommended Test 6.2.56.1
-- Recommended Test 6.2.56.2
-- Recommended Test 6.2.56.3
-- Recommended Test 6.2.56.4
-- Recommended Test 6.2.56.5
-- Recommended Test 6.2.57
 
 **Informative Tests**
 
@@ -401,10 +379,6 @@ The following tests are not yet implemented and therefore missing:
 - Informative Test 6.3.19.5
 - Informative Test 6.3.21.2
 - Informative Test 6.3.25
-- Informative Test 6.3.26.1
-- Informative Test 6.3.26.2
-- Informative Test 6.3.26.3
-- Informative Test 6.3.26.4
 
 #### Module `csaf_2_1/schemaTests.js`
 
@@ -484,6 +458,7 @@ export const mandatoryTest_6_1_44: DocumentTest
 export const mandatoryTest_6_1_45: DocumentTest
 export const mandatoryTest_6_1_46: DocumentTest
 export const mandatoryTest_6_1_47: DocumentTest
+export const mandatoryTest_6_1_48: DocumentTest
 export const mandatoryTest_6_1_49: DocumentTest
 export const mandatoryTest_6_1_51: DocumentTest
 export const mandatoryTest_6_1_52: DocumentTest
@@ -492,14 +467,27 @@ export const mandatoryTest_6_1_55: DocumentTest
 export const mandatoryTest_6_1_56: DocumentTest
 export const mandatoryTest_6_1_57: DocumentTest
 export const mandatoryTest_6_1_58: DocumentTest
+export const mandatoryTest_6_1_59: DocumentTest
 export const mandatoryTest_6_1_61: DocumentTest
 export const mandatoryTest_6_1_60_1: DocumentTest
 export const mandatoryTest_6_1_62: DocumentTest
+export const mandatoryTest_6_1_63: DocumentTest
 export const mandatoryTest_6_1_64_1: DocumentTest
+export const mandatoryTest_6_1_64_2: DocumentTest
 export const mandatoryTest_6_1_64_3: DocumentTest
+export const mandatoryTest_6_1_64_4: DocumentTest
+export const mandatoryTest_6_1_64_5: DocumentTest
+export const mandatoryTest_6_1_64_6: DocumentTest
+export const mandatoryTest_6_1_64_7: DocumentTest
+export const mandatoryTest_6_1_64_8: DocumentTest
 export const mandatoryTest_6_1_64_9: DocumentTest
 export const mandatoryTest_6_1_64_10: DocumentTest
+export const mandatoryTest_6_1_64_11: DocumentTest
+export const mandatoryTest_6_1_64_12: DocumentTest
 export const mandatoryTest_6_1_64_13: DocumentTest
+export const mandatoryTest_6_1_65_1: DocumentTest
+export const mandatoryTest_6_1_65_2: DocumentTest
+export const mandatoryTest_6_1_66: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -566,6 +554,12 @@ export const recommendedTest_6_2_50_1: DocumentTest
 export const recommendedTest_6_2_52: DocumentTest
 export const recommendedTest_6_2_53: DocumentTest
 export const recommendedTest_6_2_54_3: DocumentTest
+export const recommendedTest_6_2_56_1: DocumentTest
+export const recommendedTest_6_2_56_2: DocumentTest
+export const recommendedTest_6_2_56_3: DocumentTest
+export const recommendedTest_6_2_56_4: DocumentTest
+export const recommendedTest_6_2_56_5: DocumentTest
+export const recommendedTest_6_2_57: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
@@ -601,6 +595,10 @@ export const informativeTest_6_3_22: DocumentTest
 export const informativeTest_6_3_23_1: DocumentTest
 export const informativeTest_6_3_23_2: DocumentTest
 export const informativeTest_6_3_24: DocumentTest
+export const informativeTest_6_3_26_1: DocumentTest
+export const informativeTest_6_3_26_2: DocumentTest
+export const informativeTest_6_3_26_3: DocumentTest
+export const informativeTest_6_3_26_4: DocumentTest
 ```
 
 [(back to top)](#bsi-csaf-validator-lib)
