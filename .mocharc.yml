@@ -1,0 +1,2 @@
+node-option:
+  - "experimental-wasm-modules"
