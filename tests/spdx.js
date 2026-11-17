@@ -3,12 +3,9 @@ import { parse } from '#lib/spdx/spdx.js'
 describe('spdx/parse()', () => {
   it('can parse', () => {
     expect(
-      parse(`
-        GPL-2.0 AND MIT
-          OR FOO WITH DocumentRef-something:AdditionRef-something
-          OR GPL-1.0 WITH MIT
-          OR LicenseRef-something
-      `)
+      parse(
+        'GPL-2.0 AND MIT OR FOO WITH DocumentRef-something:AdditionRef-something OR GPL-1.0 WITH MIT OR LicenseRef-something'
+      )
     ).to.deep.equal({
       left: {
         left: {
@@ -301,49 +298,10 @@ describe('spdx/parse()', () => {
     })
   })
 
-  it('allows mixed-case `and`, `or`, and `with`', function () {
-    const variants = [
-      'MIT and BSD-3-Clause OR GPL-2.0 with GCC-exception-2.0',
-      'MIT AND BSD-3-Clause or GPL-2.0 WITH GCC-exception-2.0',
-      'MIT and BSD-3-Clause or GPL-2.0 with GCC-exception-2.0',
-    ]
-    const result = {
-      left: {
-        left: {
-          type: 'SIMPLE_EXPRESSION',
-          value: {
-            type: 'LICENSE',
-            value: 'MIT',
-          },
-          with: null,
-        },
-        right: {
-          type: 'SIMPLE_EXPRESSION',
-          value: {
-            type: 'LICENSE',
-            value: 'BSD-3-Clause',
-          },
-          with: null,
-        },
-        type: 'AND_EXPRESSION',
-      },
-      right: {
-        type: 'SIMPLE_EXPRESSION',
-        value: {
-          type: 'LICENSE',
-          value: 'GPL-2.0',
-        },
-        with: {
-          type: 'EXCEPTION',
-          value: 'GCC-exception-2.0',
-        },
-      },
-      type: 'OR_EXPRESSION',
-    }
-
-    for (const variant of variants) {
-      expect(parse(variant)).to.deep.equal(result)
-    }
+  it('requires uppercase SPDX operators', function () {
+    expect(() => parse('MIT and BSD-3-Clause')).to.throw(SyntaxError)
+    expect(() => parse('MIT or BSD-3-Clause')).to.throw(SyntaxError)
+    expect(() => parse('MIT with GCC-exception-2.0')).to.throw(SyntaxError)
   })
 
   it('parses license-, document- and additional refs case insensitively', () => {
@@ -407,8 +365,15 @@ describe('spdx/parse()', () => {
     expect(() => parse('MIT ORClasspath-exception-2.0')).to.throw(SyntaxError)
   })
 
-  it('parses AND chains that mix upper- and lower-case keywords', () => {
-    expect(parse('MIT AND BSD-3-Clause and CC-BY-4.0')).to.deep.equal({
+  it('requires exactly one ASCII space around expression operators', () => {
+    expect(() => parse('MIT WITH  GCC-exception-2.0')).to.throw(SyntaxError)
+    expect(() => parse('MIT  AND BSD-3-Clause')).to.throw(SyntaxError)
+    expect(() => parse('MIT AND  BSD-3-Clause')).to.throw(SyntaxError)
+    expect(() => parse('MIT\tOR BSD-3-Clause')).to.throw(SyntaxError)
+  })
+
+  it('parses AND chains with uppercase keywords', () => {
+    expect(parse('MIT AND BSD-3-Clause AND CC-BY-4.0')).to.deep.equal({
       type: 'AND_EXPRESSION',
       left: {
         type: 'AND_EXPRESSION',
@@ -431,8 +396,8 @@ describe('spdx/parse()', () => {
     })
   })
 
-  it('parses OR chains that mix upper- and lower-case keywords', () => {
-    expect(parse('MIT OR BSD-3-Clause or CC-BY-4.0')).to.deep.equal({
+  it('parses OR chains with uppercase keywords', () => {
+    expect(parse('MIT OR BSD-3-Clause OR CC-BY-4.0')).to.deep.equal({
       type: 'OR_EXPRESSION',
       left: {
         type: 'OR_EXPRESSION',
