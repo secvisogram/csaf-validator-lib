@@ -1,5 +1,6 @@
 import isBrowserRuntime from '../../../shared/isBrowserRuntime.js'
 import {
+  createVersOverlapChecker,
   initVers,
   isValidVers,
   versRangesOverlap,
@@ -66,12 +67,51 @@ describe.skipIf(isBrowserRuntime)('versRangesOverlap', function () {
     )
   })
 
-  it('returns false if a version cannot be probed', function () {
+  it('detects overlaps for large patch numbers', function () {
     expect(
       versRangesOverlap(
         'vers:semver/>1.0.0',
         'vers:semver/>1.0.18446744073709551615'
       )
-    ).to.equal(false)
+    ).to.equal(true)
+  })
+
+  it('handles ranges with any number of components and schemes', function () {
+    /** @type {[string, string, boolean][]} */
+    const cases = [
+      ['vers:intdot/>1|<3', 'vers:intdot/>2|<4', true],
+      ['vers:intdot/>1.0|<3.0', 'vers:intdot/>2.0|<4.0', true],
+      ['vers:intdot/>1.0.0|<3.0.0', 'vers:intdot/>2.0.0|<4.0.0', true],
+      ['vers:intdot/>1.0.0.0|<1.0.0.5', 'vers:intdot/>1.0.0.2|<1.0.0.9', true],
+      ['vers:intdot/>1.0|<2.0', 'vers:intdot/>3.0|<4.0', false],
+      ['vers:intdot/<2.0', 'vers:intdot/>=2.0', false],
+      ['vers:semver/>1.0.0|<3.0.0', 'vers:semver/>2.0.0|<4.0.0', true],
+      ['vers:npm/>1.0.0|<3.0.0', 'vers:npm/>2.0.0|<4.0.0', true],
+      ['vers:cargo/>1.0.0|<3.0.0', 'vers:cargo/>2.0.0|<4.0.0', true],
+      ['vers:deb/>1.0|<3.0', 'vers:deb/>2.0|<4.0', true],
+      ['vers:deb/>1:1.0-1|<1:3.0-1', 'vers:deb/>1:2.0-1|<1:4.0-1', true],
+      ['vers:deb/>1.0-1|<3.0-1', 'vers:deb/>2.0-1|<4.0-1', true],
+    ]
+    for (const [a, b, expected] of cases) {
+      expect(versRangesOverlap(a, b), `${a} ${b}`).to.equal(expected)
+    }
+  })
+
+  it('createVersOverlapChecker is symmetric and consistent', function () {
+    const overlaps = createVersOverlapChecker()
+    /** @type {[string, string, boolean][]} */
+    const cases = [
+      ['vers:semver/>1.0.0|<3.0.0', 'vers:semver/>2.0.0|<4.0.0', true],
+      ['vers:semver/<1.0.0', 'vers:semver/>2.0.0', false],
+      ['vers:semver/*', 'vers:npm/1.0.0', false],
+      ['vers:semver/>%', 'vers:semver/1.0.0', false],
+    ]
+    for (const [a, b, expected] of cases) {
+      for (let i = 0; i < 2; i++) {
+        expect(overlaps(a, b), `${a} ${b}`).to.equal(expected)
+        expect(overlaps(b, a), `${b} ${a}`).to.equal(expected)
+        expect(versRangesOverlap(a, b)).to.equal(expected)
+      }
+    }
   })
 })
