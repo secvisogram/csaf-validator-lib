@@ -1,5 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import { isValidVls } from './vlsFormat.js'
+import { isValidVls } from './vls.js'
 
 const ajv = new Ajv()
 

@@ -22,6 +22,23 @@ export async function initVls() {
 }
 
 /**
+ * Checks whether a product version range is well-formed "vls". Requires that
+ * `initVls` has been awaited before.
+ *
+ * @param {string} range
+ * @returns {boolean}
+ */
+export function isValidVls(range) {
+  if (!vlsLib) throw new Error('initVls() must be awaited first')
+  try {
+    vlsLib.Vls.parse(range).free()
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
  * @returns {Promise<typeof import('@csaf-rs/vers-like-specifier')>}
  */
 async function load() {
@@ -58,8 +75,9 @@ export function isSingleVersionRange(range) {
     if (!match) return false
     constraints = match[1]
   }
+  if (!vlsLib) throw new Error('initVls() must be awaited first')
   try {
-    vlsLib?.Vls.parse(constraints).free()
+    vlsLib.Vls.parse(constraints).free()
     return false
   } catch (error) {
     // the library only exposes the message of its "SingleVersionNotAllowed" error

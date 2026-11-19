@@ -7,11 +7,8 @@ import {
   filterLeaf,
   filterVls,
 } from '../shared/productVersionRangeHelper/productVersionRange.js'
-import {
-  initVls,
-  isValidVls,
-} from '../shared/productVersionRangeHelper/vlsFormat.js'
-import { vlsRangesOverlap } from '../shared/productVersionRangeHelper/vlsRangesOverlap.js'
+import { initVls, isValidVls } from '../shared/productVersionRangeHelper/vls.js'
+import { createVlsOverlapChecker } from '../shared/productVersionRangeHelper/vlsRangesOverlap.js'
 
 const ajv = new Ajv()
 
@@ -80,11 +77,29 @@ export async function recommendedTest_6_2_50_2(doc) {
     return ctx
   }
 
+  const ctpvrsByProductId = collectCtpvrsByProductId(doc.product_tree?.branches)
+  if (ctpvrsByProductId.size === 0 || !doc.vulnerabilities?.length) {
+    return ctx
+  }
+
   await initVls()
 
-  const ctpvrsByProductId = collectCtpvrsByProductId(doc.product_tree?.branches)
+  // Shared across vulnerabilities so each range and range pair is evaluated
+  // only once.
+  const vlsRangesOverlap = createVlsOverlapChecker()
+  /** @type {Map<string, boolean>} */
+  const validCache = new Map()
+  /** @param {string} range */
+  const isValid = (range) => {
+    let result = validCache.get(range)
+    if (result === undefined) {
+      result = isValidVls(range)
+      validCache.set(range, result)
+    }
+    return result
+  }
 
-  doc.vulnerabilities?.forEach((vulnerability) => {
+  doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     const productStatus = vulnerability.product_status
     if (!productStatus) return
 
@@ -98,7 +113,7 @@ export async function recommendedTest_6_2_50_2(doc) {
     for (const [productId, groups] of productStatusGroupsByProductId) {
       for (const productCtpvr of ctpvrsByProductId.get(productId) ?? []) {
         const rangeName = productCtpvr.ctpvr.name
-        if (rangeName === undefined || !isValidVls(rangeName)) {
+        if (rangeName === undefined || !isValid(rangeName)) {
           continue
         }
 
@@ -126,7 +141,7 @@ export async function recommendedTest_6_2_50_2(doc) {
           reportedPairs.add(pair)
 
           ctx.warnings.push({
-            instancePath: productCtpvr.instancePath,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/product_status`,
             message:
               `Product version range "${rangeName}" of ${productId} overlaps ` +
               `with "${sibling.name}" of ${sibling.productId}, which belongs ` +

@@ -1,3 +1,4 @@
+const PRERELEASE_SUFFIX = /\d[-.+][a-z]/i
 const CONSTRAINT = /^(<=|>=|!=|<|>|=)?\s*([^<>=!|*\s]+)$/
 
 /**
@@ -26,19 +27,19 @@ function parseVls(range) {
 }
 
 /**
- * Best-effort comparison of two versions of unknown scheme. Versions are
- * split into numeric and alphabetic segments. Numeric segments are compared
- * numerically, alphabetic ones lexicographically (case-insensitive). A
- * missing numeric segment counts as `0`, a missing segment compared to an
- * alphabetic one is smaller (`10.9` < `10.9a`).
+ * Best-effort comparison of versions of unknown scheme. Numeric segments
+ * compare numerically, alphabetic ones case-insensitively. A missing segment
+ * counts as `0`, or as smaller than an alphabetic one (`10.9` < `10.9a`).
+ * Prerelease-like versions (`2.0.0-rc1`) are not comparable.
  *
  * @param {string} a
  * @param {string} b
  * @returns {number | undefined} `undefined` if the versions are not comparable
  */
 function compareVersions(a, b) {
-  const segmentsA = a.match(/\d+|[a-z]+/gi) ?? []
-  const segmentsB = b.match(/\d+|[a-z]+/gi) ?? []
+  if (PRERELEASE_SUFFIX.test(a) || PRERELEASE_SUFFIX.test(b)) return undefined
+  const segmentsA = Array.from(a.matchAll(/\d+|[a-z]+/gi), (m) => m[0])
+  const segmentsB = Array.from(b.matchAll(/\d+|[a-z]+/gi), (m) => m[0])
   const length = Math.max(segmentsA.length, segmentsB.length)
 
   for (let i = 0; i < length; i++) {
@@ -53,7 +54,8 @@ function compareVersions(a, b) {
 
     let result
     if (numericA) {
-      result = Math.sign(Number(segmentA ?? 0) - Number(segmentB ?? 0))
+      const diff = BigInt(segmentA ?? 0) - BigInt(segmentB ?? 0)
+      result = diff < 0n ? -1 : diff > 0n ? 1 : 0
     } else {
       const lowerA = segmentA.toLowerCase()
       const lowerB = segmentB.toLowerCase()
@@ -185,4 +187,24 @@ export function vlsRangesOverlap(a, b) {
     }
   }
   return false
+}
+
+/**
+ * Creates a memoized version of {@link vlsRangesOverlap}. The result is
+ * symmetric, so a pair is cached regardless of argument order.
+ *
+ * @returns {(a: string, b: string) => boolean}
+ */
+export function createVlsOverlapChecker() {
+  /** @type {Map<string, boolean>} */
+  const cache = new Map()
+  return (a, b) => {
+    const key = a < b ? `${a}\u0000${b}` : `${b}\u0000${a}`
+    let result = cache.get(key)
+    if (result === undefined) {
+      result = vlsRangesOverlap(a, b)
+      cache.set(key, result)
+    }
+    return result
+  }
 }

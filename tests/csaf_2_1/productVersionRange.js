@@ -7,8 +7,12 @@ import {
   isLeaf,
   isPvrss,
   isPvss,
+  isVersFormat,
 } from '../../csaf_2_1/shared/productVersionRangeHelper/productVersionRange.js'
-import { initVls } from '../../csaf_2_1/shared/productVersionRangeHelper/vlsFormat.js'
+import {
+  initVls,
+  isSingleVersionRange,
+} from '../../csaf_2_1/shared/productVersionRangeHelper/vls.js'
 
 /**
  * @param {Partial<import('../../csaf_2_1/shared/productVersionRangeHelper/productVersionRange.js').Sibling>} overrides
@@ -85,5 +89,32 @@ describe('productVersionRange helper', function () {
       '<9',
     ])
     expect(collectCtpvrsByProductId(undefined).size).to.equal(0)
+  })
+})
+
+describe('isSingleVersionRange', function () {
+  beforeAll(async function () {
+    await initVls()
+  })
+
+  it('detects a single version', function () {
+    expect(isSingleVersionRange('1.0.0')).to.equal(true)
+    expect(isSingleVersionRange('vers:semver/1.0.0')).to.equal(true)
+  })
+
+  it('does not report ranges as single version', function () {
+    expect(isSingleVersionRange('>=1.0.0|<2.0.0')).to.equal(false)
+  })
+
+  it('does not report invalid input as single version', function () {
+    expect(isSingleVersionRange('>>>')).to.equal(false)
+    expect(isSingleVersionRange('vers:semver')).to.equal(false)
+  })
+})
+
+describe('isVersFormat', function () {
+  it('detects the vers prefix', function () {
+    expect(isVersFormat(' vers:semver/>1.0.0')).to.equal(true)
+    expect(isVersFormat('>1.0.0|<2.0.0')).to.equal(false)
   })
 })

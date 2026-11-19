@@ -8,7 +8,7 @@ describe('recommendedTest_6_2_50_2', function () {
     expect(result.warnings.length).to.equal(0)
   })
 
-  it('skips documents not matching the input schema', async function () {
+  it('skips documents with invalid branch names', async function () {
     const result = await recommendedTest_6_2_50_2({
       product_tree: {
         branches: [
@@ -141,8 +141,28 @@ describe('recommendedTest_6_2_50_2', function () {
     })
     expect(result.warnings).to.have.length(1)
     expect(result.warnings[0].instancePath).to.equal(
-      '/product_tree/branches/0/branches/0/product'
+      '/vulnerabilities/0/product_status'
     )
+  })
+
+  it('skips vulnerabilities without product status', async function () {
+    const result = await recommendedTest_6_2_50_2({
+      ...vendor([leaf('>1|<5', 'A'), leaf('>3|<7', 'B')]),
+      vulnerabilities: [{}],
+    })
+    expect(result.warnings).to.have.length(0)
+  })
+
+  it('reports the same pair per vulnerability', async function () {
+    const status = { known_affected: ['A'], known_not_affected: ['B'] }
+    const result = await recommendedTest_6_2_50_2({
+      ...vendor([leaf('>1|<5', 'A'), leaf('>3|<7', 'B')]),
+      vulnerabilities: [{ product_status: status }, { product_status: status }],
+    })
+    expect(result.warnings.map((w) => w.instancePath)).to.deep.equal([
+      '/vulnerabilities/0/product_status',
+      '/vulnerabilities/1/product_status',
+    ])
   })
 
   it('considers all groups of a product', async function () {
@@ -179,7 +199,85 @@ describe('recommendedTest_6_2_50_2', function () {
     })
     expect(result.warnings).to.have.length(1)
     expect(result.warnings[0].instancePath).to.equal(
-      '/product_tree/branches/0/branches/0/branches/0/product'
+      '/vulnerabilities/0/product_status'
     )
+  })
+
+  it('does not compare a product with itself', async function () {
+    const result = await recommendedTest_6_2_50_2({
+      ...vendor([leaf('>1|<5', 'A'), leaf('>3|<7', 'A')]),
+      vulnerabilities: [
+        { product_status: { known_affected: ['A'], fixed: ['A'] } },
+      ],
+    })
+    expect(result.warnings).to.have.length(0)
+  })
+
+  it('ignores a CTPVR that is not a valid vls', async function () {
+    for (const range of ['=1.0', '>=1|<=1']) {
+      const result = await recommendedTest_6_2_50_2({
+        ...vendor([leaf(range, 'A'), leaf('>=1|<=1.5', 'B')]),
+        vulnerabilities: [
+          {
+            product_status: {
+              known_affected: ['A'],
+              known_not_affected: ['B'],
+            },
+          },
+        ],
+      })
+      // only B (valid) is checked, A is skipped as a CTPVR and as a sibling
+      expect(result.warnings, range).to.have.length(0)
+    }
+  })
+
+  it('ignores product_version siblings with a vls-looking name', async function () {
+    const result = await recommendedTest_6_2_50_2({
+      ...vendor([
+        leaf('>1|<5', 'A'),
+        {
+          category: 'product_version',
+          name: '>3|<7',
+          product: { name: 'B', product_id: 'B' },
+        },
+      ]),
+      vulnerabilities: [
+        {
+          product_status: { known_affected: ['A'], known_not_affected: ['B'] },
+        },
+      ],
+    })
+    expect(result.warnings).to.have.length(0)
+  })
+
+  it('ignores siblings that are not leaves', async function () {
+    const result = await recommendedTest_6_2_50_2({
+      ...vendor([
+        leaf('>1|<5', 'A'),
+        {
+          category: 'product_version_range',
+          name: '>3|<7',
+          branches: [{ category: 'architecture', name: 'x86', branches: [] }],
+        },
+      ]),
+      vulnerabilities: [
+        {
+          product_status: { known_affected: ['A'], known_not_affected: ['B'] },
+        },
+      ],
+    })
+    expect(result.warnings).to.have.length(0)
+  })
+
+  it('does not report ranges that are not comparable (prereleases)', async function () {
+    const result = await recommendedTest_6_2_50_2({
+      ...vendor([leaf('>=1|<2', 'A'), leaf('>=1.5.0-rc1|<3', 'B')]),
+      vulnerabilities: [
+        {
+          product_status: { known_affected: ['A'], known_not_affected: ['B'] },
+        },
+      ],
+    })
+    expect(result.warnings).to.have.length(0)
   })
 })

@@ -1,7 +1,7 @@
 import {
   initVls,
   isValidVls,
-} from '../../csaf_2_1/shared/productVersionRangeHelper/vlsFormat.js'
+} from '../../csaf_2_1/shared/productVersionRangeHelper/vls.js'
 import { vlsRangesOverlap } from '../../csaf_2_1/shared/productVersionRangeHelper/vlsRangesOverlap.js'
 
 beforeAll(async function () {
@@ -24,6 +24,11 @@ describe('vlsRangesOverlap', function () {
     ['<2', '<=1.9', true],
     ['1.0.0|1.1.0', '1.1.0', true],
     ['1.0.0|1.1.0', '1.2.0', false],
+    [
+      '>=12345678901234567891|<=12345678901234567893',
+      '12345678901234567890',
+      false,
+    ],
     ['>10.9a|!=10.9c|<=10.9k', '10.9c', false],
     ['>10.9a|!=10.9c|<=10.9k', '10.9b', true],
     ['<2024-4-pabc0019', '>2024-10-pefd0010', false],
@@ -37,6 +42,10 @@ describe('vlsRangesOverlap', function () {
     ['vers:semver/>1.0.0', '>1', false],
     ['>1', 'vers:semver/>1.0.0', false],
     ['<1.0', '>=1.0-rc1', false],
+    ['<2.0.0-rc1', '>=2.0.0', false],
+    ['>=1.0.0-beta|<1.0.0', '>=5.0|<6.0', false],
+    ['>=1.0.0-rc1|<1.0.0', '>=0.1|<0.5', false],
+    ['>=2.0.0-beta|<2.0.0', '>=2.0.0|<3.0.0', false],
   ]
 
   for (const [a, b, expected] of cases) {
@@ -52,7 +61,17 @@ describe('vlsRangesOverlap', function () {
     for (const valid of ['>2.1.0|<4.2.0', '1.0|1.1', '<=2', '>10.9a|!=10.9c']) {
       expect(isValidVls(valid), valid).to.equal(true)
     }
-    for (const invalid of ['*', '>1||', 'vers:npm', '', '>', '<=|>1']) {
+    for (const invalid of [
+      '*',
+      '>1||',
+      'vers:npm',
+      '',
+      '>',
+      '<=|>1',
+      '=1.0',
+      '>=1|<=1',
+      '1.0.0',
+    ]) {
       expect(isValidVls(invalid), invalid).to.equal(false)
     }
   })
