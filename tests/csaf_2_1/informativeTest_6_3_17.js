@@ -1,3 +1,4 @@
+import { exceptions, licenses } from '@secvisogram/license-deprecation-list'
 import { informativeTest_6_3_17 } from '../../csaf_2_1/informativeTests.js'
 
 /** @param {string} license_expression */
@@ -66,6 +67,41 @@ describe('informativeTest_6_3_17', function () {
     ).to.equal(1)
     expect(run('MIT WITH Custom-Unknown-Exception').length).to.equal(1)
     expect(run('GPL-2.0 OR LGPL-2.1').length).to.equal(0)
+  })
+
+  it('treats deprecated identifiers of every kind as listed', function () {
+    /**
+     * @param {Map<string, import('@secvisogram/license-deprecation-list').LicenseEntry>} map
+     * @param {string} source
+     */
+    const deprecatedKey = (map, source) => {
+      for (const [key, entry] of map) {
+        if (
+          entry.is_deprecated &&
+          entry.source === source &&
+          /^[A-Za-z0-9.+-]+$/.test(key)
+        ) {
+          return key
+        }
+      }
+      throw new Error(`no deprecated ${source} entry found`)
+    }
+
+    const spdxLicense = deprecatedKey(licenses, 'spdx')
+    const aboutCodeLicense = deprecatedKey(licenses, 'aboutCode')
+    const spdxException = deprecatedKey(exceptions, 'spdx')
+    const aboutCodeException = deprecatedKey(exceptions, 'aboutCode')
+
+    expect(run(spdxLicense), spdxLicense).to.eql([])
+    expect(
+      run(`LicenseRef-scancode-${aboutCodeLicense}`),
+      aboutCodeLicense
+    ).to.eql([])
+    expect(run(`MIT WITH ${spdxException}`), spdxException).to.eql([])
+    expect(
+      run(`MIT WITH AdditionRef-scancode-${aboutCodeException}`),
+      aboutCodeException
+    ).to.eql([])
   })
 
   it('skips invalid SPDX expressions', function () {
