@@ -92,22 +92,33 @@ export function isValidVers(range) {
   return parseVers(range) !== undefined
 }
 
+/** Schemes whose versions follow MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]. */
+const SEMVER_LIKE_SCHEMES = new Set(['semver', 'npm', 'cargo', 'dart'])
+
 /**
- * Returns a version that is greater than Version but smaller than any
- * other version that is greater than Version and appears as a boundary
- * in a range, so that it represents the gap behind Version.
+ * Candidates for dotted numeric versions (e.g. 1.2.3): the next value of the
+ * last component and a version with an additional, tiny component.
  *
- * @param {string} scheme
  * @param {string} version
  * @returns {string[]}
  */
-function successor(scheme, version) {
-  if (scheme === 'deb') return [`${version}+`]
-  if (scheme === 'intdot') {
-    const parts = version.split('.')
-    const last = String(BigInt(parts[parts.length - 1]) + 1n)
-    return [[...parts.slice(0, -1), last].join('.'), `${version}.0.1`]
-  }
+function dottedSuccessor(version) {
+  const parts = version.split('.')
+  const lastPart = parts[parts.length - 1]
+  if (!/^\d+$/.test(lastPart)) return [`${version}.0`, `${version}.0.1`]
+  const last = String(BigInt(lastPart) + 1n)
+  return [[...parts.slice(0, -1), last].join('.'), `${version}.0.1`]
+}
+
+/**
+ * For semver, cargo, npm and dart, returns versions that are greater than `version` but smaller than any other
+ * version that is greater than `version` and appears as a boundary in a range,
+ * so that they represent the gap behind `version`.
+ *
+ * @param {string} version
+ * @returns {string[]}
+ */
+function semverSuccessor(version) {
   const core = version.split('+')[0]
   if (core.includes('-')) return [`${core}.0`]
   const [major, minor, patch] = core.split('.')
@@ -118,13 +129,131 @@ function successor(scheme, version) {
 }
 
 /**
- * Returns a version that is smaller than every other version.
+ * Returns versions that are greater than `version` but smaller than any other
+ * version that is greater than `version` and appears as a boundary in a range,
+ * so that they represent the gap behind `version`. Returns an empty array for
+ * schemes without such a version.
  *
  * @param {string} scheme
+ * @param {string} version
+ * @returns {string[]}
  */
-function lowest(scheme) {
-  if (scheme === 'deb') return '0~'
-  return scheme === 'intdot' ? '0' : '0.0.0-0'
+export function successor(scheme, version) {
+  switch (scheme) {
+    case 'deb':
+      // dpkg splits at the last hyphen, so any hyphen means a revision is
+      // present. An empty revision equals "0". Appending "A~" yields a version
+      // above `version` that sorts below every "A", "+", "." or digit suffix.
+      return version.includes('-')
+        ? [`${version}A~`, `${version}+`]
+        : [`${version}-0A~`, `${version}+`]
+    case 'alpm':
+    case 'rpm': {
+      // rpmvercmp: a version with additional segments is newer
+      return [`${version}.0`, `${version}a`, `${version}^`]
+    }
+    case 'apk': {
+      const revision = /^(.*)-r(\d+)$/.exec(version)
+      return revision
+        ? [`${revision[1]}-r${BigInt(revision[2]) + 1n}`, `${version}_p1`]
+        : [`${version}-r1`, `${version}_p1`]
+    }
+    case 'cpan': {
+      if (/^v?\d+(\.\d+){2,}$/.test(version)) return dottedSuccessor(version)
+      // decimal version: appending a digit yields a slightly bigger number
+      return version.includes('.')
+        ? [`${version}1`, `${version}001`]
+        : [`${version}.000001`, `${version}.001`]
+    }
+    case 'composer':
+    case 'hackage':
+    case 'intdot':
+    case 'generic':
+      return dottedSuccessor(version)
+    case 'gem':
+      return /^\d+(\.\d+)*$/.test(version)
+        ? dottedSuccessor(version)
+        : [`${version}.0.1`, `${version}.1`]
+    case 'maven':
+      return [...dottedSuccessor(version), `${version}-sp`]
+    case 'pypi': {
+      // PEP 440: post-releases are above the release, dev-releases below
+      // the next release
+      const result = [`${version}.post0`, `${version}.post1`]
+      if (/^\d+(\.\d+)*$/.test(version)) {
+        const [next] = dottedSuccessor(version)
+        result.push(`${next}.dev0`)
+      }
+      return result
+    }
+    case 'golang': {
+      const prefix = version.startsWith('v') ? 'v' : ''
+      return semverSuccessor(version.slice(prefix.length)).map(
+        (v) => `${prefix}${v}`
+      )
+    }
+    case 'nuget': {
+      const core = version.split('+')[0].split('-')[0]
+      return core.split('.').length === 3
+        ? semverSuccessor(version)
+        : [...dottedSuccessor(version.split('+')[0]), `${version}.0`]
+    }
+    case 'datetime': {
+      const time = Date.parse(version)
+      if (Number.isNaN(time)) return []
+      return [1, 1000].map((ms) => new Date(time + ms).toISOString())
+    }
+    case 'lexicographic':
+      return [`${version}\u0000`]
+    case 'all':
+    case 'none':
+      return []
+    default:
+      return SEMVER_LIKE_SCHEMES.has(scheme) ? semverSuccessor(version) : []
+  }
+}
+
+/**
+ * Returns a version that is smaller than every other version, or `undefined`
+ * if the scheme has no versions or is unknown.
+ *
+ * @param {string} scheme
+ * @returns {string | undefined}
+ */
+export function lowest(scheme) {
+  switch (scheme) {
+    case 'deb':
+      return '0~'
+    case 'alpm':
+    case 'cpan':
+    case 'generic':
+    case 'hackage':
+    case 'intdot':
+      return '0'
+    case 'rpm':
+      return '~'
+    case 'apk':
+      return '0_alpha'
+    case 'composer':
+      return '0-dev'
+    case 'dart':
+    case 'nuget':
+      return '0.0.0-0'
+    case 'gem':
+      return '0.a'
+    case 'golang':
+      return 'v0.0.0-0'
+    case 'maven':
+      return '0-alpha'
+    case 'pypi':
+      return '0.dev0'
+    case 'datetime':
+      return '0000-01-01T00:00:00.000Z'
+    case 'lexicographic':
+      return ''
+    default:
+      return SEMVER_LIKE_SCHEMES.has(scheme) ? '0.0.0-0' : undefined
+  }
 }
 
 /**
@@ -213,8 +342,9 @@ function computeOverlap(a, b, contains) {
   const boundaries = [...rangeA.constraints, ...rangeB.constraints].map(
     (c) => c.version
   )
+  const start = lowest(scheme)
   const candidates = new Set([
-    lowest(scheme),
+    ...(start === undefined ? [] : [start]),
     ...boundaries.flatMap((version) => {
       try {
         return [version, ...successor(scheme, version)]

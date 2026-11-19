@@ -90,7 +90,7 @@ export async function recommendedTest_6_2_50_1(doc) {
   // Shared across vulnerabilities so each range pair is evaluated only once.
   const versRangesOverlap = createVersOverlapChecker()
 
-  doc.vulnerabilities?.forEach((vulnerability) => {
+  doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
     const productStatus = vulnerability.product_status
     if (!productStatus) return
 
@@ -132,7 +132,7 @@ export async function recommendedTest_6_2_50_1(doc) {
           reportedPairs.add(pair)
 
           ctx.warnings.push({
-            instancePath: productCtpvr.instancePath,
+            instancePath: `/vulnerabilities/${vulnerabilityIndex}/product_status`,
             message:
               `Product version range "${rangeName}" of ${productId} overlaps ` +
               `with "${sibling.name}" of ${sibling.productId}, which belongs ` +

@@ -151,7 +151,7 @@ describe.skipIf(isBrowserRuntime)('recommendedTest_6_2_50_1', function () {
     })
     expect(result.warnings).to.have.length(1)
     expect(result.warnings[0].instancePath).to.equal(
-      '/product_tree/branches/0/branches/0/product'
+      '/vulnerabilities/0/product_status'
     )
   })
 
@@ -192,7 +192,7 @@ describe.skipIf(isBrowserRuntime)('recommendedTest_6_2_50_1', function () {
     })
     expect(result.warnings).to.have.length(1)
     expect(result.warnings[0].instancePath).to.equal(
-      '/product_tree/branches/0/branches/0/branches/0/product'
+      '/vulnerabilities/0/product_status'
     )
   })
 
@@ -210,8 +210,63 @@ describe.skipIf(isBrowserRuntime)('recommendedTest_6_2_50_1', function () {
       ],
     })
     expect(result.warnings.map((w) => w.instancePath)).to.deep.equal([
-      '/product_tree/branches/0/branches/0/product',
-      '/product_tree/branches/0/branches/0/product',
+      '/vulnerabilities/1/product_status',
+      '/vulnerabilities/2/product_status',
+    ])
+  })
+
+  it('does not compare a product with itself', async function () {
+    const result = await recommendedTest_6_2_50_1({
+      ...vendor([
+        leaf('vers:semver/>1.0.0|<5.0.0', 'A'),
+        leaf('vers:semver/>3.0.0|<7.0.0', 'A'),
+      ]),
+      vulnerabilities: [
+        { product_status: { known_affected: ['A'], fixed: ['A'] } },
+      ],
+    })
+    expect(result.warnings).to.have.length(0)
+  })
+
+  it('ignores product_version siblings with a vers-looking name', async function () {
+    const result = await recommendedTest_6_2_50_1({
+      ...vendor([
+        leaf('vers:semver/>1.0.0|<5.0.0', 'A'),
+        {
+          category: 'product_version',
+          name: 'vers:semver/>3.0.0|<7.0.0',
+          product: { name: 'B', product_id: 'B' },
+        },
+      ]),
+      vulnerabilities: [
+        {
+          product_status: { known_affected: ['A'], known_not_affected: ['B'] },
+        },
+      ],
+    })
+    expect(result.warnings).to.have.length(0)
+  })
+
+  it('does not treat siblings with branches as leaf siblings', async function () {
+    const result = await recommendedTest_6_2_50_1({
+      ...vendor([
+        leaf('vers:semver/>1.0.0|<5.0.0', 'A'),
+        {
+          category: 'product_version_range',
+          name: 'vers:semver/>3.0.0|<7.0.0',
+          product: { name: 'B', product_id: 'B' },
+          branches: [{ category: 'architecture', name: 'x86', branches: [] }],
+        },
+      ]),
+      vulnerabilities: [
+        {
+          product_status: { known_affected: ['A'], known_not_affected: ['B'] },
+        },
+      ],
+    })
+    // only B, as CTPVR, finds A; A does not find B as it is not a leaf sibling
+    expect(result.warnings.map((w) => w.instancePath)).to.deep.equal([
+      '/vulnerabilities/0/product_status',
     ])
   })
 })
