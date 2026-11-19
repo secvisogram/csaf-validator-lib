@@ -90,7 +90,7 @@ export async function recommendedTest_6_2_50_1(doc) {
   // Shared across vulnerabilities so each range pair is evaluated only once.
   const versRangesOverlap = createVersOverlapChecker()
 
-  doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
+  doc.vulnerabilities.forEach((vulnerability, vulnerabilityIndex) => {
     const productStatus = vulnerability.product_status
     if (!productStatus) return
 
