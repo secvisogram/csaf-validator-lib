@@ -1,5 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
-import { isValidVers } from './versRangesOverlap.js'
+import { isValidVls } from './vls.js'
 
 const ajv = new Ajv()
 
@@ -142,16 +142,14 @@ export function filterLeaf(siblings) {
 }
 
 /**
- * Keeps only siblings whose name is a valid `vers` range.
+ * Keeps only siblings whose name is a valid legacy "vls" range.
  *
  * @param {Sibling[]} siblings leaf siblings
  * @returns {Array<{ productId: string; name: string }>}
  */
-export function filterVers(siblings) {
+export function filterVls(siblings) {
   return siblings.flatMap((sibling) =>
-    sibling.name !== undefined &&
-    isVersFormat(sibling.name) &&
-    isValidVers(sibling.name)
+    sibling.name !== undefined && isValidVls(sibling.name)
       ? [
           {
             productId: /** @type {string} */ (sibling.productId),
