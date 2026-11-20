@@ -56,6 +56,8 @@ export {
   recommendedTest_6_2_47,
   recommendedTest_6_2_48,
   recommendedTest_6_2_49,
+  recommendedTest_6_2_50_1,
+  recommendedTest_6_2_50_2,
   recommendedTest_6_2_52,
   recommendedTest_6_2_53,
   recommendedTest_6_2_54_3,
@@ -79,6 +81,7 @@ export {
   informativeTest_6_3_12,
   informativeTest_6_3_14,
   informativeTest_6_3_15,
+  informativeTest_6_3_17,
   informativeTest_6_3_18,
   informativeTest_6_3_20,
   informativeTest_6_3_21_1,
@@ -96,4 +99,5 @@ export {
   informativeTest_6_3_26_1,
   informativeTest_6_3_26_2,
   informativeTest_6_3_26_3,
+  informativeTest_6_3_26_4,
 } from './informativeTests.js'

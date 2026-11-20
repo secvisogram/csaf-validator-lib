@@ -102,3 +102,22 @@ readDecisionPoints().then((points) => {
     }
   })
 })
+const points = await readDecisionPoints()
+points.sort((a, b) => {
+  const nsCompare = (a.namespace ?? '').localeCompare(b.namespace ?? '')
+  if (nsCompare !== 0) return nsCompare
+  const keyCompare = (a.key ?? '').localeCompare(b.key ?? '')
+  if (keyCompare !== 0) return keyCompare
+  return (a.version ?? '').localeCompare(b.version ?? '')
+})
+console.log(`Loaded ${points.length} decision points.`)
+const pointsJson =
+  'export default ' + JSON.stringify({ decisionPoints: points })
+await writeFile(
+  OUTPUT_FILE,
+  await prettier.format(pointsJson, {
+    ...(await prettier.resolveConfig(OUTPUT_FILE)),
+    filepath: OUTPUT_FILE,
+  })
+)
+console.log(`Written to ${OUTPUT_FILE}`)
