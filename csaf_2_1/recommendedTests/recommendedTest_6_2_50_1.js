@@ -3,9 +3,7 @@ import {
   branchSchema,
   collectCtpvrsByProductId,
   collectProductStatusGroupsByProductId,
-  collectPvrss,
-  filterLeaf,
-  filterVers,
+  collectVersLeafPvrss,
 } from '../shared/productVersionRangeHelper/productVersionRange.js'
 import {
   createVersOverlapChecker,
@@ -108,21 +106,25 @@ export async function recommendedTest_6_2_50_1(doc) {
           continue
         }
 
-        // PVRSS+l-vers
-        const versSiblings = filterVers(filterLeaf(collectPvrss(productCtpvr)))
-
-        for (const sibling of versSiblings) {
+        for (const sibling of collectVersLeafPvrss(productCtpvr)) {
           const siblingGroups = productStatusGroupsByProductId.get(
             sibling.productId
           )
           // Siblings that are not referenced in the product status groups are
           // irrelevant. Groups only contradict if they differ.
-          if (siblingGroups === undefined || sibling.productId === productId) {
+          if (
+            siblingGroups === undefined ||
+            sibling.productId === productId ||
+            sibling.sibling === productCtpvr.ctpvr
+          ) {
             continue
           }
-          const contradicting = [...groups].some((group) =>
-            [...siblingGroups].some((other) => other !== group)
-          )
+          // Every product has at least one group, so the groups only fail to
+          // contradict if both are the same single group.
+          const contradicting =
+            groups.size > 1 ||
+            siblingGroups.size > 1 ||
+            !siblingGroups.has(/** @type {string} */ ([...groups][0]))
           if (!contradicting || !versRangesOverlap(rangeName, sibling.name)) {
             continue
           }

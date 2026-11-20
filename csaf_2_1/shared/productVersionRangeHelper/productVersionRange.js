@@ -4,6 +4,9 @@ import { isValidVls } from './vls.js'
 
 const ajv = new Ajv()
 
+/** @type {WeakMap<Sibling[], VersLeafPvrss[]>} */
+const versLeafPvrssBySiblings = new WeakMap()
+
 // Regex to match a Version Range Specifier (VERS)
 export const VERS_PREFIX = new RegExp(
   '^vers:[a-z\\.\\-\\+][a-z0-9\\.\\-\\+]*/.+'
@@ -82,6 +85,8 @@ const validateBranch = ajv.compile(branchSchema)
  *   productId: string | undefined
  * }} Sibling
  *   A branch and its own `product_id` (not the ones of its descendants).
+ *
+ *  @typedef {{ sibling: Sibling; productId: string; name: string }} VersLeafPvrss
  */
 
 /**
@@ -162,6 +167,39 @@ export function filterVers(siblings) {
 }
 
 /**
+ * Gets the `PVRSS+l-vers` siblings (product version range siblings that are
+ * leaves with a valid "vers" range) of a product's `CTPVR`. Equivalent to
+ * `filterVers(filterLeaf(collectPvrss(...)))`, but computed once per sibling
+ * list instead of once per product. The returned array is shared and must not
+ * be modified. Unlike `collectPvrss` it includes the `CTPVR` itself, which
+ * callers skip by comparing `sibling` with `productCtpvr.ctpvr`.
+ *
+ * @param {ProductCtpvr} productCtpvr
+ * @returns {VersLeafPvrss[]}
+ */
+export function collectVersLeafPvrss(productCtpvr) {
+  let all = versLeafPvrssBySiblings.get(productCtpvr.siblings)
+  if (!all) {
+    all = productCtpvr.siblings.flatMap((sibling) =>
+      isPvrss(sibling) &&
+      isLeaf(sibling) &&
+      sibling.name !== undefined &&
+      isValidVers(sibling.name)
+        ? [
+            {
+              sibling,
+              productId: /** @type {string} */ (sibling.productId),
+              name: sibling.name,
+            },
+          ]
+        : []
+    )
+    versLeafPvrssBySiblings.set(productCtpvr.siblings, all)
+  }
+  return all
+}
+
+/**
  * Keeps only siblings whose name is a valid legacy "vls" range.
  *
  * @param {Sibling[]} siblings leaf siblings
@@ -217,7 +255,7 @@ function collectCtpvrsByProductIdRecursive(
 
   branches.forEach((branch, index) => {
     const sibling = siblingsByIndex[index]
-    if (!sibling || !validateBranch(branch)) return
+    if (!sibling) return
     const branchPath = `${basePath}/${index}`
 
     let currentCtpvrs = ctpvrs
