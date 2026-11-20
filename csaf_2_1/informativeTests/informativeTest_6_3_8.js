@@ -59,15 +59,18 @@ const TEXT_PATHS = [
   '/vulnerabilities[]/title',
 ]
 
-const URL_RE = /(https?|ftp):\/\/[^\s/$.?#].[^\s]*/gi
+// Standard dictionaries do not know the name of the standard itself, which
+// also appears as part of the category value "csaf_base".
+const ALLOWED_WORDS = new Set(['CSAF', 'csaf'])
 const HUNSPELL_MISSPELLED_RE = /^[#&] (\S+)/
 
 /**
  * Informative test 6.3.8: Check for spelling mistakes in text fields.
  *
- * For performance, all text fields are collected and split into words first.
- * The unique words of the whole document are then checked with a single
- * hunspell invocation and the result is mapped back to the fields.
+ * All text fields are collected and checked with a single hunspell invocation.
+ * Hunspell does the tokenizing itself (one input line per field), so words
+ * like "wrold.txt" or "Secruity's" are split by its rules. The output has one
+ * block per input line, terminated by a blank line.
  *
  * @param {any} doc
  * @param {object} [params]
@@ -92,15 +95,16 @@ export async function informativeTest_6_3_8(
     typeof lang.langtag.region === 'string' ? `_${lang.langtag.region}` : ''
   }`
 
-  /** @type {Array<{ instancePath: string; words: string[] }>} */
+  /** @type {Array<{ instancePath: string; text: string }>} */
   const fields = []
   /**
    * @param {string} instancePath
    * @param {string} text
    */
   const collect = (instancePath, text) => {
-    const words = segmentText(text, language)
-    if (words.length) fields.push({ instancePath, words })
+    // Newlines would split a field into several hunspell input lines
+    const line = text.replace(/\s+/g, ' ').trim()
+    if (line) fields.push({ instancePath, text: line })
   }
 
   for (const path of TEXT_PATHS) {
@@ -112,8 +116,6 @@ export async function informativeTest_6_3_8(
     collect('/document/category', doc.document.category)
   }
 
-  const uniqueWords = new Set(fields.flatMap((f) => f.words))
-
   /** @type {string} */
   let output
   try {
@@ -121,7 +123,7 @@ export async function informativeTest_6_3_8(
     // prefix stops hunspell from interpreting a word as a pipe-mode command.
     output = await params.hunspell({
       dictionary,
-      input: [...uniqueWords].map((w) => `^${w}`).join('\n'),
+      input: fields.map((f) => `^${f.text}`).join('\n'),
     })
   } catch (e) {
     if (/** @type {any} */ (e)?.code === 'ENOENT') {
@@ -138,56 +140,38 @@ export async function informativeTest_6_3_8(
     return ctx
   }
 
-  const misspelled = new Set()
-  for (const line of output.split('\n').slice(1)) {
+  // Skip the version header; each input line yields one block of result lines
+  // terminated by a blank line.
+  const blocks = output.split(/\r?\n/).slice(1)
+  let fieldIndex = 0
+  /** @type {Set<string>} */
+  let mistakes = new Set()
+  for (const line of blocks) {
+    if (line === '') {
+      const field = fields[fieldIndex++]
+      if (field && mistakes.size) {
+        ctx.infos.push({
+          instancePath: field.instancePath,
+          message: `there are spelling mistakes in: ${[...mistakes].join(
+            ', '
+          )}`,
+        })
+      }
+      mistakes = new Set()
+      continue
+    }
     if (!line.startsWith('# ') && !line.startsWith('& ')) continue
     const match = HUNSPELL_MISSPELLED_RE.exec(line)
     if (!match) {
+      ctx.infos.length = 0
       ctx.infos.push({
         instancePath: '/document/lang',
         message: 'Error while parsing hunspell output',
       })
       return ctx
     }
-    misspelled.add(match[1])
-  }
-
-  for (const { instancePath, words } of fields) {
-    const mistakes = [...new Set(words.filter((w) => misspelled.has(w)))]
-    if (mistakes.length) {
-      ctx.infos.push({
-        instancePath,
-        message: `there are spelling mistakes in: ${mistakes.join(', ')}`,
-      })
-    }
+    if (!ALLOWED_WORDS.has(match[1])) mistakes.add(match[1])
   }
 
   return ctx
-}
-
-/**
- * Split a text into words. URLs are kept as whole tokens.
- * @param {string} text
- * @param {string} language
- * @returns {string[]}
- */
-function segmentText(text, language) {
-  const urls = text.match(URL_RE) ?? []
-  const words = []
-  for (const s of getSegmenter(language).segment(text.replace(URL_RE, ' '))) {
-    if (s.isWordLike) words.push(s.segment)
-  }
-  return [...words, ...urls]
-}
-
-/** @type {Map<string, Intl.Segmenter>} */
-const segmenters = new Map()
-/** @param {string} language */
-function getSegmenter(language) {
-  let segmenter = segmenters.get(language)
-  if (!segmenter) {
-    segmenter = new Intl.Segmenter(language, { granularity: 'word' })
-    segmenters.set(language, segmenter)
-  }
-  return segmenter
 }

@@ -1,4 +1,5 @@
 import { informativeTest_6_3_8 } from '../../csaf_2_1/informativeTests/informativeTest_6_3_8.js'
+import isBrowserRuntime from '../shared/isBrowserRuntime.js'
 
 describe('informativeTest_6_3_8', function () {
   it('only runs on relevant documents', async function () {
@@ -6,11 +7,11 @@ describe('informativeTest_6_3_8', function () {
     expect(result.infos.length).to.equal(0)
   })
 
-  it('does not collect text fields without words', async function () {
+  it('does not collect empty text fields', async function () {
     /** @type {string[]} */
     const inputs = []
     const result = await informativeTest_6_3_8(
-      { document: { lang: 'en', title: '!!! --- ...', notes: [{ text: '' }] } },
+      { document: { lang: 'en', title: ' \n ', notes: [{ text: '' }] } },
       {
         hunspell: async ({ input }) => {
           inputs.push(input)
@@ -57,7 +58,7 @@ describe('informativeTest_6_3_8', function () {
       {
         document: {
           lang: 'en-US',
-          category: 'csaf_base',
+          title: 'Hello',
         },
       },
       {
@@ -76,7 +77,7 @@ describe('informativeTest_6_3_8', function () {
       {
         document: {
           lang: 'en',
-          category: 'csaf_base',
+          title: 'Hello',
         },
       },
       {
@@ -109,7 +110,7 @@ describe('informativeTest_6_3_8', function () {
     ])
   })
 
-  it('calls hunspell once per document with unique words and maps results to fields', async function () {
+  it('calls hunspell once per document with one line per field and maps blocks to fields', async function () {
     /** @type {string[]} */
     const inputs = []
     const result = await informativeTest_6_3_8(
@@ -117,7 +118,7 @@ describe('informativeTest_6_3_8', function () {
         document: {
           lang: 'en',
           title: 'Helo world',
-          notes: [{ text: 'world see https://example.com/a?b=1 wrold' }],
+          notes: [{ text: 'world see\nhttps://example.com/a?b=1 wrold' }],
         },
         product_tree: {
           branches: [{ name: 'wrold', branches: [{ name: 'fine' }] }],
@@ -126,14 +127,30 @@ describe('informativeTest_6_3_8', function () {
       {
         hunspell: async ({ input }) => {
           inputs.push(input)
-          return 'Hunspell v1\n\n& Helo 1 0: Hello\n\n# wrold 0\n\n'
+          return [
+            'Hunspell v1',
+            '& wrold 1 0: world',
+            '*',
+            '',
+            '& Helo 1 0: Hello',
+            '*',
+            '',
+            '# wrold 0',
+            '',
+            '*',
+            '',
+            '',
+          ].join('\n')
         },
       }
     )
     expect(inputs.length).to.equal(1)
-    const words = inputs[0].split('\n')
-    expect(words.length).to.equal(new Set(words).size)
-    expect(words).to.include('^https://example.com/a?b=1')
+    expect(inputs[0].split('\n')).to.deep.equal([
+      '^world see https://example.com/a?b=1 wrold',
+      '^Helo world',
+      '^wrold',
+      '^fine',
+    ])
     expect(result.infos).to.deep.equal([
       {
         instancePath: '/document/notes/0/text',
@@ -148,6 +165,94 @@ describe('informativeTest_6_3_8', function () {
         message: 'there are spelling mistakes in: wrold',
       },
     ])
+  })
+
+  it('reports each distinct word of a field once and handles CRLF output', async function () {
+    const result = await informativeTest_6_3_8(
+      { document: { lang: 'en', title: "Secruity's wrold.txt wrold" } },
+      {
+        hunspell: async () =>
+          'Hunspell v1\r\n& Secruity 1 0: Security\r\n& wrold 1 0: world\r\n& txt 1 0: text\r\n& wrold 1 0: world\r\n\r\n',
+      }
+    )
+    expect(result.infos).to.deep.equal([
+      {
+        instancePath: '/document/title',
+        message: 'there are spelling mistakes in: Secruity, wrold, txt',
+      },
+    ])
+  })
+
+  it('never reports CSAF or csaf, e.g. from the category csaf_base', async function () {
+    /** @type {string[]} */
+    const inputs = []
+    const result = await informativeTest_6_3_8(
+      {
+        document: { lang: 'en', category: 'csaf_base', title: 'CSAF wrold' },
+      },
+      {
+        hunspell: async ({ input }) => {
+          inputs.push(input)
+          return [
+            'Hunspell v1',
+            '& CSAF 1 0: USAF',
+            '& wrold 1 0: world',
+            '',
+            '& csaf 1 0: USAF',
+            '*',
+            '',
+            '',
+          ].join('\n')
+        },
+      }
+    )
+    expect(inputs[0].split('\n')).to.deep.equal(['^CSAF wrold', '^csaf_base'])
+    expect(result.infos).to.deep.equal([
+      {
+        instancePath: '/document/title',
+        message: 'there are spelling mistakes in: wrold',
+      },
+    ])
+  })
+
+  it('does not check categories other than csaf_base', async function () {
+    /** @type {string[]} */
+    const inputs = []
+    await informativeTest_6_3_8(
+      { document: { lang: 'en', category: 'csaf_vex' } },
+      {
+        hunspell: async ({ input }) => {
+          inputs.push(input)
+          return 'Hunspell v1\n\n'
+        },
+      }
+    )
+    expect(inputs).to.deep.equal([''])
+  })
+
+  it('does not report csaf_base with the real hunspell', async function (ctx) {
+    if (isBrowserRuntime) ctx.skip()
+    const result = await informativeTest_6_3_8({
+      document: { lang: 'en', category: 'csaf_base' },
+    })
+    if (result.infos[0]?.message.includes('not available')) ctx.skip()
+    expect(result.infos).to.deep.equal([])
+  })
+
+  it('reports misspelled parts of words with internal punctuation (real hunspell)', async function (ctx) {
+    if (isBrowserRuntime) ctx.skip()
+    const result = await informativeTest_6_3_8({
+      document: {
+        lang: 'en-US',
+        title: "Secruity's wrold.txt and snake_wrod at https://example.com",
+      },
+    })
+    if (result.infos[0]?.message.includes('not available')) ctx.skip()
+    expect(result.infos).to.have.length(1)
+    expect(result.infos[0].message).to.contain('Secruity')
+    expect(result.infos[0].message).to.contain('wrold')
+    expect(result.infos[0].message).to.contain('wrod')
+    expect(result.infos[0].message).to.not.contain('example')
   })
 
   it('does not reject even with the real hunspell process when the dictionary is unknown', async function () {
