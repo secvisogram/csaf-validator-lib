@@ -1,4 +1,5 @@
 import { Ajv } from 'ajv/dist/jtd.js'
+import { isValidVers } from './versRangesOverlap.js'
 import { isValidVls } from './vls.js'
 
 const ajv = new Ajv()
@@ -139,6 +140,25 @@ export function collectPvrss(productCtpvr) {
  */
 export function filterLeaf(siblings) {
   return siblings.filter(isLeaf)
+}
+
+/**
+ * Keeps only siblings whose name is a valid "vers" range.
+ *
+ * @param {Sibling[]} siblings leaf siblings
+ * @returns {Array<{ productId: string; name: string }>}
+ */
+export function filterVers(siblings) {
+  return siblings.flatMap((sibling) =>
+    sibling.name !== undefined && isValidVers(sibling.name)
+      ? [
+          {
+            productId: /** @type {string} */ (sibling.productId),
+            name: sibling.name,
+          },
+        ]
+      : []
+  )
 }
 
 /**
