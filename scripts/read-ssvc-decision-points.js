@@ -2,9 +2,10 @@
  * Script to read all SSVC decision points from github and create a json File with all defined decision points
  */
 
-import fs from 'node:fs'
+import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import prettier from 'prettier'
 import { registeredSsvcNamespaces } from '../csaf_2_1/shared/ssvcNamespaces.js'
 
 const SSVC_DECISION_POINTS_PATH = 'data/json/decision_points'
@@ -82,26 +83,6 @@ async function readDecisionPoints() {
   return result
 }
 
-readDecisionPoints().then((points) => {
-  points.sort((a, b) => {
-    const nsCompare = (a.namespace ?? '').localeCompare(b.namespace ?? '')
-    if (nsCompare !== 0) return nsCompare
-    const keyCompare = (a.key ?? '').localeCompare(b.key ?? '')
-    if (keyCompare !== 0) return keyCompare
-    return (a.version ?? '').localeCompare(b.version ?? '')
-  })
-  console.log(`Loaded ${points.length} decision points.`)
-  const pointsObject = { decisionPoints: points }
-  const pointsJson = 'export default ' + JSON.stringify(pointsObject, null, 2)
-  fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true })
-  fs.writeFile(OUTPUT_FILE, pointsJson, (err) => {
-    if (err) {
-      console.log(err)
-    } else {
-      console.log(`Written to ${OUTPUT_FILE}`)
-    }
-  })
-})
 const points = await readDecisionPoints()
 points.sort((a, b) => {
   const nsCompare = (a.namespace ?? '').localeCompare(b.namespace ?? '')
@@ -113,6 +94,7 @@ points.sort((a, b) => {
 console.log(`Loaded ${points.length} decision points.`)
 const pointsJson =
   'export default ' + JSON.stringify({ decisionPoints: points })
+await mkdir(path.dirname(OUTPUT_FILE), { recursive: true })
 await writeFile(
   OUTPUT_FILE,
   await prettier.format(pointsJson, {
