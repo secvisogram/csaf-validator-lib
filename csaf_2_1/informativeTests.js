@@ -1,7 +1,6 @@
 export {
   informativeTest_6_3_3,
   informativeTest_6_3_7,
-  informativeTest_6_3_8,
   informativeTest_6_3_9,
   informativeTest_6_3_10,
 } from '../informativeTests.js'
@@ -10,6 +9,7 @@ export { informativeTest_6_3_2 } from './informativeTests/informativeTest_6_3_2.
 export { informativeTest_6_3_4 } from './informativeTests/informativeTest_6_3_4.js'
 export { informativeTest_6_3_5 } from './informativeTests/informativeTest_6_3_5.js'
 export { informativeTest_6_3_6 } from './informativeTests/informativeTest_6_3_6.js'
+export { informativeTest_6_3_8 } from './informativeTests/informativeTest_6_3_8.js'
 export { informativeTest_6_3_11 } from './informativeTests/informativeTest_6_3_11.js'
 export { informativeTest_6_3_12 } from './informativeTests/informativeTest_6_3_12.js'
 export { informativeTest_6_3_14 } from './informativeTests/informativeTest_6_3_14.js'
