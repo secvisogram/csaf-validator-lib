@@ -149,7 +149,7 @@
   "devDependencies": {
     "@types/json-pointer": "^1.0.31",
     "@types/lodash": "^4.14.195",
-    "@types/node": "^24.1.0",
+    "@types/node": "^26.6.5",
     "@types/prettier": "^2.7.3",
     "@types/semver": "^7.5.0",
     "@types/xml2js": "^0.4.11",
