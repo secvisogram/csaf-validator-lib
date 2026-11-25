@@ -1,3 +1,4 @@
+import { toTime } from '@secvisogram/is-leap-second'
 import { Temporal } from 'temporal-polyfill'
 
 /**
@@ -14,6 +15,21 @@ export const compareZonedDateTimes = (a, b) => {
     return duration.sign
   } catch (e) {
     return 0
+  }
+}
+
+/**
+ * Converts a timestamp to a string that is equal for equal points in time
+ * (leap-second aware). Values that can't be parsed are returned unchanged.
+ *
+ * @param {string} timestamp
+ */
+export const toTimeKey = (timestamp) => {
+  try {
+    const time = toTime(timestamp)
+    return time === null ? timestamp : time.toString()
+  } catch (e) {
+    return timestamp
   }
 }
 
