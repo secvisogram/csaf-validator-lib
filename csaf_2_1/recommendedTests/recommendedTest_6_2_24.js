@@ -72,10 +72,15 @@ function getSortedCwecReleases() {
     const releases = []
     for (const [version, load] of cwecMap) {
       const date = (await load()).default.date
+      // Catalogue dates are day-granular; they are interpreted as the start of that day (UTC)
       releases.push([version, localDateToTimeZonedDate(date)])
     }
     return releases.sort((a, b) => compareZonedDateTimes(b[1], a[1]))
   })()
+  // do not cache a failed load, so later calls can retry
+  sortedCwecReleases.catch(() => {
+    sortedCwecReleases = undefined
+  })
   return sortedCwecReleases
 }
 
@@ -124,7 +129,7 @@ export async function recommendedTest_6_2_24(doc) {
                 compareZonedDateTimes(
                   currentReleaseDate,
                   zonedCweReleaseDateNewer
-                ) > 0
+                ) >= 0
               ) {
                 context.warnings.push({
                   instancePath: `/vulnerabilities/${i}/cwes/${j}/version`,

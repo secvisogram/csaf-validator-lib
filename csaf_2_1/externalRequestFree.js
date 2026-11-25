@@ -22,6 +22,7 @@ export {
   recommendedTest_6_2_21,
   recommendedTest_6_2_22,
   recommendedTest_6_2_23,
+  recommendedTest_6_2_24,
   recommendedTest_6_2_25,
   recommendedTest_6_2_26,
   recommendedTest_6_2_27,
