@@ -3,7 +3,7 @@ import { parse } from '#lib/spdx/spdx.js'
 import { exceptions, licenses } from '@secvisogram/license-deprecation-list'
 /** @typedef {import('@secvisogram/license-deprecation-list').LicenseEntry} LicenseEntry */
 import {
-  containsOneNoteWithTitleAndCategory,
+  checkNoteWithTitleAndCategory,
   getTranslationInDocumentLang,
   isLangSpecifiedAndNotEnglish,
 } from '../../lib/shared/languageSpecificTranslation.js'
@@ -227,24 +227,33 @@ export function recommendedTest_6_2_46(doc) {
 
     const notListedLicenses = getNotListedLicenses(licenseToCheck)
     if (notListedLicenses.length > 0) {
-      const notes = doc.document.notes
-      if (
-        !notes ||
-        !containsOneNoteWithTitleAndCategory(
-          notes,
-          licenseInDocLang,
-          'legal_disclaimer'
-        )
-      ) {
+      const notListedMessage =
+        `The license_expression contains the following license identifiers that ` +
+        `are not listed in AboutCode or SPDX license list: ` +
+        `"${notListedLicenses.join(', ')}". `
+      const result = checkNoteWithTitleAndCategory(
+        doc.document.notes ?? [],
+        licenseInDocLang,
+        'legal_disclaimer'
+      )
+      if (result.status === 'notExactlyOne') {
         ctx.warnings.push({
           instancePath: '/document/notes',
           message:
-            `The license_expression contains contains the following license identifiers that ` +
-            `are nor listed in AboutCode or SPDX license list: ` +
-            `"${notListedLicenses.join(', ')}". ` +
+            notListedMessage +
             `Therefore exactly one note with ` +
-            `title "License" and category "legal_disclaimer" must exist`,
+            `title "${licenseInDocLang}" and category "legal_disclaimer" must exist`,
         })
+      } else if (result.status === 'wrongCategory') {
+        for (const index of result.wrongCategoryIndexes) {
+          ctx.warnings.push({
+            instancePath: `/document/notes/${index}/category`,
+            message:
+              notListedMessage +
+              `Therefore the note with title "${licenseInDocLang}" ` +
+              `must have the category "legal_disclaimer"`,
+          })
+        }
       }
     }
   }

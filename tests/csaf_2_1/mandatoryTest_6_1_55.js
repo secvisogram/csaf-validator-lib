@@ -9,6 +9,73 @@ describe('mandatoryTest_6_1_55', function () {
     expect(mandatoryTest_6_1_55({ document: 'mydoc' }).isValid).to.be.true
   })
 
+  describe('license note', function () {
+    const baseDoc = {
+      license_expression: 'Invalid-license-expression',
+    }
+    const prefix =
+      'The license_expression contains the following license identifiers that are not listed in Aboutcode\'s or SPDX license list: "Invalid-license-expression". '
+
+    it('reports a missing note', function () {
+      const result = mandatoryTest_6_1_55({ document: { ...baseDoc } })
+      expect(result.isValid).to.be.false
+      expect(result.errors).to.eql([
+        {
+          instancePath: '/document/notes',
+          message:
+            prefix +
+            'Therefore exactly one note with title "License" and category "legal_disclaimer" must exist',
+        },
+      ])
+    })
+
+    it('reports a note with the right title but wrong category separately', function () {
+      const result = mandatoryTest_6_1_55({
+        document: {
+          ...baseDoc,
+          notes: [
+            { category: 'description', title: 'Other' },
+            { category: 'general', title: 'License' },
+          ],
+        },
+      })
+      expect(result.isValid).to.be.false
+      expect(result.errors).to.eql([
+        {
+          instancePath: '/document/notes/1/category',
+          message:
+            prefix +
+            'Therefore the note with title "License" must have the category "legal_disclaimer"',
+        },
+      ])
+    })
+
+    it('reports multiple matching notes as not exactly one', function () {
+      const result = mandatoryTest_6_1_55({
+        document: {
+          ...baseDoc,
+          notes: [
+            { category: 'legal_disclaimer', title: 'License' },
+            { category: 'legal_disclaimer', title: 'License' },
+          ],
+        },
+      })
+      expect(result.errors.map((e) => e.instancePath)).to.eql([
+        '/document/notes',
+      ])
+    })
+
+    it('accepts exactly one note with title and category', function () {
+      const result = mandatoryTest_6_1_55({
+        document: {
+          ...baseDoc,
+          notes: [{ category: 'legal_disclaimer', title: 'License' }],
+        },
+      })
+      expect(result.isValid).to.be.true
+    })
+  })
+
   it('check license expressions', function () {
     expect(getNotListedLicenses(''), 'empty license expression').to.eql([])
     expect(getNotListedLicenses('GPL-3.0+'), 'deprecated license').to.eql([

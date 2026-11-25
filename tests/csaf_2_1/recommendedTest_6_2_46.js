@@ -135,8 +135,55 @@ describe('recommendedTest_6_2_46', function () {
       {
         instancePath: '/document/notes',
         message:
-          'The license_expression contains contains the following license identifiers that are nor listed in AboutCode or SPDX license list: "Invalid-license-expression". Therefore exactly one note with title "License" and category "legal_disclaimer" must exist',
+          'The license_expression contains the following license identifiers that are not listed in AboutCode or SPDX license list: "Invalid-license-expression". Therefore exactly one note with title "Lizenz" and category "legal_disclaimer" must exist',
       },
     ])
+  })
+
+  it('reports a note with the right title but wrong category separately', function () {
+    expect(
+      recommendedTest_6_2_46({
+        document: {
+          lang: 'de',
+          license_expression: 'Invalid-license-expression',
+          notes: [
+            { category: 'description', title: 'Other' },
+            { category: 'general', title: 'Lizenz' },
+          ],
+        },
+      }).warnings
+    ).to.eql([
+      {
+        instancePath: '/document/notes/1/category',
+        message:
+          'The license_expression contains the following license identifiers that are not listed in AboutCode or SPDX license list: "Invalid-license-expression". Therefore the note with title "Lizenz" must have the category "legal_disclaimer"',
+      },
+    ])
+  })
+
+  it('reports multiple matching notes as not exactly one', function () {
+    const warnings = recommendedTest_6_2_46({
+      document: {
+        lang: 'de',
+        license_expression: 'Invalid-license-expression',
+        notes: [
+          { category: 'legal_disclaimer', title: 'Lizenz' },
+          { category: 'legal_disclaimer', title: 'Lizenz' },
+        ],
+      },
+    }).warnings
+    expect(warnings.map((w) => w.instancePath)).to.eql(['/document/notes'])
+  })
+
+  it('accepts exactly one note with title and category', function () {
+    expect(
+      recommendedTest_6_2_46({
+        document: {
+          lang: 'de',
+          license_expression: 'Invalid-license-expression',
+          notes: [{ category: 'legal_disclaimer', title: 'Lizenz' }],
+        },
+      }).warnings
+    ).to.eql([])
   })
 })
