@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { playwright } from '@vitest/browser-playwright'
+import wasmPlugin from 'vite-plugin-wasm'
 
 // The OASIS fixture-driven tests (tests/oasis.js, tests/csaf_2_1/oasis.js) run
 // informativeTest_6_3_8 without a hunspell mock, so they exercise the real
@@ -13,6 +14,12 @@ const hunspellEnv = {
   ),
 }
 
+// The package's types are CJS-flavoured under nodenext and mistype the
+// default export; at runtime it is the plugin factory function.
+const wasm = /** @type {() => import('vite').PluginOption} */ (
+  /** @type {unknown} */ (wasmPlugin)
+)
+
 export default defineConfig({
   test: {
     projects: [
@@ -21,15 +28,25 @@ export default defineConfig({
           name: 'node',
           environment: 'node',
           globals: true,
-          include: ['tests/*.js', 'tests/csaf_2_1/*.js'],
+          include: [
+            'tests/*.js',
+            'tests/csaf_2_1/*.js',
+            'tests/csaf_2_1/shared/productVersionRangeHelper/*.js',
+          ],
           env: hunspellEnv,
         },
       },
       {
+        plugins: [wasm()],
+        optimizeDeps: { exclude: ['@csaf-rs/vers-rs'] },
         test: {
           name: 'browser',
           globals: true,
-          include: ['tests/*.js', 'tests/csaf_2_1/*.js'],
+          include: [
+            'tests/*.js',
+            'tests/csaf_2_1/*.js',
+            'tests/csaf_2_1/shared/productVersionRangeHelper/*.js',
+          ],
           // Only genuinely Node-only test content: `undici`'s `MockAgent`-based
           // network mocking. The other Node-only content (real `hunspell` CLI
           // in the OASIS 6.3.8 branches) is skipped at runtime instead, via
