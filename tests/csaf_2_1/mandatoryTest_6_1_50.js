@@ -52,6 +52,27 @@ describe('mandatoryTest_6_1_50', function () {
     expect(result.isValid).to.equal(true)
   })
 
+  it('reports instead of throwing for line breaks in a vers name', async function () {
+    const result = await mandatoryTest_6_1_50(
+      docWith([
+        range('vers:semver/1\n2'),
+        range('vers:foo/1\n2'),
+        range('vers:foo/1\u20282'),
+      ])
+    )
+    expect(result.isValid).to.equal(false)
+    expect(result.errors.length).to.equal(3)
+  })
+
+  it('accepts * for an unknown vers scheme only as the whole list', async function () {
+    expect(
+      (await mandatoryTest_6_1_50(docWith([range('vers:foo/*')]))).isValid
+    ).to.equal(true)
+    expect(
+      (await mandatoryTest_6_1_50(docWith([range('vers:foo/*|<2')]))).isValid
+    ).to.equal(false)
+  })
+
   it('reports the path of nested branches', async function () {
     const result = await mandatoryTest_6_1_50(
       docWith([

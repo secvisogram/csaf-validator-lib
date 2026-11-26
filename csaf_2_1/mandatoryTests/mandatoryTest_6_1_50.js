@@ -43,11 +43,12 @@ const VERS_CONSTRAINT = /^(?:<=|>=|!=|<|>|=)?[^<>=!|*\s]+$/
  * @returns {boolean}
  */
 function isValidVersOfUnknownScheme(range) {
-  // `range` has already been checked with `isVersFormat`, so it always matches
-  const [, scheme, constraints] = /** @type {RegExpExecArray} */ (
-    /^vers:([a-z.+-][a-z0-9.+-]*)\/(.+)$/.exec(range)
-  )
+  const match = /^vers:([a-z.+-][a-z0-9.+-]*)\/(.+)$/.exec(range)
+  if (!match) return false
+  const [, scheme, constraints] = match
   if (isSupportedVersScheme(scheme)) return false
+  // `*` is valid for every scheme, but only as the whole constraint list
+  if (constraints === '*') return true
   return constraints.split('|').every((c) => VERS_CONSTRAINT.test(c))
 }
 
