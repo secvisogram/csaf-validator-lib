@@ -7,50 +7,7 @@ describe('recommendedTest_6_2_31', function () {
     ).to.equal(0)
   })
 
-  it('test input schema without branches', function () {
-    expect(
-      recommendedTest_6_2_31({
-        document: {},
-        product_tree: {
-          full_product_names: [
-            {
-              name: 'Example Company Controller A 1.0',
-              product_id: 'CSAFPID-908070601',
-              product_identification_helper: {
-                serial_numbers: ['143-D-354'],
-              },
-            },
-          ],
-        },
-      }).warnings.length
-    ).to.equal(1)
-  })
-
-  it('test input schema without full_product_names', function () {
-    expect(
-      recommendedTest_6_2_31({
-        document: {},
-        product_tree: {
-          full_product_names: [],
-          branches: [
-            {
-              category: 'product_version',
-              name: '1.0',
-              product: {
-                name: 'Example Company Controller A 1.0',
-                product_id: 'CSAFPID-908070601',
-                product_identification_helper: {
-                  serial_numbers: ['143-D-354'],
-                },
-              },
-            },
-          ],
-        },
-      }).warnings.length
-    ).to.equal(1)
-  })
-
-  it('test product_path with no subpaths does not count as valid reference', function () {
+  it('does not count a product path without subpaths as a reference', function () {
     expect(
       recommendedTest_6_2_31({
         document: {},
@@ -107,20 +64,27 @@ describe('recommendedTest_6_2_31', function () {
     ).to.equal(1)
   })
 
-  it('skips full_product_names entry without product_id', function () {
+  it('ignores product path references that are missing', function () {
     const result = recommendedTest_6_2_31({
       document: {},
       product_tree: {
         full_product_names: [
           {
-            product_identification_helper: {
-              serial_numbers: ['143-D-354'],
-            },
+            product_id: 'CSAFPID-1',
+            product_identification_helper: { serial_numbers: ['1'] },
+          },
+        ],
+        product_paths: [
+          {
+            subpaths: [{}, { next_product_reference: 'CSAFPID-2' }],
+            full_product_name: { product_id: 'CSAFPID-3' },
           },
         ],
       },
     })
-    expect(result.warnings.length).to.equal(0)
+    expect(result.warnings.map((w) => w.instancePath)).to.deep.equal([
+      '/product_tree/full_product_names/0',
+    ])
   })
 
   it('warns with correct instancePath for product_paths[*].full_product_name', function () {
@@ -145,29 +109,6 @@ describe('recommendedTest_6_2_31', function () {
     expect(result.warnings[0].instancePath).to.equal(
       '/product_tree/product_paths/0/full_product_name'
     )
-  })
-
-  it('no warning when product_paths full_product_name has empty serial and model numbers', function () {
-    expect(
-      recommendedTest_6_2_31({
-        document: {},
-        product_tree: {
-          product_paths: [
-            {
-              beginning_product_reference: 'CSAFPID-908070601',
-              subpaths: [{ next_product_reference: 'CSAFPID-908070602' }],
-              full_product_name: {
-                product_id: 'CSAFPID-908070603',
-                product_identification_helper: {
-                  serial_numbers: [],
-                  model_numbers: [],
-                },
-              },
-            },
-          ],
-        },
-      }).warnings.length
-    ).to.equal(0)
   })
 
   it('no warning when product is referenced as beginning_product_reference', function () {

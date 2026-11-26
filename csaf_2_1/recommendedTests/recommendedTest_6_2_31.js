@@ -1,6 +1,8 @@
 import { Ajv } from 'ajv/dist/jtd.js'
 
 const ajv = new Ajv()
+const MESSAGE =
+  'missing product path: product with serial number or model number should be referenced in a product path.'
 
 const productIdentificationHelperSchema = /** @type {const} */ ({
   additionalProperties: true,
@@ -104,27 +106,26 @@ export function recommendedTest_6_2_31(doc) {
     ? doc.product_tree.product_paths
     : []
 
-  // Start the recursive check from the root branches
-  checkBranches(doc.product_tree?.branches ?? [], productPaths, ctx)
+  const referencedIds = collectReferencedIds(productPaths)
 
-  checkFullProductNames(
-    doc.product_tree?.full_product_names ?? [],
-    productPaths,
-    ctx
-  )
+  // Start the recursive check from the root branches
+  checkBranches(doc.product_tree?.branches ?? [], referencedIds, ctx)
+
+  const fullProductNames = doc.product_tree?.full_product_names ?? []
+  fullProductNames.forEach((fullProductName, index) => {
+    if (isUnreferencedHardware(fullProductName, referencedIds)) {
+      ctx.warnings.push({
+        instancePath: `/product_tree/full_product_names/${index}`,
+        message: MESSAGE,
+      })
+    }
+  })
 
   productPaths.forEach((pp, index) => {
-    const fpn = pp?.full_product_name
-    if (!fpn?.product_identification_helper || !fpn.product_id) return
-    const { serial_numbers, model_numbers } = fpn.product_identification_helper
-    if (
-      (serial_numbers?.length || model_numbers?.length) &&
-      !checkProductPath(productPaths, fpn.product_id)
-    ) {
+    if (isUnreferencedHardware(pp?.full_product_name, referencedIds)) {
       ctx.warnings.push({
         instancePath: `/product_tree/product_paths/${index}/full_product_name`,
-        message:
-          'missing product path: product with serial number or model number should be referenced in a product path.',
+        message: MESSAGE,
       })
     }
   })
@@ -133,78 +134,55 @@ export function recommendedTest_6_2_31(doc) {
 }
 
 /**
- * Check full_product_names for serial_numbers or model_numbers
- * @param {FullProductName[]} full_product_names
- * @param {ProductPath[]} productPaths
- * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx
+ * Checks whether a product has serial or model numbers but is not referenced
+ * by any product path. Products without product_id are skipped.
+ * @param {FullProductName | undefined} product
+ * @param {Set<string>} referencedIds
+ * @returns {boolean}
  */
-function checkFullProductNames(full_product_names, productPaths, ctx) {
-  full_product_names.forEach((fullProductName, index) => {
-    if (
-      !fullProductName?.product_identification_helper ||
-      !fullProductName.product_id
-    )
-      return
-    const { serial_numbers, model_numbers } =
-      fullProductName.product_identification_helper
-
-    if (
-      (serial_numbers?.length || model_numbers?.length) &&
-      !checkProductPath(productPaths, fullProductName.product_id)
-    ) {
-      ctx.warnings.push({
-        instancePath: `/product_tree/full_product_names/${index}`,
-        message:
-          'missing product path: product with serial number or model number should be referenced in a product path.',
-      })
-    }
-  })
+function isUnreferencedHardware(product, referencedIds) {
+  if (!product?.product_id || !product.product_identification_helper) {
+    return false
+  }
+  const { serial_numbers, model_numbers } =
+    product.product_identification_helper
+  return (
+    Boolean(serial_numbers?.length || model_numbers?.length) &&
+    !referencedIds.has(product.product_id)
+  )
 }
 
 /**
  * Recursive function to check branches for products with serial_numbers or model_numbers
  * but no corresponding product path.
  * @param {Branch[]} branches - The current level of branches to process.
- * @param {ProductPath[]} productPaths - The product paths array to check against.
+ * @param {Set<string>} referencedIds - Product ids referenced by a product path.
  * @param {{ warnings: Array<{ instancePath: string; message: string }> }} ctx - The context to store warnings.
  * @param {string} [path='/product_tree/branches'] - The current JSON path.
  */
 function checkBranches(
   branches,
-  productPaths,
+  referencedIds,
   ctx,
   path = '/product_tree/branches'
 ) {
   branches?.forEach((branch, branchIndex) => {
-    // Skip invalid branches
+    // Skip invalid branches together with all of their descendants
     if (!validateBranch(branch)) return
 
     const currentPath = `${path}/${branchIndex}`
-    const product = branch.product
 
-    if (product) {
-      if (product.product_id && product.product_identification_helper) {
-        const { serial_numbers, model_numbers } =
-          product.product_identification_helper
-
-        if (
-          (serial_numbers?.length || model_numbers?.length) &&
-          !checkProductPath(productPaths, product.product_id)
-        ) {
-          ctx.warnings.push({
-            instancePath: `${currentPath}/product`,
-            message:
-              'missing product path: product with serial number or model number should be referenced in a product path.',
-          })
-        }
-      }
+    if (isUnreferencedHardware(branch.product, referencedIds)) {
+      ctx.warnings.push({
+        instancePath: `${currentPath}/product`,
+        message: MESSAGE,
+      })
     }
 
-    // Recursively check nested branches
     if (Array.isArray(branch.branches)) {
       checkBranches(
         branch.branches,
-        productPaths,
+        referencedIds,
         ctx,
         `${currentPath}/branches`
       )
@@ -213,24 +191,21 @@ function checkBranches(
 }
 
 /**
- * Check if there is a valid product path referencing the given productId.
- * A product path is valid if it has at least one subpath and the productId
- * matches either the beginning_product_reference or any subpaths[].next_product_reference.
+ * Collects all product ids referenced by a product path. A product path only
+ * counts if it has at least one subpath; the id may be the
+ * beginning_product_reference or any subpaths[].next_product_reference.
  * @param {ProductPath[]} productPaths
- * @param {string} productId
- * @returns {boolean}
+ * @returns {Set<string>}
  */
-function checkProductPath(productPaths, productId) {
-  return productPaths.some((pp) => {
-    const subpaths = pp.subpaths
-    if (!Array.isArray(subpaths) || subpaths.length === 0) {
-      return false
+function collectReferencedIds(productPaths) {
+  const ids = new Set()
+  for (const pp of productPaths) {
+    const subpaths = pp?.subpaths
+    if (!Array.isArray(subpaths) || subpaths.length === 0) continue
+    if (pp.beginning_product_reference) ids.add(pp.beginning_product_reference)
+    for (const sp of subpaths) {
+      if (sp?.next_product_reference) ids.add(sp.next_product_reference)
     }
-
-    if (pp.beginning_product_reference === productId) {
-      return true
-    }
-
-    return subpaths.some((sp) => sp.next_product_reference === productId)
-  })
+  }
+  return ids
 }
