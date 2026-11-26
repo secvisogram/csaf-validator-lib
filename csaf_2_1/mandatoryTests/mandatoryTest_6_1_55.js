@@ -2,6 +2,7 @@ import { Ajv } from 'ajv/dist/jtd.js'
 import { parse } from '#lib/spdx/spdx.js'
 import { exceptions, licenses } from '@secvisogram/license-deprecation-list'
 import { isLangEnglishOrUnspecified } from '../shared/langHelper.js'
+import { checkNoteWithTitleAndCategory } from '../../lib/shared/languageSpecificTranslation.js'
 
 const ajv = new Ajv()
 
@@ -231,19 +232,6 @@ export function getNotListedLicenses(licenseToCheck) {
 }
 
 /**
- * Test whether exactly one item in document notes exists that has the title 'License'. The category of this item MUST be 'legal_disclaimer'.
- * @param {({} & { category?: string | undefined; title?: string | undefined; } & Record<string, unknown>)[]} notes
- * @returns {boolean} True there is exactly one note with title License and category legal_disclaimer
- */
-function containsOneLegalNote(notes) {
-  return (
-    notes.filter(
-      (note) => note.category === 'legal_disclaimer' && note.title === 'License'
-    ).length === 1
-  )
-}
-
-/**
  * It MUST be tested that the license expression is valid.
  *
  * @param {unknown} doc
@@ -267,18 +255,35 @@ export function mandatoryTest_6_1_55(doc) {
   if (isLangEnglishOrUnspecified(doc.document.lang)) {
     const notListedLicenses = getNotListedLicenses(licenseToCheck)
     if (notListedLicenses.length > 0) {
-      const notes = doc.document.notes
-      if (!notes || !containsOneLegalNote(notes)) {
+      const notListedMessage =
+        `The license_expression contains the following license identifiers that ` +
+        `are not listed in Aboutcode's or SPDX license list: ` +
+        `"${notListedLicenses.join(', ')}". `
+      const result = checkNoteWithTitleAndCategory(
+        doc.document.notes ?? [],
+        'License',
+        'legal_disclaimer'
+      )
+      if (result.status === 'notExactlyOne') {
         ctx.isValid = false
         ctx.errors.push({
           instancePath: '/document/notes',
           message:
-            `The license_expression contains the following license identifiers that ` +
-            `are not listed in Aboutcode's or  SPDX license list: ` +
-            `"${notListedLicenses.join(', ')}". ` +
+            notListedMessage +
             `Therefore exactly one note with ` +
             `title "License" and category "legal_disclaimer" must exist`,
         })
+      } else if (result.status === 'wrongCategory') {
+        ctx.isValid = false
+        for (const index of result.wrongCategoryIndexes) {
+          ctx.errors.push({
+            instancePath: `/document/notes/${index}/category`,
+            message:
+              notListedMessage +
+              `Therefore the note with title "License" ` +
+              `must have the category "legal_disclaimer"`,
+          })
+        }
       }
     }
   }
