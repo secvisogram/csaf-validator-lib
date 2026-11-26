@@ -25,27 +25,10 @@ export async function initVers() {
  * @returns {Promise<typeof import('@csaf-rs/vers-rs')>}
  */
 async function load() {
-  if (typeof process === 'undefined' || !process.versions?.node) {
-    return import('@csaf-rs/vers-rs')
-  }
-  // Node.js only supports importing .wasm modules natively since 22.19 / 24.5,
-  // so the module is instantiated manually
-  // @ts-expect-error the package ships no declaration for this internal file
-  const bg = await import('@csaf-rs/vers-rs/vers_rs_bg.js')
-  const { readFile } = await import(
-    /* webpackIgnore: true */ 'node:fs/promises'
-  )
-  const wasmUrl = new URL(
-    'vers_rs_bg.wasm',
-    import.meta.resolve('@csaf-rs/vers-rs')
-  )
-  const { instance } = await WebAssembly.instantiate(await readFile(wasmUrl), {
-    './vers_rs_bg.js': bg,
-  })
-  bg.__wbg_set_wasm(instance.exports)
-  const start = /** @type {() => void} */ (instance.exports.__wbindgen_start)
-  start()
-  return /** @type {typeof import('@csaf-rs/vers-rs')} */ (bg)
+  const lib = await import('@csaf-rs/vers-rs')
+  // the node build initializes itself, the browser build has to be initialized
+  await lib.default()
+  return lib
 }
 
 /**
@@ -257,17 +240,26 @@ export function lowest(scheme) {
 }
 
 /**
- * Checks whether `version` is within `range`. The range is parsed again for
- * each call because `contains` consumes the parsed range.
+ * Determines whether a single version lies within a range in the VERS syntax.
+ * The version is passed as is (no VERS escaping needed). Returns `false` if the
+ * range is not valid VERS or the version cannot be evaluated.
+ *
+ * The range is parsed again for each call because `contains` consumes the
+ * parsed range.
  *
  * @param {string} range
  * @param {string} version
+ * @returns {boolean}
  */
-function inRange(range, version) {
-  return /** @type {typeof import('@csaf-rs/vers-rs')} */ (versRs).contains(
-    /** @type {any} */ (versRs?.parse(range.trim())),
-    version
-  )
+export function versRangeContainsVersion(range, version) {
+  try {
+    return /** @type {typeof import('@csaf-rs/vers-rs')} */ (versRs).contains(
+      /** @type {any} */ (versRs?.parse(range.trim())),
+      version.trim()
+    )
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -305,11 +297,7 @@ export function createVersOverlapChecker() {
     }
     let result = byVersion.get(version)
     if (result === undefined) {
-      try {
-        result = inRange(range, version)
-      } catch {
-        result = false
-      }
+      result = versRangeContainsVersion(range, version)
       byVersion.set(version, result)
     }
     return result
@@ -368,11 +356,5 @@ function computeOverlap(a, b, contains) {
  * @returns {boolean}
  */
 export function versRangesOverlap(a, b) {
-  return computeOverlap(a, b, (range, version) => {
-    try {
-      return inRange(range, version)
-    } catch {
-      return false
-    }
-  })
+  return computeOverlap(a, b, versRangeContainsVersion)
 }

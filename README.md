@@ -349,7 +349,6 @@ The following tests are not yet implemented and therefore missing:
 
 **Mandatory Tests**
 
-- Mandatory Test 6.1.27.13
 - Mandatory Test 6.1.50
 
 **Recommended Tests**
@@ -359,7 +358,6 @@ The following tests are not yet implemented and therefore missing:
 - Recommended Test 6.2.31
 - Recommended Test 6.2.38
 - Recommended Test 6.2.39.1
-- Recommended Test 6.2.50.3
 - Recommended Test 6.2.51
 - Recommended Test 6.2.54.1
 - Recommended Test 6.2.54.2
@@ -550,6 +548,7 @@ export const recommendedTest_6_2_48: DocumentTest
 export const recommendedTest_6_2_49: DocumentTest
 export const recommendedTest_6_2_50_1: DocumentTest
 export const recommendedTest_6_2_50_2: DocumentTest
+export const recommendedTest_6_2_50_3: DocumentTest
 export const recommendedTest_6_2_52: DocumentTest
 export const recommendedTest_6_2_53: DocumentTest
 export const recommendedTest_6_2_54_3: DocumentTest
