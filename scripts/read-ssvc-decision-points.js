@@ -1,19 +1,12 @@
 /**
- * Script to read all SSVC decision points from github and create a json File with all defined decision points.
- *
- * Reads the current `main` branch of CERTCC/SSVC, so the output may change
- * when upstream changes. Can be run from any directory:
- *
- *   node scripts/read-ssvc-decision-points.js
+ * Script to read all SSVC decision points from github and create a json File with all defined decision points
  */
 
-import { writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import prettier from 'prettier'
-import {
-  noProductionUseSsvcNamespaces,
-  registeredSsvcNamespaces,
-} from '../csaf_2_1/shared/ssvcNamespaces.js'
+import { registeredSsvcNamespaces } from '../csaf_2_1/shared/ssvcNamespaces.js'
 
 const SSVC_DECISION_POINTS_PATH = 'data/json/decision_points'
 const SSVC_TREE_URL = `https://api.github.com/repos/CERTCC/SSVC/git/trees/main?recursive=1`
@@ -27,9 +20,12 @@ const NAMESPACE_TO_FOLDER = /** @type {Record<string,string>} */ ({
   nist: 'nist_800_30',
 })
 
+// Registered namespaces that must not be used in production
+const NO_PRODUCTION_USE_NAMESPACES = ['example', 'test']
+
 // Filter out reserved namespaces
 const CURRENT_DECISION_POINTS = registeredSsvcNamespaces
-  .filter((ns) => !noProductionUseSsvcNamespaces.includes(ns))
+  .filter((ns) => !NO_PRODUCTION_USE_NAMESPACES.includes(ns))
   .map((ns) => NAMESPACE_TO_FOLDER[ns] ?? ns)
 
 /**
@@ -98,6 +94,7 @@ points.sort((a, b) => {
 console.log(`Loaded ${points.length} decision points.`)
 const pointsJson =
   'export default ' + JSON.stringify({ decisionPoints: points })
+await mkdir(path.dirname(OUTPUT_FILE), { recursive: true })
 await writeFile(
   OUTPUT_FILE,
   await prettier.format(pointsJson, {
