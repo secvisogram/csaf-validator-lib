@@ -15,7 +15,11 @@ import { registerExtensionSchemas } from './csafAjv/extensionSchemas/index.js'
 
 import { validateTimestamp } from './dateHelper.js'
 
-const csafAjv = new Ajv2020({ strict: false, allErrors: true })
+const csafAjv = new Ajv2020({
+  strict: false,
+  allErrors: true,
+  multipleOfPrecision: 6,
+})
 addFormats.default(csafAjv)
 csafAjv.addMetaSchema(
   draft_07_schema,
