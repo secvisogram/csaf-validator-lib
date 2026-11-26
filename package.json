@@ -143,7 +143,7 @@
     "openpgp": "^6.3.3",
     "packageurl-js": "^2.0.1",
     "semver": "^7.5.4",
-    "temporal-polyfill": "^0.3.0",
+    "temporal-polyfill": "^1.0.6",
     "undici": "^6.23.0"
   },
   "devDependencies": {
