@@ -34,6 +34,20 @@ export const toTimeKey = (timestamp) => {
 }
 
 /**
+ * Converts a day-granular date ('yyyy-mm-dd') to the instant at the start of
+ * that day in UTC, so it can be used with `compareZonedDateTimes`.
+ *
+ * @param {string} localDateString
+ * @returns {string} the UTC instant representing the start of the given local date
+ */
+export const localDateToTimeZonedDate = (localDateString) => {
+  return Temporal.PlainDate.from(localDateString)
+    .toZonedDateTime('UTC')
+    .toInstant()
+    .toString()
+}
+
+/**
  * This regex validates a date against RFC 3339 section 5.6.
  * See: https://datatracker.ietf.org/doc/html/rfc3339#section-5.6
  */
