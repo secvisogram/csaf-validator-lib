@@ -84,6 +84,7 @@ export {
   informativeTest_6_3_15,
   informativeTest_6_3_17,
   informativeTest_6_3_18,
+  informativeTest_6_3_19_1,
   informativeTest_6_3_20,
   informativeTest_6_3_21_1,
   informativeTest_6_3_21_3,

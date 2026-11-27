@@ -285,7 +285,7 @@ function inRange(range, version) {
 export function createVersOverlapChecker() {
   /** @type {Map<string, Map<string, boolean>>} */
   const membership = new Map()
-  /** @type {Map<string, boolean>} */
+  /** @type {Map<string, Map<string, boolean>>} */
   const overlaps = new Map()
 
   /**
@@ -310,47 +310,77 @@ export function createVersOverlapChecker() {
     return result
   }
 
+  /** @type {Map<ParsedVers, string[]>} */
+  const candidatesByRange = new Map()
+
+  /** @param {ParsedVers} range */
+  const cachedCandidates = (range) => {
+    let candidates = candidatesByRange.get(range)
+    if (!candidates) {
+      candidates = candidateVersions(range)
+      candidatesByRange.set(range, candidates)
+    }
+    return candidates
+  }
+
   return (a, b) => {
-    const key = a <= b ? JSON.stringify([a, b]) : JSON.stringify([b, a])
-    let result = overlaps.get(key)
+    const [first, second] = a <= b ? [a, b] : [b, a]
+    let bySecond = overlaps.get(first)
+    if (!bySecond) {
+      bySecond = new Map()
+      overlaps.set(first, bySecond)
+    }
+    let result = bySecond.get(second)
     if (result === undefined) {
-      result = computeOverlap(a, b, cachedInRange)
-      overlaps.set(key, result)
+      result = computeOverlap(a, b, cachedInRange, cachedCandidates)
+      bySecond.set(second, result)
     }
     return result
   }
 }
 
 /**
+ * The versions to probe for a range: the lowest version of its scheme, every
+ * boundary and the gap behind every boundary.
+ *
+ * @param {ParsedVers} range
+ * @returns {string[]}
+ */
+function candidateVersions(range) {
+  const scheme = range.versioning_scheme
+  const start = lowest(scheme)
+  return [
+    ...new Set([
+      ...(start === undefined ? [] : [start]),
+      ...range.constraints.flatMap(({ version }) => {
+        try {
+          return [version, ...successor(scheme, version)]
+        } catch {
+          return [version]
+        }
+      }),
+    ]),
+  ]
+}
+
+/**
  * @param {string} a
  * @param {string} b
  * @param {(range: string, version: string) => boolean} contains
+ * @param {(range: ParsedVers) => string[]} [candidatesOf]
  * @returns {boolean}
  */
-function computeOverlap(a, b, contains) {
+function computeOverlap(a, b, contains, candidatesOf = candidateVersions) {
   const rangeA = parseVers(a)
   const rangeB = parseVers(b)
   if (!rangeA || !rangeB) return false
-  const scheme = rangeA.versioning_scheme
-  if (scheme !== rangeB.versioning_scheme) return false
+  if (rangeA.versioning_scheme !== rangeB.versioning_scheme) return false
 
-  const boundaries = [...rangeA.constraints, ...rangeB.constraints].map(
-    (c) => c.version
-  )
-  const start = lowest(scheme)
-  const candidates = new Set([
-    ...(start === undefined ? [] : [start]),
-    ...boundaries.flatMap((version) => {
-      try {
-        return [version, ...successor(scheme, version)]
-      } catch {
-        return [version]
-      }
-    }),
-  ])
-
-  return [...candidates].some(
-    (version) => contains(a, version) && contains(b, version)
+  // Own range first: its membership is cached per range, so the other range
+  // (a new WASM call per pair) is only asked for versions inside the own range.
+  return (
+    candidatesOf(rangeA).some((v) => contains(a, v) && contains(b, v)) ||
+    candidatesOf(rangeB).some((v) => contains(b, v) && contains(a, v))
   )
 }
 
