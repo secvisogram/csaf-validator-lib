@@ -140,51 +140,53 @@ export function recommendedTest_6_2_39_1(doc) {
     const productStatus = vulnerability.product_status ?? {}
     const remediations = vulnerability.remediations ?? []
 
-    const affectedProductIds = [
+    // A Set yields one warning per product and vulnerability.
+    const affectedProductIds = new Set([
       ...(productStatus.first_affected ?? []),
       ...(productStatus.known_affected ?? []),
       ...(productStatus.last_affected ?? []),
-    ]
+    ])
 
-    if (affectedProductIds.length === 0) return
+    if (affectedProductIds.size === 0) return
 
     const fixedProductIds = [
       ...(productStatus.fixed ?? []),
       ...(productStatus.first_fixed ?? []),
     ]
-    // We only care about fixed products that are actually listed in the branch tree,
-    // because if no branch info is available we fall back to "any fixed product exists" which is a more lenient check.
+    // Product lines are only known for branch leaves. Products without branch
+    // info are matched leniently: on either side, any fixed product suffices.
     /** @type {Set<string>} */
     const fixedProductLines = new Set()
+    let hasFixedWithoutBranchInfo = false
     for (const fixedId of fixedProductIds) {
       const entry = productBranchMap.get(fixedId)
       if (entry !== undefined) {
         fixedProductLines.add(entry.productLine)
+      } else {
+        hasFixedWithoutBranchInfo = true
       }
     }
 
-    affectedProductIds.forEach((productId) => {
+    for (const productId of affectedProductIds) {
       const affectedEntry = productBranchMap.get(productId)
 
       const fixedVersionExists =
         affectedEntry !== undefined
-          ? fixedProductLines.has(affectedEntry.productLine)
+          ? hasFixedWithoutBranchInfo ||
+            fixedProductLines.has(affectedEntry.productLine)
           : fixedProductIds.length > 0
 
-      if (fixedVersionExists) return
+      if (fixedVersionExists) continue
 
-      // Collect all remediations that apply to the affected product, either directly via product_ids or indirectly via group_ids.
-      // If no product_ids or group_ids are given, the remediation applies to all products.
-      const productRemediations = remediations.filter((remediation) => {
-        if (remediation.product_ids?.includes(productId)) return true
-
-        const matchesGroup = remediation.group_ids?.some((gid) =>
-          productGroupMap.get(gid)?.has(productId)
-        )
-        if (matchesGroup) return true
-
-        return !remediation.product_ids && !remediation.group_ids
-      })
+      // Remediations applying to the product via product_ids or group_ids
+      // (those without references are invalid, see 6.1.29, and ignored).
+      const productRemediations = remediations.filter(
+        (remediation) =>
+          remediation.product_ids?.includes(productId) ||
+          remediation.group_ids?.some((gid) =>
+            productGroupMap.get(gid)?.has(productId)
+          )
+      )
 
       const hasSkipIndicator = productRemediations.some((remediation) =>
         SKIP_CATEGORIES.has(remediation.category)
@@ -200,42 +202,41 @@ export function recommendedTest_6_2_39_1(doc) {
           affectedEntry?.branchCategory === 'product_version_range' &&
           hasLessThanComparator(affectedEntry.name)
 
-        if (!(hasVendorFix && hasStrictRange)) return
+        if (!(hasVendorFix && hasStrictRange)) continue
       }
 
       ctx.warnings.push({
         instancePath: `/vulnerabilities/${vulnIndex}/product_status`,
         message: `Product "${productId}" is listed as affected but has no corresponding fixed product in the same vulnerability.`,
       })
-    })
+    }
   })
 
   return ctx
 }
 
 /**
- * Returns true if the version range name has a strict `<` comparator as the
- * last version constraint.  Handles both:
- *  - vls  e.g. "<4.2", ">=2.0|<5.0"
- *  - vers e.g. "vers:npm/>=2.0.0|<5.0.0"
+ * Returns true if the last constraint of a version range is a strict `<`.
+ * Handles vls ("<4.2", ">=2.0|<5.0") and vers ("vers:npm/>=2.0.0|<5.0.0").
  *
  * @param {string} name
  * @returns {boolean}
  */
 function hasLessThanComparator(name) {
-  const versionPart = name.includes('/')
-    ? name.slice(name.indexOf('/') + 1)
-    : name
-  const lastConstraint = versionPart.split('|').at(-1)?.trim() ?? ''
+  const versionPart =
+    name.startsWith('vers:') && name.includes('/')
+      ? name.slice(name.indexOf('/') + 1)
+      : name
+  const lastConstraint = versionPart
+    .slice(versionPart.lastIndexOf('|') + 1)
+    .trim()
   return lastConstraint.startsWith('<') && !lastConstraint.startsWith('<=')
 }
 
 /**
- * Recursively walks a branch and populates the map with the immediate branch
- * category and name for every leaf product (i.e. the branch that carries the
- * `product` object). The productLine is constructed as the concatenation of
- * all parent branches with category and name, separated by "|". This allows
- * to check if a fixed product is in the same product line as the affected product.
+ * Maps each leaf product to its branch category, name and product line (the
+ * "|"-joined category:name chain of its ancestors). A "corresponding version"
+ * must have the exact same product line; versions are not compared.
  *
  * @param {Branch} branch
  * @param {Map<string, { branchCategory: string; name: string; productLine: string }>} map

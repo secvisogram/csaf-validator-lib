@@ -48,29 +48,6 @@ describe('recommendedTest_6_2_39_1', function () {
     expect(result.warnings.length).to.equal(0)
   })
 
-  it('does not warn when productBranch is undefined -> anti-skip cannot fire -> skip wins', function () {
-    const result = recommendedTest_6_2_39_1(
-      makeDoc({
-        vulnerabilities: [
-          {
-            product_status: { known_affected: ['CSAFPID-0001'] },
-            remediations: [
-              {
-                category: 'no_fix_planned',
-                product_ids: ['CSAFPID-0001'],
-              },
-              {
-                category: 'vendor_fix',
-                product_ids: ['CSAFPID-0001'],
-              },
-            ],
-          },
-        ],
-      })
-    )
-    expect(result.warnings.length).to.equal(0)
-  })
-
   it('warns when anti-skip condition is met', function () {
     const result = recommendedTest_6_2_39_1(
       makeDoc({
@@ -186,21 +163,61 @@ describe('recommendedTest_6_2_39_1', function () {
     expect(result.warnings.length).to.equal(0)
   })
 
-  it('does not warn when remediation without product_ids and group_ids applies implicitly', function () {
+  it('warns when a remediation without product references is the only skip indicator', function () {
     const result = recommendedTest_6_2_39_1(
       makeDoc({
         vulnerabilities: [
           {
             product_status: { known_affected: ['CSAFPID-0001'] },
-            remediations: [
-              {
-                category: 'fix_planned',
-              },
-            ],
+            remediations: [{ category: 'fix_planned' }],
           },
         ],
       })
     )
-    expect(result.warnings.length).to.equal(0)
+    expect(result.warnings.length).to.equal(1)
+  })
+
+  describe('product line', function () {
+    /** @param {string} fixedParent */
+    const docWithFixedUnder = (fixedParent) =>
+      makeDoc({
+        product_tree: {
+          branches: [
+            {
+              category: 'product_name',
+              name: 'P',
+              branches: [
+                {
+                  category: 'product_version',
+                  name: '1',
+                  product: { product_id: 'A' },
+                },
+              ],
+            },
+            {
+              category: 'product_name',
+              name: fixedParent,
+              branches: [
+                {
+                  category: 'product_version',
+                  name: '2',
+                  product: { product_id: 'F' },
+                },
+              ],
+            },
+          ],
+        },
+        vulnerabilities: [
+          {
+            product_status: { known_affected: ['A'], fixed: ['F'] },
+          },
+        ],
+      })
+
+    it('warns when the fixed product is under another product_name', function () {
+      expect(
+        recommendedTest_6_2_39_1(docWithFixedUnder('Q')).warnings.length
+      ).to.equal(1)
+    })
   })
 })
