@@ -67,6 +67,11 @@ const inputSchema = /** @type {const} */ ({
 
 const validateInput = ajv.compile(inputSchema)
 
+// Turning the products of a metric into a Set costs about as much as 30
+// searches in that list, so it is only done for vulnerabilities with at least
+// this many fixed products.
+const MIN_FIXED_PRODUCTS_FOR_SET = 32
+
 /**
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof vulnerabilitySchema>} Vulnerability
  * @typedef {import('ajv/dist/core.js').JTDDataType<typeof metricSchema>} Metric
@@ -92,10 +97,21 @@ export function recommendedTest_6_2_19(doc) {
       ...(vulnerability.product_status?.first_fixed ?? []),
       ...(vulnerability.product_status?.fixed ?? []),
     ])
+    // The products of a metric and the outcome of its CVSS checks are the same
+    // for every fixed product, so both are determined once per metric.
+    const useSets = fixedProductIDs.size >= MIN_FIXED_PRODUCTS_FOR_SET
+    /** @type {Array<{ productIDs?: Set<string>; cvssTypes?: Array<keyof MetricContent> }>} */
+    const metricInfos = []
     for (const productID of fixedProductIDs) {
       const /** @type {Metric[] | undefined} */ metrics = vulnerability.metrics
       metrics?.forEach((metric, metricIndex) => {
-        if (metric.products?.includes(productID)) {
+        const metricInfo = (metricInfos[metricIndex] ??= useSets
+          ? { productIDs: new Set(metric.products) }
+          : {})
+        const isListed = metricInfo.productIDs
+          ? metricInfo.productIDs.has(productID)
+          : metric.products?.includes(productID)
+        if (isListed) {
           const content = metric.content
           if (content !== undefined) {
             const cvssTypes = /** @type {Array<keyof MetricContent>} */ ([
@@ -103,16 +119,16 @@ export function recommendedTest_6_2_19(doc) {
               'cvss_v3',
               'cvss_v2',
             ])
-            cvssTypes.forEach((cvssType) => {
-              if (
+            metricInfo.cvssTypes ??= cvssTypes.filter(
+              (cvssType) =>
                 content[cvssType] &&
                 checkCVSS(/** @type {Cvss} */ (content[cvssType]))
-              ) {
-                ctx.warnings.push({
-                  instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/${cvssType}`,
-                  message: `environmental score should be 0 since "${productID}" is listed as fixed`,
-                })
-              }
+            )
+            metricInfo.cvssTypes.forEach((cvssType) => {
+              ctx.warnings.push({
+                instancePath: `/vulnerabilities/${vulnerabilityIndex}/metrics/${metricIndex}/${cvssType}`,
+                message: `environmental score should be 0 since "${productID}" is listed as fixed`,
+              })
             })
           }
         }
