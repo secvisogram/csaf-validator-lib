@@ -52,6 +52,8 @@ export function recommendedTest_6_2_3(doc) {
 
   doc.vulnerabilities?.forEach((vulnerability, vulnerabilityIndex) => {
     const productStatus = vulnerability.product_status
+    /** @type {Set<string> | undefined} */
+    let productIdsWithMetric
     const lists = /** @type {const} */ ([
       'first_affected',
       'known_affected',
@@ -60,9 +62,10 @@ export function recommendedTest_6_2_3(doc) {
     lists.forEach((listID) => {
       const listOfProductIDs = productStatus[listID]
       listOfProductIDs?.forEach((productID, productIDIndex) => {
-        const hasMatchingMetric = vulnerability.metrics?.some((metric) =>
-          metric.products?.includes(productID)
+        productIdsWithMetric ??= new Set(
+          vulnerability.metrics?.flatMap((metric) => metric.products ?? [])
         )
+        const hasMatchingMetric = productIdsWithMetric.has(productID)
         if (!hasMatchingMetric) {
           context.warnings.push({
             message: 'missing metric',
